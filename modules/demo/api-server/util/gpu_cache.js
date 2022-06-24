@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {Bool8, Utf8String, Int32, Int64, DataFrame, StringSeries, Series, Float32, Float64} =
+const {Bool8, Utf8String, Int32, Int64, DataFrame, Series, Float32, Float64} =
   require('@rapidsai/cudf');
 
 let timeout  = -1;
