@@ -236,10 +236,11 @@ module.exports = async function(fastify, opts) {
         const x = df.get('x');
         const y = df.get('y');
 
-        result.bounds =
-          {xmin: x._col.min(), xmax: x._col.max(), ymin: y._col.min(), ymax: y._col.max()};
-        result.message = 'Success';
-        result.success = true;
+        const [xmin, xmax] = x.minmax();
+        const [ymin, ymax] = y.minmax();
+        result.bounds      = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
+        result.message     = 'Success';
+        result.success     = true;
         reply.code(200).send(result);
       }
     }
@@ -317,12 +318,12 @@ module.exports = async function(fastify, opts) {
         const ratio        = Math.max(xMax - xMin, yMax - yMin);
         const dX           = (xMax + xMin) / 2.0;
         const dY           = (yMax + yMin) / 2.0;
-        x                  = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y                  = y._col.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
-        const source_xmap  = x.gather(source._col.cast(new Int32));
-        const source_ymap  = y.gather(source._col.cast(new Int32));
-        const target_xmap  = x.gather(target._col.cast(new Int32));
-        const target_ymap  = y.gather(target._col.cast(new Int32));
+        x                  = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y                  = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        const source_xmap  = x.gather(source.cast(new Int32));
+        const source_ymap  = y.gather(source.cast(new Int32));
+        const target_xmap  = x.gather(target.cast(new Int32));
+        const target_ymap  = y.gather(target.cast(new Int32));
         const color        = Series.new(['#999'])
                         .hexToIntegers(new Int32)
                         .bitwiseOr(0xff000000)

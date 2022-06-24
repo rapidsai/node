@@ -29,7 +29,7 @@ function json_key_attributes_to_dataframe(str) {
   const no_open_list = str.split('[\n').gather([1], false);
   const tokenized    = no_open_list.split('},');
   columns.forEach((col, ix) => {
-    const parse_result = tokenized._col.getJSONObject('.attributes.' + columns[ix]);
+    const parse_result = tokenized.getJSONObject('.attributes.' + columns[ix]);
     const string_array = Series.new(parse_result);
     arr[col]           = string_array.cast(dtypes[ix]);
   });
@@ -42,7 +42,7 @@ function json_aos_to_dataframe(str, columns, dtypes) {
   columns.forEach((col, ix) => {
     const no_open_list = str.split('[\n').gather([1], false);
     const tokenized    = no_open_list.split('},');
-    const parse_result = tokenized._col.getJSONObject('.' + columns[ix]);
+    const parse_result = tokenized.getJSONObject('.' + columns[ix]);
     arr[col]           = Series.new(parse_result).cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
@@ -55,7 +55,7 @@ function json_aoa_to_dataframe(str, dtypes) {
   const tokenized    = no_open_list.split('],');
   dtypes.forEach((_, ix) => {
     const get_ix       = `[${ix}]`;
-    const parse_result = tokenized._col.getJSONObject(get_ix);
+    const parse_result = tokenized.getJSONObject(get_ix);
     const string_array = Series.new(parse_result);
     arr[ix]            = string_array.cast(dtypes[ix]);
   });
@@ -101,9 +101,9 @@ module.exports = {
     const edges  = json_aos_to_dataframe(
       tedges, ['key', 'source', 'target'], [new Utf8String, new Int32, new Int32]);
     let optionsArr               = {};
-    optionsArr['type']           = Series.new(toptions._col.getJSONObject('.type'));
-    optionsArr['multi']          = Series.new(toptions._col.getJSONObject('.multi'));
-    optionsArr['allowSelfLoops'] = Series.new(toptions._col.getJSONObject('.allowSelfLoops'));
+    optionsArr['type']           = Series.new(toptions.getJSONObject('.type'));
+    optionsArr['multi']          = Series.new(toptions.getJSONObject('.multi'));
+    optionsArr['allowSelfLoops'] = Series.new(toptions.getJSONObject('.allowSelfLoops'));
     const options                = new DataFrame(optionsArr);
     return {nodes: nodes, edges: edges, options: options};
   },

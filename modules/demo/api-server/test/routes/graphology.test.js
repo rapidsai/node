@@ -158,7 +158,8 @@ test('get_table', async (t) => {
     url: '/graphology/get_table/nodes',
     header: {'accepts': 'application/octet-stream'}
   });
-  const table = tableFromIPC(res.rawPayload);
+  t.same(res.statusCode, 200);
+  const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
   t.same(table.schema.names, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score']);
   t.equal(table.numRows, 2);
@@ -175,7 +176,8 @@ test('get_column', async (t) => {
     url: '/graphology/get_column/nodes/score',
     header: {'accepts': 'application/octet-stream'}
   });
-  const table = tableFromIPC(res.rawPayload);
+  t.same(res.statusCode, 200);
+  const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
   t.same(table.schema.names, ['score']);
   t.equal(table.numRows, 2);
@@ -190,7 +192,8 @@ test('nodes', async (t) => {
   const load =
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
-    {method: 'GET', url: '/graphology/nodes/', headers: {'accepts': 'application/octet-stream'}});
+    {method: 'GET', url: '/graphology/nodes', headers: {'accepts': 'application/octet-stream'}});
+  t.same(res.statusCode, 200);
   const table = tableFromIPC(res.rawPayload);
   t.ok(table.getChild('nodes'));
   t.same(table.getChild('nodes').toArray(), new Float32Array([
