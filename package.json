@@ -99,7 +99,7 @@
       "post-commit": [],
       "post-checkout": [],
       "post-merge": [
-        "git update-index --assume-unchanged .creds"
+        "git update-index --skip-worktree .creds"
       ]
     }
   },
