@@ -26,12 +26,17 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
-      - name: Checkout node
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+      - name: Checkout
         uses: actions/checkout@v2
         with:
           lfs: true
           fetch-depth: 2
-      - name: Checkout node LFS
+      - name: Checkout LFS
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
@@ -76,6 +81,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -133,6 +143,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -180,6 +195,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -228,6 +248,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -276,6 +301,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -324,6 +354,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -372,6 +407,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -420,6 +460,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -468,6 +513,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -516,6 +566,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -563,6 +618,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
       - name: Checkout
         uses: actions/checkout@v2
         with:

@@ -20,6 +20,11 @@ jobs:
       RAPIDS: "22.06.00"
       REPOSITORY: "ghcr.io/rapidsai/node"
     steps:
+      - name: Install utilities
+        if: runner.name != 'ubuntu-20.04'
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -78,7 +83,7 @@ jobs:
             node_modules
 
       - name: Free up disk space
-        if: runner.name != 'ubuntu-20.04' && (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') && steps.devel_dockerfiles_changed.outputs.any_changed != 'true'
+        if: runner.name == 'ubuntu-20.04' && (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') && steps.devel_dockerfiles_changed.outputs.any_changed != 'true'
         run: |
           df -h
           docker images
