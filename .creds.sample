@@ -1,8 +1,8 @@
 # Optional AWS access id for writing to the shared sccache S3 bucket
-# AWS_ACCESS_KEY_ID=<AWS Access Key Id>
+AWS_ACCESS_KEY_ID=<AWS Access Key Id>
 
 # Optional AWS secret key for writing to the shared sccache S3 bucket
-# AWS_SECRET_ACCESS_KEY=<AWS Secret Key>
+AWS_SECRET_ACCESS_KEY=<AWS Secret Key>
 
 # GitHub personal access token for cloning private RAPIDS repos
-# RAPIDSAI_GITHUB_ACCESS_TOKEN=<GitHub Personal Access Token>
+RAPIDSAI_GITHUB_ACCESS_TOKEN=<GitHub Personal Access Token>
