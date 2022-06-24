@@ -8,11 +8,6 @@ on:
         required: true
         default: "rapisdai/node"
         description: "node-rapids repo to use"
-      branch-or-tag:
-        type: string
-        required: true
-        default: 'main'
-        description: "Branch or tag to checkout"
       rapids-version:
         type: string
         required: true
@@ -32,7 +27,7 @@ on:
 env:
   NODE: "18.2.0"
   RAPIDS: "${{ inputs.rapids-version }}"
-  REPOSITORY: "ghcr.io/rapidsai/node"
+  REPOSITORY: "ghcr.io/${{ inputs.repo }}"
 
 concurrency:
   group: create_github_release
@@ -45,56 +40,22 @@ jobs:
 
   build-extract-and-release-packages:
     name: Build, extract, and release packages
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
-        GPU_ARCH: [6_0, 7_0, 8_0, 8_6, ALL]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          lfs: true
-          fetch-depth: 2
-          repository: ${{ inputs.repo }}
-          ref: ${{ inputs.branch-or-tag }}
 
-      - name: Checkout LFS
-        run: git lfs checkout
-
-      - name: Build packages for GPU arch ${{ matrix.GPU_ARCH }}
-        uses: ./.github/actions/build-and-publish-image
-        with:
-          registry-url: ghcr.io
-          registry-username: ${{ github.repository_owner }}
-          registry-password: ${{ github.token }}
-          pull: true
-          push: false
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
-          file: dev/dockerfiles/devel/package.Dockerfile
-          tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }}
-          build-args: |
-            "CUDAARCHS=${{ matrix.GPU_ARCH }}-real"
-            "PARALLEL_LEVEL=1"
-            "SCCACHE_IDLE_TIMEOUT=32768"
-            "SCCACHE_REGION=us-west-2"
-            "SCCACHE_BUCKET=node-rapids-sccache"
-            "RAPIDS_VERSION=${{ env.RAPIDS }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
-
-      - name: Extract packages for GPU arch ${{ matrix.GPU_ARCH }}
+      - name: Extract node native modules
         run: |
           mkdir -p build
           docker run --rm -v "$PWD/build:/out" \
-              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }} \
+              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
               sh -c "cp /opt/rapids/*.tgz /out/";
-          GPU_TAG="gpu$(echo "${{ matrix.GPU_ARCH }}" | tr '[:upper:]' '[:lower:]')";
-          VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-x86_64-${GPU_TAG}";
+          VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-x86_64";
           for x in cuda cudf cugraph cuml cuspatial io rmm sql; do
               tar -C build -zf build/rapidsai-$x-*.tgz --strip-components=3 -x package/build/Release/rapidsai_$x.node;
               mv build/rapidsai_$x.node build/rapidsai_$x-${VER_TAG}.node;

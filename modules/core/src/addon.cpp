@@ -45,7 +45,7 @@ struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cor
       for (uint32_t device_index{0}; device_index < device_count; ++device_index) {
         if (nvmlDeviceGetHandleByIndex_v2(device_index, &device) == NVML_SUCCESS &&
             nvmlDeviceGetCudaComputeCapability(device, &major, &minor) == NVML_SUCCESS) {
-          archs[arch_index++] = std::to_string(major) + '_' + std::to_string(minor);
+          archs[arch_index++] = std::to_string(major) + std::to_string(minor);
         }
       }
       auto ary   = Napi::Array::New(env, arch_index);
