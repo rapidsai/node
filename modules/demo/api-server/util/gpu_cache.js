@@ -110,7 +110,7 @@ module.exports = {
 
   async readGraphology(path) {
     console.log('readGraphology');
-    const dataset = StringSeries.readText(path, '');
+    const dataset = Series.readText(path, '');
     if (dataset.length == 0) { throw 'File does not exist or is empty.' }
     let split = dataset.split('"tags":');
     if (split.length <= 1) { throw 'Bad graphology format: tags not found.'; }
