@@ -86,7 +86,7 @@ runs:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx context
-      id: buildx-context
+      shell: bash
       run: |
         docker context create builders
     - name: Set up Docker Buildx
