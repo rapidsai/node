@@ -27,7 +27,6 @@
     "cpp:reconfigure": "scripts/exec.js run cpp:reconfigure --concurrency 1",
     "cpp:reconfigure:debug": "scripts/exec.js run cpp:reconfigure:debug --concurrency 1",
     "demo": "scripts/exec.js demo",
-    "dev:copy:libs": "scripts/exec.js run dev:copy:libs",
     "dev:install-cpp-dependencies": "modules/core/bin/exec_install_deps.js",
     "dev:npm:pack": "scripts/exec.js npm-pack",
     "dev:relink-bin-dirs": "scripts/exec.js relink-bin-dirs",
