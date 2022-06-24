@@ -39,7 +39,7 @@ include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/addon.cpp")
+file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/addon.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_RAPIDS_CORE_SRC_FILES} ${CMAKE_JS_SRC})
 
@@ -66,6 +66,9 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
+
+target_link_libraries(${PROJECT_NAME}
+              PRIVATE CUDA::nvml)
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

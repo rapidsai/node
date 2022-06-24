@@ -59,10 +59,12 @@
   "files": [
     "LICENSE",
     "bin",
-    "build/js",
     "cmake",
-    "include/nv_node",
     "index.js",
-    "package.json"
+    "package.json",
+    "CMakeLists.txt",
+    "include/nv_node",
+    "build/js",
+    "build/Release/*.node"
   ]
 }

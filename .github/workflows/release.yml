@@ -51,7 +51,7 @@ jobs:
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
-        GPU_ARCH: [60, 70, 80, 86, ALL]
+        GPU_ARCH: [6_0, 7_0, 8_0, 8_6, ALL]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
