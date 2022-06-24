@@ -85,9 +85,14 @@ runs:
         docker images
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx context
+      id: buildx-context
+      run: |
+        docker context create builders
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
       with:
+        endpoint: builders
         buildkitd-flags: --debug
     - name: Login to container registry
       if: inputs.push == 'true'
