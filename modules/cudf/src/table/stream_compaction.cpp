@@ -32,7 +32,7 @@ Table::wrapper_t Table::apply_boolean_mask(Column const& boolean_mask,
                                            rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Table::wrapper_t Table::drop_nulls(std::vector<cudf::size_type> keys,
@@ -40,7 +40,7 @@ Table::wrapper_t Table::drop_nulls(std::vector<cudf::size_type> keys,
                                    rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::drop_nulls(*this, keys, threshold, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::drop_nulls(Napi::CallbackInfo const& info) {
@@ -53,7 +53,7 @@ Table::wrapper_t Table::drop_nans(std::vector<cudf::size_type> keys,
                                   rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::drop_nans(*this, keys, threshold, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::drop_nans(Napi::CallbackInfo const& info) {
@@ -70,12 +70,28 @@ Table::wrapper_t Table::unique(std::vector<cudf::size_type> keys,
 
   try {
     return Table::New(Env(), cudf::unique(*this, keys, keep, nulls_equal, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::unique(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   return unique(args[0], args[1], args[2], args[3]);
+}
+
+Table::wrapper_t Table::distinct(std::vector<cudf::size_type> keys,
+                                 bool is_nulls_equal,
+                                 rmm::mr::device_memory_resource* mr) const {
+  cudf::null_equality nulls_equal =
+    is_nulls_equal ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+
+  try {
+    return Table::New(Env(), cudf::distinct(*this, keys, nulls_equal, mr));
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
+}
+
+Napi::Value Table::distinct(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  return unique(args[0], args[1], args[2]);
 }
 
 }  // namespace nv

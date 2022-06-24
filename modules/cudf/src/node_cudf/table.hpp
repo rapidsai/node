@@ -227,6 +227,11 @@ struct Table : public EnvLocalObjectWrap<Table> {
     bool nulls_equal,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  Table::wrapper_t distinct(
+    std::vector<cudf::size_type> keys,
+    bool nulls_equal,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   cudf::size_type num_columns_{};  ///< The number of columns in the table
   cudf::size_type num_rows_{};     ///< The number of rows
@@ -269,6 +274,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
   Napi::Value unique(Napi::CallbackInfo const& info);
+  Napi::Value distinct(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   void write_csv(Napi::CallbackInfo const& info);
