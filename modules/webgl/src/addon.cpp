@@ -19,10 +19,6 @@
 
 #include <napi.h>
 
-std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
-  return os << self.operator std::string();
-};
-
 struct rapidsai_webgl : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_webgl> {
   rapidsai_webgl(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(

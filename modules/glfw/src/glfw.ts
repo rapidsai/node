@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {addon as CORE} from '@rapidsai/core';
+
 export const isHeadless = typeof process.env.DISPLAY === 'undefined' ? true : false;
 export const GLFW: any =
   require('bindings')(isHeadless ? 'rapidsai_glfw_eglheadless.node' : 'rapidsai_glfw_x11.node')
-    .init();
+    .init(CORE);
 
 export default GLFW;
 

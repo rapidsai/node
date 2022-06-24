@@ -20,10 +20,6 @@
 
 #include <nvml.h>
 
-std::ostream& operator<<(std::ostream& os, nv::NapiToCPP const& self) {
-  return os << self.operator std::string();
-};
-
 struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_core> {
   rapidsai_core(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     DefineAddon(

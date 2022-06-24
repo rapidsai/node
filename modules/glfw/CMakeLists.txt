@@ -35,6 +35,12 @@ execute_process(COMMAND node -p
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@rapidsai/core'))"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                OUTPUT_VARIABLE NODE_RAPIDS_CORE_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGL.cmake")
@@ -99,7 +105,8 @@ function(make_rapidsai_glfw_target VARIANT DEFINES)
     target_link_libraries(${PROJECT_NAME}_${VARIANT}
                  PUBLIC glfw::${VARIANT}
                         OpenGL::EGL
-                        OpenGL::OpenGL)
+                        OpenGL::OpenGL
+                        "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
 endfunction()
 
 make_rapidsai_glfw_target(x11 "-DGLFW_EXPOSE_NATIVE_X11")

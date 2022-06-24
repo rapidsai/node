@@ -14,6 +14,7 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
+import {addon as CORE} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
@@ -21,7 +22,7 @@ import {addon as RMM} from '@rapidsai/rmm';
 export const {
   Graph,
   _cpp_exports,
-} = require('bindings')('rapidsai_cugraph.node').init(CUDA, RMM, CUDF) as
+} = require('bindings')('rapidsai_cugraph.node').init(CORE, CUDA, RMM, CUDF) as
     typeof import('./node_cugraph');
 
 export type Graph = import('./node_cugraph').Graph;

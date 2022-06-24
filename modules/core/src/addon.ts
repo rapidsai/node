@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable @typescript-eslint/no-redeclare */
+let addon = {
+  _cpp_exports: null as any,
+  getComputeCapabilities() { return new Array<string>(); },
+};
 
-import {addon as CORE} from '@rapidsai/core';
-import {addon as CUDA} from '@rapidsai/cuda';
-import {addon as CUDF} from '@rapidsai/cudf';
-import {addon as RMM} from '@rapidsai/rmm';
+try {
+  addon = require('bindings')('rapidsai_core.node').init() as typeof addon;
+} catch {  //
+  /**/
+}
 
-export const {
-  _cpp_exports,
-  readLasTable,
-} = require('bindings')('rapidsai_io.node').init(CORE, CUDA, RMM, CUDF) as
-    typeof import('./rapidsai_io');
-
-export default {_cpp_exports, readLasTable};
+// eslint-disable-next-line @typescript-eslint/unbound-method
+export const {_cpp_exports, getComputeCapabilities} = addon;

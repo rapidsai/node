@@ -21,13 +21,5 @@ export const cmake_modules_path    = Path.resolve(modules_path, 'core', 'cmake',
 export const cpm_source_cache_path = Path.resolve(project_root_dir_path, '.cache', 'source');
 export const cpm_binary_cache_path = Path.resolve(project_root_dir_path, '.cache', 'binary');
 
-let addon = {getComputeCapabilities() { return new Array<string>(); }};
-
-try {
-  addon = require('bindings')('rapidsai_core.node').init() as typeof addon;
-} catch {  //
-  /**/
-}
-
-// eslint-disable-next-line @typescript-eslint/unbound-method
-export const {getComputeCapabilities} = addon;
+export {getComputeCapabilities} from './addon';
+export * as addon from './addon';
