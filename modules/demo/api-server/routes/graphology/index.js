@@ -303,8 +303,7 @@ module.exports = async function(fastify, opts) {
       } else {
         // tile x, y, size, color
         let tiled = Series.sequence({type: new Float32, init: 0.0, size: (6 * edges.numRows)});
-        let base_offset =
-          Series.sequence({type: new Int32, init: 0.0, size: edges.numRows})._col.mul(3);
+        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: edges.numRows}).mul(3);
         //
         // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
         // to let the Graph object compute it.
