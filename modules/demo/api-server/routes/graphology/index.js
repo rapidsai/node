@@ -22,10 +22,9 @@ const Stat                                                  = promisify(Fs.stat)
 const fastifyCors                                           = require('@fastify/cors');
 const fastify                                               = require('fastify');
 
-const arrowPlugin                                      = require('fastify-arrow');
-const gpu_cache                                        = require('../../util/gpu_cache.js');
-const {collapseTextChangeRangesAcrossMultipleVersions} = require('typescript');
-const root_schema                                      = require('../../util/schema.js');
+const arrowPlugin = require('fastify-arrow');
+const gpu_cache   = require('../../util/gpu_cache.js');
+const root_schema = require('../../util/schema.js');
 
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
