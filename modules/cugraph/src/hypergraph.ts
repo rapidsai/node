@@ -260,7 +260,7 @@ function _create_entity_nodes(events: DataFrame,
   }
   const nodes = new DataFrame()
                   .concat(...node_dfs)
-                  .dropDuplicates('first', true, [nodeId])
+                  .dropDuplicates('first', true, true, [nodeId])
                   .select(columns.concat([nodeId, nodeType, category]));
 
   return nodes;
