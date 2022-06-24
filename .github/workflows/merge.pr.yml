@@ -18,7 +18,8 @@ jobs:
 
   build-and-publish-devel-main-image:
     name: Build devel main image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -49,6 +50,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           file: dev/dockerfiles/devel/main.Dockerfile
@@ -66,7 +68,8 @@ jobs:
     needs:
       - build-and-publish-devel-main-image
     name: Build devel packages image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -101,6 +104,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
@@ -109,7 +113,7 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
             "CUDAARCHS=ALL"
-            "PARALLEL_LEVEL=1"
+            "PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
@@ -121,7 +125,8 @@ jobs:
       - build-and-publish-devel-main-image
       - build-and-publish-devel-packages-image
     name: Build runtime cuda-base image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -152,6 +157,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
@@ -166,7 +172,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cudf image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -199,6 +206,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
@@ -212,7 +220,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cugraph image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -245,6 +254,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/cugraph.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
@@ -258,7 +268,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuml image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -291,6 +302,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
@@ -304,7 +316,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuspatial image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -337,6 +350,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
@@ -350,7 +364,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime glfw image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -383,6 +398,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/glfw.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
@@ -396,7 +412,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime sql image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -429,6 +446,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/sql.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
@@ -442,7 +460,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime main image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -475,6 +494,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
@@ -488,7 +508,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime demo image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -521,6 +542,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/demo.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
@@ -533,7 +555,8 @@ jobs:
     needs:
       - build-and-publish-runtime-demo-image
     name: Build runtime notebook image
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -567,6 +590,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           file: dev/dockerfiles/runtime/notebook.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook

@@ -8,7 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -77,7 +78,7 @@ jobs:
             node_modules
 
       - name: Free up disk space
-        if: (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') && steps.devel_dockerfiles_changed.outputs.any_changed != 'true'
+        if: runner.name != 'ubuntu-20.04' && (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') && steps.devel_dockerfiles_changed.outputs.any_changed != 'true'
         run: |
           df -h
           docker images
@@ -103,6 +104,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: false
+          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           file: dev/dockerfiles/devel/main.Dockerfile
@@ -124,7 +126,7 @@ jobs:
           RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
         run: |
           echo "CUDAARCHS=ALL" >> .env
-          echo "PARALLEL_LEVEL=1" >> .env
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}" >> .env
           echo "REPOSITORY=${{ env.REPOSITORY }}" >> .env
           echo "NODE_VERSION=${{ env.NODE }}" >> .env
           echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env

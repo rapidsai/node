@@ -17,6 +17,10 @@ inputs:
     default: false
     required: false
     description: "Push the image to the container registry (default false)"
+  clean-first:
+    default: true
+    required: true
+    description: "Free up disk space before building image"
   platforms:
     default: "linux/amd64"
     required: false
@@ -62,6 +66,7 @@ runs:
   using: composite
   steps:
     - name: Free up disk space
+      if: inputs.clean-first
       shell: bash
       run: |
         df -h
@@ -85,7 +90,7 @@ runs:
       with:
         buildkitd-flags: --debug
     - name: Login to container registry
-      if: ${{ inputs.push == 'true' }}
+      if: inputs.push
       uses: docker/login-action@v1
       with:
         registry: ${{ inputs.registry-url }}
