@@ -9,7 +9,7 @@ WORKDIR /home/node
 
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-       /tmp/rapids/wrtc-0.4.7-dev.tgz   \
+       /tmp/rapids/wrtc-dev.tgz         \
        /tmp/rapids/rapidsai-core-*.tgz  \
        /tmp/rapids/rapidsai-glfw-*.tgz  \
        /tmp/rapids/rapidsai-webgl-*.tgz ;

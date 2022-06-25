@@ -18,10 +18,10 @@ on:
         required: true
         default: false
         description: "Make Release"
-      release-type:
+      draft-release:
         type: boolean
         required: false
-        default: true
+        default: false
         description: "Draft Release"
 
 env:
@@ -55,28 +55,30 @@ jobs:
           docker run --rm -v "$PWD/build:/out" \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
               sh -c "cp /opt/rapids/*.tgz /out/";
-          VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-x86_64";
+          VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
           for x in cuda cudf cugraph cuml cuspatial io rmm sql; do
-              tar -C build -zf build/rapidsai-$x-*.tgz --strip-components=3 -x package/build/Release/rapidsai_$x.node;
+              tar -C build -z \
+                  -f build/rapidsai-$x-*.tgz \
+                  --strip-components=3 \
+                  -x package/build/Release/rapidsai_$x.node;
               mv build/rapidsai_$x.node build/rapidsai_$x-${VER_TAG}.node;
           done;
           rm -rf build/*.tgz;
 
       - name: Upload node native modules
         uses: actions/upload-artifact@v2
+        if: ${{ inputs.make-release != true }}
         with:
-          name: node-native-modules
           path: build/*.node
+          name: rapidsai-native-modules
 
       - name: Create GitHub release
-        if: ${{ inputs.make-release == 'true' }}
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
+        if: ${{ inputs.make-release == true }}
         with:
           body: ""
-          draft: ${{ inputs.release-type }}
+          files: build/*.node
           tag_name: "v${{ env.RAPIDS }}"
+          repository: ${{ inputs.repo }}
+          draft: ${{ inputs.draft-release == true }}
           token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
-          files: |
-            build/*.node

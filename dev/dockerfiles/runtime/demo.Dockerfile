@@ -9,7 +9,7 @@ WORKDIR /home/node
 
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-       /tmp/rapids/wrtc-0.4.7-dev.tgz       \
+       /tmp/rapids/wrtc-dev.tgz             \
        /tmp/rapids/rapidsai-core-*.tgz      \
        /tmp/rapids/rapidsai-cuda-*.tgz      \
        /tmp/rapids/rapidsai-glfw-*.tgz      \
@@ -20,7 +20,7 @@ RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
        /tmp/rapids/rapidsai-cuml-*.tgz      \
        /tmp/rapids/rapidsai-cugraph-*.tgz   \
        /tmp/rapids/rapidsai-cuspatial-*.tgz \
-       /tmp/rapids/rapidsai-io-*.tgz      \
+       /tmp/rapids/rapidsai-io-*.tgz        \
        /tmp/rapids/rapidsai-deck.gl-*.tgz   \
        /tmp/rapids/rapidsai-jsdom-*.tgz     \
        /tmp/rapids/rapidsai-demo-*.tgz      ;

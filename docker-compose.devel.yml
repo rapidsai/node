@@ -57,18 +57,19 @@ services:
   main:
     <<: *main_service_settings
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+    secrets:
+      - sccache_credentials
     build:
       <<: *base_build_settings
-      secrets:
-        - sccache_credentials
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION:-18.2.0}
-        AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
-        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
+        LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         SCCACHE_REGION: "${SCCACHE_REGION:-}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"
+        AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
+        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
 
   packages:
     <<: *base_service_settings
