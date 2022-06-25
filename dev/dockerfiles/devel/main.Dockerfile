@@ -230,9 +230,15 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Install UCX
- && wget -O /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
-    https://github.com/openucx/ucx/releases/download/v${UCX_VERSION}/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
- && dpkg -i /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb || true && apt --fix-broken install -y \
+ && git clone --depth 1 --branch v${UCX_VERSION} https://github.com/openucx/ucx.git /tmp/ucx \
+ && cd /tmp/ucx \
+ && sed -i 's/io_demo_LDADD =/io_demo_LDADD = $(CUDA_LDFLAGS)/' /tmp/ucx/test/apps/iodemo/Makefile.am \
+ && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
+ && ../contrib/configure-release \
+    --prefix=/usr/local \
+    --without-java --with-cuda=/usr/local/cuda \
+    --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
+ && make -C /tmp/ucx/build -j install \
  \
  # Install fixuid
  && curl -SsL "https://github.com/boxboat/fixuid/releases/download/v$FIXUID_VERSION/fixuid-$FIXUID_VERSION-linux-${TARGETARCH}.tar.gz" \
