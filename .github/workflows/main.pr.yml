@@ -80,6 +80,7 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
 
       - name: Update runner env
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
         env:
           CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ matrix.LINUX }}"
@@ -100,9 +101,9 @@ jobs:
           echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
           echo "\
           -u $(id -u):$(id -g) \
-          -v $(pwd)/.yarn:/.yarn:rw \
-          -v $(pwd)/.cache:/.cache:rw \
-          -v $(pwd)/node:/opt/rapids/node:rw \
+          -v ${GITHUB_WORKSPACE}/.yarn:/.yarn:rw \
+          -v ${GITHUB_WORKSPACE}/.cache:/.cache:rw \
+          -v ${GITHUB_WORKSPACE}/node:/opt/rapids/node:rw \
           --env-file ${{ runner.temp }}/.env \
           " >> $GITHUB_ENV;
           echo "EOF" >> $GITHUB_ENV;
