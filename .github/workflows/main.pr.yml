@@ -23,6 +23,7 @@ jobs:
     env:
       NODE: "18.2.0"
       RAPIDS: "22.06.00"
+      REGISTRY: "ghcr.io"
     steps:
       - name: Install utilities
         env:
@@ -80,7 +81,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
 
       - name: Update runner env
-        working-directory: ${{ env.GITHUB_WORKSPACE }}
         env:
           CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ matrix.LINUX }}"
@@ -94,16 +94,13 @@ jobs:
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
           echo "is_gha_runner=${is_gha_runner}" >> $GITHUB_ENV;
-
-          [[ ${dev_changed} == 0 && ${src_changed} == 0 ]] && REGISTRY="ghcr.io" || REGISTRY="localhost:5000";
           echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA}-${LINUX}-main" >> $GITHUB_ENV;
-
           echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
           echo "\
           -u $(id -u):$(id -g) \
-          -v ${GITHUB_WORKSPACE}/.yarn:/.yarn:rw \
-          -v ${GITHUB_WORKSPACE}/.cache:/.cache:rw \
-          -v ${GITHUB_WORKSPACE}/node:/opt/rapids/node:rw \
+          -v $(pwd)/.yarn:/.yarn:rw \
+          -v $(pwd)/.cache:/.cache:rw \
+          -v $(pwd)/node:/opt/rapids/node:rw \
           --env-file ${{ runner.temp }}/.env \
           " >> $GITHUB_ENV;
           echo "EOF" >> $GITHUB_ENV;
@@ -146,28 +143,6 @@ jobs:
           df -h
           docker images
 
-      - name: Build devel main image
-        if: env.dev_changed == 'true' && env.src_changed == 'true'
-        uses: ./node/.github/actions/build-and-publish-image
-        with:
-          context: node
-          registry-url: ghcr.io
-          registry-username: ${{ github.repository_owner }}
-          registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          temp: ${{ runner.temp }}
-          buildx-driver-opts: network=host
-          clean-first: ${{ env.is_gha_runner == 'true' }}
-          file: node/dev/dockerfiles/devel/main.Dockerfile
-          tags: |
-            ${{ env.MAIN_IMG }}
-          build-args: |
-            "NODE_VERSION=${{ env.NODE }}"
-            "LINUX_VERSION=${{ env.LINUX }}"
-            "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
-            "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
-
       - name: Make container .env
         if: env.src_changed == 'true'
         shell: bash
@@ -182,24 +157,22 @@ jobs:
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
           EOF
 
-      - name: yarn install
-        if: env.src_changed == 'true'
+      - name: Build and lint
+        if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          docker run --rm -t ${RUN_ARGS} ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline';
-
-      - name: Lint source files
-        if: env.src_changed == 'true'
-        shell: bash
-        run: |
-          docker run --rm -t ${RUN_ARGS} ${MAIN_IMG} bash -c 'set -ex; yarn lint:ci';
-
-      - name: Build packages
-        if: env.src_changed == 'true'
-        shell: bash
-        run: |
-          docker run --rm -t ${RUN_ARGS} \
-            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -e RAPIDSAI_GITHUB_ACCESS_TOKEN="${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}" \
-            ${MAIN_IMG} bash -c 'set -ex; yarn build';
+          if [[ ${dev_changed} == 'true' ]]; then
+            docker build --pull --force-rm \
+              --build-arg NODE_VERSION="${{ env.NODE }}" \
+              --build-arg LINUX_VERSION="${{ env.LINUX }}" \
+              --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
+              --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
+              -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
+          fi
+          if [[ ${src_changed} == 'true' ]]; then
+            docker run --rm -t ${RUN_ARGS} \
+              -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e RAPIDSAI_GITHUB_ACCESS_TOKEN="${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}" \
+              ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline && yarn lint:ci && yarn build;';
+          fi
