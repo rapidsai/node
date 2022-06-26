@@ -23,9 +23,10 @@ jobs:
     env:
       NODE: "18.2.0"
       RAPIDS: "22.06.00"
-      is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
     steps:
       - name: Install utilities
+        env:
+          is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
         if: env.is_gha_runner == 0
         shell: bash
         run: |
@@ -82,6 +83,7 @@ jobs:
         env:
           CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ matrix.LINUX }}"
+          is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
           dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
           src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
         shell: bash
@@ -90,6 +92,7 @@ jobs:
           echo "LINUX=${LINUX}" >> $GITHUB_ENV;
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${is_gha_runner}" >> $GITHUB_ENV;
 
           [[ ${dev_changed} == 0 && ${src_changed} == 0 ]] && REGISTRY="ghcr.io" || REGISTRY="localhost:5000";
           echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA}-${LINUX}-main" >> $GITHUB_ENV;
