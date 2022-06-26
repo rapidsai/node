@@ -40,7 +40,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             dev/dockerfiles/devel/main\.Dockerfile
@@ -96,7 +96,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -159,7 +159,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             dev/dockerfiles/runtime/base\.Dockerfile
@@ -212,7 +212,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -266,7 +266,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -320,7 +320,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -374,7 +374,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -428,7 +428,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -482,7 +482,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -536,7 +536,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -590,7 +590,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
@@ -643,7 +643,7 @@ jobs:
         run: git lfs checkout
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        uses: tj-actions/changed-files@v23.1
         with:
           files: |
             \.npmrc
