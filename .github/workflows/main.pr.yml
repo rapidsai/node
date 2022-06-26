@@ -158,7 +158,7 @@ jobs:
           temp: ${{ runner.temp }}
           buildx-driver-opts: network=host
           clean-first: ${{ env.is_gha_runner == 'true' }}
-          file: dev/dockerfiles/devel/main.Dockerfile
+          file: node/dev/dockerfiles/devel/main.Dockerfile
           tags: |
             ${{ env.MAIN_IMG }}
           build-args: |
