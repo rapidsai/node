@@ -27,7 +27,7 @@ jobs:
       - name: Install utilities
         env:
           is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
-        if: env.is_gha_runner == 0
+        if: env.is_gha_runner == '0'
         shell: bash
         run: |
           sudo apt update
@@ -108,7 +108,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV;
 
       - name: Cache C++ dependencies
-        if: env.dev_changed == 1 || env.src_changed == 1
+        if: env.dev_changed == '1' || env.src_changed == '1'
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
@@ -117,7 +117,7 @@ jobs:
             node/.cache/source
 
       - name: Cache node_modules
-        if: env.dev_changed == 1 || env.src_changed == 1
+        if: env.dev_changed == '1' || env.src_changed == '1'
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
@@ -127,7 +127,7 @@ jobs:
             node/node_modules
 
       - name: Free up disk space
-        if: env.is_gha_runner == 1 && (env.dev_changed == 1 || env.src_changed == 1)
+        if: env.is_gha_runner == '1' && (env.dev_changed == '1' || env.src_changed == '1')
         shell: bash
         run: |
           df -h
@@ -146,7 +146,7 @@ jobs:
           docker images
 
       - name: Build devel main image
-        if: env.dev_changed == 1 && env.src_changed == 1
+        if: env.dev_changed == '1' && env.src_changed == '1'
         uses: ./.github/actions/build-and-publish-image
         with:
           context: node
@@ -157,7 +157,7 @@ jobs:
           push: true
           temp: ${{ runner.temp }}
           buildx-driver-opts: network=host
-          clean-first: ${{ env.is_gha_runner == 1 }}
+          clean-first: ${{ env.is_gha_runner == '1' }}
           file: dev/dockerfiles/devel/main.Dockerfile
           tags: |
             ${{ env.MAIN_IMG }}
@@ -168,7 +168,7 @@ jobs:
             "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
 
       - name: Make container .env
-        if: env.src_changed == 1
+        if: env.src_changed == '1'
         shell: bash
         run: |
           cat << EOF > "${{ runner.temp }}/.env"
@@ -182,19 +182,19 @@ jobs:
           EOF
 
       - name: yarn install
-        if: env.src_changed == 1
+        if: env.src_changed == '1'
         shell: bash
         run: |
           docker run --rm -t ${RUN_ARGS} ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline';
 
       - name: Lint source files
-        if: env.src_changed == 1
+        if: env.src_changed == '1'
         shell: bash
         run: |
           docker run --rm -t ${RUN_ARGS} ${MAIN_IMG} bash -c 'set -ex; yarn lint:ci';
 
       - name: Build packages
-        if: env.src_changed == 1
+        if: env.src_changed == '1'
         shell: bash
         run: |
           docker run --rm -t ${RUN_ARGS} \
