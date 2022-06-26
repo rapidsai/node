@@ -162,9 +162,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${dev_changed} == 'true' ]]; then
-            DOCKER_BUILDKIT=1 docker \
+            DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
-            build --pull --force-rm \
+            docker build --pull --force-rm \
               --build-arg NODE_VERSION="${{ env.NODE }}" \
               --build-arg LINUX_VERSION="${{ env.LINUX }}" \
               --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
