@@ -147,7 +147,7 @@ jobs:
 
       - name: Build devel main image
         if: env.dev_changed == 'true' && env.src_changed == 'true'
-        uses: ./.github/actions/build-and-publish-image
+        uses: ./node/.github/actions/build-and-publish-image
         with:
           context: node
           registry-url: ghcr.io
