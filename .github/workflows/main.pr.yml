@@ -35,9 +35,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        path: node
         with:
           lfs: true
+          path: node
           fetch-depth: 0
 
       - name: Checkout LFS
