@@ -10,6 +10,11 @@ jobs:
     name: Build pull request
     # runs-on: ubuntu-20.04
     runs-on: [self-hosted, linux, amd64, cpu4]
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     strategy:
       fail-fast: true
       matrix:
@@ -18,35 +23,41 @@ jobs:
     env:
       NODE: "18.2.0"
       RAPIDS: "22.06.00"
-      REPOSITORY: "ghcr.io/rapidsai/node"
+      is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: env.is_gha_runner == 0
+        shell: bash
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
 
       - name: Checkout
         uses: actions/checkout@v2
+        path: node
         with:
           lfs: true
           fetch-depth: 0
 
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+        working-directory: node
 
       - uses: nrwl/last-successful-commit-action@v1
-        id: last_successful_main_commit
+        working-directory: node
+        id: last_main_commit
         with:
           branch: main
           workflow_id: "merge.pr.yml"
           github_token: "${{ github.token }}"
 
       - name: Check if source files changed
-        id: source_files_changed
+        working-directory: node
+        id: src_changed
         uses: tj-actions/changed-files@v9.1
         with:
-          base_sha: ${{ steps.last_successful_main_commit.outputs.commit_hash }}
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             yarn\.lock
             lerna\.json
@@ -55,35 +66,67 @@ jobs:
             modules/**/CMakeLists\.txt
             modules/**/*\.(c|h|ts|js|cu|cuh|cpp|hpp|json|cmake|tsconfig)
 
-      - name: Check if GitHub Actions or devel Docker files changed
-        id: devel_dockerfiles_changed
+      - name: Check if GitHub Actions or devel main Dockerfile changed
+        working-directory: node
+        id: dev_changed
         uses: tj-actions/changed-files@v9.1
         with:
-          base_sha: ${{ steps.last_successful_main_commit.outputs.commit_hash }}
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             dev/dockerfiles/devel/main\.Dockerfile
             \.github/workflows/main\.pr\.yml
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Update runner env
+        env:
+          CUDA: "${{ matrix.CUDA }}"
+          LINUX: "${{ matrix.LINUX }}"
+          dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
+          src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
+        shell: bash
+        run: |
+          echo "CUDA=${CUDA}" >> $GITHUB_ENV;
+          echo "LINUX=${LINUX}" >> $GITHUB_ENV;
+          echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
+          echo "src_changed=${src_changed}" >> $GITHUB_ENV;
+
+          [[ ${dev_changed} == 0 && ${src_changed} == 0 ]] && REGISTRY="ghcr.io" || REGISTRY="localhost:5000";
+          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA}-${LINUX}-main" >> $GITHUB_ENV;
+
+          echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
+          echo "\
+          -u $(id -u):$(id -g) \
+          -v $(pwd)/.yarn:/.yarn:rw \
+          -v $(pwd)/.cache:/.cache:rw \
+          -v $(pwd)/node:/opt/rapids/node:rw \
+          --env-file ${{ runner.temp }}/.env \
+          " >> $GITHUB_ENV;
+          echo "EOF" >> $GITHUB_ENV;
+
+
       - name: Cache C++ dependencies
-        if: (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
+        if: env.dev_changed == 1 || env.src_changed == 1
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
-            .cache
+            node/.cache/binary
+            node/.cache/source
 
       - name: Cache node_modules
-        if: (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
+        if: env.dev_changed == 1 || env.src_changed == 1
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
-            node_modules
+            .yarn
+            .cache
+            node/node_modules
 
       - name: Free up disk space
-        if: runner.name == 'ubuntu-20.04' && (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') && steps.devel_dockerfiles_changed.outputs.any_changed != 'true'
+        if: env.is_gha_runner == 1 && (env.dev_changed == 1 || env.src_changed == 1)
+        shell: bash
         run: |
           df -h
           docker images
@@ -101,54 +144,59 @@ jobs:
           docker images
 
       - name: Build devel main image
-        if: (steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true') && steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
+        working-directory: node
+        if: env.dev_changed == 1 && env.src_changed == 1
         uses: ./.github/actions/build-and-publish-image
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: false
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          push: true
+          temp: ${{ runner.temp }}
+          buildx-driver-opts: network=host
+          clean-first: ${{ env.is_gha_runner == 1 }}
           file: dev/dockerfiles/devel/main.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
+            ${{ env.MAIN_IMG }}
           build-args: |
             "NODE_VERSION=${{ env.NODE }}"
-            "SCCACHE_IDLE_TIMEOUT=32768"
-            "SCCACHE_REGION=us-west-2"
-            "SCCACHE_BUCKET=node-rapids-sccache"
-            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:11.4.14-runtime"
+            "LINUX_VERSION=${{ env.LINUX }}"
             "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
+            "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
+
+      - name: Make container .env
+        if: env.src_changed == 1
+        shell: bash
+        run: |
+          cat << EOF > "${{ runner.temp }}/.env"
+          CUDAARCHS=ALL
+          PARALLEL_LEVEL=1
+          RAPIDS_VERSION=${RAPIDS}
+          SCCACHE_REGION=us-west-2
+          SCCACHE_IDLE_TIMEOUT=32768
+          SCCACHE_BUCKET=node-rapids-sccache
+          SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
+          EOF
+
+      - name: yarn install
+        if: env.src_changed == 1
+        shell: bash
+        run: |
+          docker run --rm -t ${RUN_ARGS} ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline';
+
+      - name: Lint source files
+        if: env.src_changed == 1
+        shell: bash
+        run: |
+          docker run --rm -t ${RUN_ARGS} ${MAIN_IMG} bash -c 'set -ex; yarn lint:ci';
 
       - name: Build packages
-        if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true'
-        env:
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
+        if: env.src_changed == 1
+        shell: bash
         run: |
-          echo "CUDAARCHS=ALL" >> .env
-          echo "PARALLEL_LEVEL=1" >> .env
-          echo "REPOSITORY=${{ env.REPOSITORY }}" >> .env
-          echo "NODE_VERSION=${{ env.NODE }}" >> .env
-          echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
-          echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
-          echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
-          echo "SCCACHE_IDLE_TIMEOUT=32768" >> .env
-          echo "SCCACHE_REGION=us-west-2" >> .env
-          echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
-          mkdir -p /tmp/.{yarn,cache}
-          docker run --rm \
-            --env-file .env \
-            -u "$(id -u):$(id -g)" \
-            -v "/tmp/.yarn:/.yarn:rw" \
-            -v "/tmp/.cache:/.cache:rw" \
-            -v "$(pwd):/opt/rapids/node:rw" \
-            -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-            -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-            -e RAPIDSAI_GITHUB_ACCESS_TOKEN="$RAPIDSAI_GITHUB_ACCESS_TOKEN" \
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main \
-            bash -c 'set -ex; yarn && yarn build'
+          docker run --rm -t ${RUN_ARGS} \
+            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -e RAPIDSAI_GITHUB_ACCESS_TOKEN="${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}" \
+            ${MAIN_IMG} bash -c 'set -ex; yarn build';

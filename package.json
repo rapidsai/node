@@ -52,7 +52,8 @@
     "docker:run:runtime:main": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm main",
     "docker:run:runtime:notebook": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm notebook",
     "docker:run:runtime:sql": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm sql",
-    "lint": "scripts/exec.js lint",
+    "lint": "scripts/exec.js lint --fix",
+    "lint:ci": "scripts/exec.js lint",
     "nuke:from:orbit": "yarn cache clean && yarn clean && yarn && yarn build",
     "postinstall": "yarn dev:relink-bin-dirs",
     "test": "scripts/exec.js test",
@@ -103,7 +104,7 @@
   },
   "lint-staged": {
     "modules/**/@(src|test|include)/**/*.@(ts|h|cc?|cuh?|(c|h)pp)": [
-      "scripts/exec.js lint"
+      "scripts/exec.js lint --fix"
     ]
   },
   "resolutions": {
@@ -141,8 +142,5 @@
     "**/math.gl": "3.5.7",
     "**/mjolnir.js": "2.6.0",
     "**/react-map-gl": "5.3.16"
-  },
-  "release": {
-    "analyzeCommits": "simple-commit-message"
   }
 }

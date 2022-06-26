@@ -2,6 +2,14 @@
 
 set -Eeo pipefail
 
+fix_arg=;
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --fix_arg) fix_arg="$1"; shift;;
+        *) ;;
+    esac;
+done
+
 tsc_files=""
 cpp_files=""
 cmd_input="$(echo "$@" | tr ' ' '\n')"
@@ -24,5 +32,5 @@ echo ""
 
 echo "Running ESLint (on up to $J cores)..."
 time echo $tsc_files | xargs -P$J -n1 \
-    node_modules/.bin/eslint --ignore-path .gitignore --fix
+    node_modules/.bin/eslint --ignore-path .gitignore ${fix_arg}
 echo ""

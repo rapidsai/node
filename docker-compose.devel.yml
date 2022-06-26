@@ -65,9 +65,6 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION:-18.2.0}
         LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
-        SCCACHE_REGION: "${SCCACHE_REGION:-}"
-        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
-        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
         ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
 
