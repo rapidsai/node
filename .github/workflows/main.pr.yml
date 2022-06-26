@@ -45,8 +45,8 @@ jobs:
         run: git lfs checkout
         working-directory: node
 
-      - uses: nrwl/last-successful-commit-action@v1
-        working-directory: node
+      - name: Get last successful main commit sha
+        uses: nrwl/last-successful-commit-action@v1
         id: last_main_commit
         with:
           branch: main
@@ -54,10 +54,10 @@ jobs:
           github_token: "${{ github.token }}"
 
       - name: Check if source files changed
-        working-directory: node
         id: src_changed
         uses: tj-actions/changed-files@v9.1
         with:
+          path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             yarn\.lock
@@ -68,10 +68,10 @@ jobs:
             modules/**/*\.(c|h|ts|js|cu|cuh|cpp|hpp|json|cmake|tsconfig)
 
       - name: Check if GitHub Actions or devel main Dockerfile changed
-        working-directory: node
         id: dev_changed
         uses: tj-actions/changed-files@v9.1
         with:
+          path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             dev/dockerfiles/devel/main\.Dockerfile
@@ -106,7 +106,6 @@ jobs:
           --env-file ${{ runner.temp }}/.env \
           " >> $GITHUB_ENV;
           echo "EOF" >> $GITHUB_ENV;
-
 
       - name: Cache C++ dependencies
         if: env.dev_changed == 1 || env.src_changed == 1
@@ -147,10 +146,10 @@ jobs:
           docker images
 
       - name: Build devel main image
-        working-directory: node
         if: env.dev_changed == 1 && env.src_changed == 1
         uses: ./.github/actions/build-and-publish-image
         with:
+          context: node
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}

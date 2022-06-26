@@ -21,6 +21,10 @@ inputs:
     default: /tmp
     required: true
     description: "Path to temp dir"
+  context:
+    default: "."
+    required: true
+    description: "Path to image build context"
   platforms:
     default: "linux/amd64"
     required: false
@@ -120,11 +124,11 @@ runs:
       id: docker-build
       uses: docker/build-push-action@v2
       with:
-        context: .
         pull: ${{ inputs.pull }}
         push: ${{ inputs.push }}
         file: ${{ inputs.file }}
         tags: ${{ inputs.tags }}
+        context: ${{ inputs.context }}
         load: ${{ inputs.push == 'false' }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
