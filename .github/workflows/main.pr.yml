@@ -10,18 +10,13 @@ jobs:
     name: Build pull request
     # runs-on: ubuntu-20.04
     runs-on: [self-hosted, linux, amd64, cpu4]
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     strategy:
       fail-fast: true
       matrix:
         CUDA: [11.6.2]
         LINUX: ["ubuntu20.04"]
     env:
-      NODE: "18.2.0"
+      NODE: "16.15.1"
       RAPIDS: "22.06.00"
       REGISTRY: "ghcr.io"
     steps:

@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  NODE: "18.2.0"
+  NODE: "16.15.1"
   RAPIDS: "22.06.00"
   REPOSITORY: "ghcr.io/rapidsai/node"
 

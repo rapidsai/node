@@ -25,7 +25,7 @@ on:
         description: "Draft Release"
 
 env:
-  NODE: "18.2.0"
+  NODE: "16.15.1"
   RAPIDS: "${{ inputs.rapids-version }}"
   REPOSITORY: "ghcr.io/${{ inputs.repo }}"
 

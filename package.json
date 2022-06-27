@@ -142,5 +142,8 @@
     "**/math.gl": "3.5.7",
     "**/mjolnir.js": "2.6.0",
     "**/react-map-gl": "5.3.16"
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
   }
 }
