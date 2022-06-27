@@ -14,11 +14,11 @@
 
 'use strict'
 
-const {dir}                                   = require('console');
-const {test}                                  = require('tap');
-const {build}                                 = require('../helper');
-const {tableFromIPC, RecordBatchStreamWriter} = require('apache-arrow');
-const {json_large, json_good}                 = require('../fixtures.js');
+const {dir}                                    = require('console');
+const {test}                                   = require('tap');
+const {build}                                  = require('../helper');
+const {tableFromIPC, RecordBatchStreamWriter}  = require('apache-arrow');
+const {json_large, json_good, json_misordered} = require('../fixtures.js');
 
 test('graphology root returns api description', async t => {
   const app = await build(t);
@@ -193,6 +193,7 @@ test('nodes', async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/nodes', headers: {'accepts': 'application/octet-stream'}});
+  console.log(res);
   t.same(res.statusCode, 200);
   const table = tableFromIPC(res.rawPayload);
   t.ok(table.getChild('nodes'));
@@ -235,6 +236,8 @@ test('edges', async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
+  console.log(res);
+  t.equal(res.statusCode, 200);
   const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
   t.ok(table.getChild('edges'));
