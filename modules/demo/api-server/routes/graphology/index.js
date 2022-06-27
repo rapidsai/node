@@ -307,20 +307,14 @@ module.exports = async function(fastify, opts) {
         // Duplicatin the sigma.js createNormalizationFunction here because this is the best way
         // to let the Graph object compute it on GPU.
         //
-        console.log(df.names);
-        /** @type Series<Int32> */
-        let keys = df.get('key');
-        /** @type Series<Int32> */
-        let source_map = edges.get('source');
-        /** @type Series<Int32> */
-        let source = source_map.gather(keys, false);
-        /** @type Series<Int32> */
-        let target_map = edges.get('target');
-        /** @type Series<Int32> */
-        let target = target_map.gather(keys, false);
-        /** @type Series<Float32> */
-        let x = df.get('x');
-        /** @type Series<Float32> */
+        // Remap the indices in the key table to their real targets. See
+        // https://github.com/rapidsai/node/issue/397
+        let keys           = df.get('key');
+        let source_map     = edges.get('source');
+        let source         = keys.gather(source_map, false);
+        let target_map     = edges.get('target');
+        let target         = keys.gather(target_map, false);
+        let x              = df.get('x');
         let y              = df.get('y');
         const [xMin, xMax] = x.minmax();
         const [yMin, yMax] = y.minmax();
@@ -329,10 +323,10 @@ module.exports = async function(fastify, opts) {
         const dY           = (yMax + yMin) / 2.0;
         x                  = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
         y                  = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
-        const source_xmap  = x.gather(source.cast(new Int32), false);
-        const source_ymap  = y.gather(source.cast(new Int32), false);
-        const target_xmap  = x.gather(target.cast(new Int32), false);
-        const target_ymap  = y.gather(target.cast(new Int32), false);
+        const source_xmap  = x.gather(source, false);
+        const source_ymap  = y.gather(source, false);
+        const target_xmap  = x.gather(target, false);
+        const target_ymap  = y.gather(target, false);
         const color        = Series.new(['#999'])
                         .hexToIntegers(new Int32)
                         .bitwiseOr(0xff000000)

@@ -14,11 +14,11 @@
 
 'use strict'
 
-const {dir}                                    = require('console');
-const {test}                                   = require('tap');
-const {build}                                  = require('../helper');
-const {tableFromIPC, RecordBatchStreamWriter}  = require('apache-arrow');
-const {json_large, json_good, json_misordered} = require('../fixtures.js');
+const {dir}                                      = require('console');
+const {test}                                     = require('tap');
+const {build}                                    = require('../helper');
+const {tableFromIPC, RecordBatchStreamWriter}    = require('apache-arrow');
+const {json_large, json_good, json_out_of_order} = require('../fixtures.js');
 
 test('graphology root returns api description', async t => {
   const app = await build(t);
@@ -187,13 +187,11 @@ test('get_column', async (t) => {
 test('nodes', async (t) => {
   const dir   = t.testdir(json_large);
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_large.txt';
-  console.log(rpath);
-  const app = await build(t);
+  const app   = await build(t);
   const load =
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/nodes', headers: {'accepts': 'application/octet-stream'}});
-  console.log(res);
   t.same(res.statusCode, 200);
   const table = tableFromIPC(res.rawPayload);
   t.ok(table.getChild('nodes'));
@@ -236,7 +234,6 @@ test('edges', async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
-  console.log(res);
   t.equal(res.statusCode, 200);
   const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
@@ -245,11 +242,40 @@ test('edges', async (t) => {
            0.02944733388721943,
            1,
            -1.701910173408654e+38,
-           0.9705526828765869,
-           0,
+           0.02944733388721943,
+           1,
            -1.701910173408654e+38,
-           0.9705526828765869,
-           0,
+           0.02944733388721943,
+           1,
+           -1.701910173408654e+38,
+           0.02944733388721943,
+           1,
+           -1.701910173408654e+38
+         ]))
+});
+
+test('edges out of order', async (t) => {
+  const dir = t.testdir(json_out_of_order);
+  const rpath =
+    '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_out_of_order.txt';
+  const app = await build(t);
+  const load =
+    await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
+  const res = await app.inject(
+    {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
+  t.equal(res.statusCode, 200);
+  const table   = tableFromIPC(res.rawPayload);
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  t.ok(table.getChild('edges'));
+  t.same(table.getChild('edges').toArray(), new Float32Array([
+           0.02944733388721943,
+           1,
+           -1.701910173408654e+38,
+           0.02944733388721943,
+           1,
+           -1.701910173408654e+38,
+           0.02944733388721943,
+           1,
            -1.701910173408654e+38,
            0.02944733388721943,
            1,
