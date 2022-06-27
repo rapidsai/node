@@ -2,35 +2,43 @@
 
 set -Eeo pipefail
 
-fix_arg=;
+args="";
+fix_arg="";
+JOBS="${JOBS:-}";
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --fix_arg) fix_arg="$1"; shift;;
-        *) ;;
-    esac;
+        -j*)
+            J="${1#-j}";
+            if [[ ${J} =~ ^[[:digit:]]+$ ]]; then
+                JOBS="${J}";
+            fi;;
+        --fix_arg) fix_arg="$1";;
+        *) args="${args:+$args }$1";;
+    esac; shift;
 done
 
-tsc_files=""
-cpp_files=""
-cmd_input="$(echo "$@" | tr ' ' '\n')"
-tsc_regex="^(\./)?modules/\w+?/(src|test)/.*?\.ts$"
-cpp_regex="^(\./)?modules/\w+?/(src|include)/.*?\.(h|cc?|cuh?|(c|h)pp)$"
+JOBS=${JOBS:-${PARALLEL_LEVEL:-$(nproc --ignore=2)}};
+
+tsc_files="";
+cpp_files="";
+cmd_input="$(echo "$args" | tr ' ' '\n')";
+tsc_regex="^(\./)?modules/\w+?/(src|test)/.*?\.ts$";
+cpp_regex="^(\./)?modules/\w+?/(src|include)/.*?\.(h|cc?|cuh?|(c|h)pp)$";
 
 if [[ "$cmd_input" != "" ]]; then
-    tsc_files=$(echo "$cmd_input" | grep -xiE --color=never "$tsc_regex" || echo "")
-    cpp_files=$(echo "$cmd_input" | grep -xiE --color=never "$cpp_regex" || echo "")
+    tsc_files=$(echo "$cmd_input" | grep -xiE --color=never "$tsc_regex" || echo "");
+    cpp_files=$(echo "$cmd_input" | grep -xiE --color=never "$cpp_regex" || echo "");
 else
-    tsc_files=$(find . -type f -regextype posix-extended -iregex "$tsc_regex" || echo "")
-    cpp_files=$(find . -type f -regextype posix-extended -iregex "$cpp_regex" || echo "")
+    tsc_files=$(find . -type f -regextype posix-extended -iregex "$tsc_regex" || echo "");
+    cpp_files=$(find . -type f -regextype posix-extended -iregex "$cpp_regex" || echo "");
 fi
 
-J=$(nproc --ignore=2)
+echo "Running clang-format...";
+time clang-format-12 -i $cpp_files $tsc_files;
+echo "";
 
-echo "Running clang-format..."
-time clang-format-12 -i $cpp_files $tsc_files
-echo ""
-
-echo "Running ESLint (on up to $J cores)..."
-time echo $tsc_files | xargs -P$J -n1 \
-    node_modules/.bin/eslint --ignore-path .gitignore ${fix_arg}
-echo ""
+echo "Running ESLint (on up to $JOBS cores)...";
+time echo $tsc_files | xargs -P$JOBS -n1 \
+    node_modules/.bin/eslint --ignore-path .gitignore ${fix_arg};
+echo "";
