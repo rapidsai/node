@@ -29,10 +29,12 @@ function json_key_attributes_to_dataframe(str) {
   const no_open_list = str.split('[\n').gather([1], false);
   const tokenized    = no_open_list.split('},');
   const keys         = tokenized.getJSONObject('.key');
-  arr['key']         = keys.cast(new Int32);
+  keys.setNullMask(1, 0);
+  arr['key'] = keys.cast(new Int32);
   columns.forEach((col, ix) => {
     const parse_result = tokenized.getJSONObject('.attributes.' + columns[ix]);
-    arr[col]           = parse_result.cast(dtypes[ix]);
+    parse_result.setNullMask(1, 0);
+    arr[col] = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
