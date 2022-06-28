@@ -105,7 +105,7 @@ if(TARGET cudf::cudf)
     set(LIBCUDF_LIBRARY cudf::cudf)
     set(LIBCUDF_INCLUDE_DIRS "")
 else()
-    set(LIBCUDF_LIBRARY "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/libcudf.so")
+    set(LIBCUDF_LIBRARY "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/libcudf.a")
     list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/include")
     list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-src/cpp/include")
 endif()
@@ -128,6 +128,16 @@ target_link_libraries(${PROJECT_NAME}
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node"
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
+
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")
+generate_arch_specific_custom_targets(
+  NAME ${PROJECT_NAME}
+  DEPENDENCIES "cudf::cudf"
+                "cuml::cuml++"
+                "faiss::faiss"
+                "raft::raft_nn_lib"
+                "raft::raft_distance_lib"
+)
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

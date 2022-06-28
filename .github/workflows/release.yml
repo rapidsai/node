@@ -56,13 +56,20 @@ jobs:
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
               sh -c "cp /opt/rapids/*.tgz /out/";
           VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
-          for x in cuda cudf cugraph cuml cuspatial io rmm sql; do
+          for x in cuda rmm cudf cugraph cuml cuspatial io sql; do
               tar -C build -z \
                   -f build/rapidsai-$x-*.tgz \
-                  --strip-components=3 \
-                  -x package/build/Release/rapidsai_$x.node;
+                  --wildcards --strip-components=3 \
+                  -x "package/build/Release/rapidsai_$x*.node";
               mv build/rapidsai_$x.node build/rapidsai_$x-${VER_TAG}.node;
           done;
+          for x in cudf cugraph cuml cuspatial io sql; do
+              for y in 60 70 75 80 86; do
+                ARCH_TAG="arch${y}";
+                mv build/rapidsai_$x_$y.node build/rapidsai_$x-${VER_TAG}-${ARCH_TAG}.node;
+              done
+          done;
+
           rm -rf build/*.tgz;
 
       - name: Upload node native modules

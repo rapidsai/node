@@ -105,6 +105,13 @@ target_link_libraries(${PROJECT_NAME}
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node"
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
 
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")
+generate_arch_specific_custom_targets(
+  NAME ${PROJECT_NAME}
+  DEPENDENCIES "cudf::cudf"
+               "cuspatial::cuspatial"
+)
+
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND
     ${CMAKE_COMMAND} -E create_symlink

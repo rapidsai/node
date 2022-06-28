@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {addon as CORE} from '@rapidsai/core';
+import {addon as CORE, getNativeModuleNameForComputeCapabilities} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as RMM} from '@rapidsai/rmm';
 
@@ -25,7 +25,8 @@ export const {
   Scalar,
   GroupBy,
   findCommonType,
-} = require('bindings')('rapidsai_cudf.node').init(CORE, CUDA, RMM) as typeof import('./node_cudf');
+} = require('bindings')(getNativeModuleNameForComputeCapabilities('rapidsai_cudf'))
+      .init(CORE, CUDA, RMM) as typeof import('./node_cudf');
 
 export default {
   _cpp_exports,

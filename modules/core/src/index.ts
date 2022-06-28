@@ -23,3 +23,9 @@ export const cpm_binary_cache_path = Path.resolve(project_root_dir_path, '.cache
 
 export {getComputeCapabilities} from './addon';
 export * as addon from './addon';
+
+import {getComputeCapabilities} from './addon';
+export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
+  const cc = getComputeCapabilities();
+  return cc.length === 1 ? `${moduleName}_${cc[0]}.node` : `${moduleName}.node`;
+}

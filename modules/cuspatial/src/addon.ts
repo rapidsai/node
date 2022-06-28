@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
-import {addon as CORE} from '@rapidsai/core';
+import {addon as CORE, getNativeModuleNameForComputeCapabilities} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
@@ -27,5 +27,5 @@ export const {
   findPointsInPolygons,
   findPolylineNearestToEachPoint,
   _cpp_exports,
-} = require('bindings')('rapidsai_cuspatial.node').init(CORE, CUDA, RMM, CUDF) as
-    typeof import('./node_cuspatial');
+} = require('bindings')(getNativeModuleNameForComputeCapabilities('rapidsai_cuspatial'))
+      .init(CORE, CUDA, RMM, CUDF) as typeof import('./node_cuspatial');
