@@ -27,5 +27,15 @@ export * as addon from './addon';
 import {getComputeCapabilities} from './addon';
 export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
   const cc = getComputeCapabilities();
-  return cc.length === 1 ? `${moduleName}_${cc[0]}.node` : `${moduleName}.node`;
+  if (cc.length === 1) {
+    switch (cc[0]) {
+      case '60': return `${moduleName}_60.node`;
+      case '70': return `${moduleName}_70.node`;
+      case '75': return `${moduleName}_75.node`;
+      case '80': return `${moduleName}_80.node`;
+      case '86': return `${moduleName}_86.node`;
+      default: break;
+    }
+  }
+  return `${moduleName}.node`;
 }
