@@ -144,7 +144,7 @@ jobs:
         run: |
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
-          PARALLEL_LEVEL=1
+          PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
           RAPIDS_VERSION=${RAPIDS}
           SCCACHE_REGION=us-west-2
           SCCACHE_IDLE_TIMEOUT=32768
