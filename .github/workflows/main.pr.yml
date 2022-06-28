@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -146,7 +146,8 @@ jobs:
         run: |
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
-          PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
+          PARALLEL_LEVEL=1
+          NVCC_APPEND_FLAGS=--threads=${PARALLEL_LEVEL:-1}
           RAPIDS_VERSION=${RAPIDS}
           SCCACHE_REGION=us-west-2
           SCCACHE_IDLE_TIMEOUT=32768
@@ -154,7 +155,7 @@ jobs:
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
           EOF
 
-      - name: Build and lint
+      - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
