@@ -41,7 +41,7 @@ SHELL ["/bin/bash", "-c"]
 
 USER root
 
-RUN --mount=type=bind,from=ucx-deb,target=/tmp/ucx \
+RUN --mount=type=bind,from=ucx-deb,target=/usr/src/ucx \
  # Install dependencies
     export DEBIAN_FRONTEND=noninteractive \
  && apt update \
@@ -63,7 +63,7 @@ RUN --mount=type=bind,from=ucx-deb,target=/tmp/ucx \
     # SQL dependencies
     openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Install UCX
- && dpkg -i /tmp/ucx/ucx.deb || true && apt install --fix-broken \
+ && dpkg -i /usr/src/ucx/ucx.deb || true && apt install --fix-broken \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
