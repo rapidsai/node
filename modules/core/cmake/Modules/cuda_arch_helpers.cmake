@@ -14,7 +14,23 @@
 # limitations under the License.
 #=============================================================================
 
-function(generate_arch_specific_custom_target)
+function(_get_lib_location_info dep out out_a out_a_all)
+  set(location_prop "IMPORTED_LOCATION_${CMAKE_BUILD_TYPE}")
+  string(TOUPPER "${location_prop}" location_prop)
+  get_target_property(loc ${dep} ${location_prop})
+  if(loc)
+    string(REPLACE "\.a" "\.a\.all" loc_all "${loc}")
+  else()
+    set(loc "$<TARGET_FILE:${dep}>")
+    set(loc_all "$<TARGET_FILE:${dep}>.all")
+  endif()
+  string(REPLACE "::" "_" dep_ "${dep}")
+  set(${out} "${dep_}" PARENT_SCOPE)
+  set(${out_a} "${loc}" PARENT_SCOPE)
+  set(${out_a_all} "${loc_all}" PARENT_SCOPE)
+endfunction()
+
+function(_generate_arch_specific_custom_target)
 
   set(options "")
   set(oneValueArgs "NAME" "ARCH")
@@ -27,65 +43,52 @@ function(generate_arch_specific_custom_target)
   set(name_all "${name}_all")
   set(name_arch "${name}_${arch}")
 
-  message(STATUS "arch: ${arch}")
-  message(STATUS "name: ${name}")
-  message(STATUS "name_all: ${name_all}")
-  message(STATUS "name_arch: ${name_arch}")
-  message(STATUS "deps:\n${deps}")
-
   set(nv_prune_commands)
   set(do_rename_commands)
   set(un_rename_commands)
 
-  if(NOT depends_name)
-    set(depends_name "${name}")
+  if(NOT depends_on)
+    set(depends_on "${name}")
   endif()
 
-  set(imported_location_prop "IMPORTED_LOCATION_${CMAKE_BUILD_TYPE}")
-  string(TOUPPER "${imported_location_prop}" imported_location_prop)
-
-  foreach(dep_name IN LISTS deps)
-    message(STATUS "dep_name: ${dep_name}")
-    get_target_property(dep_a ${dep_name} ${imported_location_prop})
-    message(STATUS "${dep_name} ${imported_location_prop}: ${dep_a}")
-    if (dep_a)
-      string(REPLACE "::" "_" dep_name "${dep_name}")
-      string(REPLACE "\.a" "\.all\.a" dep_all_a "${dep_a}")
-      # Rename `${dep_a}` to `${dep_all_a}`
-      add_custom_target("${dep_name}_${arch}_rename_a_to_all_a" ALL VERBATIM DEPENDS "${depends_name}" COMMAND ${CMAKE_COMMAND} -E rename "${dep_a}" "${dep_all_a}")
-      set(depends_name "${dep_name}_${arch}_rename_a_to_all_a")
-      # Run nvprune to remove archs that aren't ${arch}
-      add_custom_target("${dep_name}_${arch}_nvprune" ALL VERBATIM DEPENDS "${depends_name}" COMMAND nvprune -gencode=arch=compute_${arch},code=[sm_${arch}] -o "${dep_a}" "${dep_all_a}")
-      set(depends_name "${dep_name}_${arch}_nvprune")
+  foreach(dep IN LISTS deps)
+    if(TARGET ${dep})
+      _get_lib_location_info(${dep} dep dep_a dep_a_all)
+      if (dep_a)
+        # Rename `${dep_a}` to `${dep_a_all}`
+        add_custom_target("${dep}_${arch}_rename_a_to_all_a" ALL COMMAND ${CMAKE_COMMAND} -E rename "${dep_a}" "${dep_a_all}" DEPENDS "${depends_on}" VERBATIM COMMAND_EXPAND_LISTS)
+        set(depends_on "${dep}_${arch}_rename_a_to_all_a")
+        # Run nvprune to remove archs that aren't ${arch}
+        add_custom_target("${dep}_${arch}_nvprune" ALL COMMAND nvprune -gencode=arch=compute_${arch},code=[sm_${arch}] -o "${dep_a}" "${dep_a_all}" DEPENDS "${depends_on}" VERBATIM COMMAND_EXPAND_LISTS)
+        set(depends_on "${dep}_${arch}_nvprune")
+      endif()
     endif()
   endforeach()
 
   add_custom_target("${name_arch}" ALL
-    VERBATIM DEPENDS "${depends_name}"
-    # Rename `rapidsai_cuspatial.node` to `rapidsai_cuspatial_all.node`
+    # Rename `${name}.node` to `${name_all}.node`
     COMMAND ${CMAKE_COMMAND} -E rename ${name}.node ${name_all}.node
-    # Relink arch-specific `rapidsai_cuspatial.node`
+    # Relink arch-specific `${name}.node`
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target ${name}.node
-    # Rename arch-specific `rapidsai_cuspatial.node` to `rapidsai_cuspatial_${arch}.node`
+    # Rename arch-specific `${name}.node` to `${name_arch}.node`
     COMMAND ${CMAKE_COMMAND} -E rename ${name}.node ${name_arch}.node
-    # Rename `rapidsai_cuspatial_all.node` back to `rapidsai_cuspatial.node`
+    # Rename `${name_all}.node` back to `${name}.node`
     COMMAND ${CMAKE_COMMAND} -E rename ${name_all}.node ${name}.node
+    VERBATIM DEPENDS "${depends_on}" COMMAND_EXPAND_LISTS
   )
-  set(depends_name "${name_arch}")
+  set(depends_on "${name_arch}")
 
-  foreach(dep_name IN LISTS deps)
-    message(STATUS "dep_name: ${dep_name}")
-    get_target_property(dep_a ${dep_name} ${imported_location_prop})
-    message(STATUS "${dep_name} ${imported_location_prop}: ${dep_a}")
-    if (dep_a)
-      string(REPLACE "::" "_" dep_name "${dep_name}")
-      string(REPLACE "\.a" "\.all\.a" dep_all_a "${dep_a}")
-      # Rename `${dep_all_a}` to `${dep_a}`
-      add_custom_target("${dep_name}_${arch}_rename_all_a_to_a" ALL VERBATIM DEPENDS "${depends_name}" COMMAND ${CMAKE_COMMAND} -E rename "${dep_all_a}" "${dep_a}")
-      set(depends_name "${dep_name}_${arch}_rename_all_a_to_a")
+  foreach(dep IN LISTS deps)
+    if(TARGET ${dep})
+      _get_lib_location_info(${dep} dep dep_a dep_a_all)
+      if (dep_a)
+        # Rename `${dep_a_all}` to `${dep_a}`
+        add_custom_target("${dep}_${arch}_rename_all_a_to_a" ALL COMMAND ${CMAKE_COMMAND} -E rename "${dep_a_all}" "${dep_a}" VERBATIM DEPENDS "${depends_on}" COMMAND_EXPAND_LISTS)
+        set(depends_on "${dep}_${arch}_rename_all_a_to_a")
+      endif()
     endif()
   endforeach()
-  set(depends_name "${depends_name}" PARENT_SCOPE)
+  set(depends_on "${depends_on}" PARENT_SCOPE)
 endfunction()
 
 function(generate_arch_specific_custom_targets)
@@ -96,7 +99,7 @@ function(generate_arch_specific_custom_targets)
 
   set(name ${__NAME})
   set(deps ${__DEPENDENCIES})
-  set(depends_name "")
+  set(depends_on "")
 
   get_target_property(cuda_archs ${name} CUDA_ARCHITECTURES)
 
@@ -104,7 +107,7 @@ function(generate_arch_specific_custom_targets)
     if(arch MATCHES "^(.*)-(real|virtual)$")
       set(arch "${CMAKE_MATCH_1}")
     endif()
-    generate_arch_specific_custom_target(
+    _generate_arch_specific_custom_target(
       NAME "${name}" ARCH "${arch}" DEPENDENCIES ${deps})
   endforeach()
 endfunction()
