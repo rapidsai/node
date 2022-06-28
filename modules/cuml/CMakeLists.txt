@@ -130,13 +130,23 @@ target_link_libraries(${PROJECT_NAME}
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
 
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")
+set(deps "cudf::cudf" "cuml::cuml++" "faiss::faiss")
+
+if(TARGET raft::raft_nn_lib)
+  list(APPEND deps "raft::raft_nn_lib")
+elseif(TARGET raft::nn)
+  list(APPEND deps "raft::nn")
+endif()
+
+if(TARGET raft::raft_distance_lib)
+  list(APPEND deps "raft::raft_distance_lib")
+elseif(TARGET raft::distance)
+  list(APPEND deps "raft::distance")
+endif()
+
 generate_arch_specific_custom_targets(
   NAME ${PROJECT_NAME}
-  DEPENDENCIES "cudf::cudf"
-                "cuml::cuml++"
-                "faiss::faiss"
-                "raft::raft_nn_lib"
-                "raft::raft_distance_lib"
+  DEPENDENCIES ${deps}
 )
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
