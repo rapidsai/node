@@ -33,7 +33,7 @@ function json_key_attributes_to_dataframe(str) {
   arr['key'] = keys.cast(new Int32);
   columns.forEach((col, ix) => {
     const parse_result = tokenized.getJSONObject('.attributes.' + columns[ix]);
-    parse_result.setNullMask(1, 0);
+    parse_result.setNullMask([], 0);
     arr[col] = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
