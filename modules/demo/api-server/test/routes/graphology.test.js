@@ -30,9 +30,9 @@ test('graphology root returns api description', async t => {
         read_json: {
           filename: 'A URI to a graphology json dataset file.',
           result: `Causes the node-rapids backend to attempt to load the json object specified
-                     by :filename. The GPU with attempt to parse the json file asynchronously and will
+                     by :filename. The GPU will attempt to parse the json file asynchronously and will
                      return OK/ Not Found/ or Fail based on the file status.
-                     If the load is successful, three tables will be created in the node-rapids backend:
+                     If the load is successful, four tables will be created in the node-rapids backend:
                      nodes, edges, clusters, and tags. The root objects in the json target must match
                      these names and order.`,
           returns: 'Result OK/Not Found/Fail'
