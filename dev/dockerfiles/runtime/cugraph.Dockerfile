@@ -21,7 +21,7 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /home/node
 
-COPY --from=devel --chown=node:node /home/node/node_modules .
+COPY --from=devel --chown=node:node /home/node/node_modules node_modules
 
 SHELL ["/bin/bash", "-l"]
 
