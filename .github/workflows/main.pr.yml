@@ -23,7 +23,7 @@ jobs:
       - name: Dump runner context
         shell: bash
         run: |
-          echo "${{ toJSON(runner) }}""
+          echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
 
       - name: Install utilities
