@@ -14,13 +14,26 @@
     ],
     "configurations": [
         {
+            "name": "Attach Test",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug Demo (TS only)",
             "program": "${workspaceFolder}/${input:DEMO_NAME}",
             "stopOnEntry": false,
-            "args": ["${input:DEMO_ARGS}"],
-            "runtimeArgs": ["--experimental-vm-modules"],
+            "args": [
+                "${input:DEMO_ARGS}"
+            ],
+            "runtimeArgs": [
+                "--experimental-vm-modules"
+            ],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
@@ -44,7 +57,9 @@
         {
             "name": "Debug Demo (launch gdb)",
             // hide the individual configurations from the debug dropdown list
-            "presentation": { "hidden": true },
+            "presentation": {
+                "hidden": true
+            },
             "type": "cppdbg",
             "request": "launch",
             "stopAtEntry": false,
@@ -62,9 +77,18 @@
             ],
             "program": "${input:NODE_BINARY}",
             "environment": [
-                { "name": "NODE_DEBUG", "value": "1" },
-                { "name": "NODE_NO_WARNINGS", "value": "1" },
-                { "name": "NODE_ENV", "value": "production" },
+                {
+                    "name": "NODE_DEBUG",
+                    "value": "1"
+                },
+                {
+                    "name": "NODE_NO_WARNINGS",
+                    "value": "1"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
                 // { "name": "READABLE_STREAM", "value": "disable" },
             ],
             "args": [
@@ -80,7 +104,9 @@
             "type": "node",
             "request": "attach",
             // hide the individual configurations from the debug dropdown list
-            "presentation": { "hidden": true },
+            "presentation": {
+                "hidden": true
+            },
             "port": 9229,
             "timeout": 60000,
             "cwd": "${workspaceFolder}",
@@ -113,7 +139,7 @@
             "command": "shellCommand.execute",
             "args": {
                 "description": "Select a demo to debug",
-                "command": "echo client-server viz-app luma graph spatial xterm $(find modules/demo/deck modules/demo/tfjs modules/demo/ipc modules/demo/ssr modules/demo/sql -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
+                "command": "echo client-server viz-app api-server luma graph spatial xterm $(find modules/demo/deck modules/demo/tfjs modules/demo/ipc modules/demo/ssr modules/demo/sql -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
             }
         },
     ]
