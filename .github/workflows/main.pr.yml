@@ -23,6 +23,7 @@ jobs:
       - name: Install utilities
         env:
           is_gha_runner: "${{ contains(runner.name, 'GitHub') }}"
+          runner: ${{ toJSON(runner) }}
         if: env.is_gha_runner == 'false'
         shell: bash
         run: |
