@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
 
       - name: Install utilities
         if: env.is_gha_runner != 'true'
