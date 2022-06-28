@@ -22,8 +22,7 @@ jobs:
     steps:
       - name: Install utilities
         env:
-          runner_name: "${{ runner.name }}"
-          is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
+          is_gha_runner: "${{ contains(runner.name, 'GitHub') }}"
         if: env.is_gha_runner == 'false'
         shell: bash
         run: |
@@ -80,7 +79,7 @@ jobs:
         env:
           CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ matrix.LINUX }}"
-          is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
+          is_gha_runner: "${{ contains(runner.name, 'GitHub') }}"
           dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
           src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
         shell: bash

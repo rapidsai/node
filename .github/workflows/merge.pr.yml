@@ -27,7 +27,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -56,7 +56,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           file: dev/dockerfiles/devel/main.Dockerfile
@@ -83,7 +83,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -116,7 +116,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
@@ -146,7 +146,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -175,7 +175,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
@@ -199,7 +199,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -230,7 +230,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
@@ -253,7 +253,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -284,7 +284,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/cugraph.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
@@ -307,7 +307,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -338,7 +338,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
@@ -361,7 +361,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -392,7 +392,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
@@ -415,7 +415,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -446,7 +446,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/glfw.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
@@ -469,7 +469,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -500,7 +500,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/sql.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
@@ -523,7 +523,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -554,7 +554,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
@@ -577,7 +577,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -608,7 +608,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/demo.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
@@ -630,7 +630,7 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Install utilities
-        if: runner.name != 'ubuntu-20.04'
+        if: ${{ !contains(runner.name, 'GitHub') }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -662,7 +662,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ runner.name == 'ubuntu-20.04' }}
+          clean-first: ${{ contains(runner.name, 'GitHub') }}
           file: dev/dockerfiles/runtime/notebook.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook
