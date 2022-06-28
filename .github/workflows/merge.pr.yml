@@ -18,8 +18,8 @@ jobs:
 
   build-and-publish-devel-main-image:
     name: Build devel main image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -74,8 +74,8 @@ jobs:
     needs:
       - build-and-publish-devel-main-image
     name: Build devel packages image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -137,8 +137,8 @@ jobs:
       - build-and-publish-devel-main-image
       - build-and-publish-devel-packages-image
     name: Build runtime cuda-base image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -190,8 +190,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cudf image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -244,8 +244,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cugraph image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -298,8 +298,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuml image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -352,8 +352,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuspatial image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -406,8 +406,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime glfw image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -460,8 +460,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime sql image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -514,8 +514,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime main image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -568,8 +568,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime demo image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -621,8 +621,8 @@ jobs:
     needs:
       - build-and-publish-runtime-demo-image
     name: Build runtime notebook image
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:

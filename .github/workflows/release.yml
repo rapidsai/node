@@ -40,8 +40,8 @@ jobs:
 
   build-extract-and-release-packages:
     name: Build, extract, and release packages
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
