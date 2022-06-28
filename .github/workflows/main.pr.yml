@@ -22,6 +22,7 @@ jobs:
     steps:
       - name: Install utilities
         env:
+          runner_name: "${{ runner.name }}"
           is_gha_runner: "${{ runner.name == 'ubuntu-20.04' }}"
         if: env.is_gha_runner == 'false'
         shell: bash
