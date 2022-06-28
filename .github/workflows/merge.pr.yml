@@ -6,6 +6,7 @@ on:
       - main
 
 env:
+  UCX: "1.12.1"
   NODE: "16.15.1"
   RAPIDS: "22.06.00"
   REPOSITORY: "ghcr.io/rapidsai/node"
@@ -68,7 +69,9 @@ jobs:
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
             "NODE_VERSION=${{ env.NODE }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
@@ -551,6 +554,8 @@ jobs:
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
@@ -610,6 +615,8 @@ jobs:
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
@@ -669,6 +676,8 @@ jobs:
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"

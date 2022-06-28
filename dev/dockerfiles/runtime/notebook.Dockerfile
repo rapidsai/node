@@ -58,7 +58,7 @@ if __name__ == \"__main__\":\n\
  # Remove python3 kernelspec
  && jupyter kernelspec remove -f python3 \
  # Install ijavascript
- && npm install --global --unsafe-perm --no-audit --no-fund ijavascript \
+ && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier ijavascript \
  && ijsinstall --install=global --spec-path=full \
  \
  # Clean up

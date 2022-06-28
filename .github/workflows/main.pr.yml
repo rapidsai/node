@@ -16,6 +16,7 @@ jobs:
         CUDA: [11.6.2]
         LINUX: ["ubuntu20.04"]
     env:
+      UCX: "1.12.1"
       NODE: "16.15.1"
       RAPIDS: "22.06.00"
       REGISTRY: "ghcr.io"
@@ -163,6 +164,7 @@ jobs:
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
             docker build --pull --force-rm \
+              --build-arg UCX_VERSION="${{ env.UCX }}" \
               --build-arg NODE_VERSION="${{ env.NODE }}" \
               --build-arg LINUX_VERSION="${{ env.LINUX }}" \
               --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \

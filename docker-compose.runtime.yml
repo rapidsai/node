@@ -52,6 +52,8 @@ services:
       dockerfile: dev/dockerfiles/runtime/main.Dockerfile
       args:
         <<: *main_build_args
+        UCX_VERSION: ${UCX_VERSION:-1.12.1}
+        LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-base
 
   demo:
@@ -62,6 +64,8 @@ services:
       dockerfile: dev/dockerfiles/runtime/demo.Dockerfile
       args:
         <<: *main_build_args
+        UCX_VERSION: ${UCX_VERSION:-1.12.1}
+        LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-base
 
   glfw:
@@ -92,6 +96,8 @@ services:
       dockerfile: dev/dockerfiles/runtime/sql.Dockerfile
       args:
         <<: *main_build_args
+        UCX_VERSION: ${UCX_VERSION:-1.12.1}
+        LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-base
 
   cuml:

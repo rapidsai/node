@@ -182,7 +182,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && wget -O - https://github.com/trxcllnt/llnode/archive/refs/heads/use-llvm-project-monorepo.tar.gz \
   | tar -C /usr/local/lib/llnode -xzf - --strip-components=1 \
  && npm pack --pack-destination /usr/local/lib/llnode /usr/local/lib/llnode \
- && npm install --global --unsafe-perm --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
+ && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
  && echo "llnode: $(which -a llnode)" \
  && echo "llnode version: $(llnode --version)" \
  \
@@ -205,7 +205,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 ARG TARGETARCH
 
 ARG ADDITIONAL_GROUPS
-ARG UCX_VERSION=1.11.x
+ARG UCX_VERSION=1.12.1
 ARG FIXUID_VERSION=0.5.1
 ARG NODE_WEBRTC_VERSION=0.4.7
 
@@ -227,20 +227,14 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # SQL dependencies
     maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX build dependencies
-    automake autoconf libtool \
+    # automake autoconf libtool \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Install UCX
- && git clone --depth 1 --branch v${UCX_VERSION} https://github.com/openucx/ucx.git /tmp/ucx \
- && cd /tmp/ucx \
- && sed -i 's/io_demo_LDADD =/io_demo_LDADD = $(CUDA_LDFLAGS)/' /tmp/ucx/test/apps/iodemo/Makefile.am \
- && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
- && ../contrib/configure-release \
-    --prefix=/usr/local \
-    --without-java --with-cuda=/usr/local/cuda \
-    --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
- && make -C /tmp/ucx/build -j install \
+ && wget -O /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
+    https://github.com/openucx/ucx/releases/download/v${UCX_VERSION}/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
+ && dpkg -i /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb || true && apt --fix-broken install -y \
  \
  # Install fixuid
  && curl -SsL "https://github.com/boxboat/fixuid/releases/download/v$FIXUID_VERSION/fixuid-$FIXUID_VERSION-linux-${TARGETARCH}.tar.gz" \
@@ -299,7 +293,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
  # Install NVENC-enabled wrtc
  && wget -O /opt/rapids/wrtc-dev.tgz \
     https://github.com/trxcllnt/node-webrtc-builds/releases/download/v${NODE_WEBRTC_VERSION}/wrtc-${NODE_WEBRTC_VERSION}-linux-${TARGETARCH}.tgz \
- && npm install --global --unsafe-perm --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
+ && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \

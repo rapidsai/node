@@ -63,6 +63,7 @@ services:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
+        UCX_VERSION: ${UCX_VERSION:-1.12.1}
         NODE_VERSION: ${NODE_VERSION:-16.15.1}
         LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
