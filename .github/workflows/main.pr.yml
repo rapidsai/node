@@ -20,11 +20,14 @@ jobs:
       RAPIDS: "22.06.00"
       REGISTRY: "ghcr.io"
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
+
       - name: Install utilities
-        env:
-          is_gha_runner: "${{ contains(runner.name, 'GitHub') }}"
-          runner: ${{ toJSON(runner) }}
-        if: env.is_gha_runner == 'false'
+        if: env.is_gha_runner != 'true'
         shell: bash
         run: |
           sudo apt update
@@ -80,7 +83,6 @@ jobs:
         env:
           CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ matrix.LINUX }}"
-          is_gha_runner: "${{ contains(runner.name, 'GitHub') }}"
           dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
           src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
         shell: bash
@@ -89,7 +91,6 @@ jobs:
           echo "LINUX=${LINUX}" >> $GITHUB_ENV;
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
-          echo "is_gha_runner=${is_gha_runner}" >> $GITHUB_ENV;
           echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA}-${LINUX}-main" >> $GITHUB_ENV;
           echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
           echo "\

@@ -26,8 +26,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -56,7 +61,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           file: dev/dockerfiles/devel/main.Dockerfile
@@ -82,8 +87,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -116,7 +126,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
@@ -145,8 +155,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -175,7 +190,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
@@ -198,8 +213,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -230,7 +250,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
@@ -252,8 +272,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -284,7 +309,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/cugraph.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
@@ -306,8 +331,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -338,7 +368,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
@@ -360,8 +390,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -392,7 +427,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
@@ -414,8 +449,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -446,7 +486,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/glfw.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
@@ -468,8 +508,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -500,7 +545,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/sql.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
@@ -522,8 +567,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -554,7 +604,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
@@ -576,8 +626,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -608,7 +663,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/demo.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
@@ -629,8 +684,13 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}""
+          echo "is_gha_runner=${{ contains(runner.name, 'GitHub') }}" >> $GITHUB_ENV;
       - name: Install utilities
-        if: ${{ !contains(runner.name, 'GitHub') }}
+        if: ${{ env.is_gha_runner != 'true' }}
         run: |
           sudo apt update
           sudo apt install --no-install-recommends git-lfs
@@ -662,7 +722,7 @@ jobs:
           pull: true
           temp: ${{ runner.temp }}
           push: ${{ github.event_name == 'push' }}
-          clean-first: ${{ contains(runner.name, 'GitHub') }}
+          clean-first: ${{ env.is_gha_runner == 'true' }}
           file: dev/dockerfiles/runtime/notebook.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook
