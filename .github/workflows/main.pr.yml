@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.6.2]
+        CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     env:
       UCX: "1.12.1"
@@ -155,6 +155,7 @@ jobs:
           SCCACHE_BUCKET=node-rapids-sccache
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
           EOF
+          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
