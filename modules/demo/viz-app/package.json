@@ -8,9 +8,9 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider next dev",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build",
-    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build && next start"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next build && next start"
   },
   "dependencies": {
     "@deck.gl/core": "8.6.6",
