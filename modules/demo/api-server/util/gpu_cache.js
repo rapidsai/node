@@ -60,7 +60,7 @@ function json_aoa_to_dataframe(str, dtypes) {
   dtypes.forEach((_, ix) => {
     const get_ix       = `[${ix}]`;
     const parse_result = tokenized.getJSONObject(get_ix);
-    parse_result.setNullMask(1, 0);
+    parse_result.setNullMask([], 0);
     arr[ix] = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
