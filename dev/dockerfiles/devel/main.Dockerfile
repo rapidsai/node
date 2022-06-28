@@ -226,8 +226,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libgdal-dev \
     # SQL dependencies
     maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
-    # UCX build dependencies
-    # automake autoconf libtool \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev \
  \
