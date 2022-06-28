@@ -1,7 +1,7 @@
 name: Create GitHub release
 
 env:
-  NODE: "18.2.0"
+  NODE: "16.15.1"
   RAPIDS: "22.02.00"
   VERSION: "0.0.1"
   REPOSITORY: "ghcr.io/rapidsai/node"
