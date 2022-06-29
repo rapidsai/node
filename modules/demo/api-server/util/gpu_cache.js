@@ -28,10 +28,13 @@ function json_key_attributes_to_dataframe(str) {
   const dtypes  = [new Int32, new Float32, new Float32, new Int32, new Utf8String, new Utf8String];
   const no_open_list = str.split('[\n').gather([1], false);
   const tokenized    = no_open_list.split('},');
+  const keys         = tokenized.getJSONObject('.key');
+  keys.setNullMask(1, 0);
+  arr['key'] = keys.cast(new Int32);
   columns.forEach((col, ix) => {
     const parse_result = tokenized.getJSONObject('.attributes.' + columns[ix]);
-    const string_array = Series.new(parse_result);
-    arr[col]           = string_array.cast(dtypes[ix]);
+    parse_result.setNullMask([], 0);
+    arr[col] = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
@@ -43,7 +46,8 @@ function json_aos_to_dataframe(str, columns, dtypes) {
     const no_open_list = str.split('[\n').gather([1], false);
     const tokenized    = no_open_list.split('},');
     const parse_result = tokenized.getJSONObject('.' + columns[ix]);
-    arr[col]           = Series.new(parse_result).cast(dtypes[ix]);
+    parse_result.setNullMask(1, 0);
+    arr[col] = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
@@ -56,8 +60,8 @@ function json_aoa_to_dataframe(str, dtypes) {
   dtypes.forEach((_, ix) => {
     const get_ix       = `[${ix}]`;
     const parse_result = tokenized.getJSONObject(get_ix);
-    const string_array = Series.new(parse_result);
-    arr[ix]            = string_array.cast(dtypes[ix]);
+    parse_result.setNullMask([], 0);
+    arr[ix] = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
@@ -99,7 +103,7 @@ module.exports = {
     const tnodes = split.gather([1], false);
     const nodes  = json_key_attributes_to_dataframe(tnodes);
     const edges  = json_aos_to_dataframe(
-      tedges, ['key', 'source', 'target'], [new Utf8String, new Int32, new Int32]);
+      tedges, ['key', 'source', 'target'], [new Utf8String, new Int64, new Int64]);
     let optionsArr               = {};
     optionsArr['type']           = Series.new(toptions.getJSONObject('.type'));
     optionsArr['multi']          = Series.new(toptions.getJSONObject('.multi'));
@@ -129,7 +133,7 @@ module.exports = {
     const tnodes = split.gather([1], false);
     const tags   = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
     const clusters = json_aos_to_dataframe(
-      tclusters, ['key', 'color', 'clusterLabel'], [new Int32, new Utf8String, new Utf8String]);
+      tclusters, ['key', 'color', 'clusterLabel'], [new Int64, new Utf8String, new Utf8String]);
     const nodes =
       json_aos_to_dataframe(tnodes, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score'], [
         new Utf8String,
