@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-text-layer",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -17,7 +17,7 @@
     "@deck.gl/layers": "8.6.6",
     "@deck.gl/react": "8.6.6",
     "@luma.gl/constants": "8.5.10",
-    "@rapidsai/jsdom": "0.0.1",
+    "@rapidsai/jsdom": "22.6.0",
     "mjolnir.js": "2.6.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",

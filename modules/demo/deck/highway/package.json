@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-highway",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -13,10 +13,10 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@deck.gl/layers": "8.6.6",
     "@deck.gl/core": "8.6.6",
+    "@deck.gl/layers": "8.6.6",
     "@deck.gl/react": "8.6.6",
-    "@rapidsai/jsdom": "0.0.1",
+    "@rapidsai/jsdom": "22.6.0",
     "d3-request": "1.0.6",
     "d3-scale": "2.2.2",
     "mjolnir.js": "2.6.0",

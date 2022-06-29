@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/rmm",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -34,7 +34,7 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@rapidsai/cuda": "0.0.1"
+    "@rapidsai/cuda": "22.6.0"
   },
   "files": [
     "LICENSE",

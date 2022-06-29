@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/demo-viz-app",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "private": true,
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -13,16 +13,16 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@deck.gl/core": "8.6.6",
-    "@deck.gl/layers": "8.6.6",
-    "@deck.gl/react": "8.6.6",
     "@deck.gl/carto": "8.6.6",
+    "@deck.gl/core": "8.6.6",
     "@deck.gl/geo-layers": "8.6.6",
+    "@deck.gl/layers": "8.6.6",
     "@deck.gl/mesh-layers": "8.6.6",
+    "@deck.gl/react": "8.6.6",
     "@fortawesome/fontawesome-svg-core": "1.2.35",
     "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",
-    "@rapidsai/cudf": "0.0.1",
+    "@rapidsai/cudf": "22.6.0",
     "apache-arrow": "^8.0.0",
     "bootstrap": "4.6.0",
     "d3": "6.6.2",
@@ -32,14 +32,14 @@
     "next": "11.1.3",
     "react": "17.0.2",
     "react-bootstrap": "1.6.1",
+    "react-burger-menu": "3.0.6",
     "react-dom": "17.0.2",
     "react-map-gl": "5.3.16",
-    "react-burger-menu": "3.0.6",
-    "react-tabs": "3.2.2",
+    "react-native-webrtc": "1.92.2",
     "react-table": "7.7.0",
+    "react-tabs": "3.2.2",
     "simple-peer": "9.11.0",
-    "socket.io-client": "4.2.0",
-    "react-native-webrtc": "1.92.2"
+    "socket.io-client": "4.2.0"
   },
   "files": [
     "pages",

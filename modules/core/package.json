@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/core",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",
   "types": "build/js",
@@ -40,8 +40,8 @@
   "dependencies": {
     "@types/node": "^15.0.0",
     "bindings": "^1.5.0",
-    "tslib": "^2.3.0",
-    "cross-env": "7.0.3"
+    "cross-env": "7.0.3",
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.23",

@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-sql-cluster-server",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -18,18 +18,18 @@
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
     "@material-ui/pickers": "3.3.10",
-    "@rapidsai/cudf": "0.0.1",
-    "@rapidsai/sql": "0.0.1",
+    "@rapidsai/cudf": "22.6.0",
+    "@rapidsai/sql": "22.6.0",
     "apache-arrow": "^8.0.0",
+    "axios": "0.22.0",
     "bootstrap": "4.6.0",
     "fastify-arrow": "1.0.0",
     "fastify-nextjs": "6.0.0",
     "material-ui-confirm": "2.1.3",
+    "react": "17.0.2",
     "react-awesome-query-builder": "4.4.3",
     "react-bootstrap": "1.6.1",
     "react-dom": "17.0.2",
-    "react": "17.0.2",
-    "axios": "0.22.0",
     "react-loading-overlay": "1.0.1"
   },
   "files": [
