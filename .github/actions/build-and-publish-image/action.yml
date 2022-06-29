@@ -53,6 +53,10 @@ inputs:
     default: ""
     required: false
     description: "Password used to log in to the container registry"
+  SSH_PRIVATE_KEY:
+    default: ""
+    required: false
+    description: "Private SSH key for cloning private RAPIDS repositories"
   AWS_ACCESS_KEY_ID:
     default: ""
     required: false
@@ -61,10 +65,6 @@ inputs:
     default: ""
     required: false
     description: "AWS secret key for writing to the shared sccache S3 bucket"
-  RAPIDSAI_GITHUB_ACCESS_TOKEN:
-    default: ""
-    required: false
-    description: "GH token for cloning private RAPIDS repositories"
 
 outputs:
   digest:
@@ -119,11 +119,16 @@ runs:
       run: |
         echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> ${{ inputs.temp }}/sccache_credentials
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
-        echo "RAPIDSAI_GITHUB_ACCESS_TOKEN=${{ inputs.RAPIDSAI_GITHUB_ACCESS_TOKEN }}" >> ${{ inputs.temp }}/sccache_credentials
+    - name: Set up ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      if: ${{ inputs.SSH_PRIVATE_KEY != '' }}
+      with:
+        ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
       with:
+        ssh: "${{ env.SSH_AUTH_SOCK }}"
         pull: ${{ inputs.pull }}
         push: ${{ inputs.push }}
         file: ${{ inputs.file }}

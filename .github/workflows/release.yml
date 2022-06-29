@@ -90,4 +90,3 @@ jobs:
           tag_name: "v${{ env.RAPIDS }}"
           repository: ${{ inputs.repo }}
           draft: ${{ inputs.draft-release == true }}
-          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}

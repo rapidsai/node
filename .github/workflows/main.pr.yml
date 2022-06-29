@@ -157,6 +157,12 @@ jobs:
           EOF
           echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
 
+      - name: Set up ssh-agent
+        if: env.dev_changed == 'true' || env.src_changed == 'true'
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
+
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
@@ -174,8 +180,9 @@ jobs:
           fi
           if [[ ${src_changed} == 'true' ]]; then
             docker run --rm -t ${RUN_ARGS} \
+              -e SSH_AUTH_SOCK="$SSH_AUTH_SOCK" \
+              -v "$SSH_AUTH_SOCK:$SSH_AUTH_SOCK" \
               -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
               -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-              -e RAPIDSAI_GITHUB_ACCESS_TOKEN="${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}" \
               ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline && yarn build;';
           fi
