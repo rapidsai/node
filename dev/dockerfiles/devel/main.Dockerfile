@@ -252,10 +252,10 @@ paths:\n\
     --user-group ${ADDITIONAL_GROUPS} \
     --create-home --home-dir /opt/rapids \
     rapids \
- && mkdir -p /opt/rapids/node/.{cache,ssh} \
+ && mkdir -p /opt/rapids/{.ssh,node/.cache} \
  \
  # Add github.com to the list of known_hosts
- && ssh-keyscan -T -H github.com > /opt/rapids/.ssh/known_hosts \
+ && ssh-keyscan -H github.com > /opt/rapids/.ssh/known_hosts \
  && cp /root/.npmrc /opt/rapids/.npmrc \
  && ln -s /opt/rapids/node/.vscode/server /opt/rapids/.vscode-server \
  && ln -s /opt/rapids/node/.vscode/server-insiders /opt/rapids/.vscode-server-insiders \
