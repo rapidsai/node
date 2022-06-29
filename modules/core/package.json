@@ -11,7 +11,7 @@
   ],
   "bin": {
     "nvidia-cmake-js": "bin/exec_cmake.js",
-    "install-rapidsai-module": "bin/install_rapidsai_module.js"
+    "rapidsai-install-native-module": "bin/rapidsai_install_native_module.js"
   },
   "scripts": {
     "postinstall": "nvidia-cmake-js install",

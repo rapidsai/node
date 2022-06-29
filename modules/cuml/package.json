@@ -9,7 +9,7 @@
   "main": "index.js",
   "types": "build/js",
   "scripts": {
-    "install": "install-rapidsai-module",
+    "install": "rapidsai-install-native-module",
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
     "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",

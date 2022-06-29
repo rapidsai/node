@@ -49,8 +49,6 @@ const https = require('https');
 const slug  = [PKG_NAME, ...[GPU_ARCH || ``].filter(Boolean)].join('_');
 const path  = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release', `${slug}.node`);
 
-console.log('install-rapidsai-module path:', path);
-
 fs.access(path, fs.constants.F_OK, (err) => {
   if (err) {
     const arch = [GPU_ARCH ? `arch${GPU_ARCH}` : ``].filter(Boolean);
