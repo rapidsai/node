@@ -33,6 +33,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -47,17 +48,26 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             dev/dockerfiles/devel/main\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -101,6 +111,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -115,10 +126,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules
@@ -129,7 +150,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -175,6 +195,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -189,17 +210,26 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             dev/dockerfiles/runtime/base\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -238,6 +268,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -252,10 +283,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf)
@@ -264,7 +305,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -302,6 +342,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -316,10 +357,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|cugraph)
@@ -328,7 +379,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -366,6 +416,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -380,10 +431,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|cuml)
@@ -392,7 +453,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -430,6 +490,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -444,10 +505,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|cuspatial)
@@ -456,7 +527,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -494,6 +564,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -508,10 +579,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(core|glfw|webgl)
@@ -520,7 +601,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -558,6 +638,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -572,10 +653,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|sql)
@@ -584,7 +675,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -624,6 +714,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -638,10 +729,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
@@ -650,7 +751,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -690,6 +790,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -704,10 +805,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules
@@ -716,7 +827,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
@@ -755,6 +865,7 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
       - name: Install utilities
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
@@ -769,10 +880,20 @@ jobs:
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
       - name: Check if files changed
         id: files_changed
+        if: env.manual_build != 'true'
         uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules
@@ -782,7 +903,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
