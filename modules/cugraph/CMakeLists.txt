@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(rapidsai_cugraph VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_cugraph VERSION 22.06.00 LANGUAGES C CXX)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     return()
