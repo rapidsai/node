@@ -100,9 +100,11 @@ services:
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
     build:
       <<: *base_build_settings
+      dockerfile: dev/dockerfiles/devel/package.Dockerfile
       secrets:
         - sccache_credentials
-      dockerfile: dev/dockerfiles/devel/package.Dockerfile
+      ssh:
+        - "default=${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}"
       args:
         CUDAARCHS: "${CUDAARCHS:-ALL}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
@@ -112,7 +114,6 @@ services:
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
-
 
 secrets:
   sccache_credentials:
