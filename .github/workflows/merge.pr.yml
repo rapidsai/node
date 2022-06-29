@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   NODE: "16.15.1"
@@ -41,14 +42,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/devel/main.Dockerfile
@@ -93,14 +97,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/devel/package.Dockerfile
@@ -143,14 +150,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/base.Dockerfile
@@ -192,14 +202,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/cudf.Dockerfile
@@ -240,14 +253,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/cugraph.Dockerfile
@@ -288,14 +304,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/cuml.Dockerfile
@@ -336,14 +355,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/cuspatial.Dockerfile
@@ -384,14 +406,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/glfw.Dockerfile
@@ -432,14 +457,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/sql.Dockerfile
@@ -480,14 +508,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/main.Dockerfile
@@ -528,14 +559,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/demo.Dockerfile
@@ -576,14 +610,17 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
+        env:
+          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
+          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        if: env.manual_build == 'true' || env.file_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           pull: true
-          push: ${{ github.event_name == 'push' }}
+          push: true
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/runtime/notebook.Dockerfile
