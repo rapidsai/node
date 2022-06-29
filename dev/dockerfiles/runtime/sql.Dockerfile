@@ -9,6 +9,8 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
+ENV RAPIDSAI_SKIP_DOWNLOAD=1
+
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
         /tmp/rapids/rapidsai-core-*.tgz \

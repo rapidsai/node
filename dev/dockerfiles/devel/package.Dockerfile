@@ -33,6 +33,8 @@ COPY --chown=rapids:rapids modules       modules
 
 USER root
 
+ENV RAPIDSAI_SKIP_DOWNLOAD=1
+
 RUN --mount=type=secret,id=sccache_credentials \
     if [ -f /run/secrets/sccache_credentials ]; then \
         export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \

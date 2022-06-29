@@ -56,7 +56,7 @@ jobs:
 
           docker run --rm -v "$PWD/build:/out" \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
-              sh -c "cp /opt/rapids/*-Linux.tar.gz /out/";
+              sh -c "cp /opt/rapids/rapidsai_*-*-*.tar.gz /out/";
 
           TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
 
