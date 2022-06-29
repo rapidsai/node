@@ -25,16 +25,6 @@ x-base-settings: &base_service_settings
 
 x-main-service-settings: &main_service_settings
   <<: *base_service_settings
-  volumes:
-    - ".:/opt/rapids/node:rw"
-    - "/etc/fonts:/etc/fonts:ro"
-    - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-    - "/usr/share/fonts:/usr/share/fonts:ro"
-    - "/usr/share/icons:/usr/share/icons:ro"
-    - "/etc/timezone:/etc/timezone"
-    - "/etc/localtime:/etc/localtime"
-    - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
-    - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
   environment: &main_environment_settings
     <<: *base_environment_settings
     # Use the host's X11 display
@@ -45,7 +35,6 @@ x-main-service-settings: &main_service_settings
     XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/rapids/node/.cache/jit"
     DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
-    GCC_COLORS: "${GCC_COLORS:-error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01}"
   cap_add:
     - SYS_ADMIN
     - SYS_PTRACE
@@ -68,6 +57,43 @@ services:
         LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
         ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
+    environment:
+      <<: *main_environment_settings
+      SSH_AUTH_SOCK: "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}"
+      GCC_COLORS: "${GCC_COLORS:-error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01}"
+    volumes:
+      - ".:/opt/rapids/node:rw"
+      - "/etc/fonts:/etc/fonts:ro"
+      - "/etc/timezone:/etc/timezone"
+      - "/etc/localtime:/etc/localtime"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "/usr/share/fonts:/usr/share/fonts:ro"
+      - "/usr/share/icons:/usr/share/icons:ro"
+      - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
+      - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}"
+
+  notebook:
+    <<: *main_service_settings
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-notebook
+    build:
+      <<: *base_build_settings
+      dockerfile: dev/dockerfiles/devel/notebook.Dockerfile
+      args:
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+    environment:
+      <<: *main_environment_settings
+      QT_AUTO_SCREEN_SCALE_FACTOR: 0
+    volumes:
+      - ".:/opt/rapids/node:rw"
+      - "/etc/fonts:/etc/fonts:ro"
+      - "/etc/timezone:/etc/timezone"
+      - "/etc/localtime:/etc/localtime"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "/usr/share/fonts:/usr/share/fonts:ro"
+      - "/usr/share/icons:/usr/share/icons:ro"
+      - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
 
   packages:
     <<: *base_service_settings
@@ -87,17 +113,6 @@ services:
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
 
-  notebook:
-    <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-notebook
-    build:
-      <<: *base_build_settings
-      dockerfile: dev/dockerfiles/devel/notebook.Dockerfile
-      args:
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
-    environment:
-      <<: *main_environment_settings
-      QT_AUTO_SCREEN_SCALE_FACTOR: 0
 
 secrets:
   sccache_credentials:
