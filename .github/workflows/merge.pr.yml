@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -122,7 +122,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -206,7 +206,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -279,7 +279,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -353,7 +353,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -427,7 +427,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -501,7 +501,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -575,7 +575,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -649,7 +649,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -725,7 +725,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -801,7 +801,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
@@ -876,7 +876,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
