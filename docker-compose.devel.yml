@@ -59,7 +59,7 @@ services:
         ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
     environment:
       <<: *main_environment_settings
-      SSH_AUTH_SOCK: "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}"
+      SSH_AUTH_SOCK: "/ssh-agent"
       GCC_COLORS: "${GCC_COLORS:-error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01}"
     volumes:
       - ".:/opt/rapids/node:rw"
@@ -71,7 +71,7 @@ services:
       - "/usr/share/icons:/usr/share/icons:ro"
       - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
       - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
-      - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}"
+      - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:/ssh-agent"
 
   notebook:
     <<: *main_service_settings

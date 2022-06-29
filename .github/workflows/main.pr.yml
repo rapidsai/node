@@ -141,6 +141,12 @@ jobs:
           df -h
           docker images
 
+      - name: Set up ssh-agent
+        if: env.dev_changed == 'true' || env.src_changed == 'true'
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
+
       - name: Make container .env
         if: env.src_changed == 'true'
         shell: bash
@@ -154,14 +160,10 @@ jobs:
           SCCACHE_IDLE_TIMEOUT=32768
           SCCACHE_BUCKET=node-rapids-sccache
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           EOF
           echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
-
-      - name: Set up ssh-agent
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
@@ -180,9 +182,8 @@ jobs:
           fi
           if [[ ${src_changed} == 'true' ]]; then
             docker run --rm -t ${RUN_ARGS} \
-              -e SSH_AUTH_SOCK="$SSH_AUTH_SOCK" \
-              -v "$SSH_AUTH_SOCK:$SSH_AUTH_SOCK" \
-              -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-              -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e "SSH_AUTH_SOCK=/ssh-agent" \
+              -v "$SSH_AUTH_SOCK:/ssh-agent" \
+              -v "$HOME/.ssh:/opt/rapids/.ssh" \
               ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline && yarn build;';
           fi
