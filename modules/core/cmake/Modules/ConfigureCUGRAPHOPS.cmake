@@ -33,7 +33,7 @@ function(find_and_configure_cugraph_ops)
         _get_update_disconnected_state(cugraph-ops ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cugraph-ops
             VERSION             ${VERSION}
-            GIT_REPOSITORY      "https://$ENV{RAPIDSAI_GITHUB_ACCESS_TOKEN}@github.com/rapidsai/cugraph-ops.git"
+            GIT_REPOSITORY      "git@github.com:rapidsai/cugraph-ops.git"
             GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}

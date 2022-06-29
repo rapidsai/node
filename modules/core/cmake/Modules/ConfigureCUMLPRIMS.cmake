@@ -31,7 +31,7 @@ function(find_and_configure_cumlprims_mg)
         _get_update_disconnected_state(cumlprims_mg ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cumlprims_mg
             VERSION             ${VERSION}
-            GIT_REPOSITORY      "https://$ENV{RAPIDSAI_GITHUB_ACCESS_TOKEN}@github.com/rapidsai/cumlprims_mg.git"
+            GIT_REPOSITORY      "git@github.com:rapidsai/cumlprims_mg.git"
             GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
