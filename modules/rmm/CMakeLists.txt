@@ -48,6 +48,7 @@ include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureRMM.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 ###################################################################################################
 # - rapidsai_rmm target -------------------------------------------------------------------------------
@@ -92,6 +93,8 @@ target_link_libraries(${PROJECT_NAME}
                       rmm::rmm
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node"
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
+
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

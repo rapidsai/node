@@ -70,7 +70,6 @@ if __name__ == \"__main__\":\n\
     /var/lib/apt/lists/* \
     /var/cache/apt/archives/*
 
-
 COPY --chown=node:node modules/cudf/notebooks     /home/node/cudf
 COPY --chown=node:node modules/demo/umap/*.ipynb  /home/node/cugraph/
 COPY --chown=node:node modules/demo/graph/*.ipynb /home/node/cugraph/

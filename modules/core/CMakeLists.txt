@@ -35,6 +35,7 @@ execute_process(COMMAND node -p
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
@@ -69,6 +70,8 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
               PRIVATE CUDA::nvml)
+
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

@@ -19,6 +19,7 @@
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
     "cpp:clean": "nvidia-cmake-js clean",
+    "cpp:clean:debug": "nvidia-cmake-js clean -D",
     "cpp:build": "nvidia-cmake-js build -g",
     "cpp:build:debug": "nvidia-cmake-js build -g -D",
     "cpp:compile": "nvidia-cmake-js compile -g",

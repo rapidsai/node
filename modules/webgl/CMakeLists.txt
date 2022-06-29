@@ -46,8 +46,12 @@ include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGL.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGLEW.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
-find_and_configure_glew(2.1.0 ${NODE_RAPIDS_WEBGL_STATIC_LINK})
+find_and_configure_glew(
+    VERSION 2.1.0
+    USE_STATIC ${NODE_RAPIDS_WEBGL_STATIC_LINK}
+    EXPORT_SET rapidsai_webgl-exports)
 
 ###################################################################################################
 # - rapidsai_webgl target -------------------------------------------------------------------------
@@ -86,6 +90,8 @@ target_link_libraries(${PROJECT_NAME}
                       OpenGL::EGL
                       OpenGL::OpenGL
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
+
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

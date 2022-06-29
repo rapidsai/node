@@ -63,6 +63,7 @@ execute_process(COMMAND node -p
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDF.cmake")
@@ -101,6 +102,11 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
+target_compile_definitions(${PROJECT_NAME}
+    PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+           "$<$<COMPILE_LANGUAGE:CUDA>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+)
+
 if(TARGET cudf::cudf)
     set(LIBCUDF_LIBRARY cudf::cudf)
     set(LIBCUDF_INCLUDE_DIRS "")
@@ -132,7 +138,6 @@ target_link_libraries(${PROJECT_NAME}
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")
 generate_arch_specific_custom_targets(
   NAME ${PROJECT_NAME}
-  # DEPENDENCIES ${deps}
   DEPENDENCIES "cudf::cudf"
                "cuml::cuml++"
                "faiss::faiss"
@@ -141,6 +146,10 @@ generate_arch_specific_custom_targets(
                "raft::raft_nn_lib"
                "raft::raft_distance_lib"
 )
+
+generate_install_rules(
+  NAME ${PROJECT_NAME}
+  CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

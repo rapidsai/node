@@ -60,6 +60,7 @@ include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUSPATIAL.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 ###################################################################################################
 # - rapidsai_cuspatial target -------------------------------------------------------------------------
@@ -88,6 +89,11 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
+target_compile_definitions(${PROJECT_NAME}
+    PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+           "$<$<COMPILE_LANGUAGE:CUDA>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+)
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
@@ -111,6 +117,10 @@ generate_arch_specific_custom_targets(
   DEPENDENCIES "cudf::cudf"
                "cuspatial::cuspatial"
 )
+
+generate_install_rules(
+  NAME ${PROJECT_NAME}
+  CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

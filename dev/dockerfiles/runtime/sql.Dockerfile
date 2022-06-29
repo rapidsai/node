@@ -11,11 +11,18 @@ WORKDIR /home/node
 
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-       /tmp/rapids/rapidsai-core-*.tgz  \
-       /tmp/rapids/rapidsai-cuda-*.tgz  \
-       /tmp/rapids/rapidsai-rmm-*.tgz   \
-       /tmp/rapids/rapidsai-cudf-*.tgz  \
-       /tmp/rapids/rapidsai-sql-*.tgz   ;
+        /tmp/rapids/rapidsai-core-*.tgz \
+        /tmp/rapids/rapidsai-cuda-*.tgz \
+        /tmp/rapids/rapidsai-rmm-*.tgz  \
+        /tmp/rapids/rapidsai-cudf-*.tgz \
+        /tmp/rapids/rapidsai-sql-*.tgz; \
+    for x in cudf sql; do \
+        mkdir node_modules/@rapidsai/${x}/build/Release; \
+        tar -C node_modules/@rapidsai/${x}/build/Release \
+            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
+            --wildcards --strip-components=2 \
+            -x "**/lib/rapidsai_${x}.node" ; \
+    done
 
 FROM scratch as ucx-deb-amd64
 

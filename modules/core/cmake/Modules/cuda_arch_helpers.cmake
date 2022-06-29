@@ -74,7 +74,10 @@ function(_generate_arch_specific_custom_target)
     COMMAND ${CMAKE_COMMAND} -E rename ${name}.node ${name_arch}.node
     # Rename `${name_all}.node` back to `${name}.node`
     COMMAND ${CMAKE_COMMAND} -E rename ${name_all}.node ${name}.node
-    VERBATIM DEPENDS "${depends_on}" COMMAND_EXPAND_LISTS
+    VERBATIM
+    COMMAND_EXPAND_LISTS
+    DEPENDS "${depends_on}"
+    BYPRODUCTS "${name_arch}.node"
   )
   set(depends_on "${name_arch}")
 

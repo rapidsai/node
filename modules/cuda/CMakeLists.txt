@@ -41,6 +41,7 @@ execute_process(COMMAND node -p
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 ###################################################################################################
 # - rapidsai_cuda target ------------------------------------------------------------------------------
@@ -74,6 +75,11 @@ target_include_directories(${PROJECT_NAME}
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
 
+target_compile_definitions(${PROJECT_NAME}
+    PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+           "$<$<COMPILE_LANGUAGE:CUDA>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+)
+
 target_link_libraries(${PROJECT_NAME}
                PUBLIC ${CMAKE_JS_LIB}
                       CUDA::nvrtc
@@ -81,6 +87,8 @@ target_link_libraries(${PROJECT_NAME}
                       CUDA::nppig
                       CUDA::nppicc
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
+
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

@@ -45,16 +45,18 @@ include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGL.cmake")
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGLFW.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 function(_find_glfw VARIANT USE_WAYLAND USE_EGLHEADLESS)
     find_and_configure_glfw(
-        glfw_${VARIANT}
-        3.3.2                                   # version
-        https://github.com/trxcllnt/glfw.git    # git repo
-        fea/headless-egl-with-fallback          # git tag
-        OFF                                     # build + dynamically link libglfw.so
-        ${USE_WAYLAND}
-        ${USE_EGLHEADLESS}
+        VARIANT         ${VARIANT}
+        VERSION         3.3.2                                # version
+        GIT_REPO        https://github.com/trxcllnt/glfw.git # git repo
+        GIT_TAG         fea/headless-egl-with-fallback       # git tag
+        USE_SHARED_LIBS OFF                                  # build + dynamically link libglfw.so
+        USE_WAYLAND     ${USE_WAYLAND}
+        USE_EGLHEADLESS ${USE_EGLHEADLESS}
+        EXPORT_SET      rapidsai_glfw-exports
     )
 endfunction()
 
@@ -79,7 +81,7 @@ function(make_rapidsai_glfw_target VARIANT DEFINES)
                 CXX_STANDARD_REQUIRED               ON
                 CUDA_STANDARD                       17
                 CUDA_STANDARD_REQUIRED              ON
-                # NO_SYSTEM_FROM_IMPORTED             ON
+                NO_SYSTEM_FROM_IMPORTED             ON
                 POSITION_INDEPENDENT_CODE           ON
                 INTERFACE_POSITION_INDEPENDENT_CODE ON
     )
@@ -112,6 +114,12 @@ endfunction()
 make_rapidsai_glfw_target(x11 "-DGLFW_EXPOSE_NATIVE_X11")
 # make_rapidsai_glfw_target(wayland "-DGLFW_EXPOSE_NATIVE_WAYLAND")
 make_rapidsai_glfw_target(eglheadless "-DGLFW_EXPOSE_NATIVE_EGL_EXT -D_GLFW_EGL_LIBRARY=libEGL_nvidia.so.0")
+
+generate_install_rules(
+  NAME           ${PROJECT_NAME}
+  GLOBAL_TARGETS ${PROJECT_NAME}_x11
+                 ${PROJECT_NAME}_eglheadless
+)
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

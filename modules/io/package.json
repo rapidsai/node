@@ -19,6 +19,7 @@
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
     "cpp:clean": "nvidia-cmake-js clean",
+    "cpp:clean:debug": "nvidia-cmake-js clean -D",
     "cpp:build": "nvidia-cmake-js -g build",
     "cpp:build:debug": "nvidia-cmake-js -g build -D",
     "cpp:compile": "nvidia-cmake-js -g compile",
@@ -30,7 +31,8 @@
     "cpp:reconfigure": "nvidia-cmake-js -g reconfigure",
     "cpp:reconfigure:debug": "nvidia-cmake-js -g reconfigure -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
+    "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
     "@rapidsai/cudf": "0.0.1"
@@ -41,8 +43,6 @@
     "index.js",
     "package.json",
     "CMakeLists.txt",
-    "build/js",
-    "build/Release/*.so*",
-    "build/Release/*.node"
+    "build/js"
   ]
 }

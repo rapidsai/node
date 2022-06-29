@@ -50,27 +50,29 @@ jobs:
     steps:
 
       - name: Extract node native modules
+        shell: bash
         run: |
           mkdir -p build
+
           docker run --rm -v "$PWD/build:/out" \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
-              sh -c "cp /opt/rapids/*.tgz /out/";
-          VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
-          for x in cuda rmm cudf cugraph cuml cuspatial io sql; do
-              tar -C build -z \
-                  -f build/rapidsai-$x-*.tgz \
-                  --wildcards --strip-components=3 \
-                  -x "package/build/Release/rapidsai_$x*.node";
-              mv build/rapidsai_$x.node build/rapidsai_$x-${VER_TAG}.node;
-          done;
+              sh -c "cp /opt/rapids/*-Linux.tar.gz /out/";
+
+          TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
+
           for x in cudf cugraph cuml cuspatial io sql; do
-              for y in 60 70 75 80 86; do
-                ARCH_TAG="arch${y}";
-                mv build/rapidsai_$x_$y.node build/rapidsai_$x-${VER_TAG}-${ARCH_TAG}.node;
-              done
+              tar -zf build/rapidsai_${x}-*.tar.gz \
+                  --wildcards --strip-components=2 \
+                  -C build -x "*/rapidsai_${x}*.node" \
+                  --transform="s/rapidsai_${x}.node/rapidsai_${x}-${TAG}.node/" \
+                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${TAG}-arch60/" \
+                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${TAG}-arch70/" \
+                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${TAG}-arch75/" \
+                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${TAG}-arch80/" \
+                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${TAG}-arch86/" ;
           done;
 
-          rm -rf build/*.tgz;
+          rm -rf build/*.tar.gz;
 
       - name: Upload node native modules
         uses: actions/upload-artifact@v2

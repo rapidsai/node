@@ -3,7 +3,6 @@
 ARG FROM_IMAGE
 ARG BUILD_IMAGE
 ARG DEVEL_IMAGE
-ARG DEVEL_IMAGE
 
 FROM ${BUILD_IMAGE} as build
 FROM ${DEVEL_IMAGE} as devel
@@ -12,20 +11,27 @@ WORKDIR /home/node
 
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-       /tmp/rapids/wrtc-dev.tgz             \
-       /tmp/rapids/rapidsai-core-*.tgz      \
-       /tmp/rapids/rapidsai-cuda-*.tgz      \
-       /tmp/rapids/rapidsai-glfw-*.tgz      \
-       /tmp/rapids/rapidsai-webgl-*.tgz     \
-       /tmp/rapids/rapidsai-rmm-*.tgz       \
-       /tmp/rapids/rapidsai-cudf-*.tgz      \
-       /tmp/rapids/rapidsai-sql-*.tgz       \
-       /tmp/rapids/rapidsai-cuml-*.tgz      \
-       /tmp/rapids/rapidsai-cugraph-*.tgz   \
-       /tmp/rapids/rapidsai-cuspatial-*.tgz \
-       /tmp/rapids/rapidsai-io-*.tgz        \
-       /tmp/rapids/rapidsai-deck.gl-*.tgz   \
-       /tmp/rapids/rapidsai-jsdom-*.tgz     ;
+        /tmp/rapids/wrtc-dev.tgz             \
+        /tmp/rapids/rapidsai-core-*.tgz      \
+        /tmp/rapids/rapidsai-cuda-*.tgz      \
+        /tmp/rapids/rapidsai-glfw-*.tgz      \
+        /tmp/rapids/rapidsai-webgl-*.tgz     \
+        /tmp/rapids/rapidsai-rmm-*.tgz       \
+        /tmp/rapids/rapidsai-cudf-*.tgz      \
+        /tmp/rapids/rapidsai-sql-*.tgz       \
+        /tmp/rapids/rapidsai-cuml-*.tgz      \
+        /tmp/rapids/rapidsai-cugraph-*.tgz   \
+        /tmp/rapids/rapidsai-cuspatial-*.tgz \
+        /tmp/rapids/rapidsai-io-*.tgz        \
+        /tmp/rapids/rapidsai-deck.gl-*.tgz   \
+        /tmp/rapids/rapidsai-jsdom-*.tgz;    \
+    for x in cudf cuml cugraph cuspatial sql io; do \
+        mkdir node_modules/@rapidsai/${x}/build/Release; \
+        tar -C node_modules/@rapidsai/${x}/build/Release \
+            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
+            --wildcards --strip-components=2 \
+            -x "**/lib/rapidsai_${x}.node" ; \
+    done
 
 FROM scratch as ucx-deb-amd64
 
