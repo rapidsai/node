@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3
+
 ARG FROM_IMAGE
 ARG BUILD_IMAGE
 ARG DEVEL_IMAGE

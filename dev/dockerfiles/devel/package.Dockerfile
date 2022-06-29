@@ -50,9 +50,10 @@ SCCACHE_IDLE_TIMEOUT=$SCCACHE_IDLE_TIMEOUT\n\
  && yarn --pure-lockfile --network-timeout 1000000 \
  && yarn build \
  && yarn dev:npm:pack \
- && chown rapids:rapids build/*.tgz \
- && mv build/*.tgz ../
+ && chown rapids:rapids build/*.{tgz,tar.gz} \
+ && mv build/*.tgz ../ && mv build/*.tar.gz ../
 
 FROM alpine:latest
 
 COPY --from=build /opt/rapids/*.tgz /opt/rapids/
+COPY --from=build /opt/rapids/*.tar.gz /opt/rapids/
