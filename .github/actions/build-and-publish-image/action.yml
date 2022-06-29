@@ -121,14 +121,12 @@ runs:
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
     - name: Set up ssh-agent
       uses: webfactory/ssh-agent@v0.5.4
-      if: ${{ inputs.SSH_PRIVATE_KEY != '' }}
       with:
         ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
       with:
-        ssh: "${{ env.SSH_AUTH_SOCK }}"
         pull: ${{ inputs.pull }}
         push: ${{ inputs.push }}
         file: ${{ inputs.file }}
@@ -137,6 +135,8 @@ runs:
         load: ${{ inputs.push == 'false' }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
+        ssh: |
+          default=${{ env.SSH_AUTH_SOCK }}
         labels: |
           org.opencontainers.image.vendor=NVIDIA
           org.opencontainers.image.source=https://github.com/rapidsai/node
