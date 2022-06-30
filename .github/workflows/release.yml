@@ -76,14 +76,14 @@ jobs:
 
       - name: Upload node native modules
         uses: actions/upload-artifact@v2
-        if: ${{ inputs.make-release != true }}
+        if: inputs.make-release != true
         with:
           path: build/*.node
           name: rapidsai-native-modules
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
-        if: ${{ inputs.make-release == true }}
+        if: inputs.make-release == true
         with:
           body: ""
           files: build/*.node

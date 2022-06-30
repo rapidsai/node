@@ -29,10 +29,6 @@ inputs:
     default: "linux/amd64"
     required: false
     description: "Platforms to build"
-  clean-first:
-    default: true
-    required: true
-    description: "Free up disk space before building image"
   buildx-driver-opts:
     default: ""
     required: false
@@ -77,24 +73,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Free up disk space
-      if: inputs.clean-first == 'true'
-      shell: bash
-      run: |
-        df -h
-        docker images
-        sudo swapoff -a
-        sudo rm -f /swapfile
-        sudo apt clean
-        sudo rm -rf /opt/ghc "$CONDA" \
-          /usr/share/swift \
-          /usr/share/dotnet \
-          /usr/local/lib/android \
-          /home/linuxbrew/.linuxbrew \
-          /opt/hostedtoolcache/CodeQL
-        docker rmi $(docker image ls -aq) || true
-        df -h
-        docker images
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx context
@@ -143,6 +121,7 @@ runs:
         secret-files: |
           "sccache_credentials=${{ inputs.temp }}/sccache_credentials"
     - name: Clean up
+      if: always()
       shell: bash
       run: |
         rm ${{ inputs.temp }}/sccache_credentials

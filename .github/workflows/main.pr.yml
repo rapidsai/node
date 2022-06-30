@@ -35,7 +35,7 @@ jobs:
           sudo apt install --no-install-recommends git-lfs
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
           path: node
@@ -103,6 +103,12 @@ jobs:
           " >> $GITHUB_ENV;
           echo "EOF" >> $GITHUB_ENV;
 
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
+        uses: ./node/.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
       - name: Cache C++ dependencies
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         uses: actions/cache@v2
@@ -121,25 +127,6 @@ jobs:
             .yarn
             .cache
             node/node_modules
-
-      - name: Free up disk space
-        if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
-        shell: bash
-        run: |
-          df -h
-          docker images
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          sudo rm -rf /opt/ghc "$CONDA" \
-            /usr/share/swift \
-            /usr/share/dotnet \
-            /usr/local/lib/android \
-            /home/linuxbrew/.linuxbrew \
-            /opt/hostedtoolcache/CodeQL
-          docker rmi $(docker image ls -aq) || true
-          df -h
-          docker images
 
       - name: Set up ssh-agent
         if: env.dev_changed == 'true' || env.src_changed == 'true'

@@ -1,0 +1,31 @@
+name: free-disk-space
+
+description: "Free up disk space on the GitHub-hosted runners"
+
+inputs:
+  tool_cache:
+    required: true
+    description: "GitHub runner's tool_cache"
+
+runs:
+  using: composite
+  steps:
+    - name: Free up disk space
+      shell: bash
+      run: |
+        df -h
+        docker images
+        sudo swapoff -a
+        sudo rm -f /swapfile
+        sudo apt clean
+        sudo rm -rf \
+          "$CONDA" \
+          /opt/ghc \
+          /usr/share/swift \
+          /usr/share/dotnet \
+          /usr/local/lib/android \
+          /home/linuxbrew/.linuxbrew \
+          ${{ inputs.tool_cache }}/CodeQL
+        docker rmi $(docker image ls -aq) || true
+        df -h
+        docker images
