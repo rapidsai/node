@@ -101,10 +101,10 @@ services:
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/package.Dockerfile
+      ssh:
+        - default
       secrets:
         - sccache_credentials
-      ssh:
-        - "default=${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}"
       args:
         CUDAARCHS: "${CUDAARCHS:-ALL}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"

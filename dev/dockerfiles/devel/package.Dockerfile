@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.3
+#syntax=docker/dockerfile-upstream:master
 
 ARG FROM_IMAGE
 
@@ -40,7 +40,9 @@ RUN --mount=type=ssh,required=true \
     if [ -f /run/secrets/sccache_credentials ]; then \
         export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \
     fi; \
-    echo -e "build context:\n$(find .)" \
+    mkdir -p -m 0700 /root/.ssh \
+ && ssh-keyscan -H github.com > /root/.ssh/known_hosts \
+ && echo -e "build context:\n$(find .)" \
  && bash -c 'echo -e "\
 CUDAARCHS=$CUDAARCHS\n\
 PARALLEL_LEVEL=$PARALLEL_LEVEL\n\
