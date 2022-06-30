@@ -12,5 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const gl: any = require('bindings')('rapidsai_webgl.node').init();
+import {addon as CORE} from '@rapidsai/core';
+
+export const gl: any = require('bindings')('rapidsai_webgl.node').init(CORE);
 export default gl;

@@ -52,7 +52,8 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        StaticMethod<&Table::from_arrow>("fromArrow"),
                        InstanceMethod<&Table::drop_nans>("dropNans"),
                        InstanceMethod<&Table::drop_nulls>("dropNulls"),
-                       InstanceMethod<&Table::drop_duplicates>("dropDuplicates"),
+                       InstanceMethod<&Table::unique>("unique"),
+                       InstanceMethod<&Table::distinct>("distinct"),
                        InstanceMethod<&Table::interleave_columns>("interleaveColumns"),
                        StaticMethod<&Table::concat>("concat"),
                        StaticMethod<&Table::full_join>("fullJoin"),
@@ -168,8 +169,9 @@ Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
   NODE_CUDF_EXPECT(args[0].IsArray(), "order_by ascending argument expects an array", args.Env());
   NODE_CUDF_EXPECT(args[1].IsArray(), "order_by null_order argument expects an array", args.Env());
 
-  std::vector<bool> ascending  = args[0];
-  std::vector<bool> null_order = args[1];
+  std::vector<bool> ascending         = args[0];
+  std::vector<bool> null_order        = args[1];
+  rmm::mr::device_memory_resource* mr = args[2];
 
   NODE_CUDF_EXPECT(ascending.size() == null_order.size(),
                    "ascending and null_order must be the same size",
@@ -197,10 +199,10 @@ Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
     }
   }
 
-  std::unique_ptr<cudf::column> result =
-    cudf::sorted_order(table_view, column_order, null_precedece);
-
-  return Column::New(info.Env(), std::move(result))->Value();
+  try {
+    return Column::New(info.Env(),
+                       cudf::sorted_order(table_view, column_order, null_precedece, mr));
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 }  // namespace nv

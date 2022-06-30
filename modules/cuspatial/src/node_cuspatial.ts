@@ -15,6 +15,9 @@
 import {Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
 import {MemoryResource} from '@rapidsai/rmm';
 
+/** @ignore */
+export declare const _cpp_exports: any;
+
 export declare function createQuadtree<T extends FloatingPoint>(xs: Column<T>,
                                                                 ys: Column<T>,
                                                                 xMin: number,

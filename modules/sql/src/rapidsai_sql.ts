@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
 
 import {DataFrame, Table} from '@rapidsai/cudf';
 import {ParsedSchema} from './SQLTable';
+
+/** @ignore */
+export declare const _cpp_exports: any;
 
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 

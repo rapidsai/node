@@ -15,7 +15,7 @@
 #=============================================================================
 
 execute_process(COMMAND node -p "require('node-addon-api').include.replace(/\"/g, '')"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NAPI_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 

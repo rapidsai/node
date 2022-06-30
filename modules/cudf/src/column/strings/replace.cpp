@@ -28,7 +28,7 @@ Column::wrapper_t Column::replace_slice(std::string const& repl,
                                         rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::replace_slice(this->view(), repl, start, stop, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Column::replace_slice(Napi::CallbackInfo const& info) {

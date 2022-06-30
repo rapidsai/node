@@ -105,7 +105,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
       index.cast(new Bool8).fill(true).scatter(false, slice)._col.boolsToMask();
 
     return new Column({
-      type: this._col.type ,
+      type: this._col.type,
       data: self._col.data,
       offset: self._col.offset,
       length: self._col.length,

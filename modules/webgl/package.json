@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/webgl",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -19,22 +19,22 @@
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
     "cpp:clean": "nvidia-cmake-js clean",
-    "cpp:build": "nvidia-cmake-js build -g && yarn dev:copy:libs",
+    "cpp:clean:debug": "nvidia-cmake-js clean -D",
+    "cpp:build": "nvidia-cmake-js build -g",
     "cpp:build:debug": "nvidia-cmake-js build -g -D",
-    "cpp:compile": "nvidia-cmake-js compile -g && yarn dev:copy:libs",
+    "cpp:compile": "nvidia-cmake-js compile -g",
     "cpp:compile:debug": "nvidia-cmake-js compile -g -D",
     "cpp:configure": "nvidia-cmake-js configure -g",
     "cpp:configure:debug": "nvidia-cmake-js configure -g -D",
-    "cpp:rebuild": "nvidia-cmake-js rebuild -g && yarn dev:copy:libs",
+    "cpp:rebuild": "nvidia-cmake-js rebuild -g",
     "cpp:rebuild:debug": "nvidia-cmake-js rebuild -g -D",
     "cpp:reconfigure": "yarn cpp:clean && nvidia-cmake-js configure -g",
     "cpp:reconfigure:debug": "yarn cpp:clean && nvidia-cmake-js configure -g -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs rapidsai_webgl.node libglew.so"
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@rapidsai/core": "0.0.1"
+    "@rapidsai/core": "22.6.0"
   },
   "files": [
     "LICENSE",

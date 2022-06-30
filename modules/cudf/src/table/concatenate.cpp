@@ -35,7 +35,7 @@ Napi::Value Table::concat(Napi::CallbackInfo const& info) {
 
   try {
     return Table::New(info.Env(), cudf::concatenate(table_views, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 
 }  // namespace nv

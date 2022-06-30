@@ -37,7 +37,7 @@ Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args) {
     try {
       return cuspatial::polygon_bounding_boxes(
         *poly_offsets, *ring_offsets, *point_x, *point_y, mr);
-    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 4);
@@ -60,7 +60,7 @@ Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args) {
     try {
       return cuspatial::polyline_bounding_boxes(
         *poly_offsets, *point_x, *point_y, expansion_radius, mr);
-    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 4);

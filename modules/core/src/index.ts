@@ -20,3 +20,22 @@ export const cpp_core_include_path = Path.resolve(modules_path, 'core', 'include
 export const cmake_modules_path    = Path.resolve(modules_path, 'core', 'cmake', 'Modules');
 export const cpm_source_cache_path = Path.resolve(project_root_dir_path, '.cache', 'source');
 export const cpm_binary_cache_path = Path.resolve(project_root_dir_path, '.cache', 'binary');
+
+export {getComputeCapabilities} from './addon';
+export * as addon from './addon';
+
+import {getComputeCapabilities} from './addon';
+export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
+  const cc = getComputeCapabilities();
+  if (cc.length === 1) {
+    switch (cc[0]) {
+      case '60': return `${moduleName}_60.node`;
+      case '70': return `${moduleName}_70.node`;
+      case '75': return `${moduleName}_75.node`;
+      case '80': return `${moduleName}_80.node`;
+      case '86': return `${moduleName}_86.node`;
+      default: break;
+    }
+  }
+  return `${moduleName}.node`;
+}

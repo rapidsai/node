@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {addon as CORE, getNativeModuleNameForComputeCapabilities} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
@@ -21,6 +22,7 @@ export const {
   COO,
   UMAP,
   trustworthiness,
-} = require('bindings')('rapidsai_cuml.node').init(CUDA, RMM, CUDF) as typeof import('./node_cuml');
+} = require('bindings')(getNativeModuleNameForComputeCapabilities('rapidsai_cuml'))
+      .init(CORE, CUDA, RMM, CUDF) as typeof import('./node_cuml');
 
 export default {_cpp_exports, COO, UMAP, trustworthiness};

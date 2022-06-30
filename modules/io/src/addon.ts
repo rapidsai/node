@@ -14,6 +14,7 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
+import {addon as CORE, getNativeModuleNameForComputeCapabilities} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
@@ -21,6 +22,7 @@ import {addon as RMM} from '@rapidsai/rmm';
 export const {
   _cpp_exports,
   readLasTable,
-} = require('bindings')('rapidsai_io.node').init(CUDA, RMM, CUDF) as typeof import('./rapidsai_io');
+} = require('bindings')(getNativeModuleNameForComputeCapabilities('rapidsai_io'))
+      .init(CORE, CUDA, RMM, CUDF) as typeof import('./rapidsai_io');
 
 export default {_cpp_exports, readLasTable};

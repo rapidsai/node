@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,34 +15,32 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(rapidsai_core VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_core VERSION 22.06.00 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
-
-include(ConfigureCXX)
-include(ConfigureCUDA)
-include(ConfigureNapi)
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/addon.cpp")
+file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/addon.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_RAPIDS_CORE_SRC_FILES} ${CMAKE_JS_SRC})
 
@@ -70,7 +68,10 @@ target_include_directories(${PROJECT_NAME}
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+target_link_libraries(${PROJECT_NAME}
+              PRIVATE CUDA::nvml)
+
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

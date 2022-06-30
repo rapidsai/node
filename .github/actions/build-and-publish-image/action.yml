@@ -17,10 +17,26 @@ inputs:
     default: false
     required: false
     description: "Push the image to the container registry (default false)"
+  temp:
+    default: /tmp
+    required: true
+    description: "Path to temp dir"
+  context:
+    default: "."
+    required: true
+    description: "Path to image build context"
   platforms:
     default: "linux/amd64"
     required: false
     description: "Platforms to build"
+  clean-first:
+    default: true
+    required: true
+    description: "Free up disk space before building image"
+  buildx-driver-opts:
+    default: ""
+    required: false
+    description: "List of additional driver-specific options"
   build-args:
     default: ""
     required: false
@@ -37,6 +53,10 @@ inputs:
     default: ""
     required: false
     description: "Password used to log in to the container registry"
+  SSH_PRIVATE_KEY:
+    default: ""
+    required: false
+    description: "Private SSH key for cloning private RAPIDS repositories"
   AWS_ACCESS_KEY_ID:
     default: ""
     required: false
@@ -58,6 +78,7 @@ runs:
   using: composite
   steps:
     - name: Free up disk space
+      if: inputs.clean-first == 'true'
       shell: bash
       run: |
         df -h
@@ -76,11 +97,18 @@ runs:
         docker images
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx context
+      shell: bash
+      run: |
+        docker context create builders
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
       with:
+        endpoint: builders
         buildkitd-flags: --debug
+        driver-opts: ${{ inputs.buildx-driver-opts }}
     - name: Login to container registry
+      if: inputs.push == 'true'
       uses: docker/login-action@v1
       with:
         registry: ${{ inputs.registry-url }}
@@ -89,26 +117,33 @@ runs:
     - name: Initialize sccache_credentials
       shell: bash
       run: |
-        echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-        echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+        echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> ${{ inputs.temp }}/sccache_credentials
+        echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
+    - name: Set up ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      continue-on-error: true
+      with:
+        ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
       with:
-        context: .
         pull: ${{ inputs.pull }}
         push: ${{ inputs.push }}
         file: ${{ inputs.file }}
         tags: ${{ inputs.tags }}
+        context: ${{ inputs.context }}
         load: ${{ inputs.push == 'false' }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
+        ssh: |
+          default=${{ env.SSH_AUTH_SOCK }}
         labels: |
           org.opencontainers.image.vendor=NVIDIA
           org.opencontainers.image.source=https://github.com/rapidsai/node
         secret-files: |
-          "sccache_credentials=/tmp/sccache_credentials"
+          "sccache_credentials=${{ inputs.temp }}/sccache_credentials"
     - name: Clean up
       shell: bash
       run: |
-        rm /tmp/sccache_credentials
+        rm ${{ inputs.temp }}/sccache_credentials

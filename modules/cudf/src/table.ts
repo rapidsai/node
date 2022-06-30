@@ -21,7 +21,7 @@ import {Scalar} from './scalar';
 import {ReadCSVOptions} from './types/csv';
 import {TableWriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
-import {DuplicateKeepOption, NullOrder} from './types/enums';
+import {DuplicateKeepOption} from './types/enums';
 import {TypeMap} from './types/mappings';
 import {ReadORCOptions, TableWriteORCOptions} from './types/orc';
 import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
@@ -228,10 +228,12 @@ export interface Table {
    * be equal to `numColumns`.
    * @param null_orders Indicates how null values compare against all
    * other values in a column
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @returns Column of permutation indices for the desired sort order
    */
-  orderBy(column_orders: boolean[], null_orders: NullOrder[]): Column<Int32>;
+  orderBy(column_orders: boolean[], null_orders: boolean[], memoryResource?: MemoryResource):
+    Column<Int32>;
   toArrow(names: ToArrowMetadata[]): Uint8Array;
 
   /**
@@ -256,11 +258,28 @@ export interface Table {
 
   dropNans(keys: number[], threshold: number): Table;
   dropNulls(keys: number[], threshold: number): Table;
-  dropDuplicates(keys: number[],
-                 keep: DuplicateKeepOption,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
-                 memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Create a new table with consecutive duplicate rows removed.
+   *
+   * @param keys List of column indices on which to operate.
+   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  unique(keys: number[],
+         keep: DuplicateKeepOption,
+         nullsEqual: boolean,
+         memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Create a new table with duplicate rows removed.
+   *
+   * @param keys List of column indices on which to operate.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  distinct(keys: number[], nullsEqual: boolean, memoryResource?: MemoryResource): Table;
 
   /**
    * @summary Explodes a list column's elements.

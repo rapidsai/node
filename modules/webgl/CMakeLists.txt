@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,49 +15,46 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(rapidsai_webgl VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_webgl VERSION 22.06.00 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
+option(NODE_RAPIDS_WEBGL_STATIC_LINK "Statically link GLEW libraries" ON)
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-option(NODE_WEBGL_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
 
 # Set OpenGL_GL_PREFERENCE to "GLVND"
 cmake_policy(SET CMP0072 NEW)
-
-set(GLEW_VERSION "2.1.0")
-set(GLFW_VERSION "3.3.2")
-
-set(GLEW_USE_SHARED_LIBS OFF)
-set(GLFW_USE_SHARED_LIBS OFF)
-set(GLEW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-set(GLFW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-
-if(NOT NODE_WEBGL_STATIC_LINK)
-    set(GLEW_USE_SHARED_LIBS ON)
-    set(GLFW_USE_SHARED_LIBS ON)
-endif(NOT NODE_WEBGL_STATIC_LINK)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@rapidsai/core'))"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                OUTPUT_VARIABLE NODE_RAPIDS_CORE_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-include(ConfigureCXX)
-include(ConfigureNapi)
-include(ConfigureOpenGL)
-include(ConfigureOpenGLEW)
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGL.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGLEW.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
+
+find_and_configure_glew(
+    VERSION 2.1.0
+    USE_STATIC ${NODE_RAPIDS_WEBGL_STATIC_LINK}
+    EXPORT_SET rapidsai_webgl-exports)
 
 ###################################################################################################
-# - rapidsai_webgl target -----------------------------------------------------------------------------
+# - rapidsai_webgl target -------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -88,10 +85,13 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
+               PUBLIC ${CMAKE_JS_LIB}
                       ${GLEW_LIBRARY}
                       OpenGL::EGL
-                      OpenGL::OpenGL)
+                      OpenGL::OpenGL
+                      "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
+
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ endif()
 if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_source_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -42,7 +42,7 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
 
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_binary_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE NODE_RAPIDS_CPM_BINARY_CACHE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -54,47 +54,43 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     set(FETCHCONTENT_BASE_DIR "${CPM_BINARY_CACHE}" CACHE STRING "" FORCE)
 endif()
 
-set(CPM_DOWNLOAD_VERSION 634800c61928d330a6e9559171509a5c3dd479d5) # 0.34.0
+file(DOWNLOAD https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-22.06/RAPIDS.cmake ${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+include(${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+include(rapids-export)
+include(rapids-cmake)
+include(rapids-find)
+include(rapids-cpm)
 
-if(CPM_SOURCE_CACHE)
-  # Expand relative path. This is important if the provided path contains a tilde (~)
-  get_filename_component(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE} ABSOLUTE)
-  set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-elseif(DEFINED ENV{CPM_SOURCE_CACHE})
-  set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-else()
-  set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-endif()
+execute_process(COMMAND node -p
+                "require('@rapidsai/core').cmake_modules_path"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
-  message(STATUS "get_cpm: Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
-  file(
-    DOWNLOAD
-    https://raw.githubusercontent.com/cpm-cmake/CPM.cmake/${CPM_DOWNLOAD_VERSION}/cmake/CPM.cmake
-    ${CPM_DOWNLOAD_LOCATION})
-endif()
-
-include(${CPM_DOWNLOAD_LOCATION})
+rapids_cpm_init(OVERRIDE "${NODE_RAPIDS_CMAKE_MODULES_PATH}/../versions.json")
 
 function(_set_package_dir_if_exists pkg dir)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-        if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build")
-            message(STATUS "get_cpm: setting ${pkg}_ROOT to '${CPM_BINARY_CACHE}/${dir}-build'")
-            set(${pkg}_ROOT "${CPM_BINARY_CACHE}/${dir}-build" PARENT_SCOPE)
+        set(_build_dir "${CPM_BINARY_CACHE}/${dir}-build")
+        if(EXISTS "${_build_dir}")
+            message(STATUS "get_cpm: setting ${pkg}_ROOT to '${_build_dir}'")
+            set(${pkg}_ROOT "${_build_dir}" PARENT_SCOPE)
         else()
-            message(STATUS "get_cpm: not setting ${pkg}_ROOT because '${CPM_BINARY_CACHE}/${dir}-build' does not exist")
+            message(STATUS "get_cpm: not setting ${pkg}_ROOT because '${_build_dir}' does not exist")
         endif()
     endif()
 endfunction()
 
-function(_clean_build_dirs_if_not_fully_built dir soname)
+function(_clean_build_dirs_if_not_fully_built dir libname)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-        if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${soname}")
-            message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${soname}' exists")
+        if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${libname}.a")
+            message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${libname}.a' exists")
+        elseif (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${libname}.so")
+            message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${libname}.so' exists")
         else()
             file(REMOVE_RECURSE "${CPM_BINARY_CACHE}/${dir}-build")
             file(REMOVE_RECURSE "${CPM_BINARY_CACHE}/${dir}-subbuild")
-            message(STATUS "get_cpm: clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${soname}' does not exist")
+            message(STATUS "get_cpm: clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${libname}.(a|so)' does not exist")
         endif()
     endif()
 endfunction()
@@ -109,7 +105,7 @@ function(_fix_cmake_global_defaults target)
             set_target_properties(${target} PROPERTIES IMPORTED_GLOBAL TRUE)
         endif()
         get_target_property(_aliased_target ${target} ALIASED_TARGET)
-        if (_aliased_target AND TARGET ${_aliased_target})
+        if (_aliased_target)
             _fix_cmake_global_defaults(${_aliased_target})
         endif()
     endif()

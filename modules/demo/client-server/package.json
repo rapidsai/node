@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/demo-client-server",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "private": true,
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -13,12 +13,12 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@deck.gl/core": "8.6.6",
-    "@deck.gl/layers": "8.6.6",
-    "@deck.gl/react": "8.6.6",
     "@deck.gl/carto": "8.6.6",
+    "@deck.gl/core": "8.6.6",
     "@deck.gl/geo-layers": "8.6.6",
+    "@deck.gl/layers": "8.6.6",
     "@deck.gl/mesh-layers": "8.6.6",
+    "@deck.gl/react": "8.6.6",
     "@fortawesome/fontawesome-svg-core": "1.2.35",
     "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",

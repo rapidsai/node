@@ -604,6 +604,7 @@ export class DataFrame<T extends TypeMap = any> {
    * Generate an ordering that sorts DataFrame columns in a specified way
    *
    * @param options mapping of column names to sort order specifications
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @returns Series containting the permutation indices for the desired sort order
    *
@@ -625,9 +626,9 @@ export class DataFrame<T extends TypeMap = any> {
    * // Int32Series [0, 1, 2, 3, 4, 5]
    * ```
    */
-  orderBy<R extends keyof T>(options: {[P in R]: OrderSpec}) {
+  orderBy<R extends keyof T>(options: {[P in R]: OrderSpec}, memoryResource?: MemoryResource) {
     const column_orders = new Array<boolean>();
-    const null_orders   = new Array<NullOrder>();
+    const null_orders   = new Array<boolean>();
     const columns       = new Array<Column<T[keyof T]>>();
     const entries       = Object.entries(options) as [R, OrderSpec][];
     entries.forEach(([name, {ascending = true, null_order = 'after'}]) => {
@@ -635,12 +636,11 @@ export class DataFrame<T extends TypeMap = any> {
       if (child) {
         columns.push(child._col as Column<T[keyof T]>);
         column_orders.push(ascending);
-        null_orders.push(NullOrder[null_order]);
+        null_orders.push(null_order === 'before');
       }
     });
     // Compute the sorted sorted_indices
-    const sorted_indices = new Table({columns}).orderBy(column_orders, null_orders);
-    return Series.new(sorted_indices);
+    return Series.new(new Table({columns}).orderBy(column_orders, null_orders, memoryResource));
   }
 
   /**
@@ -655,7 +655,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
+   * import {DataFrame, Series, Int32}  from '@rapidsai/cudf';
    * const df = new DataFrame({
    *   a: Series.new([null, 4, 3, 2, 1, 0]),
    *   b: Series.new([0, 1, 2, 3, 4, 5])
@@ -2106,8 +2106,15 @@ export class DataFrame<T extends TypeMap = any> {
         throw new Error(`Unknown column name: ${col}`);
       }
     });
-    const table = this.asTable().dropDuplicates(
-      column_indices, DuplicateKeepOption[keep], nullsEqual, nullsFirst, memoryResource);
+
+    const table = scope(() => {
+      const spec = {ascending: true, null_order: nullsFirst ? 'before' : 'after'};
+      const by   = subset.reduce((by, key) => Object.assign(by, {[key]: spec}),
+                               {} as {[P in keyof T]: OrderSpec});
+      return this.sortValues(by).asTable().unique(
+        column_indices, DuplicateKeepOption[keep], nullsEqual, memoryResource);
+    }, [this]);
+
     return new DataFrame(allNames.reduce(
       (map, name, i) => ({...map, [name]: this.__constructChild(name, table.getColumnByIndex(i))}),
       {} as SeriesMap<T>));

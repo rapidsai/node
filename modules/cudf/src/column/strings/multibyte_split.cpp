@@ -55,7 +55,7 @@ Napi::Value Column::split(Napi::CallbackInfo const& info) {
   auto col       = this->mutable_view();
   try {
     return split_string_column(info, col, delimiter);
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 
 Napi::Value Column::read_text(Napi::CallbackInfo const& info) {
@@ -72,7 +72,7 @@ Napi::Value Column::read_text(Napi::CallbackInfo const& info) {
   try {
     return read_text_files(info, source, delimiter);
 
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 
 }  // namespace nv
