@@ -42,7 +42,7 @@ Napi::Value create_quadtree(CallbackArgs const& args) {
     try {
       return cuspatial::quadtree_on_points(
         *xs, *ys, x_min, x_max, y_min, y_max, scale, max_depth, min_size, mr);
-    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 5);
@@ -71,7 +71,7 @@ Napi::Value quadtree_bounding_box_intersections(CallbackArgs const& args) {
     try {
       return cuspatial::join_quadtree_and_bounding_boxes(
         *quadtree, *poly_bbox, x_min, x_max, y_min, y_max, scale, max_depth, mr);
-    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 2);
@@ -105,7 +105,7 @@ Napi::Value find_points_in_polygons(CallbackArgs const& args) {
                                                   *polygon_points_x,
                                                   *polygon_points_y,
                                                   mr);
-    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 2);
@@ -137,7 +137,7 @@ Napi::Value find_polyline_nearest_to_each_point(CallbackArgs const& args) {
                                                            *polyline_points_x,
                                                            *polyline_points_y,
                                                            mr);
-    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 3);

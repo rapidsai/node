@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,27 +14,31 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cuml VERSION)
+function(find_and_configure_cuml)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUMLPRIMS.cmake)
 
-    _clean_build_dirs_if_not_fully_built(cuml libcuml++.so)
+    _get_rapidsai_module_version(cuml VERSION)
+
+    _clean_build_dirs_if_not_fully_built(cuml libcuml++)
 
     _set_package_dir_if_exists(cuml cuml)
     _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(faiss faiss)
     _set_package_dir_if_exists(Thrust thrust)
-    _set_package_dir_if_exists(Treelite treelite)
+    _set_package_dir_if_exists(Treelite cuml)
+    _set_package_dir_if_exists(GPUTreeShap cuml)
+    _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
 
     if(NOT TARGET cuml::cuml)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cuml ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuml
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cuml.git
-            GIT_TAG             fix/define-ptds
+            GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
@@ -44,8 +48,10 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_BENCHMARKS OFF"
                                 "DISABLE_OPENMP OFF"
                                 "DETECT_CONDA_ENV OFF"
-                                "ENABLE_CUMLPRIMS_MG OFF"
+                                "ENABLE_CUMLPRIMS_MG ON"
+                                "BUILD_SHARED_LIBS OFF"
                                 "BUILD_CUML_MG_TESTS OFF"
+                                "BUILD_CUML_MG_BENCH OFF"
                                 "BUILD_CUML_STD_COMMS OFF"
                                 "BUILD_CUML_MPI_COMMS OFF"
                                 "BUILD_CUML_TESTS OFF"
@@ -55,15 +61,15 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_CUML_C_LIBRARY OFF"
                                 "BUILD_CUML_CPP_LIBRARY ON"
                                 "BUILD_CUML_PRIMS_BENCH OFF"
-                                "RAFT_USE_FAISS_STATIC OFF"
-                                "CUML_USE_FAISS_STATIC OFF"
-                                "CUML_USE_TREELITE_STATIC OFF"
+                                "RAFT_USE_FAISS_STATIC ON"
+                                "CUML_USE_FAISS_STATIC ON"
+                                "CUML_USE_TREELITE_STATIC ON"
         )
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
-    # Make these -isystem so -Werror doesn't fail their builds
-    _set_interface_include_dirs_as_system(faiss::faiss)
+
+    set(cuml_VERSION "${cuml_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cuml(${CUML_VERSION})
+find_and_configure_cuml()

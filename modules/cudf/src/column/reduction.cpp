@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ Napi::Value Column::minmax(Napi::CallbackInfo const& info) {
                            minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
+Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::reduce_aggregation> const& agg,
                                  cudf::data_type const& output_dtype,
                                  rmm::mr::device_memory_resource* mr) const {
   try {
@@ -79,7 +79,7 @@ Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
-Column::wrapper_t Column::scan(std::unique_ptr<cudf::aggregation> const& agg,
+Column::wrapper_t Column::scan(std::unique_ptr<cudf::scan_aggregation> const& agg,
                                cudf::scan_type inclusive,
                                cudf::null_policy null_handling,
                                rmm::mr::device_memory_resource* mr) const {
@@ -89,7 +89,8 @@ Column::wrapper_t Column::scan(std::unique_ptr<cudf::aggregation> const& agg,
 }
 
 Scalar::wrapper_t Column::sum(rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_aggregation(), _compute_dtype(this->type().id()), mr);
+  return reduce(
+    cudf::make_sum_aggregation<cudf::reduce_aggregation>(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::sum(Napi::CallbackInfo const& info) {
@@ -98,7 +99,9 @@ Napi::Value Column::sum(Napi::CallbackInfo const& info) {
 }
 
 Scalar::wrapper_t Column::product(rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_product_aggregation(), _compute_dtype(this->type().id()), mr);
+  return reduce(cudf::make_product_aggregation<cudf::reduce_aggregation>(),
+                _compute_dtype(this->type().id()),
+                mr);
 }
 
 Napi::Value Column::product(Napi::CallbackInfo const& info) {
@@ -107,7 +110,9 @@ Napi::Value Column::product(Napi::CallbackInfo const& info) {
 }
 
 Scalar::wrapper_t Column::sum_of_squares(rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_of_squares_aggregation(), _compute_dtype(this->type().id()), mr);
+  return reduce(cudf::make_sum_of_squares_aggregation<cudf::reduce_aggregation>(),
+                _compute_dtype(this->type().id()),
+                mr);
 }
 
 Napi::Value Column::sum_of_squares(Napi::CallbackInfo const& info) {
@@ -117,20 +122,24 @@ Napi::Value Column::sum_of_squares(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::any(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return Napi::Value::From(
-    info.Env(),
-    reduce(cudf::make_any_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]));
+  return Napi::Value::From(info.Env(),
+                           reduce(cudf::make_any_aggregation<cudf::reduce_aggregation>(),
+                                  cudf::data_type(cudf::type_id::BOOL8),
+                                  args[0]));
 }
 
 Napi::Value Column::all(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return Napi::Value::From(
-    info.Env(),
-    reduce(cudf::make_all_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]));
+  return Napi::Value::From(info.Env(),
+                           reduce(cudf::make_all_aggregation<cudf::reduce_aggregation>(),
+                                  cudf::data_type(cudf::type_id::BOOL8),
+                                  args[0]));
 }
 
 Scalar::wrapper_t Column::mean(rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_mean_aggregation(), cudf::data_type(cudf::type_id::FLOAT64), mr);
+  return reduce(cudf::make_mean_aggregation<cudf::reduce_aggregation>(),
+                cudf::data_type(cudf::type_id::FLOAT64),
+                mr);
 }
 
 Napi::Value Column::mean(Napi::CallbackInfo const& info) {
@@ -139,7 +148,9 @@ Napi::Value Column::mean(Napi::CallbackInfo const& info) {
 }
 
 Scalar::wrapper_t Column::median(rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_median_aggregation(), cudf::data_type(cudf::type_id::FLOAT64), mr);
+  return reduce(cudf::make_median_aggregation<cudf::reduce_aggregation>(),
+                cudf::data_type(cudf::type_id::FLOAT64),
+                mr);
 }
 
 Napi::Value Column::median(Napi::CallbackInfo const& info) {
@@ -150,7 +161,7 @@ Napi::Value Column::median(Napi::CallbackInfo const& info) {
 Scalar::wrapper_t Column::nunique(bool dropna, rmm::mr::device_memory_resource* mr) const {
   cudf::null_policy null_policy =
     (dropna == true) ? cudf::null_policy::EXCLUDE : cudf::null_policy::INCLUDE;
-  return reduce(cudf::make_nunique_aggregation(null_policy),
+  return reduce(cudf::make_nunique_aggregation<cudf::reduce_aggregation>(null_policy),
                 cudf::data_type{cudf::type_to_id<cudf::size_type>()},
                 mr);
 }
@@ -162,7 +173,9 @@ Napi::Value Column::nunique(Napi::CallbackInfo const& info) {
 
 Scalar::wrapper_t Column::variance(cudf::size_type ddof,
                                    rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_variance_aggregation(ddof), cudf::data_type(cudf::type_id::FLOAT64), mr);
+  return reduce(cudf::make_variance_aggregation<cudf::reduce_aggregation>(ddof),
+                cudf::data_type(cudf::type_id::FLOAT64),
+                mr);
 }
 
 Napi::Value Column::variance(Napi::CallbackInfo const& info) {
@@ -171,7 +184,9 @@ Napi::Value Column::variance(Napi::CallbackInfo const& info) {
 }
 
 Scalar::wrapper_t Column::std(cudf::size_type ddof, rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_std_aggregation(ddof), cudf::data_type(cudf::type_id::FLOAT64), mr);
+  return reduce(cudf::make_std_aggregation<cudf::reduce_aggregation>(ddof),
+                cudf::data_type(cudf::type_id::FLOAT64),
+                mr);
 }
 
 Napi::Value Column::std(Napi::CallbackInfo const& info) {
@@ -182,8 +197,9 @@ Napi::Value Column::std(Napi::CallbackInfo const& info) {
 Scalar::wrapper_t Column::quantile(double q,
                                    cudf::interpolation i,
                                    rmm::mr::device_memory_resource* mr) const {
-  return reduce(
-    cudf::make_quantile_aggregation({q}, i), cudf::data_type(cudf::type_id::FLOAT64), mr);
+  return reduce(cudf::make_quantile_aggregation<cudf::reduce_aggregation>({q}, i),
+                cudf::data_type(cudf::type_id::FLOAT64),
+                mr);
 }
 
 Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
@@ -192,7 +208,7 @@ Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
 }
 
 Column::wrapper_t Column::cumulative_max(rmm::mr::device_memory_resource* mr) const {
-  return scan(cudf::make_max_aggregation(),
+  return scan(cudf::make_max_aggregation<cudf::scan_aggregation>(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
               cudf::null_policy::EXCLUDE,
@@ -205,7 +221,7 @@ Napi::Value Column::cumulative_max(Napi::CallbackInfo const& info) {
 }
 
 Column::wrapper_t Column::cumulative_min(rmm::mr::device_memory_resource* mr) const {
-  return scan(cudf::make_min_aggregation(),
+  return scan(cudf::make_min_aggregation<cudf::scan_aggregation>(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
               cudf::null_policy::EXCLUDE,
@@ -217,7 +233,7 @@ Napi::Value Column::cumulative_min(Napi::CallbackInfo const& info) {
 }
 
 Column::wrapper_t Column::cumulative_product(rmm::mr::device_memory_resource* mr) const {
-  return scan(cudf::make_product_aggregation(),
+  return scan(cudf::make_product_aggregation<cudf::scan_aggregation>(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
               cudf::null_policy::EXCLUDE,
@@ -230,7 +246,7 @@ Napi::Value Column::cumulative_product(Napi::CallbackInfo const& info) {
 }
 
 Column::wrapper_t Column::cumulative_sum(rmm::mr::device_memory_resource* mr) const {
-  return scan(cudf::make_sum_aggregation(),
+  return scan(cudf::make_sum_aggregation<cudf::scan_aggregation>(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
               cudf::null_policy::EXCLUDE,

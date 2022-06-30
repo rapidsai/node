@@ -40,11 +40,7 @@ Napi::Value Graph::spectral_balanced_cut_clustering(Napi::CallbackInfo const& in
                                              kmean_tolerance,
                                              kmean_max_iter,
                                              cluster->mutable_view().begin<int32_t>());
-  } catch (raft::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  } catch (cugraph::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return cluster;
 }
@@ -69,11 +65,7 @@ Napi::Value Graph::spectral_modularity_maximization_clustering(Napi::CallbackInf
                                                       kmean_tolerance,
                                                       kmean_max_iter,
                                                       cluster->mutable_view().begin<int32_t>());
-  } catch (raft::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  } catch (cugraph::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return cluster;
 }
@@ -87,11 +79,7 @@ Napi::Value Graph::analyze_modularity_clustering(Napi::CallbackInfo const& info)
   try {
     cugraph::ext_raft::analyzeClustering_modularity(
       csr_view(), num_clusters, cluster->view().begin<int32_t>(), &score);
-  } catch (raft::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  } catch (cugraph::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return Napi::Number::New(info.Env(), score);
 }
@@ -105,11 +93,7 @@ Napi::Value Graph::analyze_edge_cut_clustering(Napi::CallbackInfo const& info) {
   try {
     cugraph::ext_raft::analyzeClustering_edge_cut(
       csr_view(), num_clusters, cluster->view().begin<int32_t>(), &score);
-  } catch (raft::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  } catch (cugraph::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return Napi::Number::New(info.Env(), score);
 }
@@ -123,11 +107,7 @@ Napi::Value Graph::analyze_ratio_cut_clustering(Napi::CallbackInfo const& info) 
   try {
     cugraph::ext_raft::analyzeClustering_ratio_cut(
       csr_view(), num_clusters, cluster->view().begin<int32_t>(), &score);
-  } catch (raft::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  } catch (cugraph::logic_error const& err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return Napi::Number::New(info.Env(), score);
 }

@@ -221,11 +221,15 @@ struct Table : public EnvLocalObjectWrap<Table> {
     cudf::size_type threshold,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Table::wrapper_t drop_duplicates(
+  Table::wrapper_t unique(
     std::vector<cudf::size_type> keys,
     cudf::duplicate_keep_option keep,
     bool nulls_equal,
-    bool is_nulls_first,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Table::wrapper_t distinct(
+    std::vector<cudf::size_type> keys,
+    bool nulls_equal,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
  private:
@@ -269,7 +273,8 @@ struct Table : public EnvLocalObjectWrap<Table> {
   // table/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
-  Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
+  Napi::Value unique(Napi::CallbackInfo const& info);
+  Napi::Value distinct(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   void write_csv(Napi::CallbackInfo const& info);

@@ -2,7 +2,7 @@
 
 set -Eeo pipefail
 
-if [[ "$(yarn why cmake-js >/dev/null 2>&1)" || $? != 0 ]]; then exit 0; fi;
+if [[ -z "$(which cmake-js)" ]]; then exit 0; fi;
 
 args=""
 debug=false
@@ -34,17 +34,23 @@ echo "\
 PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
 ====================================================="
 
-PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}                    \
-CMAKE_BUILD_PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}        \
-HOME="$RAPIDS_CORE_PATH"                               \
-    cmake-js ${args} | grep -v -P '^ptxas /tmp/tmpxft(.*?)$'
+time env \
+    `# override $HOME to work around cmake-js bug ` \
+    HOME="$RAPIDS_CORE_PATH"                        \
+    PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}             \
+    CMAKE_BUILD_PARALLEL_LEVEL=${PARALLEL_LEVEL:-1} \
+    cmake-js ${args}                                \
+    `# filter out noisy ptxas warnings            ` \
+      | grep -v -P '^ptxas /tmp/tmpxft(.*?)$'       ;
 
-if [[ "$debug" == "false" ]]; then
-    if [[ $(basename $RAPIDS_MODULES_PATH) == "modules" ]]; then
-        if [[ "$(which jq)" != "" ]]; then
-            jq -s '.|flatten' \
-                $(find .. -type f -path "*$compile_commands_json") \
-            > "../../compile_commands.json" || true
-        fi
-    fi
+clean_re='^clean.*?$';
+
+if [[ "$debug" == false \
+    && "$(which jq)" != "" \
+    && ! "$args" =~ $clean_re \
+    && $(basename $RAPIDS_MODULES_PATH) == modules \
+    ]]; then \
+    jq -s '.|flatten' \
+        $(find .. -type f -path "*$compile_commands_json") \
+    > "../../compile_commands.json" || true;
 fi

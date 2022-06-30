@@ -1165,7 +1165,7 @@ export interface Column<T extends DataType = any> {
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @throws cudf::logic_error if the Column's DataType isn't Float32 or Float64.
+   * @throws Error if the Column's DataType isn't Float32 or Float64.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
   rint(memoryResource?: MemoryResource): Column<T>;

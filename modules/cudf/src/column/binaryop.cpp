@@ -49,7 +49,7 @@ Column::wrapper_t Column::binary_operation(Column const& rhs,
   try {
     return Column::New(rhs.Env(),
                        cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(rhs.Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::binary_operation(Scalar const& rhs,
@@ -59,7 +59,7 @@ Column::wrapper_t Column::binary_operation(Scalar const& rhs,
   try {
     return Column::New(rhs.Env(),
                        cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(rhs.Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::operator+(Column const& other) const { return add(other); }

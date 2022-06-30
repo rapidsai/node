@@ -107,7 +107,8 @@ void UMAP::fit(DeviceBuffer::wrapper_t const& X,
                DeviceBuffer::wrapper_t const& knn_indices,
                DeviceBuffer::wrapper_t const& knn_dists,
                bool convert_dtype,
-               DeviceBuffer::wrapper_t const& embeddings) {
+               DeviceBuffer::wrapper_t const& embeddings,
+               raft::sparse::COO<float>* graph) {
   raft::handle_t handle;
   try {
     ML::UMAP::fit(handle,
@@ -118,24 +119,31 @@ void UMAP::fit(DeviceBuffer::wrapper_t const& X,
                   static_cast<int64_t*>(knn_indices->data()),
                   static_cast<float*>(knn_dists->data()),
                   &this->params_,
-                  static_cast<float*>(embeddings->data()));
+                  static_cast<float*>(embeddings->data()),
+                  graph);
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
                                cudf::size_type n_samples,
                                cudf::size_type n_features,
+                               DeviceBuffer::wrapper_t const& knn_indices,
+                               DeviceBuffer::wrapper_t const& knn_dists,
                                DeviceBuffer::wrapper_t const& y,
                                bool convert_dtype) {
   raft::handle_t handle;
-  auto coo = ML::UMAP::get_graph(handle,
-                                 static_cast<float*>(X->data()),
-                                 (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
-                                 n_samples,
-                                 n_features,
-                                 &this->params_);
+  try {
+    auto coo = ML::UMAP::get_graph(handle,
+                                   static_cast<float*>(X->data()),
+                                   (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
+                                   n_samples,
+                                   n_features,
+                                   static_cast<int64_t*>(knn_indices->data()),
+                                   static_cast<float*>(knn_dists->data()),
+                                   &this->params_);
 
-  return COO::New(this->Env(), std::move(coo));
+    return COO::New(this->Env(), std::move(coo));
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 void UMAP::refine(DeviceBuffer::wrapper_t const& X,
@@ -206,6 +214,7 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
       : DeviceBuffer::New(args.Env());
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
+  COO::wrapper_t graph               = props.Get("graph");
 
   fit(X,
       props.Get("nSamples"),
@@ -214,7 +223,8 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
       knn_indices,
       knn_dists,
       props.Get("convertDType"),
-      embeddings);
+      embeddings,
+      graph->get_coo());
 
   return embeddings;
 }
@@ -231,11 +241,21 @@ Napi::Value UMAP::get_graph(Napi::CallbackInfo const& info) {
   DeviceBuffer::wrapper_t y =
     props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
                    : DeviceBuffer::New(args.Env());
-
-  auto cgraph_coo =
-    get_graph(X, props.Get("nSamples"), props.Get("nFeatures"), y, props.Get("convertDType"));
-
-  return cgraph_coo;
+  DeviceBuffer::wrapper_t knn_indices =
+    props.Has("knnIndices")
+      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
+      : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_dists =
+    props.Has("knnDists")
+      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
+      : DeviceBuffer::New(args.Env());
+  return get_graph(X,
+                   props.Get("nSamples"),
+                   props.Get("nFeatures"),
+                   knn_indices,
+                   knn_dists,
+                   y,
+                   props.Get("convertDType"));
 }
 
 Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {

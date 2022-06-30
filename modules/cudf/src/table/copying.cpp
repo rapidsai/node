@@ -37,7 +37,7 @@ Table::wrapper_t Table::scatter(
   rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::scatter(source, indices, *this, check_bounds, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Table::wrapper_t Table::scatter(Table const& source,
@@ -46,7 +46,7 @@ Table::wrapper_t Table::scatter(Table const& source,
                                 rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::scatter(source, indices, *this, check_bounds, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::gather(Napi::CallbackInfo const& info) {

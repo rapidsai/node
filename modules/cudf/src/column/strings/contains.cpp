@@ -28,7 +28,7 @@ Column::wrapper_t Column::contains_re(std::string const& pattern,
     return Column::New(
       Env(),
       cudf::strings::contains_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::count_re(std::string const& pattern,
@@ -37,7 +37,7 @@ Column::wrapper_t Column::count_re(std::string const& pattern,
     return Column::New(
       Env(),
       cudf::strings::count_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::matches_re(std::string const& pattern,
@@ -46,7 +46,7 @@ Column::wrapper_t Column::matches_re(std::string const& pattern,
     return Column::New(
       Env(),
       cudf::strings::matches_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Column::contains_re(Napi::CallbackInfo const& info) {

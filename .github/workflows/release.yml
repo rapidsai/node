@@ -1,10 +1,33 @@
 name: Create GitHub release
 
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        type: string
+        required: true
+        default: "rapisdai/node"
+        description: "node-rapids repo to use"
+      rapids-version:
+        type: string
+        required: true
+        default: "22.06.00"
+        description: "RAPIDS version"
+      make-release:
+        type: boolean
+        required: true
+        default: false
+        description: "Make Release"
+      draft-release:
+        type: boolean
+        required: false
+        default: false
+        description: "Draft Release"
+
 env:
   NODE: "16.15.1"
-  RAPIDS: "22.02.00"
-  VERSION: "0.0.1"
-  REPOSITORY: "ghcr.io/rapidsai/node"
+  RAPIDS: "${{ inputs.rapids-version }}"
+  REPOSITORY: "ghcr.io/${{ inputs.repo }}"
 
 concurrency:
   group: create_github_release
@@ -18,66 +41,52 @@ jobs:
   build-extract-and-release-packages:
     name: Build, extract, and release packages
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
-        GPU_ARCH: [60, 70, 80, 86, ALL]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          lfs: true
-          fetch-depth: 2
 
-      - name: Checkout LFS
-        run: git lfs checkout
-
-      - name: Build packages for GPU arch ${{ matrix.GPU_ARCH }}
-        uses: ./.github/actions/build-and-publish-image
-        with:
-          registry-url: ghcr.io
-          registry-username: ${{ github.repository_owner }}
-          registry-password: ${{ github.token }}
-          pull: true
-          push: false
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
-          file: dev/dockerfiles/devel/package.Dockerfile
-          tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }}
-          build-args: |
-            "CUDAARCHS=${{ matrix.GPU_ARCH }}-real"
-            "PARALLEL_LEVEL=1"
-            "SCCACHE_IDLE_TIMEOUT=32768"
-            "SCCACHE_REGION=us-west-2"
-            "SCCACHE_BUCKET=node-rapids-sccache"
-            "RAPIDS_VERSION=${{ env.RAPIDS }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
-
-      - name: Extract packages for GPU arch ${{ matrix.GPU_ARCH }}
+      - name: Extract node native modules
+        shell: bash
         run: |
           mkdir -p build
+
           docker run --rm -v "$PWD/build:/out" \
-              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }} \
-              sh -c "cp /opt/rapids/*.tgz /out/"
-          GPU_ARCH="$(echo "${{ matrix.GPU_ARCH }}" | tr '[:upper:]' '[:lower:]')"
-          for x in cuda cudf cugraph cuml cuspatial io rmm sql; do
-              tar -C build -zf build/rapidsai-$x-*.tgz --strip-components=3 -x package/build/Release/rapidsai_$x.node;
-              mv build/rapidsai_$x.node build/rapidsai_$x-$GPU_ARCH-${{ env.RAPIDS }}.node;
+              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
+              sh -c "cp /opt/rapids/rapidsai_*-*-*.tar.gz /out/";
+
+          TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
+
+          for x in cudf cugraph cuml cuspatial io sql; do
+              tar -zf build/rapidsai_${x}-*.tar.gz \
+                  --wildcards --strip-components=2 \
+                  -C build -x "*/rapidsai_${x}*.node" \
+                  --transform="s/rapidsai_${x}.node/rapidsai_${x}-${TAG}.node/" \
+                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${TAG}-arch60/" \
+                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${TAG}-arch70/" \
+                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${TAG}-arch75/" \
+                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${TAG}-arch80/" \
+                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${TAG}-arch86/" ;
           done;
-          rm -rf build/*.tgz;
+
+          rm -rf build/*.tar.gz;
+
+      - name: Upload node native modules
+        uses: actions/upload-artifact@v2
+        if: inputs.make-release != true
+        with:
+          path: build/*.node
+          name: rapidsai-native-modules
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
+        if: inputs.make-release == true
         with:
           body: ""
-          draft: true
+          files: build/*.node
           tag_name: "v${{ env.RAPIDS }}"
-          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
-          files: |
-            build/*.node
+          repository: ${{ inputs.repo }}
+          draft: ${{ inputs.draft-release == true }}

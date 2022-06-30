@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/core",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",
   "types": "build/js",
@@ -11,8 +11,7 @@
   ],
   "bin": {
     "nvidia-cmake-js": "bin/exec_cmake.js",
-    "nvidia-cmake-copy-libs": "bin/exec_copy_libs.js",
-    "nvidia-cmake-install-deps": "bin/exec_install_deps.js"
+    "rapidsai-install-native-module": "bin/rapidsai_install_native_module.js"
   },
   "scripts": {
     "postinstall": "nvidia-cmake-js install",
@@ -24,6 +23,7 @@
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
     "cpp:clean": "nvidia-cmake-js clean",
+    "cpp:clean:debug": "nvidia-cmake-js clean -D",
     "cpp:build": "nvidia-cmake-js build -g",
     "cpp:build:debug": "nvidia-cmake-js build -g -D",
     "cpp:compile": "nvidia-cmake-js compile -g",
@@ -40,8 +40,8 @@
   "dependencies": {
     "@types/node": "^15.0.0",
     "bindings": "^1.5.0",
-    "tslib": "^2.3.0",
-    "cross-env": "7.0.3"
+    "cross-env": "7.0.3",
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.23",
@@ -59,10 +59,12 @@
   "files": [
     "LICENSE",
     "bin",
-    "build/js",
     "cmake",
-    "include/nv_node",
     "index.js",
-    "package.json"
+    "package.json",
+    "CMakeLists.txt",
+    "include/nv_node",
+    "build/js",
+    "build/Release/*.node"
   ]
 }

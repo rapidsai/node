@@ -26,8 +26,8 @@ describe('Graph', () => {
   const dst   = Series.new(['172.217.5.238', '216.228.121.209', '192.16.31.23', '192.168.1.1']);
   const graph = Graph.fromEdgeList(src, dst);
 
-  test('numNodes', () => {expect(graph.numNodes).toEqual(4);});
-  test('numEdges', () => {expect(graph.numNodes).toEqual(4);});
+  test('numNodes', () => { expect(graph.numNodes).toEqual(4); });
+  test('numEdges', () => { expect(graph.numNodes).toEqual(4); });
 
   test(`nodes`, () => {
     const nodes    = graph.nodes;
@@ -82,8 +82,8 @@ describe('DedupedEdgesGraph', () => {
   const dd_dst = Series.new(['2', '3', '4', '1']);
   const graph  = DedupedEdgesGraph.fromEdgeList(src, dst);
 
-  test('numNodes', () => {expect(graph.numNodes).toEqual(4);});
-  test('numEdges', () => {expect(graph.numNodes).toEqual(4);});
+  test('numNodes', () => { expect(graph.numNodes).toEqual(4); });
+  test('numEdges', () => { expect(graph.numNodes).toEqual(4); });
 
   test(`nodes`, () => {
     const nodes    = graph.nodes;

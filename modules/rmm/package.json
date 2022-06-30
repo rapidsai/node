@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/rmm",
-  "version": "0.0.1",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -19,6 +19,7 @@
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
     "cpp:clean": "nvidia-cmake-js clean",
+    "cpp:clean:debug": "nvidia-cmake-js clean -D",
     "cpp:build": "nvidia-cmake-js build -g",
     "cpp:build:debug": "nvidia-cmake-js build -g -D",
     "cpp:compile": "nvidia-cmake-js compile -g",
@@ -33,7 +34,7 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@rapidsai/cuda": "0.0.1"
+    "@rapidsai/cuda": "22.6.0"
   },
   "files": [
     "LICENSE",

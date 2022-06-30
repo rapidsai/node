@@ -1,0 +1,127 @@
+name: build-and-publish-image-ssh
+
+description: "Build and publish a Docker image with SSH forwarding"
+
+inputs:
+  file:
+    required: true
+    description: "Dockerfile to build"
+  tags:
+    required: true
+    description: "Image tags to publish"
+  pull:
+    default: false
+    required: false
+    description: "Attempt to pull a newer version of the image (default false)"
+  push:
+    default: false
+    required: false
+    description: "Push the image to the container registry (default false)"
+  temp:
+    default: /tmp
+    required: true
+    description: "Path to temp dir"
+  context:
+    default: "."
+    required: true
+    description: "Path to image build context"
+  platforms:
+    default: "linux/amd64"
+    required: false
+    description: "Platforms to build"
+  buildx-driver-opts:
+    default: ""
+    required: false
+    description: "List of additional driver-specific options"
+  build-args:
+    default: ""
+    required: false
+    description: "Build arguments to use"
+  registry-url:
+    default: ""
+    required: false
+    description: "Address of container registry"
+  registry-username:
+    default: ""
+    required: false
+    description: "Username used to log in to the container registry"
+  registry-password:
+    default: ""
+    required: false
+    description: "Password used to log in to the container registry"
+  AWS_ACCESS_KEY_ID:
+    default: ""
+    required: false
+    description: "AWS access id for writing to the shared sccache S3 bucket"
+  AWS_SECRET_ACCESS_KEY:
+    default: ""
+    required: false
+    description: "AWS secret key for writing to the shared sccache S3 bucket"
+  SSH_PRIVATE_KEY:
+    default: ""
+    required: true
+    description: "Private SSH key for cloning private RAPIDS repositories"
+
+outputs:
+  digest:
+    description: "Image content-addressable identifier"
+    value: ${{ steps.docker-build.outputs.digest }}
+  metadata:
+    description: "Build result metadata"
+    value: ${{ steps.docker-build.outputs.metadata }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx context
+      shell: bash
+      run: |
+        docker context create builders
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      with:
+        endpoint: builders
+        buildkitd-flags: --debug
+        driver-opts: ${{ inputs.buildx-driver-opts }}
+    - name: Login to container registry
+      if: inputs.push == 'true'
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ inputs.registry-url }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
+    - name: Initialize sccache_credentials
+      shell: bash
+      run: |
+        echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> ${{ inputs.temp }}/sccache_credentials
+        echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
+    - name: Set up ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
+    - name: Build image
+      id: docker-build
+      uses: docker/build-push-action@v2
+      with:
+        pull: ${{ inputs.pull }}
+        push: ${{ inputs.push }}
+        file: ${{ inputs.file }}
+        tags: ${{ inputs.tags }}
+        context: ${{ inputs.context }}
+        load: ${{ inputs.push == false }}
+        platforms: ${{ inputs.platforms }}
+        build-args: ${{ inputs.build-args }}
+        ssh: |
+          default=${{ env.SSH_AUTH_SOCK }}
+        labels: |
+          org.opencontainers.image.vendor=NVIDIA
+          org.opencontainers.image.source=https://github.com/rapidsai/node
+        secret-files: |
+          "sccache_credentials=${{ inputs.temp }}/sccache_credentials"
+    - name: Clean up
+      if: always()
+      shell: bash
+      run: |
+        rm ${{ inputs.temp }}/sccache_credentials

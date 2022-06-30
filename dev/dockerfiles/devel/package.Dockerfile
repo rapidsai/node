@@ -18,9 +18,6 @@ ARG SCCACHE_IDLE_TIMEOUT
 
 RUN echo -e "build env:\n$(env)"
 
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
-
 COPY --chown=rapids:rapids .npmrc        /home/node/.npmrc
 COPY --chown=rapids:rapids .npmrc        .npmrc
 COPY --chown=rapids:rapids .yarnrc       .yarnrc
@@ -36,9 +33,17 @@ COPY --chown=rapids:rapids modules       modules
 
 USER root
 
-RUN --mount=type=secret,id=sccache_credentials \
-    if [ -f /run/secrets/sccache_credentials ]; then set -a; . /run/secrets/sccache_credentials; set +a; fi; \
-    echo -e "build context:\n$(find .)" \
+ENV RAPIDSAI_SKIP_DOWNLOAD=1
+
+RUN --mount=type=ssh,required=true \
+    --mount=type=secret,id=sccache_credentials \
+    if [ -f /run/secrets/sccache_credentials ]; then \
+        export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \
+    fi; \
+    mkdir -p -m 0700 /root/.ssh \
+ # Add GitHub's public keys to known_hosts
+ && curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /root/.ssh/known_hosts \
+ && echo -e "build context:\n$(find .)" \
  && bash -c 'echo -e "\
 CUDAARCHS=$CUDAARCHS\n\
 PARALLEL_LEVEL=$PARALLEL_LEVEL\n\
@@ -51,9 +56,10 @@ SCCACHE_IDLE_TIMEOUT=$SCCACHE_IDLE_TIMEOUT\n\
  && yarn --pure-lockfile --network-timeout 1000000 \
  && yarn build \
  && yarn dev:npm:pack \
- && chown rapids:rapids build/*.tgz \
- && mv build/*.tgz ../
+ && chown rapids:rapids build/*.{tgz,tar.gz} \
+ && mv build/*.tgz ../ && mv build/*.tar.gz ../
 
 FROM alpine:latest
 
 COPY --from=build /opt/rapids/*.tgz /opt/rapids/
+COPY --from=build /opt/rapids/*.tar.gz /opt/rapids/

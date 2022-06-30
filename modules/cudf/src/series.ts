@@ -1266,6 +1266,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param ascending whether to sort ascending (true) or descending (false)
    * @param null_order whether nulls should sort before or after other values
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @returns Series containting the permutation indices for the desired sort order
    *
@@ -1290,9 +1291,12 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'after') // [5, 0, 1, 2, 3, 4]
    * ```
    */
-  orderBy(ascending = true, null_order: keyof typeof NullOrder = 'after') {
-    return Series.new(
-      new Table({columns: [this._col]}).orderBy([ascending], [NullOrder[null_order]]));
+  orderBy(ascending                          = true,
+          null_order: keyof typeof NullOrder = 'after',
+          memoryResource?: MemoryResource) {
+    return Series.new(new Table({
+                        columns: [this._col]
+                      }).orderBy([ascending], [null_order === 'before'], memoryResource));
   }
 
   /**
@@ -1484,11 +1488,9 @@ export class AbstractSeries<T extends DataType = any> {
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource) {
-    return this.__construct(
-      new Table({columns: [this._col]})
-        .dropDuplicates(
-          [0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, nullsFirst, memoryResource)
-        .getColumnByIndex(0));
+    return new DataFrame({0: this})
+      .dropDuplicates(keep ? 'first' : 'none', nullsEqual, nullsFirst, ['0'], memoryResource)
+      .get('0');
   }
 }
 

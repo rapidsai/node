@@ -80,7 +80,7 @@ Table::full_join(Napi::Env const& env,
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
     return cudf::full_join(left, right, compare_nulls, mr);
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 std::pair<std::unique_ptr<rmm::device_uvector<cudf::size_type>>,
@@ -93,7 +93,7 @@ Table::inner_join(Napi::Env const& env,
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
     return cudf::inner_join(left, right, compare_nulls, mr);
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 std::pair<std::unique_ptr<rmm::device_uvector<cudf::size_type>>,
@@ -106,7 +106,7 @@ Table::left_join(Napi::Env const& env,
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
     return cudf::left_join(left, right, compare_nulls, mr);
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_semi_join(
@@ -118,7 +118,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_semi_join(
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
     return cudf::left_semi_join(left, right, compare_nulls, mr);
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_anti_join(
@@ -130,7 +130,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_anti_join(
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
     return cudf::left_anti_join(left, right, compare_nulls, mr);
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 Napi::Value Table::full_join(Napi::CallbackInfo const& info) {

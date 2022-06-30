@@ -27,38 +27,38 @@ Column::wrapper_t Column::cast(cudf::data_type out_type,
                                rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::cast(*this, out_type, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_null(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::is_null(*this, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_valid(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::is_valid(*this, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_nan(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::is_nan(*this, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_not_nan(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::is_not_nan(*this, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::unary_operation(cudf::unary_operator op,
                                           rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::unary_operation(*this, op, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Column::cast(Napi::CallbackInfo const& info) {

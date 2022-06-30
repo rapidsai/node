@@ -1,8 +1,10 @@
-version: "3.8"
+version: "3.9"
 
 x-base-settings: &base_service_settings
   tty: true
-  env_file: .env
+  env_file:
+    - .env
+    - .creds
   network_mode: host
   build: &base_build_settings
     context: .
@@ -23,26 +25,16 @@ x-base-settings: &base_service_settings
 
 x-main-service-settings: &main_service_settings
   <<: *base_service_settings
-  volumes:
-    - ".:/opt/rapids/node:rw"
-    - "/etc/fonts:/etc/fonts:ro"
-    - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-    - "/usr/share/fonts:/usr/share/fonts:ro"
-    - "/usr/share/icons:/usr/share/icons:ro"
-    - "/etc/timezone:/etc/timezone"
-    - "/etc/localtime:/etc/localtime"
-    - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
-    - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
   environment: &main_environment_settings
     <<: *base_environment_settings
     # Use the host's X11 display
     DISPLAY: "${DISPLAY:-}"
     XAUTHORITY: "${XAUTHORITY:-}"
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
+    RAPIDS_VERSION: "${RAPIDS_VERSION:-22.06.00}"
     XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/rapids/node/.cache/jit"
     DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
-    GCC_COLORS: "${GCC_COLORS:-error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01}"
   cap_add:
     - SYS_ADMIN
     - SYS_PTRACE
@@ -53,46 +45,76 @@ services:
 
   main:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+    secrets:
+      - sccache_credentials
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
+        UCX_VERSION: ${UCX_VERSION:-1.12.1}
         NODE_VERSION: ${NODE_VERSION:-16.15.1}
+        LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
         ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
-        SCCACHE_REGION: "${SCCACHE_REGION:-}"
-        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
-        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"
-        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
-        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
-
-  packages:
-    <<: *base_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
-    build:
-      <<: *base_build_settings
-      dockerfile: dev/dockerfiles/devel/package.Dockerfile
-      args:
-        CUDAARCHS: "${CUDAARCHS:-ALL}"
-        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
-        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:-}"
-        RAPIDS_VERSION: "${RAPIDS_VERSION:-22.02.00}"
-        SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
-        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
-        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
-        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
-        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+    environment:
+      <<: *main_environment_settings
+      SSH_AUTH_SOCK: "/ssh-agent"
+      GCC_COLORS: "${GCC_COLORS:-error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01}"
+    volumes:
+      - ".:/opt/rapids/node:rw"
+      - "/etc/fonts:/etc/fonts:ro"
+      - "/etc/timezone:/etc/timezone"
+      - "/etc/localtime:/etc/localtime"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "/usr/share/fonts:/usr/share/fonts:ro"
+      - "/usr/share/icons:/usr/share/icons:ro"
+      - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
+      - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:/ssh-agent"
 
   notebook:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-notebook
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-notebook
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/notebook.Dockerfile
       args:
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
     environment:
       <<: *main_environment_settings
       QT_AUTO_SCREEN_SCALE_FACTOR: 0
+    volumes:
+      - ".:/opt/rapids/node:rw"
+      - "/etc/fonts:/etc/fonts:ro"
+      - "/etc/timezone:/etc/timezone"
+      - "/etc/localtime:/etc/localtime"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "/usr/share/fonts:/usr/share/fonts:ro"
+      - "/usr/share/icons:/usr/share/icons:ro"
+      - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
+
+  packages:
+    <<: *base_service_settings
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
+    build:
+      <<: *base_build_settings
+      dockerfile: dev/dockerfiles/devel/package.Dockerfile
+      ssh:
+        - default
+      secrets:
+        - sccache_credentials
+      args:
+        CUDAARCHS: "${CUDAARCHS:-ALL}"
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
+        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:-}"
+        RAPIDS_VERSION: "${RAPIDS_VERSION:-22.06.00}"
+        SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
+        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
+        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+
+secrets:
+  sccache_credentials:
+    file: .creds

@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,37 +14,58 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cugraph VERSION)
+function(find_and_configure_cugraph)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_nccl.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUGRAPHOPS.cmake)
 
-    _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
+    _get_rapidsai_module_version(cugraph VERSION)
+
+    _clean_build_dirs_if_not_fully_built(cugraph libcugraph)
 
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cugraph cugraph)
     _set_package_dir_if_exists(cuhornet cuhornet)
+    _set_package_dir_if_exists(cugraph-ops cugraph-ops)
 
     if(NOT TARGET cugraph::cugraph)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cugraph
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
-            GIT_TAG             fix/define-ptds
+            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
+                                "BUILD_SHARED_LIBS OFF"
+                                "BUILD_CUGRAPH_MG_TESTS OFF"
         )
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph
     _fix_cmake_global_defaults(cugraph::cugraph)
-    # Make these -isystem so -Werror doesn't fail their builds
+
+    if(NOT TARGET cugraph::cuHornet AND
+      (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS}))
+        set(cuhornet_SOURCE_DIR "${CPM_BINARY_CACHE}/cuhornet-src")
+        if (EXISTS "${cuhornet_SOURCE_DIR}")
+            add_library(cugraph::cuHornet IMPORTED INTERFACE GLOBAL)
+            target_include_directories(cugraph::cuHornet INTERFACE
+                "${cuhornet_SOURCE_DIR}/hornet/include"
+                "${cuhornet_SOURCE_DIR}/hornetsnest/include"
+                "${cuhornet_SOURCE_DIR}/xlib/include"
+                "${cuhornet_SOURCE_DIR}/primitives"
+            )
+        endif()
+    endif()
+
+    set(cugraph_VERSION "${cugraph_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cugraph(${CUGRAPH_VERSION})
+find_and_configure_cugraph()

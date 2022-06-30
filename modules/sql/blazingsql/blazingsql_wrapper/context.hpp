@@ -20,10 +20,14 @@
 
 #include <nv_node/objectwrap.hpp>
 
+namespace ral {
+namespace cache {
+struct CacheMachine;
+}
+}  // namespace ral
+
 namespace nv {
 namespace blazingsql {
-
-struct CacheMachine;
 
 struct Context : public EnvLocalObjectWrap<Context> {
   /**

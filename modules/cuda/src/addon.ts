@@ -14,6 +14,8 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
+import {addon as CORE} from '@rapidsai/core';
+
 export const {
   VERSION,
   IPC_HANDLE_SIZE,
@@ -38,7 +40,7 @@ export const {
   IpcHandle,
   MappedGLMemory,
   _cpp_exports,
-} = require('bindings')('rapidsai_cuda.node').init() as typeof import('./node_cuda');
+} = require('bindings')('rapidsai_cuda.node').init(CORE) as typeof import('./node_cuda');
 
 export type getDriverVersion = typeof import('./node_cuda').getDriverVersion;
 export type rgbaMirror       = typeof import('./node_cuda').rgbaMirror;

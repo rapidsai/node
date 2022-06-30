@@ -25,13 +25,13 @@ namespace nv {
 Column::wrapper_t Column::count_characters(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::count_characters(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::count_bytes(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::count_bytes(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Column::count_characters(Napi::CallbackInfo const& info) {

@@ -28,13 +28,13 @@ Column::wrapper_t Column::pad(cudf::size_type width,
                               rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::pad(this->view(), width, pad_side, fill_char, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::zfill(cudf::size_type width, rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::zfill(this->view(), width, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Column::pad(Napi::CallbackInfo const& info) {

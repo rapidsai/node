@@ -47,7 +47,7 @@ Napi::Value Table::to_arrow(Napi::CallbackInfo const& info) {
   auto buffer = [&]() {
     auto table        = cudf::to_arrow(*this, gather_metadata(info[0].As<Napi::Array>()));
     auto sink         = arrow::io::BufferOutputStream::Create().ValueOrDie();
-    auto writer       = arrow::ipc::NewStreamWriter(sink.get(), table->schema()).ValueOrDie();
+    auto writer       = arrow::ipc::MakeStreamWriter(sink.get(), table->schema()).ValueOrDie();
     auto write_status = writer->WriteTable(*table);
     if (!write_status.ok()) { NAPI_THROW(Napi::Error::New(env, write_status.message())); }
     auto close_status = writer->Close();

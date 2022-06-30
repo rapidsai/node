@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3
+
 ARG FROM_IMAGE
 ARG BUILD_IMAGE
 ARG DEVEL_IMAGE
@@ -7,23 +9,40 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
+ENV RAPIDSAI_SKIP_DOWNLOAD=1
+
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-       /tmp/rapids/wrtc-0.4.7-dev.tgz       \
-       /tmp/rapids/rapidsai-core-*.tgz      \
-       /tmp/rapids/rapidsai-cuda-*.tgz      \
-       /tmp/rapids/rapidsai-glfw-*.tgz      \
-       /tmp/rapids/rapidsai-webgl-*.tgz     \
-       /tmp/rapids/rapidsai-rmm-*.tgz       \
-       /tmp/rapids/rapidsai-cudf-*.tgz      \
-       /tmp/rapids/rapidsai-sql-*.tgz       \
-       /tmp/rapids/rapidsai-cuml-*.tgz      \
-       /tmp/rapids/rapidsai-cugraph-*.tgz   \
-       /tmp/rapids/rapidsai-cuspatial-*.tgz \
-       /tmp/rapids/rapidsai-io-*.tgz      \
-       /tmp/rapids/rapidsai-deck.gl-*.tgz   \
-       /tmp/rapids/rapidsai-jsdom-*.tgz     \
-       /tmp/rapids/rapidsai-demo-*.tgz      ;
+        /tmp/rapids/wrtc-dev.tgz             \
+        /tmp/rapids/rapidsai-core-*.tgz      \
+        /tmp/rapids/rapidsai-cuda-*.tgz      \
+        /tmp/rapids/rapidsai-glfw-*.tgz      \
+        /tmp/rapids/rapidsai-webgl-*.tgz     \
+        /tmp/rapids/rapidsai-rmm-*.tgz       \
+        /tmp/rapids/rapidsai-cudf-*.tgz      \
+        /tmp/rapids/rapidsai-sql-*.tgz       \
+        /tmp/rapids/rapidsai-cuml-*.tgz      \
+        /tmp/rapids/rapidsai-cugraph-*.tgz   \
+        /tmp/rapids/rapidsai-cuspatial-*.tgz \
+        /tmp/rapids/rapidsai-io-*.tgz        \
+        /tmp/rapids/rapidsai-deck.gl-*.tgz   \
+        /tmp/rapids/rapidsai-jsdom-*.tgz     \
+        /tmp/rapids/rapidsai-demo-*.tgz;     \
+    for x in cudf cuml cugraph cuspatial sql io; do \
+        mkdir node_modules/@rapidsai/${x}/build/Release; \
+        tar -C node_modules/@rapidsai/${x}/build/Release \
+            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
+            --wildcards --strip-components=2 \
+            -x "**/lib/rapidsai_${x}.node" ; \
+    done
+
+FROM scratch as ucx-deb-amd64
+
+ONBUILD ARG UCX_VERSION=1.12.1
+ONBUILD ARG LINUX_VERSION=ubuntu20.04
+ONBUILD ADD https://github.com/openucx/ucx/releases/download/v${UCX_VERSION}/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb /ucx.deb
+
+FROM ucx-deb-${TARGETARCH} as ucx-deb
 
 FROM ${FROM_IMAGE}
 
@@ -31,37 +50,9 @@ SHELL ["/bin/bash", "-c"]
 
 USER root
 
-# Install UCX
-COPY --from=devel /usr/local/bin/ucx_info         /usr/local/bin/
-COPY --from=devel /usr/local/bin/ucx_perftest     /usr/local/bin/
-COPY --from=devel /usr/local/bin/ucx_read_profile /usr/local/bin/
-COPY --from=devel /usr/local/include/ucm          /usr/local/include/
-COPY --from=devel /usr/local/include/ucp          /usr/local/include/
-COPY --from=devel /usr/local/include/ucs          /usr/local/include/
-COPY --from=devel /usr/local/include/uct          /usr/local/include/
-COPY --from=devel /usr/local/lib/libucm.a         /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucm.la        /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucm.so.0.0.0  /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucp.a         /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucp.la        /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucp.so.0.0.0  /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucs.a         /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucs.la        /usr/local/lib/
-COPY --from=devel /usr/local/lib/libucs.so.0.0.0  /usr/local/lib/
-COPY --from=devel /usr/local/lib/libuct.a         /usr/local/lib/
-COPY --from=devel /usr/local/lib/libuct.la        /usr/local/lib/
-COPY --from=devel /usr/local/lib/libuct.so.0.0.0  /usr/local/lib/
-COPY --from=devel /usr/local/lib/pkgconfig        /usr/local/lib/
-COPY --from=devel /usr/local/lib/ucx              /usr/local/lib/
-
-RUN cd /usr/local/lib \
- && ln -s libucm.so.0.0.0 libucm.so \
- && ln -s libucp.so.0.0.0 libucp.so \
- && ln -s libucs.so.0.0.0 libucs.so \
- && ln -s libuct.so.0.0.0 libuct.so \
- \
+RUN --mount=type=bind,from=ucx-deb,target=/usr/src/ucx \
  # Install dependencies
- && export DEBIAN_FRONTEND=noninteractive \
+    export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install -y --no-install-recommends \
     # cuSpatial dependencies
@@ -80,6 +71,8 @@ RUN cd /usr/local/lib \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg8 libgif7 librsvg2-2 \
     # SQL dependencies
     openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+ # Install UCX
+ && dpkg -i /usr/src/ucx/ucx.deb || true && apt install --fix-broken \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \

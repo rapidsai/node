@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,14 +14,22 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cuspatial VERSION)
+function(find_and_configure_cuspatial)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUDF.cmake)
 
-    include(ConfigureCUDF)
+    _get_rapidsai_module_version(cuspatial VERSION)
 
-    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial.so)
+    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
 
+    _set_package_dir_if_exists(cudf cudf)
+    _set_package_dir_if_exists(cuco cuco)
+    _set_package_dir_if_exists(dlpack dlpack)
+    _set_package_dir_if_exists(jitify jitify)
+    _set_package_dir_if_exists(nvcomp nvcomp)
+    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
@@ -36,12 +44,15 @@ function(find_and_configure_cuspatial VERSION)
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
-                                "JITIFY_USE_CACHE ON"
+                                "BUILD_SHARED_LIBS OFF"
+                                "CUDA_STATIC_RUNTIME OFF"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
     endif()
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
+
+    set(cuspatial_VERSION "${cuspatial_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cuspatial(${CUSPATIAL_VERSION})
+find_and_configure_cuspatial()

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@
 #include "context.hpp"
 #include "graph.hpp"
 
-#include <cudf/table/table.hpp>
-
 #include <nv_node/utilities/args.hpp>
 
 struct NodeMetaDataUCP;
 struct TableSchema;
+
+namespace cudf {
+struct table;
+struct table_view;
+}  // namespace cudf
 
 namespace nv {
 namespace blazingsql {

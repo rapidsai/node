@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ endif(NODE_RAPIDS_USE_SCCACHE)
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cpp_core_include_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE RAPIDS_CORE_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 

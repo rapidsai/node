@@ -260,7 +260,7 @@ Napi::Value GroupBy::_single_aggregation(Napi::CallbackInfo const& info,
 
   try {
     result = groupby_->aggregate(requests, mr);
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 
   auto result_keys = Table::New(env, std::move(result.first));
   auto result_cols = Napi::Array::New(env, result.second.size());

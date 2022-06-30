@@ -7,8 +7,9 @@ on:
   workflow_dispatch:
 
 env:
+  UCX: "1.12.1"
   NODE: "16.15.1"
-  RAPIDS: "22.02.00"
+  RAPIDS: "22.06.00"
   REPOSITORY: "ghcr.io/rapidsai/node"
 
 concurrency:
@@ -20,46 +21,80 @@ jobs:
   build-and-publish-devel-main-image:
     name: Build devel main image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             dev/dockerfiles/devel/main\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/devel/main.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/devel/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
             "NODE_VERSION=${{ env.NODE }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
@@ -71,23 +106,59 @@ jobs:
       - build-and-publish-devel-main-image
     name: Build devel packages image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules
@@ -96,21 +167,21 @@ jobs:
             dev/dockerfiles/devel/(main|package)\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
-        uses: ./.github/actions/build-and-publish-image
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        uses: ./.github/actions/build-and-publish-image-ssh
         with:
+          pull: true
+          push: true
+          temp: ${{ runner.temp }}
+          file: dev/dockerfiles/devel/package.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/devel/package.Dockerfile
+          SSH_PRIVATE_KEY: "${{ secrets.GHA_SSH_PRIVATE_KEY }}"
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
@@ -125,45 +196,76 @@ jobs:
   build-and-publish-runtime-cuda-base-image:
     needs:
       - build-and-publish-devel-main-image
-      - build-and-publish-devel-packages-image
     name: Build runtime cuda-base image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             dev/dockerfiles/runtime/base\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/base.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
           build-args: |
@@ -178,44 +280,76 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cudf image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf)
             dev/dockerfiles/runtime/cudf\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/cudf.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
           build-args: |
@@ -229,44 +363,76 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cugraph image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|cugraph)
             dev/dockerfiles/runtime/cugraph\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/cugraph.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/cugraph.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
           build-args: |
@@ -280,44 +446,76 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuml image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|cuml)
             dev/dockerfiles/runtime/cuml\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/cuml.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
           build-args: |
@@ -331,44 +529,76 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuspatial image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|cuspatial)
             dev/dockerfiles/runtime/cuspatial\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
           build-args: |
@@ -382,44 +612,76 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime glfw image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(core|glfw|webgl)
             dev/dockerfiles/runtime/glfw\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/glfw.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/glfw.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
           build-args: |
@@ -433,47 +695,81 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime sql image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(rmm|core|cuda|cudf|sql)
             dev/dockerfiles/runtime/sql\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/sql.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/sql.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
@@ -484,47 +780,81 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime main image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
             dev/dockerfiles/runtime/main\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/main.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
@@ -535,47 +865,81 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime demo image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules
             dev/dockerfiles/runtime/demo\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/demo.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/demo.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
           build-args: |
+            "UCX_VERSION=${{ env.UCX }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
@@ -585,23 +949,59 @@ jobs:
       - build-and-publish-runtime-demo-image
     name: Build runtime notebook image
     runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+
+      - name: Dump runner context
+        shell: bash
+        run: |
+          echo "${{ toJSON(runner) }}"
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+
+      - name: Install utilities
+        if: env.is_gha_runner != 'true'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends git-lfs
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           lfs: true
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Checkout LFS
+        shell: bash
         run: git lfs checkout
+
+      - name: Free up disk space
+        if: env.is_gha_runner == 'true'
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
+      - name: Get last successful main commit sha
+        id: last_main_commit
+        if: env.manual_build != 'true'
+        uses: nrwl/last-successful-commit-action@v1
+        with:
+          branch: main
+          workflow_id: "merge.pr.yml"
+          github_token: "${{ github.token }}"
+
       - name: Check if files changed
         id: files_changed
-        uses: tj-actions/changed-files@v9.1
+        if: env.manual_build != 'true'
+        uses: tj-actions/changed-files@v23.1
         with:
+          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
             \.npmrc
             modules
@@ -609,21 +1009,17 @@ jobs:
             dev/dockerfiles/runtime/notebook\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build and push image
-        env:
-          manual_build: ${{ github.event_name == 'workflow_dispatch' }}
-          file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        if: env.manual_build == 'true' || env.file_changed == 'true'
+        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
+          pull: true
+          push: true
+          file: dev/dockerfiles/runtime/notebook.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          pull: true
-          push: true
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dev/dockerfiles/runtime/notebook.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook
           build-args: |

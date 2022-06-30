@@ -52,10 +52,11 @@ export type FitProps<T extends Numeric = any, R extends Numeric = any> = {
   nFeatures: number,
   convertDType: boolean,
   embeddings: DeviceBuffer,
+  graph: COOInterface,
   target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
   targetType?: R,
   knnIndices?: DeviceBuffer,
-  knnDists?: DeviceBuffer
+  knnDists?: DeviceBuffer,
 };
 
 export type RefineProps<T extends Numeric = any> = {
@@ -73,7 +74,8 @@ export type GetGraphProps<T extends Numeric = any, R extends Numeric = any> = {
   featuresType: T,
   nSamples: number,
   nFeatures: number,
-  convertDType: boolean,
+  knnIndices?: DeviceBuffer,
+  knnDists?: DeviceBuffer, convertDType: boolean,
   target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
   targetType?: R
 };

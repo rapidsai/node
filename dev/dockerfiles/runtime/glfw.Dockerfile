@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3
+
 ARG FROM_IMAGE
 ARG BUILD_IMAGE
 ARG DEVEL_IMAGE
@@ -9,10 +11,11 @@ WORKDIR /home/node
 
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-       /tmp/rapids/wrtc-0.4.7-dev.tgz   \
-       /tmp/rapids/rapidsai-core-*.tgz  \
-       /tmp/rapids/rapidsai-glfw-*.tgz  \
-       /tmp/rapids/rapidsai-webgl-*.tgz ;
+        /tmp/rapids/wrtc-dev.tgz         \
+        /tmp/rapids/rapidsai-core-*.tgz  \
+        /tmp/rapids/rapidsai-glfw-*.tgz  \
+        /tmp/rapids/rapidsai-webgl-*.tgz \
+        /tmp/rapids/rapidsai-jsdom-*.tgz ;
 
 FROM ${FROM_IMAGE}
 

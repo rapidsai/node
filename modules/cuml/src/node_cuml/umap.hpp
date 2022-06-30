@@ -61,7 +61,8 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
            DeviceBuffer::wrapper_t const& knn_indices,
            DeviceBuffer::wrapper_t const& knn_dists,
            bool convert_dtype,
-           DeviceBuffer::wrapper_t const& embeddings);
+           DeviceBuffer::wrapper_t const& embeddings,
+           raft::sparse::COO<float>* graph);
 
   void refine(DeviceBuffer::wrapper_t const& X,
               cudf::size_type n_samples,
@@ -73,6 +74,8 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   COO::wrapper_t get_graph(DeviceBuffer::wrapper_t const& X,
                            cudf::size_type n_samples,
                            cudf::size_type n_features,
+                           DeviceBuffer::wrapper_t const& knn_indices,
+                           DeviceBuffer::wrapper_t const& knn_dists,
                            DeviceBuffer::wrapper_t const& y,
                            bool convert_dtype);
 

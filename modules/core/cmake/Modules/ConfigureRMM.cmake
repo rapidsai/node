@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_rmm VERSION)
+function(find_and_configure_rmm)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureThrust.cmake)
 
-    include(ConfigureThrust)
+    _get_rapidsai_module_version(rmm VERSION)
 
     _set_package_dir_if_exists(rmm rmm)
     _set_package_dir_if_exists(spdlog spdlog)
@@ -41,6 +43,8 @@ function(find_and_configure_rmm VERSION)
     _fix_cmake_global_defaults(rmm::rmm)
     _fix_cmake_global_defaults(rmm::Thrust)
     _fix_cmake_global_defaults(rmm::spdlog_header_only)
+
+    set(rmm_VERSION "${rmm_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_rmm(${RMM_VERSION})
+find_and_configure_rmm()

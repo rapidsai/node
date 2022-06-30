@@ -41,7 +41,7 @@ Napi::Value Column::fill(Napi::CallbackInfo const& info) {
   cudf::size_type end   = args.Length() > 2 ? args[2] : size();
   try {
     return fill(begin, end, *scalar, args[3]);
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 
 void Column::fill_in_place(Napi::CallbackInfo const& info) {
@@ -52,7 +52,7 @@ void Column::fill_in_place(Napi::CallbackInfo const& info) {
   try {
     cudf::mutable_column_view view = *this;
     cudf::fill_in_place(view, begin, end, scalar->operator cudf::scalar&());
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 
 Column::wrapper_t Column::sequence(Napi::Env const& env,
@@ -61,7 +61,7 @@ Column::wrapper_t Column::sequence(Napi::Env const& env,
                                    rmm::mr::device_memory_resource* mr) {
   try {
     return Column::New(env, cudf::sequence(size, init, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 Column::wrapper_t Column::sequence(Napi::Env const& env,
@@ -71,7 +71,7 @@ Column::wrapper_t Column::sequence(Napi::Env const& env,
                                    rmm::mr::device_memory_resource* mr) {
   try {
     return Column::New(env, cudf::sequence(size, init, step, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 Napi::Value Column::sequence(Napi::CallbackInfo const& info) {

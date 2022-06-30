@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,9 +54,9 @@ cudf::io::orc_reader_options make_reader_options(Napi::Object const& options,
   if (!stripes.empty()) { opts.set_stripes(stripes); }
   if (has_opt("skipRows")) { opts.set_skip_rows(long_opt("skipRows")); }
 
-  auto decimal_cols_as_floats = napi_opt("decimalColsAsFloats");
-  if (!is_null(decimal_cols_as_floats) && decimal_cols_as_floats.IsArray()) {
-    opts.set_decimal_cols_as_float(NapiToCPP{decimal_cols_as_floats});
+  auto decimal_cols = napi_opt("decimalColumns");
+  if (!is_null(decimal_cols) && decimal_cols.IsArray()) {
+    opts.set_decimal128_columns(NapiToCPP{decimal_cols});
   }
 
   auto columns = napi_opt("columns");
@@ -109,7 +109,7 @@ Napi::Value Table::read_orc(Napi::CallbackInfo const& info) {
     return (options.Get("sourceType").ToString().Utf8Value() == "files")
              ? read_orc_files(options, NapiToCPP{sources})
              : read_orc_sources(options, NapiToCPP{sources});
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 }  // namespace nv

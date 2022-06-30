@@ -60,8 +60,7 @@ export default class UMAP extends React.Component {
       {
         Header: 'Col Name',
         accessor: 'colname3',
-      }
-      ,
+      },
       {
         Header: 'Col Name',
         accessor: 'colname4',

@@ -109,7 +109,7 @@ Napi::Value Table::read_parquet(Napi::CallbackInfo const& info) {
     return (options.Get("sourceType").ToString().Utf8Value() == "files")
              ? read_parquet_files(options, NapiToCPP{sources})
              : read_parquet_sources(options, NapiToCPP{sources});
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 }  // namespace nv

@@ -39,7 +39,7 @@ Column::wrapper_t Column::concatenate(Napi::Env const& env,
   try {
     return Column::New(
       env, cudf::strings::concatenate(columns, separator, narep, separator_on_nulls, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
 Napi::Value Column::concatenate(Napi::CallbackInfo const& info) {

@@ -33,14 +33,14 @@ Column::wrapper_t Column::strings_from_booleans(rmm::mr::device_memory_resource*
       Env(),
       cudf::strings::from_booleans(
         this->view(), cudf::string_scalar("true"), cudf::string_scalar("false"), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::strings_to_booleans(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(),
                        cudf::strings::to_booleans(this->view(), cudf::string_scalar("true"), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::string_is_float(rmm::mr::device_memory_resource* mr) const {
@@ -50,14 +50,14 @@ Column::wrapper_t Column::string_is_float(rmm::mr::device_memory_resource* mr) c
 Column::wrapper_t Column::strings_from_floats(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::from_floats(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::strings_to_floats(cudf::data_type out_type,
                                             rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::to_floats(this->view(), out_type, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::string_is_integer(rmm::mr::device_memory_resource* mr) const {
@@ -67,14 +67,14 @@ Column::wrapper_t Column::string_is_integer(rmm::mr::device_memory_resource* mr)
 Column::wrapper_t Column::strings_from_integers(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::from_integers(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::strings_to_integers(cudf::data_type out_type,
                                               rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::to_integers(this->view(), out_type, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::string_is_hex(rmm::mr::device_memory_resource* mr) const {
@@ -84,14 +84,14 @@ Column::wrapper_t Column::string_is_hex(rmm::mr::device_memory_resource* mr) con
 Column::wrapper_t Column::hex_from_integers(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::integers_to_hex(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::hex_to_integers(cudf::data_type out_type,
                                           rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::hex_to_integers(this->view(), out_type, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::string_is_ipv4(rmm::mr::device_memory_resource* mr) const {
@@ -101,13 +101,13 @@ Column::wrapper_t Column::string_is_ipv4(rmm::mr::device_memory_resource* mr) co
 Column::wrapper_t Column::ipv4_from_integers(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::integers_to_ipv4(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::ipv4_to_integers(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::strings::ipv4_to_integers(this->view(), mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Column::strings_from_booleans(Napi::CallbackInfo const& info) {

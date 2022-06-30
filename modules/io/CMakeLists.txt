@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,55 +16,55 @@
 
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(rapidsai_io VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_io VERSION 22.06.00 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
-
-set(RMM_VERSION "22.02.00")
-set(CUDF_VERSION "22.02.00")
-set(IO_VERSION "22.02.00")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@rapidsai/core'))"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                OUTPUT_VARIABLE NODE_RAPIDS_CORE_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/cuda'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDA_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/rmm'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_RMM_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/cudf'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDF_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
-
-include(ConfigureCXX)
-include(ConfigureCUDA)
-include(ConfigureNapi)
-include(ConfigureCUDF)
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDF.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 ###################################################################################################
-# - rapidsai_io target ------------------------------------------------------------------------------
+# - rapidsai_io target ----------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_IO_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE NODE_IO_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
@@ -94,6 +94,11 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
+target_compile_definitions(${PROJECT_NAME}
+    PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+           "$<$<COMPILE_LANGUAGE:CUDA>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
+)
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
@@ -104,11 +109,22 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
+               PUBLIC ${CMAKE_JS_LIB}
                       cudf::cudf
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cudf.node"
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"
-                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node")
+                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node"
+                      "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
+
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")
+generate_arch_specific_custom_targets(
+  NAME ${PROJECT_NAME}
+  DEPENDENCIES "cudf::cudf"
+)
+
+generate_install_rules(
+  NAME ${PROJECT_NAME}
+  CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND
