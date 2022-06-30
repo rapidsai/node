@@ -121,6 +121,7 @@ runs:
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
     - name: Set up ssh-agent
       uses: webfactory/ssh-agent@v0.5.4
+      continue-on-error: true
       with:
         ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
     - name: Build image
