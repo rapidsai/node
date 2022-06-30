@@ -41,7 +41,8 @@ RUN --mount=type=ssh,required=true \
         export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \
     fi; \
     mkdir -p -m 0700 /root/.ssh \
- && ssh-keyscan -H github.com > /root/.ssh/known_hosts \
+ # Add GitHub's public keys to known_hosts
+ && curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /root/.ssh/known_hosts \
  && echo -e "build context:\n$(find .)" \
  && bash -c 'echo -e "\
 CUDAARCHS=$CUDAARCHS\n\
