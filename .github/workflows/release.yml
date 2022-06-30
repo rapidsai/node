@@ -6,7 +6,7 @@ on:
       repo:
         type: string
         required: true
-        default: "rapisdai/node"
+        default: "rapidsai/node"
         description: "node-rapids repo to use"
       rapids-version:
         type: string
