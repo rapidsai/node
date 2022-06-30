@@ -179,7 +179,6 @@ jobs:
   build-and-publish-runtime-cuda-base-image:
     needs:
       - build-and-publish-devel-main-image
-      - build-and-publish-devel-packages-image
     name: Build runtime cuda-base image
     runs-on: ubuntu-20.04
     # runs-on: [self-hosted, linux, amd64, cpu4]
