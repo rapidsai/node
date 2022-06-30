@@ -170,7 +170,6 @@ jobs:
           build-args: |
             "CUDAARCHS=ALL"
             "PARALLEL_LEVEL=1"
-            "NVCC_APPEND_FLAGS=--threads=${PARALLEL_LEVEL:-1}"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
