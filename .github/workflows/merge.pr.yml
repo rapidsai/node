@@ -152,7 +152,7 @@ jobs:
         env:
           file_changed: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         if: env.manual_build == 'true' || env.file_changed == 'true'
-        uses: ./.github/actions/build-and-publish-image
+        uses: ./.github/actions/build-and-publish-image-ssh
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}

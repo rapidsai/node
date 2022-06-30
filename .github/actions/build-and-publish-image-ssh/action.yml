@@ -1,6 +1,6 @@
-name: build-and-publish-image
+name: build-and-publish-image-ssh
 
-description: "Build and publish a Docker image"
+description: "Build and publish a Docker image with SSH forwarding"
 
 inputs:
   file:
@@ -61,6 +61,10 @@ inputs:
     default: ""
     required: false
     description: "AWS secret key for writing to the shared sccache S3 bucket"
+  SSH_PRIVATE_KEY:
+    default: ""
+    required: true
+    description: "Private SSH key for cloning private RAPIDS repositories"
 
 outputs:
   digest:
@@ -115,6 +119,10 @@ runs:
       run: |
         echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> ${{ inputs.temp }}/sccache_credentials
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
+    - name: Set up ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
@@ -127,6 +135,8 @@ runs:
         load: ${{ inputs.push == false }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
+        ssh: |
+          default=${{ env.SSH_AUTH_SOCK }}
         labels: |
           org.opencontainers.image.vendor=NVIDIA
           org.opencontainers.image.source=https://github.com/rapidsai/node
