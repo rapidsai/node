@@ -120,12 +120,13 @@ runs:
         echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> ${{ inputs.temp }}/sccache_credentials
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> ${{ inputs.temp }}/sccache_credentials
     - name: Set up ssh-agent
+      if: inputs.SSH_PRIVATE_KEY != ''
       uses: webfactory/ssh-agent@v0.5.4
-      continue-on-error: true
       with:
         ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
-    - name: Build image
+    - name: Build image (with SSH forwarding)
       id: docker-build
+      if: inputs.SSH_PRIVATE_KEY != ''
       uses: docker/build-push-action@v2
       with:
         pull: ${{ inputs.pull }}
@@ -138,6 +139,24 @@ runs:
         build-args: ${{ inputs.build-args }}
         ssh: |
           default=${{ env.SSH_AUTH_SOCK }}
+        labels: |
+          org.opencontainers.image.vendor=NVIDIA
+          org.opencontainers.image.source=https://github.com/rapidsai/node
+        secret-files: |
+          "sccache_credentials=${{ inputs.temp }}/sccache_credentials"
+    - name: Build image (without SSH forwarding)
+      id: docker-build
+      if: inputs.SSH_PRIVATE_KEY == ''
+      uses: docker/build-push-action@v2
+      with:
+        pull: ${{ inputs.pull }}
+        push: ${{ inputs.push }}
+        file: ${{ inputs.file }}
+        tags: ${{ inputs.tags }}
+        context: ${{ inputs.context }}
+        load: ${{ inputs.push == 'false' }}
+        platforms: ${{ inputs.platforms }}
+        build-args: ${{ inputs.build-args }}
         labels: |
           org.opencontainers.image.vendor=NVIDIA
           org.opencontainers.image.source=https://github.com/rapidsai/node
