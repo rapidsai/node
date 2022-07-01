@@ -15,6 +15,9 @@
 // limitations under the License.
 
 if (process.env.RAPIDSAI_SKIP_DOWNLOAD === '1') { return; }
+try {
+  require('@rapidsai/core');
+} catch (e) { return; }
 
 const {npm_package_name: pkg} = process.env;
 
