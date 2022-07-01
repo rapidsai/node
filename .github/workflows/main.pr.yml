@@ -133,8 +133,8 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: |
-            ${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
-            ${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
+            "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
+            "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
 
       - name: Make container .env
         if: env.dev_changed == 'true' || env.src_changed == 'true'
