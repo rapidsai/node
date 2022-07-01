@@ -57,10 +57,12 @@ inputs:
     default: ""
     required: false
     description: "AWS secret key for writing to the shared sccache S3 bucket"
-  SSH_PRIVATE_KEY:
-    default: ""
+  CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY:
     required: true
-    description: "Private SSH key for cloning private RAPIDS repositories"
+    description: "Private SSH key for cloning rapidsai/cumlprims_mg"
+  CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY:
+    required: true
+    description: "Private SSH key for cloning rapidsai/cugraph-ops"
 
 outputs:
   digest:
@@ -100,7 +102,9 @@ runs:
     - name: Set up ssh-agent
       uses: webfactory/ssh-agent@v0.5.4
       with:
-        ssh-private-key: ${{ inputs.SSH_PRIVATE_KEY }}
+        ssh-private-key: |
+          ${{ inputs.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
+          ${{ inputs.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2

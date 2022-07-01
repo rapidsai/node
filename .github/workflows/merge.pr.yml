@@ -179,9 +179,10 @@ jobs:
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          SSH_PRIVATE_KEY: "${{ secrets.GHA_SSH_PRIVATE_KEY }}"
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
+          CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
