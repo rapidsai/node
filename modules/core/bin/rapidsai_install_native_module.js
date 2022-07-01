@@ -25,36 +25,48 @@ const CUDA     = `11.6.2`;
 const RAPIDS   = `22.06.00`;
 const PKG_NAME = pkg.replace('@', '').replace('/', '_');
 const GPU_ARCH = (() => {
-  const cc = typeof process.env.RAPIDSAI_GPU_ARCH !== undefined
-               ? [process.env.RAPIDSAI_GPU_ARCH]
-               : require('@rapidsai/core').getComputeCapabilities();
-  if (cc.length === 1) {
-    switch (cc[0]) {
-      case '60':
-      case '70':
-      case '75':
-      case '80':
-      case '86':  //
-        return `${cc[0]}`;
+  const cc = new Set(typeof process.env.RAPIDSAI_GPU_ARCH !== 'undefined'
+                       ? [process.env.RAPIDSAI_GPU_ARCH]
+                       : require('@rapidsai/core').getComputeCapabilities());
+  if (cc.size === 1) {
+    switch ([...cc][0]) {
+      case '60': return '60';
+      case '70': return '70';
+      case '75': return '75';
+      case '80': return '80';
+      case '86': return '86';
       default: break;
     }
   }
   return '';
 })();
 
-const fs    = require('fs');
+const {
+  createWriteStream,
+  constants: {F_OK},
+}           = require('fs');
 const Url   = require('url');
 const Path  = require('path');
 const https = require('https');
-const slug  = [PKG_NAME, ...[GPU_ARCH || ``].filter(Boolean)].join('_');
-const path  = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release', `${slug}.node`);
+const fs    = require('fs/promises');
 
-fs.access(path, fs.constants.F_OK, (err) => {
-  if (err) {
+const slug = [PKG_NAME, ...[GPU_ARCH || ``].filter(Boolean)].join('_');
+const dest = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release', `${slug}.node`);
+
+(async () => {
+  try {
+    await fs.access(dest, F_OK);
+  } catch (e) {
+    try {
+      await fs.access(Path.dirname(dest), F_OK);
+    } catch (e) {  //
+      await fs.mkdir(Path.dirname(dest), {recursive: true, mode: `0755`});
+    }
+
     const arch = [GPU_ARCH ? `arch${GPU_ARCH}` : ``].filter(Boolean);
     const slug = [PKG_NAME, RAPIDS, `cuda${CUDA}`, `linux`, `amd64`, ...arch].join('-');
 
-    fetch({
+    await fetch({
       hostname: `github.com`,
       path: `/rapidsai/node/releases/download/v${RAPIDS}/${slug}.node`,
       headers: {
@@ -64,28 +76,40 @@ fs.access(path, fs.constants.F_OK, (err) => {
     });
 
     function fetch(options = {}, numRedirects = 0) {
-      https
-        .get(options,
-             (res) => {
-               if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
-                 const {hostname = options.hostname, path} = Url.parse(res.headers.location);
-                 if (numRedirects < 10) fetch({...options, hostname, path}, numRedirects + 1);
-               } else if (res.statusCode > 199 && res.statusCode < 300) {
-                 const encoding = res.headers['content-encoding'] || '';
-                 if (encoding.includes('gzip')) {
-                   res = res.pipe(require('zlib').createGunzip());
-                 } else if (encoding.includes('deflate')) {
-                   res = res.pipe(require('zlib').createInflate());
-                 } else if (encoding.includes('br')) {
-                   res = res.pipe(require('zlib').createBrotliDecompress());
+      return new Promise((resolve, reject) => {
+        https
+          .get(options,
+               (res) => {
+                 if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
+                   const {hostname = options.hostname, path, ...rest} =
+                     Url.parse(res.headers.location);
+                   if (numRedirects < 10) {
+                     fetch({...rest, headers: options.headers, hostname, path}, numRedirects + 1)
+                       .then(resolve, reject);
+                   } else {
+                     reject('Too many redirects');
+                   }
+                 } else if (res.statusCode > 199 && res.statusCode < 300) {
+                   const encoding = res.headers['content-encoding'] || '';
+                   if (encoding.includes('gzip')) {
+                     res = res.pipe(require('zlib').createGunzip());
+                   } else if (encoding.includes('deflate')) {
+                     res = res.pipe(require('zlib').createInflate());
+                   } else if (encoding.includes('br')) {
+                     res = res.pipe(require('zlib').createBrotliDecompress());
+                   }
+                   require('stream').pipeline(
+                     res, createWriteStream(dest), (e) => {e ? reject(e) : resolve()});
+                 } else {
+                   res.on('error', (e) => {}).destroy();
+                   reject(res.statusCode);
                  }
-                 require('stream').pipeline(res, fs.createWriteStream(path), (e) => {});
-               } else {
-                 res.on('error', (e) => {}).destroy();
-               }
-             })
-        .on('error', (e) => {})
-        .end();
+               })
+          .on('error', (e) => {})
+          .end();
+      });
     }
   }
-});
+})()
+  .catch(() => {})
+  .then(() => process.exit(0));

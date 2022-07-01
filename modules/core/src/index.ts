@@ -26,9 +26,11 @@ export * as addon from './addon';
 
 import {getComputeCapabilities} from './addon';
 export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
-  const cc = getComputeCapabilities();
-  if (cc.length === 1) {
-    switch (cc[0]) {
+  const cc =
+    new Set(typeof process.env.RAPIDSAI_GPU_ARCH !== 'undefined' ? [process.env.RAPIDSAI_GPU_ARCH]
+                                                                 : getComputeCapabilities());
+  if (cc.size === 1) {
+    switch ([...cc][0]) {
       case '60': return `${moduleName}_60.node`;
       case '70': return `${moduleName}_70.node`;
       case '75': return `${moduleName}_75.node`;
