@@ -137,7 +137,7 @@ jobs:
             ${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
 
       - name: Make container .env
-        if: env.src_changed == 'true'
+        if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
           h_threads=$((${PARALLEL_LEVEL:-1} / 2))
