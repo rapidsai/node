@@ -103,8 +103,8 @@ runs:
       uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: |
-          "${{ inputs.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
-          "${{ inputs.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
+          ${{ inputs.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
+          ${{ inputs.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
