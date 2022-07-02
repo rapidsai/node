@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -140,11 +140,12 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          h_threads=$((${PARALLEL_LEVEL:-1} / 2))
+          threads=1
+          # threads=$((${PARALLEL_LEVEL:-1} / 2))
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
-          PARALLEL_LEVEL=${h_threads}
-          NVCC_APPEND_FLAGS=--threads=${h_threads}
+          PARALLEL_LEVEL=${threads}
+          NVCC_APPEND_FLAGS=--threads=${threads}
           RAPIDS_VERSION=${RAPIDS}
           SCCACHE_REGION=us-west-2
           SCCACHE_IDLE_TIMEOUT=32768
