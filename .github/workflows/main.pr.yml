@@ -180,4 +180,9 @@ jobs:
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
-            ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline && yarn build;';
+            ${MAIN_IMG} bash -c "set -ex; \
+                curl -s https://api.github.com/meta \
+                | jq -r '.ssh_keys | map(\"github.com \(.)\") | .[]' \
+             >> ~/.ssh/known_hosts \
+             && yarn --pure-lockfile --prefer-offline \
+             && yarn build"
