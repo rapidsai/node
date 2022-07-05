@@ -164,16 +164,6 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          echo "$HOME/.gitconfig:"
-          cat $HOME/.gitconfig
-          echo "$HOME/.ssh/config:"
-          cat $HOME/.ssh/config
-          echo "/etc/ssh/ssh_config:"
-          cat /etc/ssh/ssh_config
-          echo "cloning cumlprims_mg:"
-          git clone git@github.com:rapidsai/cumlprims_mg.git ${{ runner.temp }}/cumlprims_mg
-          echo "cloning cugraph-ops:"
-          git clone git@github.com:rapidsai/cugraph-ops.git ${{ runner.temp }}/cugraph-ops
           if [[ ${dev_changed} == 'true' ]]; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
@@ -188,9 +178,9 @@ jobs:
           docker run --rm -t ${RUN_ARGS} \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
+            -v "$HOME/.ssh:$HOME/.ssh" \
+            -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
-            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
-            -v "$HOME/.ssh/config:/etc/ssh/ssh_config.d/ssh_agent_action.conf" \
             ${MAIN_IMG} bash -c "set -ex; \
                 echo \"cloning cumlprims_mg:\"
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
