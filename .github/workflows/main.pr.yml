@@ -185,7 +185,7 @@ jobs:
             ${MAIN_IMG} bash -c "set -ex; \
                 echo \"cloning cumlprims_mg:\" \
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
-             && echo \"cloning cugraph-ops:\"
+             && echo \"cloning cugraph-ops:\" \
              && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
              && yarn --pure-lockfile --prefer-offline \
              && yarn build"
