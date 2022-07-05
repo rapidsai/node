@@ -181,9 +181,8 @@ jobs:
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.ssh:$HOME/.ssh" \
+            -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
-            -v "$HOME/.ssh/config:/opt/rapids/.ssh/config" \
-            -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             ${MAIN_IMG} bash -c "set -ex; \
                 yarn --pure-lockfile --prefer-offline \
              && yarn build"
