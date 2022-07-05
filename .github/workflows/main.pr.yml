@@ -141,6 +141,9 @@ jobs:
         shell: bash
         run: |
           threads=$((${PARALLEL_LEVEL:-1} / 2))
+          if [[ "$threads" == 0 ]]; then
+            threads=1;
+          fi
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
           PARALLEL_LEVEL=${threads}
