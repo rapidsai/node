@@ -169,6 +169,9 @@ jobs:
             if [[ "$HOME" != "$WORKSPACE" ]]; then
               mv "$HOME/.ssh" "$WORKSPACE/.ssh";
               mv "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
+              for key in $(find "$WORKSPACE/.ssh" -type f -name 'key-*'); do
+                echo "" >> "$key";
+              done
             fi
           fi
           (set -x; ls -all "$WORKSPACE/.ssh")
@@ -195,8 +198,7 @@ jobs:
             -v "$WORKSPACE/.ssh:/opt/rapids/.ssh" \
             -v "$WORKSPACE/.gitconfig:/opt/rapids/.gitconfig" \
             ${MAIN_IMG} bash -c "set -ex; \
-                cat $HOME/.ssh/key-* \
-             && echo \"cloning cumlprims_mg:\" \
+                echo \"cloning cumlprims_mg:\" \
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
              && echo \"cloning cugraph-ops:\" \
              && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
