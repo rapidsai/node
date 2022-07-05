@@ -164,6 +164,12 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
+          echo ".gitconfig:"
+          cat $HOME/.gitconfig
+          echo "cloning cumlprims_mg:"
+          git clone git@github.com:rapidsai/cumlprims_mg.git ${{ runner.temp }}/cumlprims_mg
+          echo "cloning cugraph-ops:"
+          git clone git@github.com:rapidsai/cugraph-ops.git ${{ runner.temp }}/cugraph-ops
           if [[ ${dev_changed} == 'true' ]]; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
