@@ -191,4 +191,10 @@ jobs:
             -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
             -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
             -v "$HOME/.ssh/config:/etc/ssh/ssh_config.d/ssh_agent_action.conf" \
-            ${MAIN_IMG} bash -c "set -ex; yarn --pure-lockfile --prefer-offline && yarn build"
+            ${MAIN_IMG} bash -c "set -ex; \
+                echo "cloning cumlprims_mg:"
+             && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
+             && echo "cloning cugraph-ops:"
+             && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
+             && yarn --pure-lockfile --prefer-offline \
+             && yarn build"
