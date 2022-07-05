@@ -164,8 +164,10 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          echo ".gitconfig:"
+          echo "$HOME/.gitconfig:"
           cat $HOME/.gitconfig
+          echo "$HOME/.ssh/config:"
+          cat $HOME/.ssh/config
           echo "cloning cumlprims_mg:"
           git clone git@github.com:rapidsai/cumlprims_mg.git ${{ runner.temp }}/cumlprims_mg
           echo "cloning cugraph-ops:"
