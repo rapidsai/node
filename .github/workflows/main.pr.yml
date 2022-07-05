@@ -25,11 +25,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}"
-          is_gha_runner=${{ !contains(runner.name, 'runners-') }}
-          if [[ "$is_gha_runner" != 'true' ]]; then
-            echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV;
-          fi
-          echo "is_gha_runner=$is_gha_runner" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
 
       - name: Install utilities
         if: env.is_gha_runner != 'true'
@@ -167,9 +163,18 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          (set -x; cat "$HOME/.gitconfig")
-          (set -x; cat "$HOME/.ssh/config")
-          (set -x; cat "$HOME/.ssh/known_hosts")
+          WORKSPACE="$HOME";
+          if [[ "$is_gha_runner" != 'true' && -n "${{ runner.workspace }}" ]]; then
+            WORKSPACE="${{ runner.workspace }}";
+            if [[ "$HOME" != "$WORKSPACE" ]]; then
+              mv "$HOME/.ssh" "$WORKSPACE/.ssh";
+              mv "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
+            fi
+          fi
+          (set -x; ls -all "$WORKSPACE/.ssh")
+          (set -x; cat "$WORKSPACE/.ssh/config")
+          (set -x; cat "$WORKSPACE/.ssh/known_hosts")
+          (set -x; cat "$WORKSPACE/.gitconfig")
           # if [[ ${dev_changed} == 'true' ]]; then
           #   DOCKER_BUILDKIT=1 \
           #   DOCKER_SCAN_SUGGEST=false \
@@ -185,9 +190,9 @@ jobs:
           docker run --rm -t ${RUN_ARGS} \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v "$HOME/.ssh:$HOME/.ssh" \
-            -v "$HOME/.ssh:/opt/rapids/.ssh" \
-            -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
+            -v "$WORKSPACE/.ssh:$HOME/.ssh" \
+            -v "$WORKSPACE/.ssh:/opt/rapids/.ssh" \
+            -v "$WORKSPACE/.gitconfig:/opt/rapids/.gitconfig" \
             ${MAIN_IMG} bash -c "set -ex; \
                 echo \"cloning cumlprims_mg:\" \
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
