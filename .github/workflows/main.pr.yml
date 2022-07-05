@@ -163,6 +163,17 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
+          WORKSPACE="$HOME";
+          if [[ "$is_gha_runner" != 'true' ]]; then
+            WORKSPACE="${{ runner.workspace }}";
+            if [[ "$HOME" != "$WORKSPACE" ]]; then
+              mv "$HOME/.ssh" "$WORKSPACE/.ssh";
+              mv "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
+            fi
+          fi
+          (set -x; cat "$WORKSPACE/.gitconfig")
+          (set -x; cat "$WORKSPACE/.ssh/config")
+          (set -x; cat "$WORKSPACE/.ssh/known_hosts")
           if [[ ${dev_changed} == 'true' ]]; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
@@ -176,15 +187,16 @@ jobs:
           fi
           set -x;
           ssh_keys=
-          for x in $(find $HOME/.ssh -type f -name 'key-*'); do
+          for x in $(find "$WORKSPACE/.ssh" -type f -name 'key-*'); do
             ssh_keys="${ssh_keys:+$ssh_keys }-v $x:$x";
           done;
           docker run --rm -t ${RUN_ARGS} \
-            -v "$HOME/.ssh:$HOME/.ssh" \
+            ${ssh_keys} \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v "$HOME/.ssh:/opt/rapids/.ssh" \
-            -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
+            -v "$WORKSPACE/.gitconfig:/opt/rapids/.gitconfig" \
+            -v "$WORKSPACE/.ssh/config:/opt/rapids/.ssh/config" \
+            -v "$WORKSPACE/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             ${MAIN_IMG} bash -c "set -ex; \
                 echo \"cloning cumlprims_mg:\" \
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
