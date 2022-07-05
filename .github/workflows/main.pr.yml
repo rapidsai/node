@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
+    # runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -163,41 +163,24 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          WORKSPACE="$HOME";
-          if [[ "$is_gha_runner" != 'true' && -n "${{ runner.workspace }}" ]]; then
-            WORKSPACE="${{ runner.workspace }}";
-            if [[ "$HOME" != "$WORKSPACE" ]]; then
-              mv "$HOME/.ssh" "$WORKSPACE/.ssh";
-              mv "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
-              chmod 0755 "$WORKSPACE";
-              chmod 0700 "$WORKSPACE/.ssh";
-              chmod 0644 "$WORKSPACE/.ssh/known_hosts";
-              chmod 0600 "$WORKSPACE/.ssh"/key-* "$WORKSPACE/.ssh/config";
-            fi
+          if [[ ${dev_changed} == 'true' ]]; then
+            DOCKER_BUILDKIT=1 \
+            DOCKER_SCAN_SUGGEST=false \
+            docker build --pull --force-rm \
+              --build-arg UCX_VERSION="${{ env.UCX }}" \
+              --build-arg NODE_VERSION="${{ env.NODE }}" \
+              --build-arg LINUX_VERSION="${{ env.LINUX }}" \
+              --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
+              --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
+              -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
           fi
-          # if [[ ${dev_changed} == 'true' ]]; then
-          #   DOCKER_BUILDKIT=1 \
-          #   DOCKER_SCAN_SUGGEST=false \
-          #   docker build --pull --force-rm \
-          #     --build-arg UCX_VERSION="${{ env.UCX }}" \
-          #     --build-arg NODE_VERSION="${{ env.NODE }}" \
-          #     --build-arg LINUX_VERSION="${{ env.LINUX }}" \
-          #     --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-          #     --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-          #     -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
-          # fi
           docker run --rm -t ${RUN_ARGS} \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v "$WORKSPACE/.ssh:$HOME/.ssh" \
-            -v "$WORKSPACE/.gitconfig:/opt/rapids/.gitconfig" \
-            -v "$WORKSPACE/.ssh/config:/opt/rapids/.ssh/config" \
-            -v "$WORKSPACE/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
+            -v "$HOME/.ssh:$HOME/.ssh" \
+            -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
+            -v "$HOME/.ssh/config:/opt/rapids/.ssh/config" \
+            -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             ${MAIN_IMG} bash -c "set -ex; \
-                cat "$HOME/.ssh"/key-* \
-             && echo \"cloning cumlprims_mg:\" \
-             && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
-             && echo \"cloning cugraph-ops:\" \
-             && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
-             && yarn --pure-lockfile --prefer-offline \
+                yarn --pure-lockfile --prefer-offline \
              && yarn build"
