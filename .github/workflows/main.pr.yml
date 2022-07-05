@@ -163,6 +163,11 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
+          (set -x; echo "$RUN_ARGS")
+          (set -x; cat "$HOME/.gitconfig")
+          (set -x; ls -all $HOME/.ssh)
+          (set -x; cat "$HOME/.ssh/config")
+          (set -x; cat "$HOME/.ssh/known_hosts")
           if [[ ${dev_changed} == 'true' ]]; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
@@ -174,6 +179,7 @@ jobs:
               --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
               -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
           fi
+          set -x;
           docker run --rm -t ${RUN_ARGS} \
             -v "$HOME/.ssh:$HOME/.ssh" \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
