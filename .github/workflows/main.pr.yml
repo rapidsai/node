@@ -167,8 +167,8 @@ jobs:
           if [[ "$is_gha_runner" != 'true' ]]; then
             WORKSPACE="${{ runner.workspace }}";
             if [[ "$HOME" != "$WORKSPACE" ]]; then
-              mv "$HOME/.ssh" "$WORKSPACE/.ssh";
-              mv "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
+              cp -ar "$HOME/.ssh" "$WORKSPACE/.ssh";
+              cp -ar "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
             fi
           fi
           (set -x; cat "$WORKSPACE/.gitconfig")
@@ -187,8 +187,9 @@ jobs:
           fi
           set -x;
           ssh_keys=
-          for x in $(find "$WORKSPACE/.ssh" -type f -name 'key-*'); do
-            ssh_keys="${ssh_keys:+$ssh_keys }-v $x:$x";
+          for x in $(find "$HOME/.ssh" -type f -name 'key-*'); do
+            x="${x#$HOME/.ssh/}";
+            ssh_keys="${ssh_keys:+$ssh_keys }-v $WORKSPACE/.ssh/$x:$HOME/.ssh/$x";
           done;
           docker run --rm -t ${RUN_ARGS} \
             ${ssh_keys} \
