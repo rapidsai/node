@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -140,8 +140,7 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          threads=1
-          # threads=$((${PARALLEL_LEVEL:-1} / 2))
+          threads=$((${PARALLEL_LEVEL:-1} / 2))
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
           PARALLEL_LEVEL=${threads}
@@ -183,9 +182,5 @@ jobs:
             -v "$HOME/.ssh/config:/opt/rapids/.ssh/config" \
             -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             ${MAIN_IMG} bash -c "set -ex; \
-                echo \"cloning cumlprims_mg:\" \
-             && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
-             && echo \"cloning cugraph-ops:\" \
-             && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
-             && yarn --pure-lockfile --prefer-offline \
+                yarn --pure-lockfile --prefer-offline \
              && yarn build"
