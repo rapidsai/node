@@ -171,9 +171,8 @@ jobs:
               mv "$HOME/.gitconfig" "$WORKSPACE/.gitconfig";
               chmod 0755 "$WORKSPACE";
               chmod 0700 "$WORKSPACE/.ssh";
-              chmod 0644 "$WORKSPACE/.ssh"/key-* \
-                         "$WORKSPACE/.ssh/config" \
-                         "$WORKSPACE/.ssh/known_hosts";
+              chmod 0644 "$WORKSPACE/.ssh/known_hosts";
+              chmod 0600 "$WORKSPACE/.ssh"/key-* "$WORKSPACE/.ssh/config";
             fi
           fi
           # if [[ ${dev_changed} == 'true' ]]; then
@@ -191,8 +190,9 @@ jobs:
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$WORKSPACE/.ssh:$HOME/.ssh" \
-            -v "$WORKSPACE/.ssh:/opt/rapids/.ssh" \
             -v "$WORKSPACE/.gitconfig:/opt/rapids/.gitconfig" \
+            -v "$WORKSPACE/.ssh/config:/opt/rapids/.ssh/config" \
+            -v "$WORKSPACE/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             ${MAIN_IMG} bash -c "set -ex; \
                 cat "$HOME/.ssh"/key-* \
              && echo \"cloning cumlprims_mg:\" \
