@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -25,14 +25,17 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV
 
       - name: Install utilities
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
+          sudo cat /etc/passwd | grep "$(whoami)"
 
       - name: Checkout
         uses: actions/checkout@v3
