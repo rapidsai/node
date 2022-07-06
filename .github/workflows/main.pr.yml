@@ -181,9 +181,9 @@ jobs:
             -v "$HOME/.ssh:$HOME/.ssh" \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
-            -v "$HOME/.ssh/config:/opt/rapids/.ssh/config" \
+            -v "$HOME/.gitconfig:/etc/gitconfig" \
             -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
+            -v "$HOME/.ssh/config:/etc/ssh/ssh_config.d/ssh_agent_action.conf" \
             ${MAIN_IMG} bash -c "set -ex; \
                 echo \"cloning cumlprims_mg:\" \
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
