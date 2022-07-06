@@ -178,11 +178,16 @@ jobs:
               -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
           fi
           docker run --rm -t ${RUN_ARGS} \
+            -v "$HOME/.ssh:$HOME/.ssh" \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v "$HOME/.ssh:$HOME/.ssh" \
-            -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/opt/rapids/.gitconfig" \
+            -v "$HOME/.ssh/config:/opt/rapids/.ssh/config" \
+            -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             ${MAIN_IMG} bash -c "set -ex; \
-                yarn --pure-lockfile --prefer-offline \
+                echo \"cloning cumlprims_mg:\" \
+             && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
+             && echo \"cloning cugraph-ops:\" \
+             && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
+             && yarn --pure-lockfile --prefer-offline \
              && yarn build"
