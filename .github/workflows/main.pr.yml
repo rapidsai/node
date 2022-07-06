@@ -35,7 +35,6 @@ jobs:
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
-          sudo cat /etc/passwd | grep "$(whoami)"
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -170,28 +169,23 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          # if [[ ${dev_changed} == 'true' ]]; then
-          #   DOCKER_BUILDKIT=1 \
-          #   DOCKER_SCAN_SUGGEST=false \
-          #   docker build --pull --force-rm \
-          #     --build-arg UCX_VERSION="${{ env.UCX }}" \
-          #     --build-arg NODE_VERSION="${{ env.NODE }}" \
-          #     --build-arg LINUX_VERSION="${{ env.LINUX }}" \
-          #     --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-          #     --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-          #     -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
-          # fi
+          if [[ ${dev_changed} == 'true' ]]; then
+            DOCKER_BUILDKIT=1 \
+            DOCKER_SCAN_SUGGEST=false \
+            docker build --pull --force-rm \
+              --build-arg UCX_VERSION="${{ env.UCX }}" \
+              --build-arg NODE_VERSION="${{ env.NODE }}" \
+              --build-arg LINUX_VERSION="${{ env.LINUX }}" \
+              --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
+              --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
+              -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
+          fi
           docker run --rm -t ${RUN_ARGS} \
             -v "$HOME/.ssh:$HOME/.ssh" \
-            -e "GIT_SSH_COMMAND=ssh -vvv" \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
+            -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/etc/gitconfig" \
-            -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
-            -v "$HOME/.ssh/config:/etc/ssh/ssh_config.d/ssh_agent_action.conf" \
             ${MAIN_IMG} bash -c "set -ex; \
-                cat /etc/gitconfig && cat \"$HOME\"/.ssh/key-* && ssh-add -l && ssh-add -L \
-             && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
-             && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
-             && yarn --pure-lockfile --prefer-offline \
+                yarn --pure-lockfile --prefer-offline \
              && yarn build"
