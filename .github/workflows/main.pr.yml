@@ -30,12 +30,18 @@ jobs:
       - name: Install utilities
         if: env.is_gha_runner != 'true'
         shell: bash
+        env:
+          CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
+          CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs ssh sshpass openssh-client
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
           sudo cat /etc/passwd | grep "$(whoami)"
+          apt policy openssh-client
+          (set -x; echo "$CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY" | head -n1)
+          (set -x; echo "$CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY" | head -n1)
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -182,15 +188,15 @@ jobs:
           # fi
           docker run --rm -t ${RUN_ARGS} \
             -v "$HOME/.ssh:$HOME/.ssh" \
+            -e "GIT_SSH_COMMAND=ssh -vvv" \
             -e "SSH_AUTH_SOCK=/ssh-agent" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.gitconfig:/etc/gitconfig" \
             -v "$HOME/.ssh/known_hosts:/opt/rapids/.ssh/known_hosts" \
             -v "$HOME/.ssh/config:/etc/ssh/ssh_config.d/ssh_agent_action.conf" \
             ${MAIN_IMG} bash -c "set -ex; \
-                echo \"cloning cumlprims_mg:\" \
+                apt policy openssh-client && cat \"$HOME\"/.ssh/key-* \
              && git clone git@github.com:rapidsai/cumlprims_mg.git /tmp/cumlprims_mg \
-             && echo \"cloning cugraph-ops:\" \
              && git clone git@github.com:rapidsai/cugraph-ops.git /tmp/cugraph-ops \
              && yarn --pure-lockfile --prefer-offline \
              && yarn build"
