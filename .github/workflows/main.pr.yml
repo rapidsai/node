@@ -39,9 +39,14 @@ jobs:
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
           sudo cat /etc/passwd | grep "$(whoami)"
+
           apt policy openssh-client
-          (set -x; echo "$CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY" | head -n1)
-          (set -x; echo "$CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY" | head -n1)
+          echo "$CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY" > "${{ runner.temp }}/cumlprims_mg-key.txt"
+          echo "$CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY" > "${{ runner.temp }}/cugraph-ops-key.txt"
+          head -n1 "${{ runner.temp }}/cumlprims_mg-key.txt"
+          head -n1 "${{ runner.temp }}/cugraph-ops-key.txt"
+          rm "${{ runner.temp }}/cumlprims_mg-key.txt"
+          rm "${{ runner.temp }}/cugraph-ops-key.txt"
 
       - name: Checkout
         uses: actions/checkout@v3
