@@ -37,13 +37,16 @@ ENV RAPIDSAI_SKIP_DOWNLOAD=1
 
 RUN --mount=type=ssh,required=true \
     --mount=type=secret,id=sccache_credentials \
+    --mount=type=bind,source=dev/.ssh,target=/root/.ssh,rw \
+    --mount=type=bind,source=dev/.gitconfig,target=/etc/gitconfig \
     if [ -f /run/secrets/sccache_credentials ]; then \
         export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \
     fi; \
-    mkdir -p -m 0700 /root/.ssh \
- # Add GitHub's public keys to known_hosts
- && curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /root/.ssh/known_hosts \
- && echo -e "build context:\n$(find .)" \
+    # Add GitHub's public keys to known_hosts
+    if [ ! -f /root/.ssh/known_hosts ]; then \
+        curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /root/.ssh/known_hosts; \
+    fi; \
+    echo -e "build context:\n$(find .)" \
  && bash -c 'echo -e "\
 CUDAARCHS=$CUDAARCHS\n\
 PARALLEL_LEVEL=$PARALLEL_LEVEL\n\

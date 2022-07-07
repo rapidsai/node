@@ -27,7 +27,7 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |

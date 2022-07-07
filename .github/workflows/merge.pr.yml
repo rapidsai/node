@@ -13,7 +13,7 @@ env:
   REPOSITORY: "ghcr.io/rapidsai/node"
 
 concurrency:
-  group: build_docker_images
+  group: build-docker-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -36,12 +36,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -121,12 +123,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -174,6 +178,7 @@ jobs:
         with:
           pull: true
           push: true
+          home: ${{ env.HOME }}
           temp: ${{ runner.temp }}
           file: dev/dockerfiles/devel/package.Dockerfile
           registry-url: ghcr.io
@@ -214,12 +219,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -296,12 +303,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -379,12 +388,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -462,12 +473,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -545,12 +558,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -628,12 +643,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -711,12 +728,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -796,12 +815,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -881,12 +902,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -965,12 +988,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3

@@ -17,6 +17,10 @@ inputs:
     default: false
     required: false
     description: "Push the image to the container registry (default false)"
+  home:
+    default: /home/runner
+    required: true
+    description: "Path to home dir"
   temp:
     default: /tmp
     required: true
@@ -102,9 +106,15 @@ runs:
     - name: Set up ssh-agent
       uses: webfactory/ssh-agent@v0.5.4
       with:
+        ssh-auth-sock: ${{ inputs.home }}/ssh-agent
         ssh-private-key: |
           ${{ inputs.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
           ${{ inputs.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
+    - name: Copy .ssh and .gitconfig to build context
+      shell: bash
+      run: |
+        cp -ar "$HOME"/.{ssh,gitconfig} "$(realpath -m "${{ inputs.context }}")/dev/";
+        sed -i "s@$HOME@/root@g" "$(realpath -m "${{ inputs.context }}")/dev/.ssh/config";
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
