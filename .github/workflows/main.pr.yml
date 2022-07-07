@@ -8,8 +8,8 @@ on:
 jobs:
   build-pull-request:
     name: Build pull request
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -25,14 +25,16 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -132,25 +134,36 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         uses: webfactory/ssh-agent@v0.5.4
         with:
-          ssh-private-key: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
+          ssh-auth-sock: ${{ env.HOME }}/ssh-agent
+          ssh-private-key: |
+            ${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
+            ${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
 
       - name: Make container .env
-        if: env.src_changed == 'true'
+        if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
+          threads=$((${PARALLEL_LEVEL:-1} / 2))
+          if [[ "$threads" == 0 ]]; then
+            threads=1;
+          fi
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
-          PARALLEL_LEVEL=1
-          NVCC_APPEND_FLAGS=--threads=${PARALLEL_LEVEL:-1}
+          PARALLEL_LEVEL=${threads}
+          NVCC_APPEND_FLAGS=--threads=${threads}
           RAPIDS_VERSION=${RAPIDS}
           SCCACHE_REGION=us-west-2
           SCCACHE_IDLE_TIMEOUT=32768
           SCCACHE_BUCKET=node-rapids-sccache
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
+          EOF
+
+          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
+
+          cat << EOF >> "${{ runner.temp }}/.env"
           AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           EOF
-          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
@@ -167,10 +180,12 @@ jobs:
               --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
               -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
           fi
-          if [[ ${src_changed} == 'true' ]]; then
-            docker run --rm -t ${RUN_ARGS} \
-              -e "SSH_AUTH_SOCK=/ssh-agent" \
-              -v "$SSH_AUTH_SOCK:/ssh-agent" \
-              -v "$HOME/.ssh:/opt/rapids/.ssh" \
-              ${MAIN_IMG} bash -c 'set -ex; yarn --pure-lockfile --prefer-offline && yarn build;';
-          fi
+          docker run --rm -t ${RUN_ARGS} \
+            -v "$HOME/.ssh:$HOME/.ssh" \
+            -e "SSH_AUTH_SOCK=/ssh-agent" \
+            -v "$SSH_AUTH_SOCK:/ssh-agent" \
+            -v "$HOME/.ssh:/opt/rapids/.ssh" \
+            -v "$HOME/.gitconfig:/etc/gitconfig" \
+            ${MAIN_IMG} bash -c "set -ex; \
+                yarn --pure-lockfile --prefer-offline \
+             && yarn build"
