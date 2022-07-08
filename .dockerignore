@@ -1,18 +1,35 @@
+**/*.arrow
 **/*.csv
+**/*.geojson
+**/*.gif
 **/*.git
 **/*.gitattributes
-**/*.zip
-**/*.*.o
-**/*.arrow
-**/*.geojson
+**/*.jpg
+**/*.las
+**/*.laz
+**/*.o
 **/*.parquet
+**/*.png
+**/*.so
 **/*.tar.gz
+**/*.tar.xz
+**/*.zip
+
+!**/modules/demo/**/*.png
+!**/modules/demo/**/*.jpg
+!**/modules/demo/**/*.gif
+!**/modules/demo/**/*.las
+!**/modules/demo/**/*.laz
+
 **/lerna-debug.log
 **/docker-compose*.yml
 **/compile_commands.json
 **/*.code-workspace
 
 **/z-*
+**/out/
+**/.next/
+**/_next/
 **/build
 **/.cache
 **/.ccache
@@ -24,7 +41,6 @@
 **/modules/**/doc
 **/modules/**/lib
 **/modules/**/data
-**/modules/demo/client-server/.next
 
 **/modules/*/include/napi.h
 **/modules/*/include/napi-inl.h

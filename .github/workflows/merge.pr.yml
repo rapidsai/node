@@ -13,15 +13,15 @@ env:
   REPOSITORY: "ghcr.io/rapidsai/node"
 
 concurrency:
-  group: build_docker_images
+  group: build-docker-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
 
   build-and-publish-devel-main-image:
     name: Build devel main image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -36,12 +36,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -105,8 +107,8 @@ jobs:
     needs:
       - build-and-publish-devel-main-image
     name: Build devel packages image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -121,12 +123,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -174,14 +178,16 @@ jobs:
         with:
           pull: true
           push: true
+          home: ${{ env.HOME }}
           temp: ${{ runner.temp }}
           file: dev/dockerfiles/devel/package.Dockerfile
           registry-url: ghcr.io
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
-          SSH_PRIVATE_KEY: "${{ secrets.GHA_SSH_PRIVATE_KEY }}"
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
+          CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
@@ -197,8 +203,8 @@ jobs:
     needs:
       - build-and-publish-devel-main-image
     name: Build runtime cuda-base image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -213,12 +219,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -279,8 +287,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cudf image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -295,12 +303,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -362,8 +372,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cugraph image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -378,12 +388,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -445,8 +457,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuml image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -461,12 +473,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -528,8 +542,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime cuspatial image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -544,12 +558,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -611,8 +627,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime glfw image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -627,12 +643,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -694,8 +712,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime sql image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -710,12 +728,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -779,8 +799,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime main image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -795,12 +815,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -864,8 +886,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     name: Build runtime demo image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -880,12 +902,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -948,8 +972,8 @@ jobs:
     needs:
       - build-and-publish-runtime-demo-image
     name: Build runtime notebook image
-    runs-on: ubuntu-20.04
-    # runs-on: [self-hosted, linux, amd64, cpu4]
+    # runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
@@ -964,12 +988,14 @@ jobs:
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
 
-      - name: Install utilities
+      - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
