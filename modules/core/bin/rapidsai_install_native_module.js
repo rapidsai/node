@@ -19,6 +19,10 @@ try {
   require('@rapidsai/core');
 } catch (e) { return; }
 
+const {
+  getArchFromComputeCapabilities,
+  getNativeModuleNameForComputeCapabilities,
+}                             = require('@rapidsai/core');
 const {npm_package_name: pkg} = process.env;
 const [...extra_files]        = process.argv.slice(2);
 
@@ -28,10 +32,10 @@ require('assert')(require('os').platform() === 'linux',  //
 const [major, minor] = process.env.npm_package_version.split('.').map(
   (x) => x.length < 2 ? new Array(2 - x.length).fill('0').join('') + x : x);
 
-const CUDA     = `11.6.2`;
+const CUDA     = `cuda11.6.2`;
 const RAPIDS   = `${major}.${minor}.00`;
+const GPU_ARCH = getArchFromComputeCapabilities();
 const PKG_NAME = pkg.replace('@', '').replace('/', '_');
-const GPU_ARCH = require('@rapidsai/core').getArchFromComputeCapabilities();
 
 const {
   createWriteStream,
@@ -47,9 +51,9 @@ const out    = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release')
 Promise
   .all([
     [
-      `${[PKG_NAME, ...[GPU_ARCH || ``].filter(Boolean)].join('_')}.node`,
+      getNativeModuleNameForComputeCapabilities(PKG_NAME),
       `${
-          [PKG_NAME, RAPIDS, `cuda${CUDA}`, `linux`, `amd64`, GPU_ARCH ? `arch${GPU_ARCH}` : ``]
+          [PKG_NAME, RAPIDS, CUDA, `linux`, `amd64`, GPU_ARCH ? `arch${GPU_ARCH}` : ``]
             .filter(Boolean)
             .join('-')}.node`,
     ],
