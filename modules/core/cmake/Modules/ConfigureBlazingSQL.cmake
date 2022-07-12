@@ -110,14 +110,13 @@ function(find_and_configure_blazingsql)
         execute_process(COMMAND mvn clean install --quiet -f pom.xml -Dmaven.test.skip=true
                                 -Dmaven.repo.local=${blazingsql-engine_BINARY_DIR}/blazing-protocol-mvn/
                         WORKING_DIRECTORY "${blazingsql-engine_SOURCE_DIR}/algebra")
-    configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-application/target/BlazingCalcite.jar"
-                   "${blazingsql-engine_BINARY_DIR}/blazingsql-algebra.jar"
-                   COPYONLY)
+        configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-application/target/BlazingCalcite.jar"
+                       "${blazingsql-engine_BINARY_DIR}/blazingsql-algebra.jar"
+                       COPYONLY)
 
-    configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-core/target/blazingdb-calcite-core.jar"
-                   "${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
-                   COPYONLY)
-
+        configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-core/target/blazingdb-calcite-core.jar"
+                       "${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
+                       COPYONLY)
     endif()
 
     if(NOT blazingsql-engine_BINARY_DIR)

@@ -47,7 +47,6 @@
     "index.js",
     "package.json",
     "CMakeLists.txt",
-    "build/js",
-    "build/Release/*.jar"
+    "build/js"
   ]
 }
