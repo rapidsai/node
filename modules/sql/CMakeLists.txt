@@ -187,6 +187,10 @@ generate_install_rules(
                  blazingsql_wrapper
   CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
 
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra.jar"
+              "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra-core.jar"
+        DESTINATION "lib")
+
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND
     ${CMAKE_COMMAND} -E create_symlink

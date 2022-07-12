@@ -9,7 +9,7 @@
   "main": "index.js",
   "types": "build/js",
   "scripts": {
-    "install": "rapidsai-install-native-module",
+    "install": "rapidsai-install-native-module blazingsql-algebra.jar blazingsql-algebra-core.jar",
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
     "test": "node -r dotenv/config node_modules/.bin/jest -i -c jest.config.js",
@@ -47,7 +47,6 @@
     "index.js",
     "package.json",
     "CMakeLists.txt",
-    "build/js",
-    "build/Release/*.jar"
+    "build/js"
   ]
 }

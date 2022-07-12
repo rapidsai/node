@@ -72,13 +72,19 @@ jobs:
                   --transform="s/rapidsai_${x}_86/rapidsai_${x}-${TAG}-arch86/" ;
           done;
 
+          tar -zf build/rapidsai_sql-*.tar.gz \
+              --wildcards --strip-components=2 \
+              -C build -x "*/blazingsql-*.jar" ;
+
           rm -rf build/*.tar.gz;
 
       - name: Upload node native modules
         uses: actions/upload-artifact@v2
         if: inputs.make-release != true
         with:
-          path: build/*.node
+          path: |
+            build/*.jar
+            build/*.node
           name: rapidsai-native-modules
 
       - name: Create GitHub release
@@ -86,7 +92,9 @@ jobs:
         if: inputs.make-release == true
         with:
           body: ""
-          files: build/*.node
+          files: |
+            build/*.jar
+            build/*.node
           tag_name: "v${{ env.RAPIDS }}"
           repository: ${{ inputs.repo }}
           draft: ${{ inputs.draft-release == true }}
