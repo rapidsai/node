@@ -20,99 +20,97 @@ try {
 } catch (e) { return; }
 
 const {npm_package_name: pkg} = process.env;
+const [...extra_files]        = process.argv.slice(2);
 
 require('assert')(require('os').platform() === 'linux',  //
                   `${pkg} is only supported on Linux`);
 
+const [major, minor] = process.env.npm_package_version.split('.').map(
+  (x) => x.length < 2 ? new Array(2 - x.length).fill('0').join('') + x : x);
+
 const CUDA     = `11.6.2`;
-const RAPIDS   = `22.06.00`;
+const RAPIDS   = `${major}.${minor}.00`;
 const PKG_NAME = pkg.replace('@', '').replace('/', '_');
-const GPU_ARCH = (() => {
-  const cc = new Set(typeof process.env.RAPIDSAI_GPU_ARCH !== 'undefined'
-                       ? [process.env.RAPIDSAI_GPU_ARCH]
-                       : require('@rapidsai/core').getComputeCapabilities());
-  if (cc.size === 1) {
-    switch ([...cc][0]) {
-      case '60': return '60';
-      case '70': return '70';
-      case '75': return '75';
-      case '80': return '80';
-      case '86': return '86';
-      default: break;
-    }
-  }
-  return '';
-})();
+const GPU_ARCH = require('@rapidsai/core').getArchFromComputeCapabilities();
 
 const {
   createWriteStream,
   constants: {F_OK},
-}           = require('fs');
-const Url   = require('url');
-const Path  = require('path');
-const https = require('https');
-const fs    = require('fs/promises');
+}            = require('fs');
+const Url    = require('url');
+const Path   = require('path');
+const https  = require('https');
+const fs     = require('fs/promises');
+const stream = require('stream/promises');
+const out    = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release');
 
-const slug = [PKG_NAME, ...[GPU_ARCH || ``].filter(Boolean)].join('_');
-const dest = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release', `${slug}.node`);
+Promise
+  .all([
+    [
+      `${[PKG_NAME, ...[GPU_ARCH || ``].filter(Boolean)].join('_')}.node`,
+      `${
+          [PKG_NAME, RAPIDS, `cuda${CUDA}`, `linux`, `amd64`, GPU_ARCH ? `arch${GPU_ARCH}` : ``]
+            .filter(Boolean)
+            .join('-')}.node`,
+    ],
+    ...extra_files.map((slug) => [slug, slug])
+  ].map(([localSlug, remoteSlug]) => maybeDownload(localSlug, remoteSlug)))
+  .catch((e) => {
+    console.error(e);
+    return 1;
+  })
+  .then((code = 0) => process.exit(code))
 
-(async () => {
-  try {
-    await fs.access(dest, F_OK);
-  } catch (e) {
-    try {
-      await fs.access(Path.dirname(dest), F_OK);
-    } catch (e) {  //
-      await fs.mkdir(Path.dirname(dest), {recursive: true, mode: `0755`});
-    }
+function maybeDownload(localSlug, remoteSlug) {
+  return new Promise((resolve, reject) => {
+    const dst = Path.join(out, localSlug);
+    fs.access(dst, F_OK)
+      .catch(() => {
+        return fs.access(out, F_OK)
+          .catch(() => fs.mkdir(out, {recursive: true, mode: `0755`}))
+          .then(() => fetch({
+                        hostname: `github.com`,
+                        path: `/rapidsai/node/releases/download/v${RAPIDS}/${remoteSlug}`,
+                        headers: {
+                          [`Accept`]: `application/octet-stream`,
+                          [`Accept-Encoding`]:
+                            `br;q=1.0, gzip;q=0.8, deflate;q=0.6, identity;q=0.4, *;q=0.1`
+                        }
+                      }).then((res) => stream.pipeline(res, createWriteStream(dst))));
+      })
+      .then(resolve, reject);
+  });
+}
 
-    const arch = [GPU_ARCH ? `arch${GPU_ARCH}` : ``].filter(Boolean);
-    const slug = [PKG_NAME, RAPIDS, `cuda${CUDA}`, `linux`, `amd64`, ...arch].join('-');
-
-    await fetch({
-      hostname: `github.com`,
-      path: `/rapidsai/node/releases/download/v${RAPIDS}/${slug}.node`,
-      headers: {
-        [`Accept`]: `application/octet-stream`,
-        [`Accept-Encoding`]: `br;q=1.0, gzip;q=0.8, deflate;q=0.6, identity;q=0.4, *;q=0.1`
-      }
-    });
-
-    function fetch(options = {}, numRedirects = 0) {
-      return new Promise((resolve, reject) => {
-        https
-          .get(options,
-               (res) => {
-                 if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
-                   const {hostname = options.hostname, path, ...rest} =
-                     Url.parse(res.headers.location);
-                   if (numRedirects < 10) {
-                     fetch({...rest, headers: options.headers, hostname, path}, numRedirects + 1)
-                       .then(resolve, reject);
-                   } else {
-                     reject('Too many redirects');
-                   }
-                 } else if (res.statusCode > 199 && res.statusCode < 300) {
-                   const encoding = res.headers['content-encoding'] || '';
-                   if (encoding.includes('gzip')) {
-                     res = res.pipe(require('zlib').createGunzip());
-                   } else if (encoding.includes('deflate')) {
-                     res = res.pipe(require('zlib').createInflate());
-                   } else if (encoding.includes('br')) {
-                     res = res.pipe(require('zlib').createBrotliDecompress());
-                   }
-                   require('stream').pipeline(
-                     res, createWriteStream(dest), (e) => {e ? reject(e) : resolve()});
-                 } else {
-                   res.on('error', (e) => {}).destroy();
-                   reject(res.statusCode);
-                 }
-               })
-          .on('error', (e) => {})
-          .end();
-      });
-    }
-  }
-})()
-  .catch(() => {})
-  .then(() => process.exit(0));
+function fetch(options = {}, numRedirects = 0) {
+  return new Promise((resolve, reject) => {
+    https
+      .get(options,
+           (res) => {
+             if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
+               const {hostname = options.hostname, path, ...rest} = Url.parse(res.headers.location);
+               if (numRedirects < 10) {
+                 fetch({...rest, headers: options.headers, hostname, path}, numRedirects + 1)
+                   .then(resolve, reject);
+               } else {
+                 reject('Too many redirects');
+               }
+             } else if (res.statusCode > 199 && res.statusCode < 300) {
+               const encoding = res.headers['content-encoding'] || '';
+               if (encoding.includes('gzip')) {
+                 res = res.pipe(require('zlib').createGunzip());
+               } else if (encoding.includes('deflate')) {
+                 res = res.pipe(require('zlib').createInflate());
+               } else if (encoding.includes('br')) {
+                 res = res.pipe(require('zlib').createBrotliDecompress());
+               }
+               resolve(res);
+             } else {
+               res.on('error', (e) => {}).destroy();
+               reject(res.statusCode);
+             }
+           })
+      .on('error', (e) => {})
+      .end();
+  });
+}

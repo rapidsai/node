@@ -25,19 +25,24 @@ export {getComputeCapabilities} from './addon';
 export * as addon from './addon';
 
 import {getComputeCapabilities} from './addon';
-export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
+
+export function getArchFromComputeCapabilities() {
   const cc =
     new Set(typeof process.env.RAPIDSAI_GPU_ARCH !== 'undefined' ? [process.env.RAPIDSAI_GPU_ARCH]
                                                                  : getComputeCapabilities());
   if (cc.size === 1) {
     switch ([...cc][0]) {
-      case '60': return `${moduleName}_60.node`;
-      case '70': return `${moduleName}_70.node`;
-      case '75': return `${moduleName}_75.node`;
-      case '80': return `${moduleName}_80.node`;
-      case '86': return `${moduleName}_86.node`;
+      case '60': return '60';
+      case '70': return '70';
+      case '75': return '75';
+      case '80': return '80';
+      case '86': return '86';
       default: break;
     }
   }
-  return `${moduleName}.node`;
+  return '';
+}
+
+export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
+  return `${[moduleName, getArchFromComputeCapabilities()].filter(Boolean).join('_')}.node`;
 }
