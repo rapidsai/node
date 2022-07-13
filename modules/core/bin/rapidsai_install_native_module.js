@@ -21,7 +21,6 @@ try {
 
 const {
   getArchFromComputeCapabilities,
-  getNativeModuleNameForComputeCapabilities,
 }                             = require('@rapidsai/core');
 const {npm_package_name: pkg} = process.env;
 const [...extra_files]        = process.argv.slice(2);
@@ -51,7 +50,7 @@ const out    = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release')
 Promise
   .all([
     [
-      getNativeModuleNameForComputeCapabilities(PKG_NAME),
+      `${PKG_NAME}.node`,
       `${
           [PKG_NAME, RAPIDS, CUDA, `linux`, `amd64`, GPU_ARCH ? `arch${GPU_ARCH}` : ``]
             .filter(Boolean)

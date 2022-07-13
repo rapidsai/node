@@ -42,7 +42,3 @@ export function getArchFromComputeCapabilities() {
   }
   return '';
 }
-
-export function getNativeModuleNameForComputeCapabilities(moduleName: string) {
-  return `${[moduleName, getArchFromComputeCapabilities()].filter(Boolean).join('_')}.node`;
-}

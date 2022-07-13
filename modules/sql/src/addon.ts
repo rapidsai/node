@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {addon as CORE, getNativeModuleNameForComputeCapabilities} from '@rapidsai/core';
+import {addon as CORE} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
@@ -27,8 +27,8 @@ export const {
   UcpContext,
   ExecutionGraph,
   _cpp_exports,
-} = require('bindings')(getNativeModuleNameForComputeCapabilities('rapidsai_sql'))
-      .init(CORE, CUDA, RMM, CUDF) as typeof import('./rapidsai_sql');
+} = require('bindings')('rapidsai_sql.node').init(CORE, CUDA, RMM, CUDF) as
+    typeof import('./rapidsai_sql');
 
 export type getTableScanInfo         = typeof import('./rapidsai_sql').getTableScanInfo;
 export type runGeneratePhysicalGraph = typeof import('./rapidsai_sql').runGeneratePhysicalGraph;
