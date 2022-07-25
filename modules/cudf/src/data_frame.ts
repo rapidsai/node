@@ -536,27 +536,33 @@ export class DataFrame<T extends TypeMap = any> {
         .map(([, i]) => i);
 
     type ListChild<T extends DataType> = T extends List ? T['valueType'] : T;
-
-    return scope(() => {
-      return listColumnIndices.reduce(
-        (df, i, j, a) => {
-          return scope(() => {
-                   const mr    = j === a.length - 1 ? memoryResource : undefined;
-                   const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
-                                              : df.asTable().explode(i, mr);
-                   return DataFrame.fromTable(table, this.names as any);
-                 }, [this]) as any;
-        },
-        new DataFrame<{
-          // clang-format off
+    type U                             = {
+      // clang-format off
       [P in R | keyof T]:
         P extends R
         ? T[P] extends List
           ? ListChild<T[P]>
           : T[P]
         : T[P]
-          // clang-format on
-        }>(this._accessor as any));
+      // clang-format on
+    };
+
+    return scope(() => {
+      return listColumnIndices.reduce((df, i, j, a) => {
+        return scope(() => {
+                 const mr    = j === a.length - 1 ? memoryResource : undefined;
+                 const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
+                                            : df.asTable().explode(i, mr);
+                 return new DataFrame(df.names.reduce((series_map, name, index) => {
+                   if (index === i) {
+                     series_map[name] = Series.new(table.getColumnByIndex(index));
+                   } else {
+                     series_map[name] = df.__constructChild(name, table.getColumnByIndex(index));
+                   }
+                   return series_map;
+                 }, {} as SeriesMap<U>));
+               }, [this]) as any;
+      }, new DataFrame<U>(this._accessor as any));
     }, [this]);
   }
 
