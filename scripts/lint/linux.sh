@@ -13,7 +13,7 @@ while [[ "$#" -gt 0 ]]; do
             if [[ ${J} =~ ^[[:digit:]]+$ ]]; then
                 JOBS="${J}";
             fi;;
-        --fix_arg) fix_arg="$1";;
+        --fix) fix_arg="$1";;
         *) args="${args:+$args }$1";;
     esac; shift;
 done
