@@ -23,7 +23,7 @@ x-main-service-settings: &main_service_settings
     args: &main_build_args
       DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
       BUILD_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
-  environment: &main_environment_variables
+  environment: &main_environment_settings
     <<: *base_environment_settings
     # Use the host's X11 display
     DISPLAY: "${DISPLAY:-}"
@@ -158,14 +158,10 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
       - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
-    environment: &main_environment_settings
-      # Colorize the terminal in the container if possible
-      TERM: "${TERM:-}"
+    environment:
+      <<: *main_environment_settings
       NVIDIA_DRIVER_CAPABILITIES: all
       # Use the host's X11 display
-      DISPLAY: "${DISPLAY:-}"
-      XAUTHORITY: "${XAUTHORITY:-}"
-      XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
       XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
       DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
     cap_add:
