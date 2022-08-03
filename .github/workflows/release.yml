@@ -25,7 +25,6 @@ on:
         description: "Draft Release"
 
 env:
-  NODE: "16.15.1"
   RAPIDS: "${{ inputs.rapids-version }}"
   REPOSITORY: "ghcr.io/${{ inputs.repo }}"
 
@@ -38,38 +37,50 @@ permissions:
 
 jobs:
 
-  build-extract-and-release-packages:
-    name: Build, extract, and release packages
+  extract-and-publish-packages:
+    name: Extract and publish packages
     # runs-on: ubuntu-20.04
     runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
+        ARCH: ["amd64"]
+        NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          path: node
+          fetch-depth: 0
 
       - name: Extract node native modules
         shell: bash
         run: |
           mkdir -p build
 
-          docker run --rm -v "$PWD/build:/out" \
-              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
-              sh -c "cp /opt/rapids/rapidsai_*-*-*.tar.gz /out/";
+          ARCH="${{ matrix.ARCH }}"
+          NODE="node${{ matrix.NODE }}"
+          RAPIDS="${{ matrix.RAPIDS }}"
+          CUDA="cuda-$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)"
+          LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]' | sed "s/\./-/g")"
 
-          TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
+          docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
+            ${{ env.REPOSITORY }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
           for x in cudf cugraph cuml cuspatial io sql; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
                   --wildcards --strip-components=2 \
                   -C build -x "*/rapidsai_${x}*.node" \
-                  --transform="s/rapidsai_${x}.node/rapidsai_${x}-${TAG}.node/" \
-                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${TAG}-arch60/" \
-                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${TAG}-arch70/" \
-                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${TAG}-arch75/" \
-                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${TAG}-arch80/" \
-                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${TAG}-arch86/" ;
+                  --transform="s/rapidsai_${x}.node/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}.node/" \
+                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch60/" \
+                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch70/" \
+                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch75/" \
+                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch80/" \
+                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch86/" ;
           done;
 
           tar -zf build/rapidsai_sql-*.tar.gz \

@@ -101,6 +101,7 @@
     "typedoc": "0.22.10"
   },
   "config": {
+    "rapids_version": "22.06.00",
     "pre-git": {
       "allow-untracked-files": true,
       "pre-commit": [

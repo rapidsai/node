@@ -21,7 +21,7 @@ export const cmake_modules_path    = Path.resolve(modules_path, 'core', 'cmake',
 export const cpm_source_cache_path = Path.resolve(project_root_dir_path, '.cache', 'source');
 export const cpm_binary_cache_path = Path.resolve(project_root_dir_path, '.cache', 'binary');
 
-export {getComputeCapabilities} from './addon';
+export {getCudaDriverVersion, getComputeCapabilities} from './addon';
 export * as addon from './addon';
 
 import {getComputeCapabilities} from './addon';

@@ -14,6 +14,7 @@
 
 let addon = {
   _cpp_exports: null as any,
+  getCudaDriverVersion() { return new Array<string>(); },
   getComputeCapabilities() { return new Array<string>(); },
 };
 
@@ -24,4 +25,8 @@ try {
 }
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
-export const {_cpp_exports, getComputeCapabilities} = addon;
+export const {
+  _cpp_exports,
+  getCudaDriverVersion,
+  getComputeCapabilities,
+} = addon;

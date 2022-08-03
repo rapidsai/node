@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+include_guard(GLOBAL)
 
 function(_get_rapidsai_module_version pkg out_var_)
   set(ver_ "22.06.00")

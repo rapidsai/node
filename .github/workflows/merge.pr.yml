@@ -35,12 +35,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -81,8 +84,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -92,7 +103,7 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main
           build-args: |
             "UCX_VERSION=${{ env.UCX }}"
             "NODE_VERSION=${{ env.NODE }}"
@@ -100,7 +111,7 @@ jobs:
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
-            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:11.4.14-runtime"
+            "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
 
   build-and-publish-devel-packages-image:
@@ -122,12 +133,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -172,8 +186,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image-ssh
         with:
           pull: true
@@ -189,15 +211,15 @@ jobs:
           CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
           CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages
           build-args: |
             "CUDAARCHS=ALL"
-            "PARALLEL_LEVEL=1"
+            "PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
-            "RAPIDS_VERSION=${{ env.RAPIDS }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cuda-base-image:
     needs:
@@ -218,12 +240,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -264,8 +289,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -275,12 +308,12 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base
           build-args: |
             "UID=1000"
-            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:11.4.14-runtime"
+            "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cudf-image:
     needs:
@@ -302,12 +335,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -350,8 +386,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -361,11 +405,11 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cudf
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cugraph-image:
     needs:
@@ -387,12 +431,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -435,8 +482,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -446,11 +501,11 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cugraph
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cuml-image:
     needs:
@@ -472,12 +527,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -520,8 +578,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -531,11 +597,11 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cuml
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cuspatial-image:
     needs:
@@ -557,12 +623,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -605,8 +674,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -616,11 +693,11 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cuspatial
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-glfw-image:
     needs:
@@ -642,12 +719,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -690,8 +770,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -701,11 +789,11 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-glfw
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-sql-image:
     needs:
@@ -727,12 +815,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -775,8 +866,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -786,13 +885,13 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-sql
           build-args: |
             "UCX_VERSION=${{ env.UCX }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-main-image:
     needs:
@@ -814,12 +913,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -862,8 +964,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -873,13 +983,13 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main
           build-args: |
             "UCX_VERSION=${{ env.UCX }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-demo-image:
     needs:
@@ -901,12 +1011,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -949,8 +1062,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -960,13 +1081,13 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-demo
           build-args: |
             "UCX_VERSION=${{ env.UCX }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-base"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-notebook-image:
     needs:
@@ -987,12 +1108,15 @@ jobs:
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
           echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -1036,8 +1160,16 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
+          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
+          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
       - name: Build and push image
-        if: env.manual_build == 'true' || steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true'
+        if: env.manual_build == 'true' || env.files_changed == 'true'
         uses: ./.github/actions/build-and-publish-image
         with:
           pull: true
@@ -1047,6 +1179,6 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ github.token }}
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook
+            ${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-notebook
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-runtime-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-demo"

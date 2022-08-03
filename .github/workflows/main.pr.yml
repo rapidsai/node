@@ -18,7 +18,6 @@ jobs:
     env:
       UCX: "1.12.1"
       NODE: "16.15.1"
-      RAPIDS: "22.06.00"
       REGISTRY: "ghcr.io"
     steps:
       - name: Dump runner context
@@ -26,12 +25,15 @@ jobs:
         run: |
           echo "${{ toJSON(runner) }}"
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
@@ -84,17 +86,17 @@ jobs:
 
       - name: Update runner env
         env:
-          CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ matrix.LINUX }}"
           dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
           src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
         shell: bash
         run: |
-          echo "CUDA=${CUDA}" >> $GITHUB_ENV;
+          RAPIDS="$(cat node/lerna.json | jq -r '.version')";
           echo "LINUX=${LINUX}" >> $GITHUB_ENV;
+          echo "RAPIDS=${RAPIDS}" >> $GITHUB_ENV;
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
-          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA}-${LINUX}-main" >> $GITHUB_ENV;
+          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${LINUX}-main" >> $GITHUB_ENV;
           echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
           echo "\
           -u $(id -u):$(id -g) \
@@ -115,7 +117,7 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
             node/.cache/binary
             node/.cache/source
@@ -124,7 +126,7 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
             .yarn
             .cache
@@ -143,15 +145,17 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          threads=$((${PARALLEL_LEVEL:-1} / 2))
+          n_archs=2
+          PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
+          threads=$((PARALLEL_LEVEL / n_archs))
           if [[ "$threads" == 0 ]]; then
             threads=1;
           fi
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=ALL
           PARALLEL_LEVEL=${threads}
-          NVCC_APPEND_FLAGS=--threads=${threads}
-          RAPIDS_VERSION=${RAPIDS}
+          NVCC_APPEND_FLAGS=--threads=${n_archs}
+          RAPIDS_VERSION=$(cat node/package.json | jq -r '.config.rapids_version')
           SCCACHE_REGION=us-west-2
           SCCACHE_IDLE_TIMEOUT=32768
           SCCACHE_BUCKET=node-rapids-sccache
@@ -175,7 +179,7 @@ jobs:
             docker build --pull --force-rm \
               --build-arg UCX_VERSION="${{ env.UCX }}" \
               --build-arg NODE_VERSION="${{ env.NODE }}" \
-              --build-arg LINUX_VERSION="${{ env.LINUX }}" \
+              --build-arg LINUX_VERSION="${{ matrix.LINUX }}" \
               --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
               --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
               -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
