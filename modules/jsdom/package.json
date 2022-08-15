@@ -26,6 +26,7 @@
     "@rapidsai/core": "22.6.0",
     "@rapidsai/glfw": "22.6.0",
     "@types/jsdom": "16.2.13",
+    "@types/parse5": "6.0.3",
     "btoa": "1.2.1",
     "canvas": "2.8.0",
     "clone-deep": "4.0.1",
