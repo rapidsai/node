@@ -53,7 +53,7 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
 (async () => {
   const distro   = await (async () => {
     const {dist = '', release = ''} = await getOS();
-    return dist.toLowerCase() + release.replace('.', '');
+    return dist.toLowerCase() + release;
   })();
   const cpu_arch = (() => {
     switch (require('os').arch()) {

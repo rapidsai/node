@@ -7,29 +7,63 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY:
-        required: true
-      CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY:
-        required: true
     inputs:
-      tag:
-        type: string
-        required: true
       file:
         type: string
         required: true
-      temp:
+      node-version:
         type: string
         required: true
+      push:
+        default: true
+        type: boolean
+        required: false
+      pull:
+        default: true
+        type: boolean
+        required: false
+      manual-build:
+        type: boolean
+        required: true
+      image:
+        default: ""
+        type: string
+        required: true
+      from_:
+        default: ""
+        type: string
+        required: false
+      build:
+        default: ""
+        type: string
+        required: false
+      devel:
+        default: ""
+        type: string
+        required: false
       build-args:
+        default: ""
+        type: string
+        required: false
+      files-to-diff:
+        default: ""
+        type: string
+        required: false
+      registry-url:
         type: string
         required: true
-      manual_build:
+        default: ghcr.io
+      registry-username:
         type: string
         required: true
+        default: ${{ github.repository_owner }}
+      registry-password:
+        type: string
+        required: true
+        default: ${{ github.token }}
 
 jobs:
-  build-and-publish-image-ssh:
+  build-and-publish-image:
     runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
@@ -40,15 +74,11 @@ jobs:
       - name: Dump runner context
         shell: bash
         run: |
-          echo "${{ toJSON(runner) }}"
+          echo "${{ toJSON(runner) }}";
           echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
-          echo "manual_build=${{ github.event_name == 'workflow_dispatch' }}" >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
-          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
-          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
 
       - name: Set up self-hosted runner
-        if: env.is_gha_runner != 'true'
+        if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
         run: |
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
@@ -67,14 +97,14 @@ jobs:
         run: git lfs checkout
 
       - name: Free up disk space
-        if: env.is_gha_runner == 'true'
+        if: ${{ env.is_gha_runner == 'true' }}
         uses: ./.github/actions/free-disk-space
         with:
           tool_cache: ${{ runner.tool_cache }}
 
       - name: Get last successful main commit sha
         id: last_main_commit
-        if: env.manual_build != 'true'
+        if: ${{ ! inputs.manual-build }}
         uses: nrwl/last-successful-commit-action@v1
         with:
           branch: main
@@ -83,50 +113,102 @@ jobs:
 
       - name: Check if files changed
         id: files_changed
-        if: env.manual_build != 'true'
+        if: ${{ ! inputs.manual-build }}
         uses: tj-actions/changed-files@v23.1
         with:
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
-            \.npmrc
-            modules
-            yarn\.lock
-            package\.json
-            dev/dockerfiles/devel/(main|package)\.Dockerfile
+            ${{ inputs.file }}
+            ${{ inputs.files-to-diff }}
             \.github/workflows/merge\.pr\.yml
+            \.github/workflows/build-and-push-image\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
       - name: Set environment variables
         shell: bash
         run: |
-          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-4}" >> $GITHUB_ENV;
-          echo "VERSION=$(cat lerna.json | jq -r '.version')" >> $GITHUB_ENV;
-          echo "RAPIDS_VERSION=$(cat package.json | jq -r '.config.rapids_version')" >> $GITHUB_ENV;
-          echo "files_changed=${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}" >> $GITHUB_ENV;
+
+          NODE="${{ inputs.node-version }}"
+          PARALLEL_LEVEL="${PARALLEL_LEVEL:-4}"
+          VERSION="$(cat lerna.json | jq -r '.version')"
+          image_type="$(echo "${{ inputs.image }}" | cut -d'-' -f1)"
+          image_name="$(echo "${{ inputs.image }}" | cut -d'-' -f2)"
+          REPOSITORY="${{ inputs.registry-url }}/${{ github.repository }}"
+          CUDA_VERSION_MAJOR="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)"
+          CUDA_VERSION_MINOR="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)"
+          CUDA_VERSION_PATCH="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)"
+          RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
+          files_changed="${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}"
+
+          echo "NODE=$NODE" >> $GITHUB_ENV;
+          echo "VERSION=$VERSION" >> $GITHUB_ENV;
+          echo "image_type=$image_type >> $GITHUB_ENV;
+          echo "image_name=$image_name >> $GITHUB_ENV;
+          echo "REPOSITORY=$REPOSITORY" >> $GITHUB_ENV;
+          echo "files_changed=$files_changed" >> $GITHUB_ENV;
+          echo "PARALLEL_LEVEL=$PARALLEL_LEVEL" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR >> $GITHUB_ENV;
+          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH >> $GITHUB_ENV;
+
+          echo "BUILD_ARGS<<EOF" >> $GITHUB_ENV;
+
+          if [[ -n "${{ inputs.build-args }}" ]]; then
+            echo -e "${{ inputs.build-args }}" >> $GITHUB_ENV;
+          fi
+
+          if [[ "${{ inputs.image }}" == devel-main ]]; then
+            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+          elif [[ "${{ inputs.image }}" == runtime-base ]]; then
+            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+          fi
+
+          if [[ -n "${{ inputs.from_ }}" ]]; then
+            from__type="$(echo "${{ inputs.from_ }}" | cut -d'-' -f1)";
+            from__name="$(echo "${{ inputs.from_ }}" | cut -d'-' -f2)";
+            from_image="${REPOSITORY}:${VERSION}-${from__type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${from__name}";
+            echo "FROM_IMAGE=${from_image}" >> $GITHUB_ENV;
+          fi
+
+          if [[ -n "${{ inputs.build }}" ]]; then
+            build_type="$(echo "${{ inputs.build }}" | cut -d'-' -f1)";
+            build_name="$(echo "${{ inputs.build }}" | cut -d'-' -f2)";
+            build_image="${REPOSITORY}:${VERSION}-${build_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${build_name}";
+            echo "BUILD_IMAGE=${build_image}" >> $GITHUB_ENV;
+          fi
+
+          if [[ -n "${{ inputs.devel }}" ]]; then
+            devel_type="$(echo "${{ inputs.devel }}" | cut -d'-' -f1)";
+            devel_name="$(echo "${{ inputs.devel }}" | cut -d'-' -f2)";
+            devel_image="${REPOSITORY}:${VERSION}-${devel_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${devel_name}";
+            echo "DEVEL_IMAGE=${devel_image}" >> $GITHUB_ENV;
+          fi
+
+          echo "EOF" >> $GITHUB_ENV;
+
+          echo "IMAGE_NAME=${REPOSITORY}:${VERSION}-${image_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${image_name}" >> $GITHUB_ENV;
 
       - name: Build and push image
-        if: env.manual_build == 'true' || env.files_changed == 'true'
-        uses: ./.github/actions/build-and-publish-image-ssh
+        if: ${{ inputs.manual-build || env.files_changed == 'true' }}
+        uses: ./.github/actions/build-and-publish-image
         with:
-          pull: true
-          push: true
           home: ${{ env.HOME }}
+          pull: ${{ inputs.pull }}
+          push: ${{ inputs.push }}
+          file: ${{ inputs.file }}
           temp: ${{ runner.temp }}
-          file: dev/dockerfiles/devel/package.Dockerfile
-          registry-url: ghcr.io
-          registry-username: ${{ github.repository_owner }}
-          registry-password: ${{ github.token }}
+          tags: ${{ env.IMAGE_NAME }}
+          registry-url: ${{ inputs.registry-url }}
+          registry-username: ${{ inputs.registry-username }}
+          registry-password: ${{ inputs.registry-password }}
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
-          CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
-          tags: |
-            ${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-packages
           build-args: |
-            "CUDAARCHS=ALL"
-            "PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}"
-            "SCCACHE_IDLE_TIMEOUT=32768"
-            "SCCACHE_REGION=us-west-2"
-            "SCCACHE_BUCKET=node-rapids-sccache"
+            ${{ env.BUILD_ARGS }}
+            "NODE_VERSION=${{ env.NODE }}"
+            "CUDA_VERSION=${{ matrix.CUDA }}"
+            "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.VERSION }}-devel-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-main"

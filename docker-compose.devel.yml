@@ -70,8 +70,8 @@ services:
       - "/usr/share/fonts:/usr/share/fonts:ro"
       - "/usr/share/icons:/usr/share/icons:ro"
       - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
-      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
       - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:/ssh-agent"
+      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
 
   notebook:
     <<: *main_service_settings

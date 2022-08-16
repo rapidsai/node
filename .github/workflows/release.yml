@@ -3,30 +3,26 @@ name: Create GitHub release
 on:
   workflow_dispatch:
     inputs:
-      repo:
-        type: string
-        required: true
-        default: "rapidsai/node"
-        description: "node-rapids repo to use"
       rapids-version:
         type: string
-        required: true
         default: "22.06.00"
         description: "RAPIDS version"
       make-release:
         type: boolean
-        required: true
         default: false
         description: "Make Release"
       draft-release:
         type: boolean
-        required: false
         default: false
         description: "Draft Release"
+      npm-publish:
+        type: boolean
+        default: false
+        description: "Publish to NPM"
 
 env:
   RAPIDS: "${{ inputs.rapids-version }}"
-  REPOSITORY: "ghcr.io/${{ inputs.repo }}"
+  REPOSITORY: "ghcr.io/${{ github.repository }}"
 
 concurrency:
   group: create_github_release
@@ -61,17 +57,20 @@ jobs:
         run: |
           mkdir -p build
 
-          ARCH="${{ matrix.ARCH }}"
-          NODE="node${{ matrix.NODE }}"
-          RAPIDS="${{ matrix.RAPIDS }}"
-          CUDA="cuda-$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)"
-          LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]' | sed "s/\./-/g")"
+          ARCH="${{ matrix.ARCH }}";
+          NODE="node${{ matrix.NODE }}";
+          CUDA="cuda$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)";
+          LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
+
+          docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
+            ${{ env.REPOSITORY }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
 
           docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
             ${{ env.REPOSITORY }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
-          for x in cudf cugraph cuml cuspatial io sql; do
+          for x in cudf cuml cugraph cuspatial io sql; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
                   --wildcards --strip-components=2 \
                   -C build -x "*/rapidsai_${x}*.node" \
@@ -91,7 +90,7 @@ jobs:
 
       - name: Upload node native modules
         uses: actions/upload-artifact@v2
-        if: inputs.make-release != true
+        if: ${{ inputs.make-release != true }}
         with:
           path: |
             build/*.jar
@@ -100,12 +99,20 @@ jobs:
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
-        if: inputs.make-release == true
+        if: ${{ inputs.make-release == true }}
         with:
           body: ""
           files: |
             build/*.jar
             build/*.node
           tag_name: "v${{ env.RAPIDS }}"
-          repository: ${{ inputs.repo }}
+          repository: ${{ github.repository }}
           draft: ${{ inputs.draft-release == true }}
+
+      - name: Publish npm packages
+        if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
+        shell: bash
+        env:
+          NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
+        run: |
+          find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public {} \;"
