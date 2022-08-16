@@ -5,7 +5,7 @@ on:
     inputs:
       rapids-version:
         type: string
-        default: "22.06.00"
+        default: "22.6.0"
         description: "RAPIDS version"
       make-release:
         type: boolean
@@ -22,7 +22,6 @@ on:
 
 env:
   RAPIDS: "${{ inputs.rapids-version }}"
-  REPOSITORY: "ghcr.io/${{ github.repository }}"
 
 concurrency:
   group: create_github_release
@@ -63,11 +62,11 @@ jobs:
           LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
 
           docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
-            ${{ env.REPOSITORY }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
 
           docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
-            ${{ env.REPOSITORY }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
           for x in cudf cuml cugraph cuspatial io sql; do
