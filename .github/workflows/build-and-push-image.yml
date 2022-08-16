@@ -6,15 +6,6 @@ on:
       file:
         type: string
         required: true
-      registry-url:
-        type: string
-        required: true
-      registry-username:
-        type: string
-        required: true
-      registry-password:
-        type: string
-        required: true
       image:
         default: ""
         type: string
@@ -127,7 +118,7 @@ jobs:
           VERSION="$(cat lerna.json | jq -r '.version')"
           image_type="$(echo "${{ inputs.image }}" | cut -d'-' -f1)"
           image_name="$(echo "${{ inputs.image }}" | cut -d'-' -f2)"
-          REPOSITORY="${{ inputs.registry-url }}/${{ github.repository }}"
+          REPOSITORY="ghcr.io/${{ github.repository }}"
           CUDA_VERSION_MAJOR="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)"
           CUDA_VERSION_MINOR="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)"
           CUDA_VERSION_PATCH="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)"
@@ -193,9 +184,9 @@ jobs:
           push: ${{ inputs.push }}
           file: ${{ inputs.file }}
           tags: ${{ env.IMAGE_NAME }}
-          registry-url: ${{ inputs.registry-url }}
-          registry-username: ${{ inputs.registry-username }}
-          registry-password: ${{ inputs.registry-password }}
+          registry-url: ghcr.io
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ github.token }}
           build-args: |
             ${{ env.BUILD_ARGS }}
             "NODE_VERSION=${{ env.NODE }}"
