@@ -21,7 +21,10 @@ jobs:
       file: dev/dockerfiles/devel/main.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
-        (\.npmrc|modules|yarn\.lock|package\.json)
+        \.npmrc
+        modules
+        yarn\.lock
+        package\.json
       build-args: |
         "UCX_VERSION=1.12.1"
 
@@ -37,8 +40,11 @@ jobs:
       file: dev/dockerfiles/devel/package.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
+        \.npmrc
+        modules
+        yarn\.lock
+        package\.json
         dev/dockerfiles/devel/main\.Dockerfile
-        (\.npmrc|modules|yarn\.lock|package\.json)
       build-args: |
         "CUDAARCHS=ALL"
         "SCCACHE_IDLE_TIMEOUT=32768"

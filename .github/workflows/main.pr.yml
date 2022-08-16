@@ -79,6 +79,8 @@ jobs:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
+            lerna\.json
+            package\.json
             dev/dockerfiles/devel/main\.Dockerfile
             \.github/workflows/main\.pr\.yml
             \.github/workflows/merge\.pr\.yml
