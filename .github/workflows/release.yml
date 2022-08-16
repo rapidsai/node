@@ -43,9 +43,7 @@ jobs:
         NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
-      - name: Extract and publish packages
-        env:
-          NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
+      - name: Extract node native modules
         shell: bash
         run: |
           set -x;
@@ -57,7 +55,7 @@ jobs:
           CUDA="cuda$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)";
           LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
 
-          docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
+          docker run --rm --pull --platform "linux/${ARCH}" -v "$PWD/build:/out" \
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
@@ -79,18 +77,6 @@ jobs:
 
           rm -rf build/*.tar.gz;
 
-          if [[ "${{ inputs.make-release }}" == true && "${{ inputs.npm-publish }}" == true ]]; then
-            docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
-              ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
-              sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
-
-            echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > "$HOME/.npmrc"
-            npm whoami
-            find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public {} \;
-
-            rm -rf build/*.tgz;
-          fi
-
       - name: Upload node native modules
         uses: actions/upload-artifact@v2
         if: ${{ inputs.make-release != true }}
@@ -111,3 +97,36 @@ jobs:
           tag_name: "v${{ env.RAPIDS }}"
           repository: ${{ github.repository }}
           draft: ${{ inputs.draft-release == true }}
+
+  publish-npm-packages:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        CUDA: ["11.6.2"]
+        ARCH: ["amd64"]
+        NODE: ["16.15.1"]
+        LINUX: ["ubuntu20.04"]
+    steps:
+      - name: Publish npm packages
+        if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
+        shell: bash
+        env:
+          NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
+        run: |
+          set -x;
+
+          mkdir -p build;
+
+          ARCH="${{ matrix.ARCH }}";
+          NODE="node${{ matrix.NODE }}";
+          CUDA="cuda$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)";
+          LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
+
+          docker run --rm --pull --platform "linux/amd64" -v "$PWD/build:/out" \
+            ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
+
+          echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > "$HOME/.npmrc"
+          npm whoami
+          find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public ./{} \;
