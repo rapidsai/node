@@ -5,16 +5,18 @@ on:
     branches:
       - main
   workflow_dispatch:
-
-env:
-  UCX: "1.12.1"
-  NODE: "16.15.1"
+    inputs:
 
 concurrency:
   group: build-docker-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
+env:
+  UCX: "1.12.1"
+  NODE: "16.15.1"
+
 jobs:
+
   build-and-publish-devel-main-image:
     name: Build and publish devel main image
     uses: ./.github/workflows/build-and-push-image.yml
