@@ -14,27 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-if (process.env.RAPIDSAI_SKIP_DOWNLOAD === '1') { return; }
+const {
+  npm_package_name: pkg_name,
+  npm_package_version: pkg_ver,
+} = process.env;
+
+if (process.env.RAPIDSAI_SKIP_DOWNLOAD === '1') {
+  console.log(`${pkg_name}: Not downloading native module because RAPIDSAI_SKIP_DOWNLOAD=1`);
+  return;
+}
+
 try {
   require('@rapidsai/core');
 } catch (e) { return; }
 
 const {
+  getCudaDriverVersion,
   getArchFromComputeCapabilities,
-}                             = require('@rapidsai/core');
-const {npm_package_name: pkg} = process.env;
-const [...extra_files]        = process.argv.slice(2);
+} = require('@rapidsai/core');
 
 require('assert')(require('os').platform() === 'linux',  //
-                  `${pkg} is only supported on Linux`);
-
-const [major, minor] = process.env.npm_package_version.split('.').map(
-  (x) => x.length < 2 ? new Array(2 - x.length).fill('0').join('') + x : x);
-
-const CUDA     = `cuda11.6.2`;
-const RAPIDS   = `${major}.${minor}.00`;
-const GPU_ARCH = getArchFromComputeCapabilities();
-const PKG_NAME = pkg.replace('@', '').replace('/', '_');
+                  `${pkg_name} is only supported on Linux`);
 
 const {
   createWriteStream,
@@ -45,32 +45,51 @@ const Path   = require('path');
 const https  = require('https');
 const fs     = require('fs/promises');
 const stream = require('stream/promises');
-const out    = Path.join(Path.dirname(require.resolve(pkg)), 'build', 'Release');
+const getOS  = require('util').promisify(require('getos'));
 
-Promise
-  .all([
+const extraFiles = process.argv.slice(2);
+const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', 'Release');
+
+(async () => {
+  const distro   = await (async () => {
+    const {dist = '', release = ''} = await getOS();
+    return dist.toLowerCase() + release;
+  })();
+  const cpu_arch = (() => {
+    switch (require('os').arch()) {
+      case 'x86': return 'amd64';
+      default: return 'aarch64';
+    }
+  })();
+  const gpu_arch = getArchFromComputeCapabilities();
+  const cuda_ver = `cuda${getCudaDriverVersion()[0]}`;
+  const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');
+  const MOD_NAME =
+    [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `arch${gpu_arch}` : ``]
+      .filter(Boolean)
+      .join('-');
+
+  await Promise.all([
     [
       `${PKG_NAME}.node`,
-      `${
-          [PKG_NAME, RAPIDS, CUDA, `linux`, `amd64`, GPU_ARCH ? `arch${GPU_ARCH}` : ``]
-            .filter(Boolean)
-            .join('-')}.node`,
+      `${MOD_NAME}.node`,
     ],
-    ...extra_files.map((slug) => [slug, slug])
-  ].map(([localSlug, remoteSlug]) => maybeDownload(localSlug, remoteSlug)))
+    ...extraFiles.map((slug) => [slug, slug])
+  ].map(([localSlug, remoteSlug]) => maybeDownload(localSlug, remoteSlug)));
+})()
   .catch((e) => {
-    console.error(e);
+    if (e) console.error(e);
     return 1;
   })
-  .then((code = 0) => process.exit(code))
+  .then((code = 0) => process.exit(code));
 
 function maybeDownload(localSlug, remoteSlug) {
   return new Promise((resolve, reject) => {
-    const dst = Path.join(out, localSlug);
+    const dst = Path.join(binary_dir, localSlug);
     fs.access(dst, F_OK)
       .catch(() => {
-        return fs.access(out, F_OK)
-          .catch(() => fs.mkdir(out, {recursive: true, mode: `0755`}))
+        return fs.access(binary_dir, F_OK)
+          .catch(() => fs.mkdir(binary_dir, {recursive: true, mode: `0755`}))
           .then(() => fetch({
                         hostname: `github.com`,
                         path: `/rapidsai/node/releases/download/v${RAPIDS}/${remoteSlug}`,

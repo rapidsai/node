@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+include_guard(GLOBAL)
 
 # Unset this first in case it's set to <empty_string>
 unset(CMAKE_CUDA_ARCHITECTURES CACHE)

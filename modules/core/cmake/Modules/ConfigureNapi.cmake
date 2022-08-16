@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+include_guard(GLOBAL)
 
 execute_process(COMMAND node -p "require('node-addon-api').include.replace(/\"/g, '')"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"

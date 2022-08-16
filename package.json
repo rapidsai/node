@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "node-rapids",
-  "version": "1.0.0",
+  "version": "22.6.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -101,6 +101,7 @@
     "typedoc": "0.22.10"
   },
   "config": {
+    "rapids_version": "22.06.00",
     "pre-git": {
       "allow-untracked-files": true,
       "pre-commit": [

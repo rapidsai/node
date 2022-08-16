@@ -22,13 +22,32 @@
 
 struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_core> {
   rapidsai_core(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+    _after_init = Napi::Persistent(Napi::Function::New(env, [](Napi::CallbackInfo const& info) {
+      auto env = info.Env();
+      if (nvmlInit_v2() != NVML_SUCCESS) {
+        throw Napi::Error::New(env, "Failed to initialize nvml.");
+      }
+    }));
     DefineAddon(
       exports,
       {
         InstanceValue("_cpp_exports", _cpp_exports.Value()),
         InstanceMethod("init", &rapidsai_core::InitAddon),
+        InstanceMethod<&rapidsai_core::get_cuda_driver_version>("getCudaDriverVersion"),
         InstanceMethod<&rapidsai_core::get_compute_capabilities>("getComputeCapabilities"),
       });
+  }
+
+  Napi::Value get_cuda_driver_version(Napi::CallbackInfo const& info) {
+    auto env = info.Env();
+    int32_t cuda_version{};
+    nvmlSystemGetCudaDriverVersion(&cuda_version);
+    auto ary = Napi::Array::New(env, 2);
+    ary.Set(0u,
+            Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MAJOR(cuda_version))));
+    ary.Set(1u,
+            Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MINOR(cuda_version))));
+    return ary;
   }
 
   Napi::Value get_compute_capabilities(Napi::CallbackInfo const& info) {
@@ -39,8 +58,7 @@ struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cor
     uint32_t device_count{};
     int32_t major{}, minor{};
 
-    if (nvmlInit_v2() == NVML_SUCCESS &&  //
-        nvmlDeviceGetCount_v2(&device_count) == NVML_SUCCESS) {
+    if (nvmlDeviceGetCount_v2(&device_count) == NVML_SUCCESS) {
       std::vector<std::string> archs(device_count);
       for (uint32_t device_index{0}; device_index < device_count; ++device_index) {
         if (nvmlDeviceGetHandleByIndex_v2(device_index, &device) == NVML_SUCCESS &&

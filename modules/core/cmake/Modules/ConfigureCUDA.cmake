@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+include_guard(GLOBAL)
 
 # If `CMAKE_CUDA_ARCHITECTURES` is not defined, build for all supported architectures. If
 # `CMAKE_CUDA_ARCHITECTURES` is set to an empty string (""), build for only the current

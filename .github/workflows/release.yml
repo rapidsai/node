@@ -3,31 +3,25 @@ name: Create GitHub release
 on:
   workflow_dispatch:
     inputs:
-      repo:
-        type: string
-        required: true
-        default: "rapidsai/node"
-        description: "node-rapids repo to use"
       rapids-version:
         type: string
-        required: true
-        default: "22.06.00"
+        default: "22.6.0"
         description: "RAPIDS version"
       make-release:
         type: boolean
-        required: true
         default: false
         description: "Make Release"
       draft-release:
         type: boolean
-        required: false
         default: false
         description: "Draft Release"
+      npm-publish:
+        type: boolean
+        default: false
+        description: "Publish to NPM"
 
 env:
-  NODE: "16.15.1"
   RAPIDS: "${{ inputs.rapids-version }}"
-  REPOSITORY: "ghcr.io/${{ inputs.repo }}"
 
 concurrency:
   group: create_github_release
@@ -38,38 +32,53 @@ permissions:
 
 jobs:
 
-  build-extract-and-release-packages:
-    name: Build, extract, and release packages
+  extract-and-publish-packages:
+    name: Extract and publish packages
     # runs-on: ubuntu-20.04
     runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
+        ARCH: ["amd64"]
+        NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          path: node
+          fetch-depth: 0
 
       - name: Extract node native modules
         shell: bash
         run: |
           mkdir -p build
 
-          docker run --rm -v "$PWD/build:/out" \
-              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages \
-              sh -c "cp /opt/rapids/rapidsai_*-*-*.tar.gz /out/";
+          ARCH="${{ matrix.ARCH }}";
+          NODE="node${{ matrix.NODE }}";
+          CUDA="cuda$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)";
+          LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
 
-          TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-amd64";
+          docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
+            ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
 
-          for x in cudf cugraph cuml cuspatial io sql; do
+          docker run --rm --platform "linux/${ARCH}" -v "$PWD/build:/out" \
+            ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
+            sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
+
+          for x in cudf cuml cugraph cuspatial io sql; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
                   --wildcards --strip-components=2 \
                   -C build -x "*/rapidsai_${x}*.node" \
-                  --transform="s/rapidsai_${x}.node/rapidsai_${x}-${TAG}.node/" \
-                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${TAG}-arch60/" \
-                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${TAG}-arch70/" \
-                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${TAG}-arch75/" \
-                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${TAG}-arch80/" \
-                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${TAG}-arch86/" ;
+                  --transform="s/rapidsai_${x}.node/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}.node/" \
+                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch60/" \
+                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch70/" \
+                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch75/" \
+                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch80/" \
+                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch86/" ;
           done;
 
           tar -zf build/rapidsai_sql-*.tar.gz \
@@ -80,7 +89,7 @@ jobs:
 
       - name: Upload node native modules
         uses: actions/upload-artifact@v2
-        if: inputs.make-release != true
+        if: ${{ inputs.make-release != true }}
         with:
           path: |
             build/*.jar
@@ -89,12 +98,20 @@ jobs:
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
-        if: inputs.make-release == true
+        if: ${{ inputs.make-release == true }}
         with:
           body: ""
           files: |
             build/*.jar
             build/*.node
           tag_name: "v${{ env.RAPIDS }}"
-          repository: ${{ inputs.repo }}
+          repository: ${{ github.repository }}
           draft: ${{ inputs.draft-release == true }}
+
+      - name: Publish npm packages
+        if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
+        shell: bash
+        env:
+          NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
+        run: |
+          find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public {} \;"

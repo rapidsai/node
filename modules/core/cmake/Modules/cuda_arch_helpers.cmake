@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+include_guard(GLOBAL)
 
 function(_get_lib_location_info dep out out_a out_a_all)
   set(location_prop "IMPORTED_LOCATION_${CMAKE_BUILD_TYPE}")

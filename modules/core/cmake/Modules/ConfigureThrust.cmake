@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+include_guard(GLOBAL)
 
 function(find_and_configure_thrust VERSION)
     _get_update_disconnected_state(Thrust ${VERSION} UPDATE_DISCONNECTED)
