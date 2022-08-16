@@ -57,8 +57,10 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
   })();
   const cpu_arch = (() => {
     switch (require('os').arch()) {
-      case 'x86': return 'amd64';
-      default: return 'aarch64';
+      case 'x64': return 'amd64';
+      case 'arm': return 'aarch64';
+      case 'arm64': return 'aarch64';
+      default: return 'amd64';
     }
   })();
   const gpu_arch = getArchFromComputeCapabilities();
@@ -92,7 +94,7 @@ function maybeDownload(localSlug, remoteSlug) {
           .catch(() => fs.mkdir(binary_dir, {recursive: true, mode: `0755`}))
           .then(() => fetch({
                         hostname: `github.com`,
-                        path: `/rapidsai/node/releases/download/v${RAPIDS}/${remoteSlug}`,
+                        path: `/rapidsai/node/releases/download/v${pkg_ver}/${remoteSlug}`,
                         headers: {
                           [`Accept`]: `application/octet-stream`,
                           [`Accept-Encoding`]:
