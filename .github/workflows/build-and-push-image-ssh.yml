@@ -55,15 +55,15 @@ on:
         required: false
       registry-url:
         type: string
-        required: true
+        required: false
         default: ghcr.io
       registry-username:
         type: string
-        required: true
+        required: false
         default: ${{ github.repository_owner }}
       registry-password:
         type: string
-        required: true
+        required: false
         default: ${{ github.token }}
 
 jobs:
