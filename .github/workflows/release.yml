@@ -55,7 +55,7 @@ jobs:
           CUDA="cuda$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)";
           LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
 
-          docker run --rm --pull --platform "linux/${ARCH}" -v "$PWD/build:/out" \
+          docker run --rm --pull always --platform "linux/${ARCH}" -v "$PWD/build:/out" \
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
@@ -123,7 +123,7 @@ jobs:
           CUDA="cuda$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)";
           LINUX="$(echo "${{ matrix.LINUX }}" | tr '[:upper:]' '[:lower:]')";
 
-          docker run --rm --pull --platform "linux/amd64" -v "$PWD/build:/out" \
+          docker run --rm --pull always --platform "linux/${ARCH}" -v "$PWD/build:/out" \
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
 
