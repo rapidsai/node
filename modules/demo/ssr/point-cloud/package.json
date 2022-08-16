@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-point-cloud-ssr",
   "main": "index.js",
-  "version": "22.6.0",
+  "version": "22.6.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -14,9 +14,9 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@rapidsai/cuda": "22.6.0",
-    "@rapidsai/deck.gl": "22.6.0",
-    "@rapidsai/jsdom": "22.6.0",
+    "@rapidsai/cuda": "22.6.1",
+    "@rapidsai/deck.gl": "22.6.1",
+    "@rapidsai/jsdom": "22.6.1",
     "fastify": "3.20.2",
     "fastify-plugin": "3.0.0",
     "fastify-socket.io": "2.0.0",

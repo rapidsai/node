@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/deck.gl",
-  "version": "22.6.0",
+  "version": "22.6.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -24,9 +24,9 @@
     "@luma.gl/core": "8.5.10",
     "@luma.gl/engine": "8.5.10",
     "@luma.gl/webgl": "8.5.10",
-    "@rapidsai/core": "22.6.0",
-    "@rapidsai/cuda": "22.6.0",
-    "@rapidsai/cudf": "22.6.0",
+    "@rapidsai/core": "22.6.1",
+    "@rapidsai/cuda": "22.6.1",
+    "@rapidsai/cudf": "22.6.1",
     "mjolnir.js": "2.6.0"
   },
   "files": [
