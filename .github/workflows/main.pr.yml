@@ -91,7 +91,7 @@ jobs:
         shell: bash
         run: |
           VERSION="$(cat node/lerna.json | jq -r '.version')"
-          RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
+          RAPIDS_VERSION="$(cat node/package.json | jq -r '.config.rapids_version')"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV;
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
