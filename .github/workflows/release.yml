@@ -106,4 +106,6 @@ jobs:
         env:
           NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
         run: |
+          echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > "$HOME/.npmrc"
+          npm whoami
           find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public {} \;"
