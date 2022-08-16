@@ -215,6 +215,5 @@ jobs:
           build-args: |
             ${{ env.BUILD_ARGS }}
             "NODE_VERSION=${{ env.NODE }}"
-            "CUDA_VERSION=${{ matrix.CUDA }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"

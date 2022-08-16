@@ -86,17 +86,17 @@ jobs:
 
       - name: Update runner env
         env:
-          LINUX: "${{ matrix.LINUX }}"
           dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
           src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
         shell: bash
         run: |
-          RAPIDS="$(cat node/lerna.json | jq -r '.version')";
-          echo "LINUX=${LINUX}" >> $GITHUB_ENV;
-          echo "RAPIDS=${RAPIDS}" >> $GITHUB_ENV;
+          VERSION="$(cat node/lerna.json | jq -r '.version')"
+          RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV;
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
-          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${RAPIDS}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${LINUX}-main" >> $GITHUB_ENV;
+          echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
+          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${VERSION}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-main" >> $GITHUB_ENV;
           echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
           echo "\
           -u $(id -u):$(id -g) \
@@ -117,7 +117,7 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
+          key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
             node/.cache/binary
             node/.cache/source
@@ -126,7 +126,7 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
             .yarn
             .cache
@@ -155,7 +155,7 @@ jobs:
           CUDAARCHS=ALL
           PARALLEL_LEVEL=${threads}
           NVCC_APPEND_FLAGS=--threads=${n_archs}
-          RAPIDS_VERSION=$(cat node/package.json | jq -r '.config.rapids_version')
+          RAPIDS_VERSION=${RAPIDS_VERSION}
           SCCACHE_REGION=us-west-2
           SCCACHE_IDLE_TIMEOUT=32768
           SCCACHE_BUCKET=node-rapids-sccache
