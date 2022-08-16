@@ -34,8 +34,7 @@ jobs:
 
   extract-and-publish-packages:
     name: Extract and publish packages
-    # runs-on: ubuntu-20.04
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
@@ -44,13 +43,6 @@ jobs:
         NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          lfs: true
-          path: node
-          fetch-depth: 0
-
       - name: Extract node native modules
         shell: bash
         run: |
