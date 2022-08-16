@@ -5,15 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
 
 concurrency:
   group: build-docker-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
-
-env:
-  UCX: "1.12.1"
-  NODE: "16.15.1"
 
 jobs:
 
@@ -23,13 +18,13 @@ jobs:
     secrets: inherit
     with:
       image: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/devel/main.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
         (\.npmrc|modules|yarn\.lock|package\.json)
       build-args: |
-        "UCX_VERSION=${{ env.UCX }}"
+        "UCX_VERSION=1.12.1"
 
   build-and-publish-devel-packages-image:
     name: Build devel packages image
@@ -40,7 +35,7 @@ jobs:
     with:
       from_: devel-main
       image: devel-packages
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/devel/package.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
@@ -61,7 +56,7 @@ jobs:
     with:
       image: runtime-base
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
@@ -97,7 +92,7 @@ jobs:
       image: runtime-cuml
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/cuml.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -116,7 +111,7 @@ jobs:
       image: runtime-cugraph
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/cugraph.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -135,7 +130,7 @@ jobs:
       image: runtime-cuspatial
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/cuspatial.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -154,7 +149,7 @@ jobs:
       image: runtime-glfw
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/glfw.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -173,14 +168,14 @@ jobs:
       image: runtime-sql
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/sql.Dockerfile
       files-to-diff: |
         \.npmrc
         modules/(core|rmm|cuda|cudf|sql)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=${{ env.UCX }}"
+        "UCX_VERSION=1.12.1"
 
   build-and-publish-runtime-main-image:
     name: Build runtime main image
@@ -194,14 +189,14 @@ jobs:
       image: runtime-main
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/main.Dockerfile
       files-to-diff: |
         \.npmrc
         modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=${{ env.UCX }}"
+        "UCX_VERSION=1.12.1"
 
   build-and-publish-runtime-demo-image:
     name: Build runtime demo image
@@ -215,14 +210,14 @@ jobs:
       image: runtime-demo
       build: devel-packages
       devel: devel-main
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/demo.Dockerfile
       files-to-diff: |
         \.npmrc
         modules/demo
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=${{ env.UCX }}"
+        "UCX_VERSION=1.12.1"
 
   build-and-publish-runtime-notebook-image:
     name: Build runtime notebook image
@@ -233,7 +228,7 @@ jobs:
     with:
       from_: runtime-demo
       image: runtime-notebook
-      node-version: "${{ env.NODE }}"
+      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/notebook.Dockerfile
       files-to-diff: |
         \.npmrc
