@@ -6,20 +6,14 @@ on:
       file:
         type: string
         required: true
-      node-version:
+      registry-url:
         type: string
-        required: false
-        default: "16.15.1"
-      push:
-        default: true
-        type: boolean
-        required: false
-      pull:
-        default: true
-        type: boolean
-        required: false
-      manual-build:
-        type: boolean
+        required: true
+      registry-username:
+        type: string
+        required: true
+      registry-password:
+        type: string
         required: true
       image:
         default: ""
@@ -37,26 +31,30 @@ on:
         default: ""
         type: string
         required: false
+      push:
+        default: true
+        type: boolean
+        required: false
+      pull:
+        default: true
+        type: boolean
+        required: false
       build-args:
         default: ""
         type: string
         required: false
+      manual-build:
+        type: boolean
+        default: false
+        required: false
+      node-version:
+        type: string
+        required: false
+        default: "16.15.1"
       files-to-diff:
         default: ""
         type: string
         required: false
-      registry-url:
-        type: string
-        required: false
-        default: ghcr.io
-      registry-username:
-        type: string
-        required: false
-        default: ${{ github.repository_owner }}
-      registry-password:
-        type: string
-        required: false
-        default: ${{ github.token }}
 
 jobs:
   build-and-publish-image:
@@ -71,7 +69,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}";
-          echo "is_gha_runner=${{ !contains(runner.name, 'runners-') }}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ !contains(runner.name, 'rapidsai') }}" >> $GITHUB_ENV;
 
       - name: Set up self-hosted runner
         if: ${{ env.is_gha_runner != 'true' }}
@@ -199,7 +197,7 @@ jobs:
           registry-username: ${{ inputs.registry-username }}
           registry-password: ${{ inputs.registry-password }}
           build-args: |
-            "${{ env.BUILD_ARGS }}"
+            ${{ env.BUILD_ARGS }}
             "NODE_VERSION=${{ env.NODE }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
