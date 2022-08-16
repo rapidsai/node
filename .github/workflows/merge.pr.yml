@@ -18,7 +18,6 @@ jobs:
     secrets: inherit
     with:
       image: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/devel/main.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
@@ -35,7 +34,6 @@ jobs:
     with:
       from_: devel-main
       image: devel-packages
-      node-version: "16.15.1"
       file: dev/dockerfiles/devel/package.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
@@ -56,7 +54,6 @@ jobs:
     with:
       image: runtime-base
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
@@ -92,7 +89,6 @@ jobs:
       image: runtime-cuml
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/cuml.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -111,7 +107,6 @@ jobs:
       image: runtime-cugraph
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/cugraph.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -130,7 +125,6 @@ jobs:
       image: runtime-cuspatial
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/cuspatial.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -149,7 +143,6 @@ jobs:
       image: runtime-glfw
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/glfw.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -168,7 +161,6 @@ jobs:
       image: runtime-sql
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/sql.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -189,7 +181,6 @@ jobs:
       image: runtime-main
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/main.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -210,7 +201,6 @@ jobs:
       image: runtime-demo
       build: devel-packages
       devel: devel-main
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/demo.Dockerfile
       files-to-diff: |
         \.npmrc
@@ -228,7 +218,6 @@ jobs:
     with:
       from_: runtime-demo
       image: runtime-notebook
-      node-version: "16.15.1"
       file: dev/dockerfiles/runtime/notebook.Dockerfile
       files-to-diff: |
         \.npmrc

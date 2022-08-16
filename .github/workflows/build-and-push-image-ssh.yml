@@ -17,7 +17,8 @@ on:
         required: true
       node-version:
         type: string
-        required: true
+        required: false
+        default: "16.15.1"
       push:
         default: true
         type: boolean
