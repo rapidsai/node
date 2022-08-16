@@ -147,15 +147,15 @@ jobs:
 
           echo "NODE=$NODE" >> $GITHUB_ENV;
           echo "VERSION=$VERSION" >> $GITHUB_ENV;
-          echo "image_type=$image_type >> $GITHUB_ENV;
-          echo "image_name=$image_name >> $GITHUB_ENV;
+          echo "image_type=$image_type" >> $GITHUB_ENV;
+          echo "image_name=$image_name" >> $GITHUB_ENV;
           echo "REPOSITORY=$REPOSITORY" >> $GITHUB_ENV;
           echo "files_changed=$files_changed" >> $GITHUB_ENV;
           echo "PARALLEL_LEVEL=$PARALLEL_LEVEL" >> $GITHUB_ENV;
           echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR >> $GITHUB_ENV;
-          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH" >> $GITHUB_ENV;
 
           echo "BUILD_ARGS<<EOF" >> $GITHUB_ENV;
 
@@ -214,7 +214,7 @@ jobs:
           CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}"
           CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY: "${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}"
           build-args: |
-            ${{ env.BUILD_ARGS }}
+            "${{ env.BUILD_ARGS }}"
             "NODE_VERSION=${{ env.NODE }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"

@@ -2,11 +2,6 @@ name: Build and push image
 
 on:
   workflow_call:
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
     inputs:
       file:
         type: string
@@ -143,15 +138,15 @@ jobs:
 
           echo "NODE=$NODE" >> $GITHUB_ENV;
           echo "VERSION=$VERSION" >> $GITHUB_ENV;
-          echo "image_type=$image_type >> $GITHUB_ENV;
-          echo "image_name=$image_name >> $GITHUB_ENV;
+          echo "image_type=$image_type" >> $GITHUB_ENV;
+          echo "image_name=$image_name" >> $GITHUB_ENV;
           echo "REPOSITORY=$REPOSITORY" >> $GITHUB_ENV;
           echo "files_changed=$files_changed" >> $GITHUB_ENV;
           echo "PARALLEL_LEVEL=$PARALLEL_LEVEL" >> $GITHUB_ENV;
           echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR >> $GITHUB_ENV;
-          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR" >> $GITHUB_ENV;
+          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH" >> $GITHUB_ENV;
 
           echo "BUILD_ARGS<<EOF" >> $GITHUB_ENV;
 
@@ -196,19 +191,15 @@ jobs:
         if: ${{ inputs.manual-build || env.files_changed == 'true' }}
         uses: ./.github/actions/build-and-publish-image
         with:
-          home: ${{ env.HOME }}
           pull: ${{ inputs.pull }}
           push: ${{ inputs.push }}
           file: ${{ inputs.file }}
-          temp: ${{ runner.temp }}
           tags: ${{ env.IMAGE_NAME }}
           registry-url: ${{ inputs.registry-url }}
           registry-username: ${{ inputs.registry-username }}
           registry-password: ${{ inputs.registry-password }}
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           build-args: |
-            ${{ env.BUILD_ARGS }}
+            "${{ env.BUILD_ARGS }}"
             "NODE_VERSION=${{ env.NODE }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
