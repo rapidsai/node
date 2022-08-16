@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cudf",
-  "version": "22.6.0",
+  "version": "22.6.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "types": "build/js",
@@ -36,8 +36,8 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cuda": "22.6.0",
-    "@rapidsai/rmm": "22.6.0",
+    "@rapidsai/cuda": "22.6.1",
+    "@rapidsai/rmm": "22.6.1",
     "apache-arrow": "^8.0.0"
   },
   "devDependencies": {
