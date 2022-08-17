@@ -33,7 +33,7 @@ permissions:
 jobs:
 
   extract-and-publish-packages:
-    name: Extract and publish packages
+    name: Extract libs and publish release
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
@@ -43,7 +43,7 @@ jobs:
         NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
-      - name: Extract node native modules
+      - name: Extract node native addons
         shell: bash
         run: |
           set -x;
@@ -77,14 +77,14 @@ jobs:
 
           rm -rf build/*.tar.gz;
 
-      - name: Upload node native modules
+      - name: Upload node native addons
         uses: actions/upload-artifact@v2
         if: ${{ inputs.make-release != true }}
         with:
           path: |
             build/*.jar
             build/*.node
-          name: rapidsai-native-modules
+          name: rapidsai-native-addons
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
@@ -99,6 +99,7 @@ jobs:
           draft: ${{ inputs.draft-release == true }}
 
   publish-npm-packages:
+    name: Publish npm packages
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
