@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/rmm",
-  "version": "22.6.2",
+  "version": "22.6.3",
   "description": "RMM - NVIDIA RAPIDS Memory Manager",
   "main": "index.js",
   "types": "build/js",
@@ -45,7 +45,7 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cuda": "~22.6.2"
+    "@rapidsai/cuda": "~22.6.3"
   },
   "files": [
     "LICENSE",

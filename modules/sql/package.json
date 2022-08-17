@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/sql",
-  "version": "22.6.2",
+  "version": "22.6.3",
   "description": "NVIDIA RAPIDS In-memory GPU accelerated SQL Queries",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -45,7 +45,7 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cudf": "~22.6.2",
+    "@rapidsai/cudf": "~22.6.3",
     "@types/java": "0.9.1",
     "java": "0.12.2",
     "nanoid": "3.1.31"
