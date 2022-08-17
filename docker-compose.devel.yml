@@ -31,10 +31,9 @@ x-main-service-settings: &main_service_settings
     DISPLAY: "${DISPLAY:-}"
     XAUTHORITY: "${XAUTHORITY:-}"
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
-    VERSION: "${npm_package_version:-22.6.2}"
-    RAPIDS_VERSION: "${RAPIDS_VERSION:-22.06.00}"
     XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/rapids/node/.cache/jit"
+    RAPIDS_VERSION: "${npm_package_config_rapids_version:-22.06.00}"
     DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
   cap_add:
     - SYS_ADMIN
@@ -57,7 +56,7 @@ services:
         NODE_VERSION: ${NODE_VERSION:-16.15.1}
         LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
-        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
+        ARM64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
     environment:
       <<: *main_environment_settings
       SSH_AUTH_SOCK: "/ssh-agent"
@@ -110,10 +109,10 @@ services:
         CUDAARCHS: "${CUDAARCHS:-ALL}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
         NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:-}"
-        RAPIDS_VERSION: "${RAPIDS_VERSION:-22.06.00}"
         SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
+        RAPIDS_VERSION: "${npm_package_config_rapids_version:-22.06.00}"
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.6.2}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-main
 
 secrets:
