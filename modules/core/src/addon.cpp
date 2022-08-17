@@ -41,12 +41,16 @@ struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cor
   Napi::Value get_cuda_driver_version(Napi::CallbackInfo const& info) {
     auto env = info.Env();
     int32_t cuda_version{};
-    nvmlSystemGetCudaDriverVersion(&cuda_version);
     auto ary = Napi::Array::New(env, 2);
-    ary.Set(0u,
-            Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MAJOR(cuda_version))));
-    ary.Set(1u,
-            Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MINOR(cuda_version))));
+    if (nvmlSystemGetCudaDriverVersion(&cuda_version) == NVML_SUCCESS && cuda_version > 0) {
+      ary.Set(0u,
+              Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MAJOR(cuda_version))));
+      ary.Set(1u,
+              Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MINOR(cuda_version))));
+    } else {
+      ary.Set(0u, Napi::String::New(env, ""));
+      ary.Set(1u, Napi::String::New(env, ""));
+    }
     return ary;
   }
 
@@ -73,7 +77,6 @@ struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cor
     }
 
     return Napi::Array::New(env, 0);
-    ;
   }
 };
 
