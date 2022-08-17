@@ -1,13 +1,22 @@
 {
   "name": "@rapidsai/cudf",
   "version": "22.6.2",
+  "description": "cuDF - NVIDIA RAPIDS GPU DataFrame Library",
   "license": "Apache-2.0",
-  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "main": "index.js",
   "types": "build/js",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "main": "index.js",
+  "homepage": "https://github.com/rapidsai/node/tree/main/modules/cudf#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "scripts": {
     "install": "npx rapidsai-install-native-module",
     "clean": "rimraf build doc compile_commands.json",

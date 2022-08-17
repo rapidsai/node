@@ -7,6 +7,14 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
+  "homepage": "https://github.com/rapidsai/node#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "scripts": {
     "build": "scripts/exec.js run build --concurrency 1",
     "build:debug": "scripts/exec.js run build:debug --concurrency 1",

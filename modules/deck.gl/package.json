@@ -1,13 +1,22 @@
 {
   "name": "@rapidsai/deck.gl",
   "version": "22.6.2",
+  "description": "NVIDIA RAPIDS deck.gl components and utilities",
   "license": "Apache-2.0",
+  "main": "index.js",
+  "types": "build/js",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "main": "index.js",
-  "types": "build/js",
+  "homepage": "https://github.com/rapidsai/node/tree/main/modules/deck.gl#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "scripts": {
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",

@@ -9,6 +9,14 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
+  "homepage": "https://github.com/rapidsai/node/tree/main/modules/core#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "bin": {
     "nvidia-cmake-js": "bin/exec_cmake.js",
     "rapidsai-install-native-module": "bin/rapidsai_install_native_module.js"

@@ -1,13 +1,22 @@
 {
   "name": "@rapidsai/cuspatial",
   "version": "22.6.2",
+  "description": "cuSpatial - NVIDIA RAPIDS GIS and Spatiotemporal Analytics Library",
   "license": "Apache-2.0",
+  "main": "index.js",
+  "types": "build/js",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "main": "index.js",
-  "types": "build/js",
+  "homepage": "https://github.com/rapidsai/node/tree/main/modules/cuspatial#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "scripts": {
     "install": "npx rapidsai-install-native-module",
     "clean": "rimraf build doc compile_commands.json",
