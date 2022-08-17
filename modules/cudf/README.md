@@ -1,4 +1,10 @@
-# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids cuDF - GPU DataFrames
+# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids cuDF - GPU DataFrames</div>
+
+### Installation
+
+`npm install @rapidsai/cudf`
+
+### About
 
 The js bindings for [cuDF](https://github.com/rapidsai/cudf) provides an API that will be familiar to data engineers & data scientists, so they can use it to easily accelerate their workflows in a Javascript runtime environment, without going into the details of CUDA programming.
 
@@ -37,20 +43,3 @@ console.log(...groups["offsets"]); // [0,1,2,3,4,5,6]
 ```
 
 For detailed node-cuDF API, follow our [API Documentation](https://rapidsai.github.io/node/modules/cudf_src.html).
-
-### Installation
-
-`npm install @rapidsai/cudf`
-
-Run this command to build the module from the mono-repo root
-
-```bash
-# To build
-npx lerna run build --scope="@rapidsai/cudf" --stream
-
-# To rebuild
-npx lerna run rebuild --scope="@rapidsai/cudf" --stream
-
-# To run unit tests
-npx lerna run test --scope="@rapidsai/cudf"
-```

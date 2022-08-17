@@ -1,20 +1,11 @@
-# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids io - GPU-Accelerated IO
-
-For detailed IO API, follow our [API Documentation](https://rapidsai.github.io/node/modules/io_src.html).
+# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids io - GPU-Accelerated IO</div>
 
 ### Installation
 
 `npm install @rapidsai/io`
 
-Run this command to build the module from the mono-repo root
+### About
 
-```bash
-# To build
-npx lerna run build --scope="@rapidsai/io" --stream
+JS bindings providing GPU-accelerated I/O primitives.
 
-# To rebuild
-npx lerna run rebuild --scope="@rapidsai/io" --stream
-
-# To run unit tests
-npx lerna run test --scope="@rapidsai/io"
-```
+For detailed IO API, follow our [API Documentation](https://rapidsai.github.io/node/modules/io_src.html).

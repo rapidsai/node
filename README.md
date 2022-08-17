@@ -1,4 +1,4 @@
-# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids
+# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids</div>
 
 [`node-rapids`](https://github.com/rapidsai/node) is a collection of Node.js native addons for the [NVIDIA RAPIDS](https://rapids.ai/) suite of GPU-accelerated data-science and ETL libraries on Linux and WSL2.
 
@@ -43,8 +43,8 @@ Check out our [demos](https://github.com/rapidsai/node/tree/main/modules/demo) t
 * [Querying millions of points with cuSpatial](https://github.com/rapidsai/node/tree/main/modules/demo/spatial/)
 * [Multi-GPU SQL queries on GBs of CSVs](https://github.com/rapidsai/node/tree/main/modules/demo/sql/sql-cluster-server/)
 
-Check out our [Jupyter Lab Notebook Demos](https://github.com/rapidsai/node/tree/main/modules/cudf/notebooks) to see how to use Node.js for GPU accelerated data science.  
-  
+Check out our [Jupyter Lab Notebook Demos](https://github.com/rapidsai/node/tree/main/modules/cudf/notebooks) to see how to use Node.js for GPU accelerated data science.
+
 ## License
 
 This work is licensed under the [Apache-2.0 license](https://github.com/rapidsai/node/tree/main/LICENSE).

@@ -1,4 +1,10 @@
-# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids GPU accelerated SQL engine
+# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids GPU accelerated SQL engine</div>
+
+### Installation
+
+`npm install @rapidsai/sql`
+
+### About
 
 These js bindings allow for GPU accelerated SQL queries.
 
@@ -34,20 +40,3 @@ await sqlCluster.sql('SELECT a FROM test_table WHERE a LIKE \'%foo%\'');  // ['f
 ```
 
 For detailed SQL API, [follow our API Documentation](https://rapidsai.github.io/node/modules/sql_src.html).
-
-### Installation
-
-`npm install @rapidsai/sql`
-
-Run this command to build the module from the mono-repo root
-
-```bash
-# To build
-npx lerna run build --scope="@rapidsai/sql" --stream
-
-# To rebuild
-npx lerna run rebuild --scope="@rapidsai/sql" --stream
-
-# To run unit tests
-npx lerna run test --scope="@rapidsai/sql"
-```
