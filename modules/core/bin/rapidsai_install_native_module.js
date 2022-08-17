@@ -64,7 +64,20 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
     }
   })();
   const gpu_arch = getArchFromComputeCapabilities();
-  const cuda_ver = `cuda${getCudaDriverVersion()[0]}`;
+  const cuda_ver = `cuda${
+    (() => {
+      if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
+        return process.env.RAPIDSAI_CUDA_VERSION;
+      }
+      if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
+        return process.env.CUDA_VERSION_MAJOR;
+      }
+      if (typeof process.env.CUDA_VERSION !== 'undefined') {
+        return process.env.CUDA_VERSION.split('.')[0];
+      }
+      return getCudaDriverVersion()[0];
+    })() ||
+    '11'}`;
   const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');
   const MOD_NAME =
     [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `arch${gpu_arch}` : ``]
@@ -131,7 +144,11 @@ function fetch(options = {}, numRedirects = 0) {
                resolve(res);
              } else {
                res.on('error', (e) => {}).destroy();
-               reject(res.statusCode);
+               reject({
+                 statusCode: res.statusCode,
+                 statusMessage: res.statusMessage,
+                 url: new URL(options.path, `https://${options.hostname}`),
+               });
              }
            })
       .on('error', (e) => {})

@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/core",
-  "version": "22.6.1",
+  "version": "22.6.2",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",
   "types": "build/js",
@@ -9,12 +9,21 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
+  "homepage": "https://github.com/rapidsai/node/tree/main/modules/core#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "bin": {
     "nvidia-cmake-js": "bin/exec_cmake.js",
     "rapidsai-install-native-module": "bin/rapidsai_install_native_module.js"
   },
   "scripts": {
-    "postinstall": "nvidia-cmake-js install",
+    "install": "npx rapidsai-install-native-module",
+    "postinstall": "npx nvidia-cmake-js install",
     "clean": "rimraf build compile_commands.json",
     "build": "yarn tsc:build && yarn cpp:build",
     "build:debug": "yarn tsc:build && yarn cpp:build:debug",
@@ -22,20 +31,21 @@
     "compile:debug": "yarn tsc:build && yarn cpp:compile:debug",
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
-    "cpp:clean": "nvidia-cmake-js clean",
-    "cpp:clean:debug": "nvidia-cmake-js clean -D",
-    "cpp:build": "nvidia-cmake-js build -g",
-    "cpp:build:debug": "nvidia-cmake-js build -g -D",
-    "cpp:compile": "nvidia-cmake-js compile -g",
-    "cpp:compile:debug": "nvidia-cmake-js compile -g -D",
-    "cpp:configure": "nvidia-cmake-js configure -g",
-    "cpp:configure:debug": "nvidia-cmake-js configure -g -D",
-    "cpp:rebuild": "nvidia-cmake-js rebuild -g",
-    "cpp:rebuild:debug": "nvidia-cmake-js rebuild -g -D",
+    "cpp:clean": "npx nvidia-cmake-js clean",
+    "cpp:clean:debug": "npx nvidia-cmake-js clean -D",
+    "cpp:build": "npx nvidia-cmake-js build -g",
+    "cpp:build:debug": "npx nvidia-cmake-js build -g -D",
+    "cpp:compile": "npx nvidia-cmake-js compile -g",
+    "cpp:compile:debug": "npx nvidia-cmake-js compile -g -D",
+    "cpp:configure": "npx nvidia-cmake-js configure -g",
+    "cpp:configure:debug": "npx nvidia-cmake-js configure -g -D",
+    "cpp:rebuild": "npx nvidia-cmake-js rebuild -g",
+    "cpp:rebuild:debug": "npx nvidia-cmake-js rebuild -g -D",
     "cpp:reconfigure": "yarn cpp:clean && nvidia-cmake-js configure -g",
     "cpp:reconfigure:debug": "yarn cpp:clean && nvidia-cmake-js configure -g -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
+    "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
     "@types/node": "^15.0.0",
@@ -65,7 +75,6 @@
     "package.json",
     "CMakeLists.txt",
     "include/nv_node",
-    "build/js",
-    "build/Release/*.node"
+    "build/js"
   ]
 }

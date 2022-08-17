@@ -1,15 +1,24 @@
 {
   "name": "@rapidsai/cuml",
-  "version": "22.6.1",
+  "version": "22.6.2",
+  "description": "cuML - NVIDIA RAPIDS Machine Learning Library",
   "license": "Apache-2.0",
+  "main": "index.js",
+  "types": "build/js",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "main": "index.js",
-  "types": "build/js",
+  "homepage": "https://github.com/rapidsai/node/tree/main/modules/cuml#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "scripts": {
-    "install": "rapidsai-install-native-module",
+    "install": "npx rapidsai-install-native-module",
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
     "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
@@ -19,16 +28,16 @@
     "compile:debug": "yarn tsc:build && yarn cpp:compile:debug",
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
-    "cpp:clean": "nvidia-cmake-js clean",
-    "cpp:clean:debug": "nvidia-cmake-js clean -D",
-    "cpp:build": "nvidia-cmake-js build -g",
-    "cpp:build:debug": "nvidia-cmake-js build -g -D",
-    "cpp:compile": "nvidia-cmake-js compile -g",
-    "cpp:compile:debug": "nvidia-cmake-js compile -g -D",
-    "cpp:configure": "nvidia-cmake-js configure -g",
-    "cpp:configure:debug": "nvidia-cmake-js configure -g -D",
-    "cpp:rebuild": "nvidia-cmake-js rebuild -g",
-    "cpp:rebuild:debug": "nvidia-cmake-js rebuild -g -D",
+    "cpp:clean": "npx nvidia-cmake-js clean",
+    "cpp:clean:debug": "npx nvidia-cmake-js clean -D",
+    "cpp:build": "npx nvidia-cmake-js build -g",
+    "cpp:build:debug": "npx nvidia-cmake-js build -g -D",
+    "cpp:compile": "npx nvidia-cmake-js compile -g",
+    "cpp:compile:debug": "npx nvidia-cmake-js compile -g -D",
+    "cpp:configure": "npx nvidia-cmake-js configure -g",
+    "cpp:configure:debug": "npx nvidia-cmake-js configure -g -D",
+    "cpp:rebuild": "npx nvidia-cmake-js rebuild -g",
+    "cpp:rebuild:debug": "npx nvidia-cmake-js rebuild -g -D",
     "cpp:reconfigure": "yarn cpp:clean && nvidia-cmake-js configure -g",
     "cpp:reconfigure:debug": "yarn cpp:clean && nvidia-cmake-js configure -g -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
@@ -36,7 +45,7 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cudf": "22.6.1"
+    "@rapidsai/cudf": "~22.6.2"
   },
   "files": [
     "LICENSE",

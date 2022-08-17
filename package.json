@@ -1,12 +1,20 @@
 {
   "private": true,
   "name": "node-rapids",
-  "version": "22.6.1",
+  "version": "22.6.2",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
+  "homepage": "https://github.com/rapidsai/node#readme",
+  "bugs": {
+    "url": "https://github.com/rapidsai/node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapidsai/node.git"
+  },
   "scripts": {
     "build": "scripts/exec.js run build --concurrency 1",
     "build:debug": "scripts/exec.js run build:debug --concurrency 1",
@@ -67,7 +75,8 @@
     "postinstall": "yarn dev:relink-bin-dirs",
     "test": "scripts/exec.js test",
     "tsc:build": "scripts/exec.js run tsc:build",
-    "tsc:watch": "scripts/exec.js run tsc:watch --parallel"
+    "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
+    "postversion": "scripts/exec.js postversion"
   },
   "workspaces": [
     "modules/*",
