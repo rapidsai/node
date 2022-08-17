@@ -79,12 +79,7 @@ jobs:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
-            lerna\.json
-            package\.json
             dev/dockerfiles/devel/main\.Dockerfile
-            \.github/workflows/main\.pr\.yml
-            \.github/workflows/merge\.pr\.yml
-            \.github/actions/build-and-publish-image/action\.yml
 
       - name: Update runner env
         env:
@@ -175,7 +170,8 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          if [[ ${dev_changed} == 'true' ]]; then
+          has_image="$(docker pull -q --platform linux/amd64 ${MAIN_IMG} && echo 1 || echo 0)";
+          if [[ ${has_image} == '0' || ${dev_changed} == 'true' ]]; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
             docker build --pull --force-rm \
