@@ -75,7 +75,8 @@
     "postinstall": "yarn dev:relink-bin-dirs",
     "test": "scripts/exec.js test",
     "tsc:build": "scripts/exec.js run tsc:build",
-    "tsc:watch": "scripts/exec.js run tsc:watch --parallel"
+    "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
+    "postversion": "scripts/exec.js postversion"
   },
   "workspaces": [
     "modules/*",
