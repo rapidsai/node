@@ -45,7 +45,7 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/core": "22.6.2"
+    "@rapidsai/core": "~22.6.2"
   },
   "files": [
     "LICENSE",

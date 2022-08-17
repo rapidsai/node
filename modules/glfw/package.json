@@ -43,8 +43,8 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@rapidsai/core": "22.6.2",
-    "@rapidsai/webgl": "22.6.2"
+    "@rapidsai/core": "~22.6.2",
+    "@rapidsai/webgl": "~22.6.2"
   },
   "files": [
     "LICENSE",

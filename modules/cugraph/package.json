@@ -45,10 +45,10 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cudf": "22.6.2"
+    "@rapidsai/cudf": "~22.6.2"
   },
   "devDependencies": {
-    "@rapidsai/cuml": "22.6.2"
+    "@rapidsai/cuml": "~22.6.2"
   },
   "files": [
     "LICENSE",

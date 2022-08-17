@@ -14,8 +14,8 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@rapidsai/glfw": "22.6.2",
-    "@rapidsai/jsdom": "22.6.2"
+    "@rapidsai/glfw": "~22.6.2",
+    "@rapidsai/jsdom": "~22.6.2"
   },
   "files": [
     "lessons",

@@ -33,9 +33,9 @@
     "@luma.gl/core": "8.5.10",
     "@luma.gl/engine": "8.5.10",
     "@luma.gl/webgl": "8.5.10",
-    "@rapidsai/core": "22.6.2",
-    "@rapidsai/cuda": "22.6.2",
-    "@rapidsai/cudf": "22.6.2",
+    "@rapidsai/core": "~22.6.2",
+    "@rapidsai/cuda": "~22.6.2",
+    "@rapidsai/cudf": "~22.6.2",
     "mjolnir.js": "2.6.0"
   },
   "files": [

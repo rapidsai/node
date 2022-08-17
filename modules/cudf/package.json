@@ -45,8 +45,8 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cuda": "22.6.2",
-    "@rapidsai/rmm": "22.6.2",
+    "@rapidsai/cuda": "~22.6.2",
+    "@rapidsai/rmm": "~22.6.2",
     "apache-arrow": "^8.0.0"
   },
   "devDependencies": {
