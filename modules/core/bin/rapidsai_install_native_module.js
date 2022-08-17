@@ -79,10 +79,9 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
     })() ||
     '11'}`;
   const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');
-  const MOD_NAME =
-    [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `arch${gpu_arch}` : ``]
-      .filter(Boolean)
-      .join('-');
+  const MOD_NAME = [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `sm${gpu_arch}` : ``]
+                     .filter(Boolean)
+                     .join('-');
 
   await Promise.all([
     [

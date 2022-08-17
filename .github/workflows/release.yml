@@ -5,7 +5,7 @@ on:
     inputs:
       rapids-version:
         type: string
-        default: "22.6.2"
+        default: "22.6.3"
         description: "RAPIDS version"
       make-release:
         type: boolean
@@ -24,7 +24,7 @@ env:
   RAPIDS: "${{ inputs.rapids-version }}"
 
 concurrency:
-  group: create_github_release
+  group: release-${{ inputs.rapids-version }}
   cancel-in-progress: true
 
 permissions:
@@ -64,11 +64,11 @@ jobs:
                   --wildcards --strip-components=2 \
                   -C build -x "*/rapidsai_${x}*.node" \
                   --transform="s/rapidsai_${x}.node/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}.node/" \
-                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch60/" \
-                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch70/" \
-                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch75/" \
-                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch80/" \
-                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-arch86/" ;
+                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm60/" \
+                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm70/" \
+                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm75/" \
+                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm80/" \
+                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm86/" ;
           done;
 
           tar -zf build/rapidsai_sql-*.tar.gz \
@@ -99,6 +99,7 @@ jobs:
           draft: ${{ inputs.draft-release == true }}
 
   publish-npm-packages:
+    if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
     name: Publish npm packages
     runs-on: ubuntu-20.04
     strategy:
@@ -110,7 +111,6 @@ jobs:
         LINUX: ["ubuntu20.04"]
     steps:
       - name: Publish npm packages
-        if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
         shell: bash
         env:
           NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
@@ -129,5 +129,4 @@ jobs:
             sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
 
           echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > "$HOME/.npmrc"
-          npm whoami
           find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public ./{} \;

@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/demo-client-server",
-  "version": "22.6.2",
+  "version": "22.6.3",
   "private": true,
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [

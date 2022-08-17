@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-plot",
-  "version": "22.6.2",
+  "version": "22.6.3",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -15,7 +15,7 @@
   "dependencies": {
     "@deck.gl/core": "8.6.6",
     "@deck.gl/react": "8.6.6",
-    "@rapidsai/jsdom": "~22.6.2",
+    "@rapidsai/jsdom": "~22.6.3",
     "d3-scale": "2.2.2",
     "mjolnir.js": "2.6.0",
     "react": "17.0.2",
