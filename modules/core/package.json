@@ -14,6 +14,7 @@
     "rapidsai-install-native-module": "bin/rapidsai_install_native_module.js"
   },
   "scripts": {
+    "install": "npx rapidsai-install-native-module",
     "postinstall": "npx nvidia-cmake-js install",
     "clean": "rimraf build compile_commands.json",
     "build": "yarn tsc:build && yarn cpp:build",
@@ -35,7 +36,8 @@
     "cpp:reconfigure": "yarn cpp:clean && nvidia-cmake-js configure -g",
     "cpp:reconfigure:debug": "yarn cpp:clean && nvidia-cmake-js configure -g -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
+    "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
     "@types/node": "^15.0.0",
@@ -65,7 +67,6 @@
     "package.json",
     "CMakeLists.txt",
     "include/nv_node",
-    "build/js",
-    "build/Release/*.node"
+    "build/js"
   ]
 }
