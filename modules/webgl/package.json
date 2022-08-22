@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/webgl",
-  "version": "22.6.3",
+  "version": "22.8.0",
   "description": "NVIDIA RAPIDS OpenGL bindings exposed to node as WebGL2 APIs",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -43,7 +43,7 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@rapidsai/core": "~22.6.3"
+    "@rapidsai/core": "~22.8.0"
   },
   "files": [
     "LICENSE",

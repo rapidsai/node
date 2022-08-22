@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cuspatial",
-  "version": "22.6.3",
+  "version": "22.8.0",
   "description": "cuSpatial - NVIDIA RAPIDS GIS and Spatiotemporal Analytics Library",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -45,7 +45,7 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cudf": "~22.6.3"
+    "@rapidsai/cudf": "~22.8.0"
   },
   "files": [
     "LICENSE",

@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-sql-cluster-server",
-  "version": "22.6.3",
+  "version": "22.8.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -18,8 +18,8 @@
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
     "@material-ui/pickers": "3.3.10",
-    "@rapidsai/cudf": "~22.6.3",
-    "@rapidsai/sql": "~22.6.3",
+    "@rapidsai/cudf": "~22.8.0",
+    "@rapidsai/sql": "~22.8.0",
     "apache-arrow": "^8.0.0",
     "axios": "0.22.0",
     "bootstrap": "4.6.0",
