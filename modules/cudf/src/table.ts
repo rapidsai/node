@@ -14,6 +14,7 @@
 
 import {MemoryData} from '@rapidsai/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
+import {Field} from 'apache-arrow';
 
 import CUDF from './addon';
 import {Column} from './column';
@@ -63,7 +64,7 @@ export interface TableConstructor {
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a Table and a list of column names.
    */
-  fromArrow(memory: DeviceBuffer|MemoryData): {names: string[], table: Table};
+  fromArrow(memory: DeviceBuffer|MemoryData): {table: Table, fields: Field[]};
 
   /**
    * Returns tables concatenated to each other.

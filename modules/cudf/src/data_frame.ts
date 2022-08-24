@@ -182,9 +182,22 @@ export class DataFrame<T extends TypeMap = any> {
       memory = new Uint8Buffer(memory);
     }
     if (memory instanceof MemoryView) { memory = memory.buffer; }
-    const {names, table} = Table.fromArrow(memory);
-    return new DataFrame(new ColumnAccessor(names.reduce(
-      (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
+    const {table, fields} = Table.fromArrow(memory);
+    const colToSeries = (field: arrow.Field, col: Column): Series<any> => {
+      return Series.new({
+        type: field.type,
+        data: col.data,
+        offset: col.offset,
+        length: col.length,
+        nullMask: col.mask,
+        nullCount: col.nullCount,
+        children: (field.type.children as arrow.Field[] ?? [])
+                    .map((f, i) => colToSeries(f, col.getChild(i))),
+      });
+    };
+    return new DataFrame(fields.reduce((seriesMap, f, i) => {
+      return ({...seriesMap, [f.name]: colToSeries(f, table.getColumnByIndex(i))});
+    }, {} as SeriesMap<T>));
   }
 
   declare private _accessor: ColumnAccessor<T>;
