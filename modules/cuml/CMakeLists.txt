@@ -141,8 +141,6 @@ generate_arch_specific_custom_targets(
   DEPENDENCIES "cudf::cudf"
                "cuml::cuml++"
                "faiss::faiss"
-               "raft_nn_lib"
-               "raft_distance_lib"
                "raft::raft_nn_lib"
                "raft::raft_distance_lib"
 )

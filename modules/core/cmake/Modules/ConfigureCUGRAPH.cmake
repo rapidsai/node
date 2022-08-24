@@ -26,9 +26,9 @@ function(find_and_configure_cugraph)
 
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(raft raft)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cugraph cugraph)
     _set_package_dir_if_exists(cuhornet cuhornet)
     _set_package_dir_if_exists(cugraph-ops cugraph-ops)

@@ -25,10 +25,10 @@ function(find_and_configure_cuml)
 
     _clean_build_dirs_if_not_fully_built(cuml libcuml++)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cuml cuml)
     _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(faiss faiss)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(Treelite cuml)
     _set_package_dir_if_exists(GPUTreeShap cuml)
     _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)

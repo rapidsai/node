@@ -20,24 +20,23 @@ function(find_and_configure_cudf)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureRMM.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureArrow.cmake)
 
     _get_rapidsai_module_version(cudf VERSION)
 
     _clean_build_dirs_if_not_fully_built(cudf libcudf)
     _clean_build_dirs_if_not_fully_built(nvcomp libnvcomp)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
-    _set_package_dir_if_exists(Thrust thrust)
-
-    # Set this so Arrow doesn't add `-Werror` to
-    # CMAKE_CXX_FLAGS when CMAKE_BUILD_TYPE=Debug
-    set(BUILD_WARNING_LEVEL "PRODUCTION")
-    set(BUILD_WARNING_LEVEL "PRODUCTION" PARENT_SCOPE)
-    set(BUILD_WARNING_LEVEL "PRODUCTION" CACHE STRING "" FORCE)
+    _set_package_dir_if_exists(Arrow arrow)
+    _set_package_dir_if_exists(Parquet arrow)
+    _set_package_dir_if_exists(ArrowCUDA arrow)
+    _set_package_dir_if_exists(ArrowDataset arrow)
 
     if(NOT TARGET cudf::cudf)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
@@ -78,6 +77,7 @@ function(find_and_configure_cudf)
     set(cudf_VERSION "${cudf_VERSION}" PARENT_SCOPE)
 
     _set_package_dir_if_exists(nvcomp nvcomp)
+    find_package(nvcomp)
     set_target_properties(nvcomp
         PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${nvcomp_ROOT}"
                    LIBRARY_OUTPUT_DIRECTORY "${nvcomp_ROOT}")

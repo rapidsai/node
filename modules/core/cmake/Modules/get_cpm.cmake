@@ -19,12 +19,12 @@ if(DEFINED CPM_SOURCE_CACHE AND
   (DEFINED CPM_DOWNLOAD_VERSION) AND
   (DEFINED CPM_DOWNLOAD_LOCATION))
     if(DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-        message(STATUS "get_cpm: CPM already loaded")
+        message(VERBOSE "get_cpm: CPM already loaded")
         return()
     endif()
     if(DEFINED CPM_BINARY_CACHE AND
       (DEFINED ENV{CPM_BINARY_CACHE}))
-      message(STATUS "get_cpm: CPM already loaded")
+      message(VERBOSE "get_cpm: CPM already loaded")
       return()
   endif()
 endif()
@@ -38,7 +38,7 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
 
     set(CPM_SOURCE_CACHE "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
     set(ENV{CPM_SOURCE_CACHE} "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
-    message(STATUS "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
+    message(VERBOSE "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
 
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_binary_cache_path"
@@ -48,9 +48,9 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
 
     set(CPM_BINARY_CACHE "${NODE_RAPIDS_CPM_BINARY_CACHE}/${CMAKE_BUILD_TYPE}")
     set(ENV{CPM_BINARY_CACHE} "${CPM_BINARY_CACHE}")
-    message(STATUS "get_cpm: Using CPM BINARY cache: $ENV{CPM_BINARY_CACHE}")
+    message(VERBOSE "get_cpm: Using CPM BINARY cache: $ENV{CPM_BINARY_CACHE}")
 
-    message(STATUS "get_cpm: Using CMake FetchContent base dir: ${CPM_BINARY_CACHE}")
+    message(VERBOSE "get_cpm: Using CMake FetchContent base dir: ${CPM_BINARY_CACHE}")
     set(FETCHCONTENT_BASE_DIR "${CPM_BINARY_CACHE}" CACHE STRING "" FORCE)
 endif()
 
@@ -69,11 +69,35 @@ execute_process(COMMAND node -p
 
 rapids_cpm_init(OVERRIDE "${NODE_RAPIDS_CMAKE_MODULES_PATH}/../versions.json")
 
+function(_set_thrust_dir_if_exists)
+    if(Thrust_ROOT)
+      message(STATUS "get_cpm: Thrust_ROOT is '${Thrust_ROOT}'")
+      return()
+    endif()
+    if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+        file(GLOB _thrust_srcs "${CPM_SOURCE_CACHE}/thrust/*/thrust" LIST_DIRECTORIES TRUE)
+        foreach(_thrust_src IN LISTS _thrust_srcs)
+            if(_thrust_src AND (EXISTS "${_thrust_src}/cmake"))
+                message(STATUS "get_cpm: setting Thrust_ROOT to '${_thrust_src}/cmake'")
+                set(Thrust_DIR "${_thrust_src}/cmake" PARENT_SCOPE)
+                set(Thrust_ROOT "${_thrust_src}/cmake" PARENT_SCOPE)
+                break()
+            else()
+                if(NOT _thrust_src)
+                  set(_thrust_src "thrust/cmake")
+                endif()
+                message(STATUS "get_cpm: not setting Thrust_ROOT because '${_thrust_src}' does not exist")
+            endif()
+        endforeach()
+    endif()
+endfunction()
+
 function(_set_package_dir_if_exists pkg dir)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
         set(_build_dir "${CPM_BINARY_CACHE}/${dir}-build")
         if(EXISTS "${_build_dir}")
             message(STATUS "get_cpm: setting ${pkg}_ROOT to '${_build_dir}'")
+            set(${pkg}_DIR "${_build_dir}" PARENT_SCOPE)
             set(${pkg}_ROOT "${_build_dir}" PARENT_SCOPE)
         else()
             message(STATUS "get_cpm: not setting ${pkg}_ROOT because '${_build_dir}' does not exist")

@@ -25,12 +25,12 @@ function(find_and_configure_cuspatial)
 
     _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
