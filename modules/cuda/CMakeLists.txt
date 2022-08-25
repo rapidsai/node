@@ -83,9 +83,9 @@ target_compile_definitions(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                PUBLIC ${CMAKE_JS_LIB}
                       CUDA::nvrtc
-                      CUDA::cudart
-                      CUDA::nppig
-                      CUDA::nppicc
+                      CUDA::cudart_static
+                      CUDA::nppig_static
+                      CUDA::nppicc_static
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
 
 include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")

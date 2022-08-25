@@ -45,6 +45,9 @@ function(find_and_configure_cumlprims_mg)
     # Make sure consumers of our libs can see cumlprims_mg::cumlprims_mg
     _fix_cmake_global_defaults(cumlprims_mg::cumlprims_mg)
 
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cumlprims_mg::cumlprims_mg)
+
     set(cumlprims_mg_VERSION "${cumlprims_mg_VERSION}" PARENT_SCOPE)
 endfunction()
 

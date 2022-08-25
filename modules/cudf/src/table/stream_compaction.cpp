@@ -83,9 +83,14 @@ Table::wrapper_t Table::distinct(std::vector<cudf::size_type> keys,
                                  rmm::mr::device_memory_resource* mr) const {
   cudf::null_equality nulls_equal =
     is_nulls_equal ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+  cudf::nan_equality nans_equal =
+    is_nulls_equal ? cudf::nan_equality::ALL_EQUAL : cudf::nan_equality::UNEQUAL;
 
   try {
-    return Table::New(Env(), cudf::distinct(*this, keys, nulls_equal, mr));
+    return Table::New(
+      Env(),
+      cudf::distinct(
+        *this, keys, cudf::duplicate_keep_option::KEEP_ANY, nulls_equal, nans_equal, mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

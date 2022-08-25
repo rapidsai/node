@@ -51,19 +51,41 @@ const extraFiles = process.argv.slice(2);
 const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', 'Release');
 
 (async () => {
-  const distro   = await (async () => {
-    const {dist = '', release = ''} = await getOS();
-    return dist.toLowerCase() + release;
-  })();
-  const cpu_arch = (() => {
-    switch (require('os').arch()) {
-      case 'x64': return 'amd64';
-      case 'arm': return 'aarch64';
-      case 'arm64': return 'aarch64';
-      default: return 'amd64';
-    }
-  })();
-  const gpu_arch = getArchFromComputeCapabilities();
+  const distro   = typeof process.env.RAPIDSAI_LINUX_DISTRO !== 'undefined'
+                     ? process.env.RAPIDSAI_LINUX_DISTRO
+                     : await (async () => {
+                       const {dist = '', release = ''} = await getOS();
+                       switch (dist.toLowerCase()) {
+                         case 'debian':
+                           if ((+release) >= 11) { return 'ubuntu20.04'; }
+                           break;
+                         case 'ubuntu':
+                           if (release.split('.')[0] >= 20) { return 'ubuntu20.04'; }
+                           break;
+                         default: break;
+                       }
+                       throw new Error(
+                         `${pkg_name}:` +
+                         `Detected unsupported Linux distro "${dist} ${release}".\n` +
+                         `Currently only Debian 11+ and Ubuntu 20.04+ are supported.\n` +
+                         `If you think you've encountered this message in error, set\n` +
+                         `the \`RAPIDSAI_LINUX_DISTRO\` environment variable to one of\n` +
+                         `the distributions listed in https://github.com/rapidsai/node/releases\n` +
+                         `and reinstall ${pkg_name}`);
+                     })();
+  const cpu_arch = typeof process.env.RAPIDSAI_CPU_ARCHITECTURE !== 'undefined'
+                       ? process.env.RAPIDSAI_CPU_ARCHITECTURE
+                       : (() => {
+                         switch (require('os').arch()) {
+                           case 'x64': return 'amd64';
+                           case 'arm': return 'aarch64';
+                           case 'arm64': return 'aarch64';
+                           default: return 'amd64';
+                         }
+                       })();
+  const gpu_arch = typeof process.env.RAPIDSAI_GPU_ARCHITECTURE !== 'undefined'
+                     ? process.env.RAPIDSAI_GPU_ARCHITECTURE
+                     : getArchFromComputeCapabilities();
   const cuda_ver = `cuda${
     (() => {
       if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {

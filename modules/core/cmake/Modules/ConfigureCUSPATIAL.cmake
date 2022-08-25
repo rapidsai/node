@@ -25,12 +25,12 @@ function(find_and_configure_cuspatial)
 
     _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
@@ -46,12 +46,15 @@ function(find_and_configure_cuspatial)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "BUILD_SHARED_LIBS OFF"
-                                "CUDA_STATIC_RUNTIME OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
     endif()
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
+
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cuspatial::cuspatial)
 
     set(cuspatial_VERSION "${cuspatial_VERSION}" PARENT_SCOPE)
 endfunction()

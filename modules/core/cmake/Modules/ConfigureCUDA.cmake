@@ -60,16 +60,7 @@ endif()
 
 # Build the list of supported architectures
 
-set(SUPPORTED_CUDA_ARCHITECTURES "60" "62" "70" "72" "75" "80" "86")
-
-# Check for embedded vs workstation architectures
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
-    # This is being built for Linux4Tegra or SBSA ARM64
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "60" "70" "80" "86")
-else()
-    # This is being built for an x86 or x86_64 architecture
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "62" "72")
-endif()
+set(SUPPORTED_CUDA_ARCHITECTURES "60" "70" "75" "80" "86")
 
 find_package(CUDAToolkit REQUIRED)
 
@@ -126,11 +117,13 @@ message(STATUS "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}")
 # Override the cached version from enable_language(CUDA)
 set(CMAKE_CUDA_ARCHITECTURES "${CMAKE_CUDA_ARCHITECTURES}" CACHE STRING "" FORCE)
 
+set(CUDA_STATIC_RUNTIME ON)
+set(CUDA_USE_STATIC_CUDA_RUNTIME ON)
+set(CMAKE_CUDA_RUNTIME_LIBRARY STATIC)
+
 # Enable the CUDA language
 enable_language(CUDA)
 
 list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Werror=cross-execution-space-call)
 list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS --expt-extended-lambda --expt-relaxed-constexpr)
 list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Xcompiler=-Wall,-Werror,-Wno-error=deprecated-declarations)
-
-set(CMAKE_CUDA_RUNTIME_LIBRARY Shared)

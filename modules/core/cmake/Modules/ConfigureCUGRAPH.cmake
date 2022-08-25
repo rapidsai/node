@@ -26,9 +26,9 @@ function(find_and_configure_cugraph)
 
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(raft raft)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cugraph cugraph)
     _set_package_dir_if_exists(cuhornet cuhornet)
     _set_package_dir_if_exists(cugraph-ops cugraph-ops)
@@ -46,6 +46,7 @@ function(find_and_configure_cugraph)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "BUILD_SHARED_LIBS OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "BUILD_CUGRAPH_MG_TESTS OFF"
         )
     endif()
@@ -65,6 +66,9 @@ function(find_and_configure_cugraph)
             )
         endif()
     endif()
+
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cugraph::cugraph)
 
     set(cugraph_VERSION "${cugraph_VERSION}" PARENT_SCOPE)
 endfunction()

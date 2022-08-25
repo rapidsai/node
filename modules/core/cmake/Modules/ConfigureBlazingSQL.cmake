@@ -27,13 +27,13 @@ function(find_and_configure_blazingsql)
     _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io)
     _clean_build_dirs_if_not_fully_built(blazingsql-engine libblazingsql-engine)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(absl absl)
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(blazingsql-io blazingsql-io)
     _set_package_dir_if_exists(blazingsql-engine blazingsql-engine)
 
@@ -80,7 +80,7 @@ function(find_and_configure_blazingsql)
                                 "MYSQL_SUPPORT OFF"
                                 "SQLITE_SUPPORT OFF"
                                 "POSTGRESQL_SUPPORT OFF"
-                                "CUDA_STATIC_RUNTIME OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 # "ARROW_DEPENDENCY_SOURCE AUTO"
                                 "BLAZINGSQL_ENGINE_USE_ARROW_STATIC ON"
                                 "DISABLE_DEPRECATION_WARNING ON"
@@ -134,6 +134,12 @@ function(find_and_configure_blazingsql)
     configure_file("${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
                    "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra-core.jar"
                    COPYONLY)
+
+
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(blazingdb::blazingsql-io)
+    _statically_link_cuda_toolkit_libs(blazingdb::blazingsql-engine)
+
 endfunction()
 
 find_and_configure_blazingsql()

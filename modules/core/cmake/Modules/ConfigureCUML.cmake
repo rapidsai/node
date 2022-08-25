@@ -25,10 +25,10 @@ function(find_and_configure_cuml)
 
     _clean_build_dirs_if_not_fully_built(cuml libcuml++)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(cuml cuml)
     _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(faiss faiss)
-    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(Treelite cuml)
     _set_package_dir_if_exists(GPUTreeShap cuml)
     _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
@@ -45,6 +45,7 @@ function(find_and_configure_cuml)
             SOURCE_SUBDIR       cpp
             OPTIONS             "SINGLEGPU ON"
                                 "WITH_UCX OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "DISABLE_OPENMP OFF"
@@ -69,6 +70,9 @@ function(find_and_configure_cuml)
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
+
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cuml::cuml++)
 
     set(cuml_VERSION "${cuml_VERSION}" PARENT_SCOPE)
 endfunction()

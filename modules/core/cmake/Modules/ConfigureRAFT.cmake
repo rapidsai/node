@@ -26,10 +26,10 @@ function(find_and_configure_raft)
     _clean_build_dirs_if_not_fully_built(raft libraft_nn)
     _clean_build_dirs_if_not_fully_built(raft libraft_distance)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(rmm rmm)
     _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(faiss faiss)
-    _set_package_dir_if_exists(Thrust thrust)
 
     if(NOT TARGET raft::raft)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
@@ -44,7 +44,7 @@ function(find_and_configure_raft)
             ${UPDATE_DISCONNECTED}
             OPTIONS                "BUILD_TESTS OFF"
                                    "BUILD_SHARED_LIBS OFF"
-                                   "CUDA_STATIC_RUNTIME OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
                                    "RAFT_USE_FAISS_STATIC ON"
                                    "RAFT_COMPILE_LIBRARIES ON")
     endif()
@@ -52,6 +52,10 @@ function(find_and_configure_raft)
     _fix_cmake_global_defaults(raft::raft)
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(faiss::faiss)
+
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(raft::raft)
+    _statically_link_cuda_toolkit_libs(faiss::faiss)
 
     set(raft_VERSION "${raft_VERSION}" PARENT_SCOPE)
 endfunction()

@@ -23,9 +23,9 @@ function(find_and_configure_rmm)
 
     _get_rapidsai_module_version(rmm VERSION)
 
+    _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(rmm rmm)
     _set_package_dir_if_exists(spdlog spdlog)
-    _set_package_dir_if_exists(Thrust thrust)
 
     if(NOT TARGET rmm::rmm)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)

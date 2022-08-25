@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame} from '@rapidsai/cudf';
+import {DataFrame, Float64, Int32, Struct} from '@rapidsai/cudf';
 import * as arrow from 'apache-arrow';
 import {ChildProcessByStdio, spawn} from 'child_process';
 import {Readable, Writable} from 'stream';
@@ -21,15 +21,36 @@ jest.setTimeout(60 * 1000);
 
 test(`fromArrow works from host memory`, () => {
   const table            = arrow.tableFromArrays({
-    floats: new Float64Array([1.1, 2.2, 0, -3.3, -4.4]),
     ints: new Int32Array([1, 2, 0, -3, -4]),
+    floats: new Float64Array([1.1, 2.2, 0, -3.3, -4.4]),
+    points: [
+      {x: 0, y: 4},
+      {x: 1, y: 3},
+      {x: 2, y: 2},
+      {x: 3, y: 1},
+      {x: 4, y: 0},
+    ],
   });
   const serialized_table = arrow.tableToIPC(table);  // Uint8Array
-  const df               = DataFrame.fromArrow(serialized_table);
+  const df               = DataFrame.fromArrow<{
+    ints: Int32,      //
+    floats: Float64,  //
+    points: Struct<{
+      x: Float64,
+      y: Float64,
+    }>;
+  }>(serialized_table);
 
-  expect([...df.names]).toStrictEqual(['floats', 'ints']);
-  expect([...df.get('floats')]).toStrictEqual([1.1, 2.2, 0, -3.3, -4.4]);
+  expect([...df.names]).toStrictEqual(['ints', 'floats', 'points']);
   expect([...df.get('ints')]).toStrictEqual([1, 2, 0, -3, -4]);
+  expect([...df.get('floats')]).toStrictEqual([1.1, 2.2, 0, -3.3, -4.4]);
+  expect([...df.get('points')].map((x) => x?.toJSON())).toStrictEqual([
+    {x: 0, y: 4},
+    {x: 1, y: 3},
+    {x: 2, y: 2},
+    {x: 3, y: 1},
+    {x: 4, y: 0},
+  ]);
 });
 
 test(`fromArrow works between subprocesses`, async () => {

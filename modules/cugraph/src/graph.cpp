@@ -21,7 +21,7 @@
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
-#include <cugraph/functions.hpp>
+#include <cugraph/legacy/functions.hpp>
 
 #include <cudf/column/column_factories.hpp>
 #include <cudf/filling.hpp>
