@@ -80,7 +80,7 @@ function(find_and_configure_blazingsql)
                                 "MYSQL_SUPPORT OFF"
                                 "SQLITE_SUPPORT OFF"
                                 "POSTGRESQL_SUPPORT OFF"
-                                "CUDA_STATIC_RUNTIME OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 # "ARROW_DEPENDENCY_SOURCE AUTO"
                                 "BLAZINGSQL_ENGINE_USE_ARROW_STATIC ON"
                                 "DISABLE_DEPRECATION_WARNING ON"

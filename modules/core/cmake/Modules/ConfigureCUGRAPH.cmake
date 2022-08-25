@@ -46,6 +46,7 @@ function(find_and_configure_cugraph)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "BUILD_SHARED_LIBS OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "BUILD_CUGRAPH_MG_TESTS OFF"
         )
     endif()

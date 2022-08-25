@@ -44,7 +44,7 @@ function(find_and_configure_raft)
             ${UPDATE_DISCONNECTED}
             OPTIONS                "BUILD_TESTS OFF"
                                    "BUILD_SHARED_LIBS OFF"
-                                   "CUDA_STATIC_RUNTIME OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
                                    "RAFT_USE_FAISS_STATIC ON"
                                    "RAFT_COMPILE_LIBRARIES ON")
     endif()
@@ -52,6 +52,20 @@ function(find_and_configure_raft)
     _fix_cmake_global_defaults(raft::raft)
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(faiss::faiss)
+
+    get_target_property(_link_libs faiss::faiss INTERFACE_LINK_LIBRARIES)
+    string(REPLACE "CUDA::cudart" "CUDA::cudart_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::cublas" "CUDA::cublas_static" _link_libs "${_link_libs}")
+    set_target_properties(faiss::faiss PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
+
+    get_target_property(_link_libs raft::raft INTERFACE_LINK_LIBRARIES)
+    string(REPLACE "CUDA::cufft" "CUDA::cufft_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::cublas" "CUDA::cublas_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::curand" "CUDA::curand_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::cusolver" "CUDA::cusolver_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::cudart" "CUDA::cudart_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::cusparse" "CUDA::cusparse_static" _link_libs "${_link_libs}")
+    set_target_properties(raft::raft PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
 
     set(raft_VERSION "${raft_VERSION}" PARENT_SCOPE)
 endfunction()

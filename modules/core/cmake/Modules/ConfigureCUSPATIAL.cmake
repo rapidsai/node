@@ -46,7 +46,7 @@ function(find_and_configure_cuspatial)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "BUILD_SHARED_LIBS OFF"
-                                "CUDA_STATIC_RUNTIME OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
     endif()

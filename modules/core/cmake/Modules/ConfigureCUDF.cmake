@@ -54,7 +54,7 @@ function(find_and_configure_cudf)
                                 "JITIFY_USE_CACHE ON"
                                 "BOOST_SOURCE SYSTEM"
                                 "Thrift_SOURCE BUNDLED"
-                                "CUDA_STATIC_RUNTIME OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "CUDF_USE_ARROW_STATIC ON"
                                 "CUDF_ENABLE_ARROW_S3 OFF"
                                 # "CUDF_ENABLE_ARROW_S3 ON"

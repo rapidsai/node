@@ -41,12 +41,19 @@ function(find_and_configure_cugraph_ops)
             SOURCE_SUBDIR       cpp
             OPTIONS             "DETECT_CONDA_ENV OFF"
                                 "BUILD_SHARED_LIBS OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "BUILD_CUGRAPH_OPS_CPP_TESTS OFF")
     endif()
     # Make sure consumers of our libs can see cugraph-ops::Thrust
     _fix_cmake_global_defaults(cugraph-ops::Thrust)
     # Make sure consumers of our libs can see cugraph-ops::cugraph-ops++
     _fix_cmake_global_defaults(cugraph-ops::cugraph-ops++)
+
+    get_target_property(_link_libs cugraph-ops::cugraph-ops++ INTERFACE_LINK_LIBRARIES)
+    string(REPLACE "CUDA::cudart" "CUDA::cudart_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::cublas" "CUDA::cublas_static" _link_libs "${_link_libs}")
+    string(REPLACE "CUDA::curand" "CUDA::curand_static" _link_libs "${_link_libs}")
+    set_target_properties(cugraph-ops::cugraph-ops++ PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
 
     set(cugraph-ops_VERSION "${cugraph-ops_VERSION}" PARENT_SCOPE)
 endfunction()

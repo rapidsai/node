@@ -45,6 +45,7 @@ function(find_and_configure_cuml)
             SOURCE_SUBDIR       cpp
             OPTIONS             "SINGLEGPU ON"
                                 "WITH_UCX OFF"
+                                "CUDA_STATIC_RUNTIME ON"
                                 "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "DISABLE_OPENMP OFF"
@@ -69,6 +70,10 @@ function(find_and_configure_cuml)
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
+
+    get_target_property(_link_libs cuml::cuml++ INTERFACE_LINK_LIBRARIES)
+    string(REPLACE "CUDA::cufft" "CUDA::cufft_static" _link_libs "${_link_libs}")
+    set_target_properties(cuml::cuml++ PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
 
     set(cuml_VERSION "${cuml_VERSION}" PARENT_SCOPE)
 endfunction()
