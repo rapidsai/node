@@ -67,6 +67,9 @@ function(find_and_configure_cugraph)
         endif()
     endif()
 
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cugraph::cugraph)
+
     set(cugraph_VERSION "${cugraph_VERSION}" PARENT_SCOPE)
 endfunction()
 

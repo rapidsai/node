@@ -53,19 +53,9 @@ function(find_and_configure_raft)
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(faiss::faiss)
 
-    get_target_property(_link_libs faiss::faiss INTERFACE_LINK_LIBRARIES)
-    string(REPLACE "CUDA::cudart" "CUDA::cudart_static" _link_libs "${_link_libs}")
-    string(REPLACE "CUDA::cublas" "CUDA::cublas_static" _link_libs "${_link_libs}")
-    set_target_properties(faiss::faiss PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
-
-    get_target_property(_link_libs raft::raft INTERFACE_LINK_LIBRARIES)
-    string(REPLACE "CUDA::cufft" "CUDA::cufft_static" _link_libs "${_link_libs}")
-    string(REPLACE "CUDA::cublas" "CUDA::cublas_static" _link_libs "${_link_libs}")
-    string(REPLACE "CUDA::curand" "CUDA::curand_static" _link_libs "${_link_libs}")
-    string(REPLACE "CUDA::cusolver" "CUDA::cusolver_static" _link_libs "${_link_libs}")
-    string(REPLACE "CUDA::cudart" "CUDA::cudart_static" _link_libs "${_link_libs}")
-    string(REPLACE "CUDA::cusparse" "CUDA::cusparse_static" _link_libs "${_link_libs}")
-    set_target_properties(raft::raft PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(raft::raft)
+    _statically_link_cuda_toolkit_libs(faiss::faiss)
 
     set(raft_VERSION "${raft_VERSION}" PARENT_SCOPE)
 endfunction()

@@ -53,6 +53,9 @@ function(find_and_configure_cuspatial)
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
 
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cuspatial::cuspatial)
+
     set(cuspatial_VERSION "${cuspatial_VERSION}" PARENT_SCOPE)
 endfunction()
 

@@ -134,6 +134,12 @@ function(find_and_configure_blazingsql)
     configure_file("${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
                    "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra-core.jar"
                    COPYONLY)
+
+
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(blazingdb::blazingsql-io)
+    _statically_link_cuda_toolkit_libs(blazingdb::blazingsql-engine)
+
 endfunction()
 
 find_and_configure_blazingsql()

@@ -88,6 +88,10 @@ function(find_and_configure_cudf)
       VERSION 2.3
       COMPATIBILITY ExactVersion)
 
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cudf::cudf)
+    _statically_link_cuda_toolkit_libs(cudf::cudftestutil)
+
 endfunction()
 
 find_and_configure_cudf()

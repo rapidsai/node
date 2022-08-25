@@ -71,9 +71,8 @@ function(find_and_configure_cuml)
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
 
-    get_target_property(_link_libs cuml::cuml++ INTERFACE_LINK_LIBRARIES)
-    string(REPLACE "CUDA::cufft" "CUDA::cufft_static" _link_libs "${_link_libs}")
-    set_target_properties(cuml::cuml++ PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
+    _statically_link_cuda_toolkit_libs(cuml::cuml++)
 
     set(cuml_VERSION "${cuml_VERSION}" PARENT_SCOPE)
 endfunction()

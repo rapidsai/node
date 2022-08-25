@@ -38,32 +38,6 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
   _set_package_dir_if_exists(ArrowCUDA arrow)
   _set_package_dir_if_exists(ArrowDataset arrow)
 
-  # if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-  #   set(_pkg_names Arrow Parquet ArrowCUDA ArrowDataset)
-  #   set(_tgt_names arrow_static parquet_static arrow_cuda_static arrow_dataset_static)
-  #   set(_lib_names "libarrow.a" "libparquet.a" "libarrow_cuda.a" "libarrow_dataset.a")
-  #   set(_build_dirs
-  #     "${CPM_BINARY_CACHE}/arrow-build/src/arrow"
-  #     "${CPM_BINARY_CACHE}/arrow-build/src/parquet"
-  #     "${CPM_BINARY_CACHE}/arrow-build/src/arrow/gpu"
-  #     "${CPM_BINARY_CACHE}/arrow-build/src/arrow/dataset"
-  #   )
-  #   string(TOLOWER "${CMAKE_BUILD_TYPE}" _build_type)
-  #   foreach(_elem IN ZIP_LISTS _pkg_names _build_dirs _tgt_names _lib_names)
-  #     set(_pkg ${_elem_0})
-  #     set(_dir ${_elem_1})
-  #     set(_tgt_name ${_elem_2})
-  #     set(_lib_name ${_elem_3})
-  #     if(EXISTS "${_dir}")
-  #       set(${_pkg}_DIR "${CPM_BINARY_CACHE}/arrow-build")
-  #       set(${_pkg}_ROOT "${CPM_BINARY_CACHE}/arrow-build")
-  #       message(STATUS "get_cpm: setting ${_pkg}_ROOT to '${CPM_BINARY_CACHE}/arrow-build'")
-  #     else()
-  #         message(STATUS "get_cpm: not setting ${_pkg}_ROOT because '${_dir}' does not exist")
-  #     endif()
-  #   endforeach()
-  # endif()
-
   set(ARROW_BUILD_SHARED ON)
   set(ARROW_BUILD_STATIC OFF)
 
@@ -413,9 +387,9 @@ set(CUDF_VERSION_Arrow 8.0.0)
 
 find_and_configure_arrow(
   ${CUDF_VERSION_Arrow}
-  ON # ${CUDF_USE_ARROW_STATIC}
-  OFF # ${CUDF_ENABLE_ARROW_S3}
-  OFF # ${CUDF_ENABLE_ARROW_ORC}
-  OFF # ${CUDF_ENABLE_ARROW_PYTHON}
-  ON # ${CUDF_ENABLE_ARROW_PARQUET}
+  ON  # BUILD_STATIC
+  OFF # ENABLE_S3
+  OFF # ENABLE_ORC
+  OFF # ENABLE_PYTHON
+  ON  # ENABLE_PARQUET
 )
