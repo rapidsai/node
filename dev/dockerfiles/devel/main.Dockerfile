@@ -37,6 +37,7 @@ ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
 ARG GCC_VERSION=9
+ARG CMAKE_VERSION=3.24.1
 ARG SCCACHE_VERSION=0.2.15
 ARG LINUX_VERSION=ubuntu20.04
 
@@ -71,8 +72,13 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  \
  && apt update \
  && apt install --no-install-recommends -y \
-    git cmake ninja-build \
+    git \
+    # Needed for CMake to find static `liblapack.a`
+    gfortran \
+    ninja-build \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
+    cmake=${CMAKE_VERSION}-0kitware1${LINUX_VERSION}.1 \
+    cmake-data=${CMAKE_VERSION}-0kitware1${LINUX_VERSION}.1 \
     curl libssl-dev libcurl4-openssl-dev xz-utils zlib1g-dev liblz4-dev \
     # From opengl/glvnd:devel
     pkg-config \
