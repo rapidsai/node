@@ -114,7 +114,7 @@ jobs:
           files: |
             ${{ inputs.file }}
             ${{ inputs.files-to-diff }}
-            package\.json
+            lerna\.json
             \.github/workflows/merge\.pr\.yml
             \.github/workflows/build-and-push-image\.yml
             \.github/actions/build-and-publish-image-ssh/action\.yml
