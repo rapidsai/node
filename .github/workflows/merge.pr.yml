@@ -24,7 +24,6 @@ jobs:
         \.npmrc
         modules
         yarn\.lock
-        package\.json
       build-args: |
         "UCX_VERSION=1.12.1"
 
@@ -43,7 +42,6 @@ jobs:
         \.npmrc
         modules
         yarn\.lock
-        package\.json
         dev/dockerfiles/devel/main\.Dockerfile
       build-args: |
         "CUDAARCHS=ALL"
