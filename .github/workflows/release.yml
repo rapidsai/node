@@ -34,7 +34,7 @@ jobs:
 
   extract-and-publish-packages:
     name: Extract libs and publish release
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, linux, amd64, cpu4]
     strategy:
       fail-fast: true
       matrix:
