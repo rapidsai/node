@@ -20,6 +20,8 @@
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA
 #endif
+#include <cstddef>
+#include <cstdint>
 #include <cuml/manifold/common.hpp>
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA

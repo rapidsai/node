@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.20.1 FATAL_ERROR)
-
-project(rapidsai_webgl VERSION $ENV{npm_package_version} LANGUAGES C CXX)
+cmake_minimum_required(VERSION 3.24.1 FATAL_ERROR)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -23,9 +21,6 @@ unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_WEBGL_STATIC_LINK "Statically link GLEW libraries" ON)
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-
-# Set OpenGL_GL_PREFERENCE to "GLVND"
-cmake_policy(SET CMP0072 NEW)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -35,6 +30,10 @@ execute_process(COMMAND node -p
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cmake_policies.cmake")
+
+project(rapidsai_webgl VERSION $ENV{npm_package_version} LANGUAGES C CXX)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/core'))"
