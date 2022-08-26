@@ -19,6 +19,7 @@
     "build": "scripts/exec.js run build --concurrency 1",
     "build:debug": "scripts/exec.js run build:debug --concurrency 1",
     "clean": "scripts/exec.js clean",
+    "clean:build": "npx rimraf .cache/source .cache/binary && yarn tsc:clean && yarn cpp:clean && yarn build",
     "compile": "scripts/exec.js run compile --concurrency 1",
     "compile:debug": "scripts/exec.js run compile:debug --concurrency 1",
     "rebuild": "scripts/exec.js run rebuild --concurrency 1",
@@ -75,6 +76,7 @@
     "postinstall": "yarn dev:relink-bin-dirs",
     "test": "scripts/exec.js test",
     "tsc:build": "scripts/exec.js run tsc:build",
+    "tsc:clean": "scripts/exec.js run tsc:clean",
     "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
     "postversion": "scripts/exec.js postversion"
   },
