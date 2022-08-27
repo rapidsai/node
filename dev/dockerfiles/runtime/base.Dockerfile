@@ -82,6 +82,8 @@ COPY --from=devel /usr/local/lib/cli.js               /usr/local/lib/cli.js
 COPY --from=devel /usr/local/lib/v8-compile-cache.js  /usr/local/lib/v8-compile-cache.js
 # Copy entrypoint
 COPY --from=devel /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Copy nvrtc libs
+COPY --from=devel /usr/local/cuda/lib64/libnvrtc* /usr/local/cuda/lib64/
 
 ARG UID=1000
 ARG ADDITIONAL_GROUPS

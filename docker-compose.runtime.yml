@@ -40,8 +40,8 @@ services:
       dockerfile: dev/dockerfiles/runtime/base.Dockerfile
       args:
         UID: ${UID:-1000}
-        AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
-        ARM64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
+        AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-base-${LINUX_VERSION:-ubuntu20.04}
+        ARM64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-base-${LINUX_VERSION:-ubuntu20.04}
         DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.8.0}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-main
 
   main:
@@ -129,16 +129,6 @@ services:
       args:
         <<: *main_build_args
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.8.0}-runtime-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-base
-
-  io:
-    <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.8.0}-runtime-node${NODE_VERSION:-16.10.0}-cuda${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-io
-    build:
-      <<: *main_build_settings
-      dockerfile: dockerfiles/runtime/io.Dockerfile
-      args:
-        <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.8.0}-runtime-node${NODE_VERSION:-16.10.0}-cuda${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-base
 
   notebook:
     <<: *main_service_settings
