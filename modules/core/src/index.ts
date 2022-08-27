@@ -27,18 +27,21 @@ export * as addon from './addon';
 import {getComputeCapabilities} from './addon';
 
 export function getArchFromComputeCapabilities() {
-  const cc =
-    new Set(typeof process.env.RAPIDSAI_GPU_ARCH !== 'undefined' ? [process.env.RAPIDSAI_GPU_ARCH]
-                                                                 : getComputeCapabilities());
-  if (cc.size === 1) {
-    switch ([...cc][0]) {
-      case '60': return '60';
-      case '70': return '70';
-      case '75': return '75';
-      case '80': return '80';
-      case '86': return '86';
-      default: break;
+  try {
+    const cc =
+      new Set(typeof process.env.RAPIDSAI_GPU_ARCH !== 'undefined' ? [process.env.RAPIDSAI_GPU_ARCH]
+                                                                   : getComputeCapabilities());
+    if (cc.size === 1) {
+      switch ([...cc][0]) {
+        case '60': return '60';
+        case '70': return '70';
+        case '75': return '75';
+        case '80': return '80';
+        case '86': return '86';
+        default: break;
+      }
     }
+  } catch { /**/
   }
   return '';
 }
