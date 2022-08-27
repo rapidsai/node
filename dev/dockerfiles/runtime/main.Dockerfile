@@ -27,7 +27,7 @@ RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
         /tmp/rapids/rapidsai-io-*.tgz        \
         /tmp/rapids/rapidsai-deck.gl-*.tgz   \
         /tmp/rapids/rapidsai-jsdom-*.tgz;    \
-    for x in core cuda rmm cudf cuml cugraph cuspatial sql io; do \
+    for x in cuda rmm cudf cuml cugraph cuspatial sql io; do \
         mkdir node_modules/@rapidsai/${x}/build/Release; \
         tar -C node_modules/@rapidsai/${x}/build/Release \
             -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
