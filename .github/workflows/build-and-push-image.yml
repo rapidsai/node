@@ -148,8 +148,8 @@ jobs:
             echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> $GITHUB_ENV;
             echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> $GITHUB_ENV;
           elif [[ "${{ inputs.image }}" == runtime-base ]]; then
-            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}" >> $GITHUB_ENV;
-            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-base-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-base-${{ matrix.LINUX }}" >> $GITHUB_ENV;
           fi
 
           if [[ -n "${{ inputs.from_ }}" ]]; then
