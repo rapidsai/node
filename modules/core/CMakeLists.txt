@@ -73,14 +73,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
               PRIVATE CUDA::nvml)
 
-include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/cuda_arch_helpers.cmake")
-generate_arch_specific_custom_targets(
-  NAME ${PROJECT_NAME}
-)
-
-generate_install_rules(
-  NAME ${PROJECT_NAME}
-  CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
+generate_install_rules(NAME ${PROJECT_NAME})
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

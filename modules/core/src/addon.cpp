@@ -42,7 +42,9 @@ struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cor
     auto env = info.Env();
     int32_t cuda_version{};
     auto ary = Napi::Array::New(env, 2);
-    if (nvmlSystemGetCudaDriverVersion(&cuda_version) == NVML_SUCCESS && cuda_version > 0) {
+    auto res = nvmlSystemGetCudaDriverVersion(&cuda_version);
+    if (res != NVML_SUCCESS) { throw Napi::Error::New(env, nvmlErrorString(res)); }
+    if (cuda_version > 0) {
       ary.Set(0u,
               Napi::String::New(env, std::to_string(NVML_CUDA_DRIVER_VERSION_MAJOR(cuda_version))));
       ary.Set(1u,
@@ -62,19 +64,25 @@ struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cor
     uint32_t device_count{};
     int32_t major{}, minor{};
 
-    if (nvmlDeviceGetCount_v2(&device_count) == NVML_SUCCESS) {
-      std::vector<std::string> archs(device_count);
-      for (uint32_t device_index{0}; device_index < device_count; ++device_index) {
-        if (nvmlDeviceGetHandleByIndex_v2(device_index, &device) == NVML_SUCCESS &&
-            nvmlDeviceGetCudaComputeCapability(device, &major, &minor) == NVML_SUCCESS) {
-          archs[arch_index++] = std::to_string(major) + std::to_string(minor);
-        }
-      }
-      auto ary   = Napi::Array::New(env, arch_index);
-      arch_index = 0;
-      for (auto const& arch : archs) { ary.Set(arch_index++, arch); }
-      return ary;
+    auto res = nvmlDeviceGetCount_v2(&device_count);
+    if (res != NVML_SUCCESS) { throw Napi::Error::New(env, nvmlErrorString(res)); }
+
+    std::vector<std::string> archs(device_count);
+
+    for (uint32_t device_index{0}; device_index < device_count; ++device_index) {
+      res = nvmlDeviceGetHandleByIndex_v2(device_index, &device);
+      if (res != NVML_SUCCESS) { throw Napi::Error::New(env, nvmlErrorString(res)); }
+
+      res = nvmlDeviceGetCudaComputeCapability(device, &major, &minor);
+      if (res != NVML_SUCCESS) { throw Napi::Error::New(env, nvmlErrorString(res)); }
+
+      archs[arch_index++] = std::to_string(major) + std::to_string(minor);
     }
+
+    auto ary   = Napi::Array::New(env, arch_index);
+    arch_index = 0;
+    for (auto const& arch : archs) { ary.Set(arch_index++, arch); }
+    return ary;
 
     return Napi::Array::New(env, 0);
   }

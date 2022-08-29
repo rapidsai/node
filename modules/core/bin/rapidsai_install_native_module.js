@@ -88,16 +88,20 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
                      : getArchFromComputeCapabilities();
   const cuda_ver = `cuda${
     (() => {
-      if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
-        return process.env.RAPIDSAI_CUDA_VERSION;
+      try {
+        if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
+          return process.env.RAPIDSAI_CUDA_VERSION;
+        }
+        if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
+          return process.env.CUDA_VERSION_MAJOR;
+        }
+        if (typeof process.env.CUDA_VERSION !== 'undefined') {
+          return process.env.CUDA_VERSION.split('.')[0];
+        }
+        return getCudaDriverVersion()[0];
+      } catch { /**/
       }
-      if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
-        return process.env.CUDA_VERSION_MAJOR;
-      }
-      if (typeof process.env.CUDA_VERSION !== 'undefined') {
-        return process.env.CUDA_VERSION.split('.')[0];
-      }
-      return getCudaDriverVersion()[0];
+      return '';
     })() ||
     '11'}`;
   const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');

@@ -59,7 +59,7 @@ jobs:
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
-          for x in core cuda rmm cudf cuml cugraph cuspatial io sql; do
+          for x in cuda rmm cudf cuml cugraph cuspatial io sql; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
                   --wildcards --strip-components=2 \
                   -C build -x "*/rapidsai_${x}*.node" \

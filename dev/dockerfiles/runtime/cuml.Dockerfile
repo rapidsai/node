@@ -18,7 +18,7 @@ RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
         /tmp/rapids/rapidsai-rmm-*.tgz   \
         /tmp/rapids/rapidsai-cudf-*.tgz  \
         /tmp/rapids/rapidsai-cuml-*.tgz; \
-    for x in core cuda rmm cudf cuml; do \
+    for x in cuda rmm cudf cuml; do \
         mkdir node_modules/@rapidsai/${x}/build/Release; \
         tar -C node_modules/@rapidsai/${x}/build/Release \
             -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
