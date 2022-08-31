@@ -193,7 +193,7 @@ test('nodes', async (t) => {
   const res = await app.inject(
     {method: 'GET', url: '/graphology/nodes', headers: {'accepts': 'application/octet-stream'}});
   t.same(res.statusCode, 200);
-  const table = tableFromIPC(res.rawPayload);
+  const table = await tableFromIPC(res.rawPayload);
   t.ok(table.getChild('nodes'));
   t.same(table.getChild('nodes').toArray(), new Float32Array([
            0.02944733388721943,
@@ -205,25 +205,62 @@ test('nodes', async (t) => {
            2,
            -5.515159729197043e+28
          ]))
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
 });
 
 test('nodes/bounds', async (t) => {
-  const dir   = t.testdir(json_good);
-  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
+  const dir   = t.testdir(json_large);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_large.txt';
   const app   = await build(t);
-  const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const res   = await app.inject({method: 'GET', url: '/graphology/nodes/bounds'});
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const load =
+    await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
+  const res = await app.inject({method: 'GET', url: '/graphology/nodes/bounds'});
   t.same(JSON.parse(res.payload), {
     'success': true,
     'message': 'Success',
     'bounds': {
-      'xmin': -278.2200012207031,
-      'xmax': -1.9823756217956543,
-      'ymin': 250.4990692138672,
-      'ymax': 436.01004028320307
+      'xmin': -13.364311218261719,
+      'xmax': 1.3836898803710938,
+      'ymin': -11.536596298217773,
+      'ymax': 4.134339332580566,
     }
   });
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+});
+
+test('nodes then nodes/bounds', async (t) => {
+  const dir   = t.testdir(json_large);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_large.txt';
+  const app   = await build(t);
+  const load =
+    await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
+  const nodes = await app.inject(
+    {method: 'GET', url: '/graphology/nodes', headers: {'accepts': 'application/octet-stream'}});
+  t.same(nodes.statusCode, 200);
+  const table = await tableFromIPC(nodes.rawPayload);
+  t.ok(table.getChild('nodes'));
+  t.same(table.getChild('nodes').toArray(), new Float32Array([
+           0.02944733388721943,
+           1,
+           0,
+           -1.4006860109112203e+29,
+           0.9705526828765869,
+           0,
+           2,
+           -5.515159729197043e+28
+         ]))
+  const bounds = await app.inject({method: 'GET', url: '/graphology/nodes/bounds'});
+  t.same(JSON.parse(bounds.payload), {
+    'success': true,
+    'message': 'Success',
+    'bounds': {
+      'xmin': -13.364311218261719,
+      'xmax': 1.3836898803710938,
+      'ymin': -11.536596298217773,
+      'ymax': 4.134339332580566,
+    }
+  });
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
 });
 
 test('edges', async (t) => {
@@ -239,8 +276,8 @@ test('edges', async (t) => {
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
   t.ok(table.getChild('edges'));
   t.same(table.getChild('edges').toArray(), new Float32Array([
-           0.02944733388721943,
-           1,
+           0.9705526828765869,
+           0,
            -1.701910173408654e+38,
            0.02944733388721943,
            1,
@@ -248,13 +285,13 @@ test('edges', async (t) => {
            0.02944733388721943,
            1,
            -1.701910173408654e+38,
-           0.02944733388721943,
-           1,
+           0.9705526828765869,
+           0,
            -1.701910173408654e+38
          ]))
 });
 
-test('edges out of order', async (t) => {
+test('edges out of order', {only: true}, async (t) => {
   const dir = t.testdir(json_out_of_order);
   const rpath =
     '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_out_of_order.txt';

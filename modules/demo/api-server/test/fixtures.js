@@ -84,8 +84,8 @@ const json_large = {
         }
       ],
       "edges": [
-        {"key": "geid_115_98", "source": "291", "target": "290"},
-        {"key": "geid_115_99", "source": "290", "target": "291"}
+        {"key": "geid_115_98", "source": "1", "target": "0"},
+        {"key": "geid_115_99", "source": "0", "target": "1"}
       ],
       "options": {"type": "mixed", "multi": false, "allowSelfLoops": true}
     }`
@@ -120,8 +120,8 @@ const json_out_of_order = {
         }
       ],
       "edges": [
-        {"key": "geid_115_98", "source": "290", "target": "291"},
-        {"key": "geid_115_99", "source": "291", "target": "290"}
+        {"key": "geid_115_98", "source": "0", "target": "1"},
+        {"key": "geid_115_99", "source": "1", "target": "0"}
       ],
       "options": {"type": "mixed", "multi": false, "allowSelfLoops": true}
     }`

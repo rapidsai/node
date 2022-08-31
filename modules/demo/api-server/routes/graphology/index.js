@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Fs = require('fs');
-const {Utf8String, Int32, Uint32, Float32, DataFrame, Series, Float64} =
-  require('@rapidsai/cudf');
-const {RecordBatchStreamWriter, Field, Vector, List, Table} = require('apache-arrow');
-const Path                                                  = require('path');
-const {promisify}                                           = require('util');
-const Stat                                                  = promisify(Fs.stat);
-const fastifyCors                                           = require('@fastify/cors');
-const fastify                                               = require('fastify');
+const Fs                                                               = require('fs');
+const {Utf8String, Int32, Uint32, Float32, DataFrame, Series, Float64} = require('@rapidsai/cudf');
+const {RecordBatchStreamWriter, Field, Vector, List, Table}            = require('apache-arrow');
+const Path                                                             = require('path');
+const {promisify}                                                      = require('util');
+const Stat                                                             = promisify(Fs.stat);
+const fastifyCors                                                      = require('@fastify/cors');
+const fastify                                                          = require('fastify');
 
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
@@ -28,7 +27,7 @@ const root_schema = require('../../util/schema.js');
 
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
-  fastify.register(fastifyCors, {origin: 'http://localhost:3000'});
+  fastify.register(fastifyCors, {origin: 'http://localhost:3001'});
   fastify.decorate('setDataframe', gpu_cache.setDataframe);
   fastify.decorate('getDataframe', gpu_cache.getDataframe);
   fastify.decorate('listDataframes', gpu_cache.listDataframes);
@@ -177,7 +176,7 @@ module.exports = async function(fastify, opts) {
       const table = await fastify.getDataframe(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
-        reply.code(404).send(result);
+        await reply.code(404).send(result);
       } else {
         try {
           const name        = request.params.column;
@@ -186,16 +185,16 @@ module.exports = async function(fastify, opts) {
           newDfObject[name] = column;
           const result      = new DataFrame(newDfObject);
           const writer      = RecordBatchStreamWriter.writeAll(result.toArrow());
-          reply.code(200).send(writer.toNodeStream());
+          await reply.code(200).send(writer.toNodeStream());
         } catch (e) {
           if (e.substring('Unknown column name') != -1) {
             result.message = e;
             console.log(result);
-            reply.code(404).send(result);
+            await reply.code(404).send(result);
           } else {
             result.message = e;
             console.log(result);
-            reply.code(500).send(result);
+            await reply.code(500).send(result);
           }
         }
       }
@@ -212,10 +211,10 @@ module.exports = async function(fastify, opts) {
       const table = await fastify.getDataframe(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
-        reply.code(404).send(result);
+        await reply.code(404).send(result);
       } else {
         const writer = RecordBatchStreamWriter.writeAll(table.toArrow());
-        reply.code(200).send(writer.toNodeStream());
+        await reply.code(200).send(writer.toNodeStream());
       }
     }
   });
@@ -229,7 +228,7 @@ module.exports = async function(fastify, opts) {
       const df    = await fastify.getDataframe('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
-        reply.code(404).send(result);
+        await reply.code(404).send(result);
       } else {
         // compute xmin, xmax, ymin, ymax
         const x = df.get('x');
@@ -240,7 +239,7 @@ module.exports = async function(fastify, opts) {
         result.bounds      = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
         result.message     = 'Success';
         result.success     = true;
-        reply.code(200).send(result);
+        await reply.code(200).send(result);
       }
     }
   });
@@ -254,7 +253,7 @@ module.exports = async function(fastify, opts) {
       const df    = await fastify.getDataframe('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
-        reply.code(404).send(result);
+        await reply.code(404).send(result);
       } else {
         // tile x, y, size, color
         let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (4 * df.numRows)});
@@ -263,25 +262,23 @@ module.exports = async function(fastify, opts) {
         // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
         // to let the Graph object compute it.
         //
-        let x              = df.get('x');
-        let y              = df.get('y');
+        const x            = df.get('x');
+        const y            = df.get('y');
         let color          = df.get('color');
+        const color_ints   = color.hexToIntegers(new Uint32).bitwiseOr(0xef000000);
         const [xMin, xMax] = x.minmax();
         const [yMin, yMax] = y.minmax();
         const ratio        = Math.max(xMax - xMin, yMax - yMin);
         const dX           = (xMax + xMin) / 2.0;
         const dY           = (yMax + yMin) / 2.0;
-        x                  = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y                  = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
-        tiled              = tiled.scatter(x, base_offset.cast(new Int32));
-        tiled              = tiled.scatter(y, base_offset.add(1).cast(new Int32));
+        const x_scaled     = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        const y_scaled     = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        tiled              = tiled.scatter(x_scaled, base_offset.cast(new Int32));
+        tiled              = tiled.scatter(y_scaled, base_offset.add(1).cast(new Int32));
         tiled = tiled.scatter(df.get('size').mul(2), base_offset.add(2).cast(new Int32));
-        color = color.hexToIntegers(new Uint32).bitwiseOr(0xef000000);
-        // color = Series.sequence({size: color.length, type: new Int32, init: 0xff0000ff, step:
-        // 0});
-        tiled        = tiled.scatter(color.view(new Float32), base_offset.add(3).cast(new Int32));
+        tiled = tiled.scatter(color_ints.view(new Float32), base_offset.add(3).cast(new Int32));
         const writer = RecordBatchStreamWriter.writeAll(new DataFrame({nodes: tiled}).toArrow());
-        reply.code(200).send(writer.toNodeStream());
+        await reply.code(200).send(writer.toNodeStream());
       }
     }
   });
@@ -298,7 +295,7 @@ module.exports = async function(fastify, opts) {
       const edges = await fastify.getDataframe('edges');
       if (df == undefined) {
         result.message = 'Table not found';
-        reply.code(404).send(result);
+        await reply.code(404).send(result);
       } else {
         // tile x, y, size, color
         let tiled = Series.sequence({type: new Float32, init: 0.0, size: (6 * edges.numRows)});
@@ -309,6 +306,7 @@ module.exports = async function(fastify, opts) {
         //
         // Remap the indices in the key table to their real targets. See
         // https://github.com/rapidsai/node/issue/397
+        /** Series<Utf8String> */
         let keys           = df.get('key');
         let source_map     = edges.get('source');
         let source         = keys.gather(source_map, false);
@@ -343,7 +341,7 @@ module.exports = async function(fastify, opts) {
                               Series.new(base_offset.mul(2).add(4)).cast(new Int32));
         tiled        = tiled.scatter(color, Series.new(base_offset.mul(2).add(5).cast(new Int32)));
         const writer = RecordBatchStreamWriter.writeAll(new DataFrame({edges: tiled}).toArrow());
-        reply.code(200).send(writer.toNodeStream());
+        await reply.code(200).send(writer.toNodeStream());
       }
     }
   });
@@ -353,7 +351,7 @@ module.exports = async function(fastify, opts) {
     url: '/release',
     handler: async (request, reply) => {
       await fastify.clearDataFrames();
-      reply.code(200).send({message: 'OK'})
+      await reply.code(200).send({message: 'OK'})
     }
   });
 }

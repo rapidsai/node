@@ -21,10 +21,17 @@ namespace nv {
 
 Column::wrapper_t Column::get_json_object(std::string const& json_path,
                                           rmm::mr::device_memory_resource* mr) {
+  auto options = cudf::strings::get_json_object_options{};
+  options.set_missing_fields_as_nulls(true);
   try {
-    return Column::New(Env(),
-                       cudf::strings::get_json_object(
-                         this->view(), json_path, cudf::strings::get_json_object_options{}, mr));
+    auto col =
+      Column::New(Env(),
+                  cudf::strings::get_json_object(
+                    this->view(), json_path, cudf::strings::get_json_object_options{}, mr));
+    cudf::scalar& valid_count = *col->is_valid(mr)->sum(mr);
+    auto& count_scalar        = static_cast<cudf::numeric_scalar<cudf::size_type>&>(valid_count);
+    col->set_null_count(count_scalar.value());
+    return col;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
