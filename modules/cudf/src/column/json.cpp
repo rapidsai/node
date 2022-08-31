@@ -22,9 +22,16 @@ namespace nv {
 Column::wrapper_t Column::get_json_object(std::string const& json_path,
                                           rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(),
-                       cudf::strings::get_json_object(
-                         this->view(), json_path, cudf::strings::get_json_object_options{}, mr));
+    auto col =
+      Column::New(Env(),
+                  cudf::strings::get_json_object(
+                    this->view(), json_path, cudf::strings::get_json_object_options{}, mr));
+
+    cudf::scalar& real_null_count = *col->is_valid(mr)->sum(mr);
+    auto& numeric_scalar = static_cast<cudf::numeric_scalar<cudf::size_type>&>(real_null_count);
+    col->set_null_count(numeric_scalar.value());
+
+    return col;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
