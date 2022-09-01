@@ -14,11 +14,11 @@
 
 'use strict'
 
-const {dir}                                      = require('console');
-const {test}                                     = require('tap');
-const {build}                                    = require('../helper');
-const {tableFromIPC, RecordBatchStreamWriter}    = require('apache-arrow');
-const {json_large, json_good, json_out_of_order} = require('../fixtures.js');
+const {dir}                                                    = require('console');
+const {test}                                                   = require('tap');
+const {build}                                                  = require('../helper');
+const {tableFromIPC, RecordBatchStreamWriter}                  = require('apache-arrow');
+const {json_large, json_good, json_out_of_order, json_bad_map} = require('../fixtures.js');
 
 test('graphology root returns api description', async t => {
   const app = await build(t);
@@ -291,7 +291,7 @@ test('edges', async (t) => {
          ]))
 });
 
-test('edges out of order', {only: true}, async (t) => {
+test('edges and nodes do not begin with 0', async (t) => {
   const dir = t.testdir(json_out_of_order);
   const rpath =
     '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_out_of_order.txt';
@@ -300,22 +300,38 @@ test('edges out of order', {only: true}, async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
-  t.equal(res.statusCode, 200);
-  const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  debugger;
+  t.equal(res.statusCode, 200);
+  const table = tableFromIPC(res.rawPayload);
   t.ok(table.getChild('edges'));
   t.same(table.getChild('edges').toArray(), new Float32Array([
            0.02944733388721943,
            1,
            -1.701910173408654e+38,
-           0.02944733388721943,
-           1,
+           0.9705526828765869,
+           0,
+           -1.701910173408654e+38,
+           0.9705526828765869,
+           0,
            -1.701910173408654e+38,
            0.02944733388721943,
            1,
            -1.701910173408654e+38,
-           0.02944733388721943,
-           1,
-           -1.701910173408654e+38
          ]))
+});
+
+test('edge keys do not match node keys', {only: true}, async (t) => {
+  const dir   = t.testdir(json_bad_map);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_bad_map.txt';
+  const app   = await build(t);
+  const load =
+    await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
+  const res = await app.inject(
+    {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  debugger;
+  t.equal(res.statusCode, 422);
+  t.same(JSON.parse(res.payload),
+         {success: false, message: 'Edge sources do not match node keys', statusCode: 422});
 });

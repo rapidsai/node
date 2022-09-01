@@ -297,51 +297,78 @@ module.exports = async function(fastify, opts) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
       } else {
-        // tile x, y, size, color
-        let tiled = Series.sequence({type: new Float32, init: 0.0, size: (6 * edges.numRows)});
-        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: edges.numRows}).mul(3);
-        //
-        // Duplicatin the sigma.js createNormalizationFunction here because this is the best way
-        // to let the Graph object compute it on GPU.
-        //
-        // Remap the indices in the key table to their real targets. See
-        // https://github.com/rapidsai/node/issue/397
-        /** Series<Utf8String> */
-        let keys           = df.get('key');
-        let source_map     = edges.get('source');
-        let source         = keys.gather(source_map, false);
-        let target_map     = edges.get('target');
-        let target         = keys.gather(target_map, false);
-        let x              = df.get('x');
-        let y              = df.get('y');
-        const [xMin, xMax] = x.minmax();
-        const [yMin, yMax] = y.minmax();
-        const ratio        = Math.max(xMax - xMin, yMax - yMin);
-        const dX           = (xMax + xMin) / 2.0;
-        const dY           = (yMax + yMin) / 2.0;
-        x                  = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y                  = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
-        const source_xmap  = x.gather(source, false);
-        const source_ymap  = y.gather(source, false);
-        const target_xmap  = x.gather(target, false);
-        const target_ymap  = y.gather(target, false);
-        const color        = Series.new(['#999'])
-                        .hexToIntegers(new Int32)
-                        .bitwiseOr(0xff000000)
-                        .view(new Float32)
-                        .toArray()[0];
-        tiled =
-          tiled.scatter(Series.new(source_xmap), Series.new(base_offset.mul(2)).cast(new Int32));
-        tiled        = tiled.scatter(Series.new(source_ymap),
-                              Series.new(base_offset.mul(2).add(1)).cast(new Int32));
-        tiled        = tiled.scatter(color, Series.new(base_offset.mul(2).add(2).cast(new Int32)));
-        tiled        = tiled.scatter(Series.new(target_xmap),
-                              Series.new(base_offset.mul(2).add(3)).cast(new Int32));
-        tiled        = tiled.scatter(Series.new(target_ymap),
-                              Series.new(base_offset.mul(2).add(4)).cast(new Int32));
-        tiled        = tiled.scatter(color, Series.new(base_offset.mul(2).add(5).cast(new Int32)));
-        const writer = RecordBatchStreamWriter.writeAll(new DataFrame({edges: tiled}).toArrow());
-        await reply.code(200).send(writer.toNodeStream());
+        try {
+          // tile x, y, size, color
+          let tiled = Series.sequence({type: new Float32, init: 0.0, size: (6 * edges.numRows)});
+          let base_offset =
+            Series.sequence({type: new Int32, init: 0.0, size: edges.numRows}).mul(3);
+          //
+          // Duplicatin the sigma.js createNormalizationFunction here because this is the best way
+          // to let the Graph object compute it on GPU.
+          //
+          // Remap the indices in the key table to their real targets. See
+          // https://github.com/rapidsai/node/issue/397
+          /** Series<Utf8String> */
+          const keys             = df.get('key');
+          const keys_df          = new DataFrame({'keys': keys});
+          const source_unordered = edges.get('source');
+          const target_unordered = edges.get('target');
+          source_df              = new DataFrame({
+            'keys': source_unordered,
+            'idx': Series.sequence({size: source_unordered.length, init: 0})
+          });
+          target_df              = new DataFrame({
+            'keys': target_unordered,
+            'idx': Series.sequence({size: target_unordered.length, init: 0})
+          });
+          const source_idx_df    = keys_df.join({other: source_df, on: ['keys'], how: 'left'});
+          const target_idx_df    = keys_df.join({other: target_df, on: ['keys'], how: 'left'});
+          /** Series<Int32> */
+          let source_map = source_idx_df.get('idx')
+          let target_map = target_idx_df.get('idx')
+          if (source_map.nullCount > 0) { throw 'Edge sources do not match node keys'; }
+          if (target_map.nullCount > 0) { throw 'Edge targets do not match node keys'; }
+          let x              = df.get('x');
+          let y              = df.get('y');
+          const [xMin, xMax] = x.minmax();
+          const [yMin, yMax] = y.minmax();
+          const ratio        = Math.max(xMax - xMin, yMax - yMin);
+          const dX           = (xMax + xMin) / 2.0;
+          const dY           = (yMax + yMin) / 2.0;
+          x                  = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+          y                  = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+
+          const source_xmap = x.gather(source_map, false);
+          const source_ymap = y.gather(source_map, false);
+          const target_xmap = x.gather(target_map, false);
+          const target_ymap = y.gather(target_map, false);
+          const color       = Series.new(['#999'])
+                          .hexToIntegers(new Int32)
+                          .bitwiseOr(0xff000000)
+                          .view(new Float32)
+                          .toArray()[0];
+          tiled =
+            tiled.scatter(Series.new(source_xmap), Series.new(base_offset.mul(2)).cast(new Int32));
+          tiled = tiled.scatter(Series.new(source_ymap),
+                                Series.new(base_offset.mul(2).add(1)).cast(new Int32));
+          tiled = tiled.scatter(color, Series.new(base_offset.mul(2).add(2).cast(new Int32)));
+          tiled = tiled.scatter(Series.new(target_xmap),
+                                Series.new(base_offset.mul(2).add(3)).cast(new Int32));
+          tiled = tiled.scatter(Series.new(target_ymap),
+                                Series.new(base_offset.mul(2).add(4)).cast(new Int32));
+          tiled = tiled.scatter(color, Series.new(base_offset.mul(2).add(5).cast(new Int32)));
+          const writer = RecordBatchStreamWriter.writeAll(new DataFrame({edges: tiled}).toArrow());
+          await reply.code(200).send(writer.toNodeStream());
+        } catch (e) {
+          if (e.includes('do not match') >= 0) {
+            result.statusCode = 422;
+          } else {
+            result.statusCode = 500;
+          }
+          result.success = false;
+          result.message = e;
+          await reply.code(result.statusCode).send(result);
+        }
       }
     }
   });
