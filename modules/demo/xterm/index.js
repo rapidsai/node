@@ -52,6 +52,7 @@ module.exports = (glfwOptions = {
     function handleKeyInput(e) {
       const ev        = e.domEvent;
       const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
+      if (e.key !== ' ' && ev.type !== 'keydown') return;
       if (ev.keyCode === 13) {
         terminal.prompt();
       } else if (ev.keyCode === 8) {
