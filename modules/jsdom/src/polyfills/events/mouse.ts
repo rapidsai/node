@@ -15,7 +15,7 @@
 import {glfw, GLFWMouseButton} from '@rapidsai/glfw';
 import {DOMWindow} from 'jsdom';
 import {merge as mergeObservables} from 'rxjs';
-import {map, publish, refCount} from 'rxjs/operators';
+import {flatMap, publish, refCount} from 'rxjs/operators';
 
 import {
   GLFWEvent,
@@ -37,19 +37,34 @@ export function mouseEvents(window: DOMWindow) {
 
 function buttonUpdates(window: DOMWindow) {
   return windowCallbackAsObservable(glfw.setMouseButtonCallback, window)
-    .pipe(map(([, ...rest]) => GLFWMouseEvent.fromMouseButton(window, ...rest)))
+    .pipe(flatMap(function*([, ...rest]) {
+      const mouseEvt = GLFWMouseEvent.fromMouseButton(window, ...rest);
+      yield mouseEvt;
+      yield Object.assign(GLFWMouseEvent.fromMouseButton(window, ...rest),
+                          {type: `pointer${mouseEvt.type.slice(5)}`});
+    }))
     .pipe(publish(), refCount());
 }
 
 function positionUpdates(window: DOMWindow) {
   return windowCallbackAsObservable(glfw.setCursorPosCallback, window)
-    .pipe(map(([, ...rest]) => GLFWMouseEvent.fromMouseMove(window, ...rest)))
+    .pipe(flatMap(function*([, ...rest]) {
+      const mouseEvt = GLFWMouseEvent.fromMouseMove(window, ...rest);
+      yield mouseEvt;
+      yield Object.assign(GLFWMouseEvent.fromMouseMove(window, ...rest),
+                          {type: `pointer${mouseEvt.type.slice(5)}`});
+    }))
     .pipe(publish(), refCount());
 }
 
 function boundaryUpdates(window: DOMWindow) {
   return windowCallbackAsObservable(glfw.setCursorEnterCallback, window)
-    .pipe(map(([, ...rest]) => GLFWMouseEvent.fromMouseEnter(window, ...rest)))
+    .pipe(flatMap(function*([, ...rest]) {
+      const mouseEvt = GLFWMouseEvent.fromMouseEnter(window, ...rest);
+      yield mouseEvt;
+      yield Object.assign(GLFWMouseEvent.fromMouseEnter(window, ...rest),
+                          {type: `pointer${mouseEvt.type.slice(5)}`});
+    }))
     .pipe(publish(), refCount());
 }
 

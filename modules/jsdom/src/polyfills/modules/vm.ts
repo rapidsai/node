@@ -74,7 +74,7 @@ function installSymbolHasInstanceImpls(context: vm.Context) {
         value: (x: any) => {
           if (x?.constructor?.name === name) { return true; }
           for (let p = x; p != null && (p = getPrototypeOf(p));) {
-            if (p === Prototype) { return true; }
+            if (p === Prototype || p.constructor?.name === name) { return true; }
           }
           return false;
         },
