@@ -19,7 +19,7 @@ const Path = require('path');
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-const fastify = require.resolve('fastify-cli/cli.js');
+const fastify = require.resolve('fastify-cli/cli.js')({logger: true});
 
 const {spawnSync} = require('child_process');
 

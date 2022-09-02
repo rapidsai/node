@@ -15,6 +15,17 @@
 'use strict';
 
 const schema = {
+  gpu: {
+    description: 'An abstract interface to the node-rapids api, supported by a server.',
+    schema: {
+      '/': {
+        method: 'The name of the method to apply to gpu_cache data.',
+        caller: 'Either an object that has been stored in the gpu_cache or a static module name.',
+        arguments: 'Correctly specified arguments to the gpu_cache method.',
+        result: 'Either a result code specifying success or failure or an arrow data buffer.',
+      }
+    }
+  },
   graphology: {
     description: 'The graphology api provides GPU acceleration of graphology datasets.',
     schema: {
