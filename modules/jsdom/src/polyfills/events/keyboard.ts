@@ -17,7 +17,7 @@ import {GLFWInputMode} from '@rapidsai/glfw';
 import {DOMWindow} from 'jsdom';
 import {Observable} from 'rxjs';
 import {merge as mergeObservables} from 'rxjs';
-import {filter, map, mergeAll, publish, refCount, withLatestFrom} from 'rxjs/operators';
+import {filter, flatMap, map, mergeAll, publish, refCount, withLatestFrom} from 'rxjs/operators';
 
 import {
   GLFWEvent,
@@ -31,7 +31,13 @@ import {
 
 export function keyboardEvents(window: DOMWindow) {
   const keys        = keyUpdates(window);
-  const specialKeys = keys.pipe(filter(isSpecialKey));
+  const specialKeys = keys.pipe(filter(isSpecialKey)).pipe(flatMap(function*(keyEvt) {
+    yield keyEvt;
+    // Also yield Delete 'keydown' events as 'keypress'
+    if (keyEvt.key === 'Delete' && keyEvt.type === 'keydown') {
+      yield keyEvt.asCharacter(127, 'keypress');
+    }
+  }));
   const characterKeys =
     keys.pipe(filter(isCharacterKey), (charKeys) => characterUpdates(window, charKeys));
 
@@ -50,13 +56,11 @@ function characterUpdates(window: DOMWindow, charKeys: Observable<GLFWKeyboardEv
   return charCodes
     .pipe(withLatestFrom(charKeys,
                          function*(charCode, keyEvt) {
-                           yield keyEvt.asCharacter(charCode, keyEvt.target.modifiers);
-                           if (keyEvt.type === 'keydown' && keyEvt.code === 'Space') {
-                             // Also yield spacebar 'keydown' events as 'keypress' for xterm.js
-                             yield Object.assign(
-                               keyEvt.asCharacter(charCode, keyEvt.target.modifiers),
-                               {type: 'keypress'});
-                           }
+                           yield keyEvt;
+                           // Also yield 'keydown' events as 'keypress'
+                           yield keyEvt.asCharacter(charCode, 'keypress');
+                           // GLFW doesn't dispatch keyup for character keys, so dispatch our own
+                           yield keyEvt.asCharacter(0, 'keyup');
                          }))
     .pipe(mergeAll());
 }
@@ -68,7 +72,16 @@ function isSpecialKey(evt: GLFWKeyboardEvent) {
     // GLFW dispatches spacebar as both a keyboard and character input event,
     // but glfw.getKeyName() doesn't return a name for it.
     case GLFWKey.KEY_SPACE: return false;
+    // Arrow keys are special keys
     // Modifier keys are special keys
+    case GLFWKey.KEY_UP:
+    case GLFWKey.KEY_DOWN:
+    case GLFWKey.KEY_LEFT:
+    case GLFWKey.KEY_RIGHT:
+    case GLFWKey.KEY_END:
+    case GLFWKey.KEY_HOME:
+    case GLFWKey.KEY_PAGE_UP:
+    case GLFWKey.KEY_PAGE_DOWN:
     case GLFWKey.KEY_DELETE:
     case GLFWKey.KEY_BACKSPACE:
     case GLFWKey.KEY_CAPS_LOCK:
@@ -82,7 +95,7 @@ function isSpecialKey(evt: GLFWKeyboardEvent) {
     case GLFWKey.KEY_RIGHT_SHIFT: return true;
     default:
       // If GLFW didn't return a key name, it's a special key
-      return evt.key === 'Unidentified';
+      return !evt._rawName || evt.key === 'Unidentified';
   }
 }
 
@@ -116,9 +129,10 @@ export class GLFWKeyboardEvent extends GLFWEvent {
     evt.target  = window;
     evt._repeat = action === glfw.REPEAT;
 
-    evt._key   = name || 'Unidentified';
-    evt._which = evt._charCode = glfwToDOMKey[key] || key;
-    evt._code                  = keyToCode[evt.which] || name || 'Unidentified';
+    evt._key      = glfwKeyToKey[key] || name || 'Unidentified';
+    evt._code     = glfwKeyToCode[key] || (name && `Key${name.toUpperCase()}`) || 'Unidentified';
+    evt._which    = glfwKeyToKeyCode[key] || key;
+    evt._charCode = 0;
 
     const isCaps  = key === GLFWKey.KEY_CAPS_LOCK;
     const isAlt   = !isCaps && (key === GLFWKey.KEY_LEFT_ALT || key === GLFWKey.KEY_RIGHT_ALT);
@@ -148,17 +162,20 @@ export class GLFWKeyboardEvent extends GLFWEvent {
     return evt;
   }
 
-  public asCharacter(charCode: number, modifiers: number) {
-    const evt        = new GLFWKeyboardEvent(this.type);
+  public asCharacter(charCode: number,
+                     type              = this.type,
+                     modifiers: number = this.target.modifiers) {
+    if (this._rawKey === GLFWKey.KEY_DELETE) { charCode = 127; }
+    const evt        = new GLFWKeyboardEvent(type);
     evt.target       = this.target;
     evt._charCode    = charCode;
-    evt._which       = this._which;
+    evt._which       = charCode || this._which;
     evt._rawKey      = this._rawKey;
     evt._rawName     = this._rawName;
     evt._rawScanCode = this._rawScanCode;
-    evt._key         = charCode ? String.fromCharCode(charCode) : '';
+    evt._key         = (charCode && String.fromCharCode(charCode)) || this._key;
     evt._repeat      = this._repeat || this.type === 'keypress';
-    evt._code        = keyToCode[this._which] || `Key${this._rawName.toUpperCase()}`;
+    evt._code        = glfwKeyToCode[this._rawKey] || `Key${this._rawName.toUpperCase()}`;
     evt._altKey      = isAltKey(modifiers) || this._altKey;
     evt._ctrlKey     = isCtrlKey(modifiers) || this._ctrlKey;
     evt._metaKey     = isMetaKey(modifiers) || this._metaKey;
@@ -197,7 +214,107 @@ export class GLFWKeyboardEvent extends GLFWEvent {
   public get capsLock() { return this._capsLock; }
 }
 
-const glfwToDOMKey: any = {
+// Map of `GLFWKey` to `KeyboardEvent.prototype.code`:
+const glfwKeyToCode: any = {
+  [GLFWKey.KEY_APOSTROPHE]: 'Quote',
+  [GLFWKey.KEY_BACKSLASH]: 'Backslash',
+  [GLFWKey.KEY_BACKSPACE]: 'Backspace',
+  [GLFWKey.KEY_CAPS_LOCK]: 'CapsLock',
+  [GLFWKey.KEY_COMMA]: 'Comma',
+  [GLFWKey.KEY_DELETE]: 'Delete',
+  [GLFWKey.KEY_DOWN]: 'ArrowDown',
+  [GLFWKey.KEY_END]: 'End',
+  [GLFWKey.KEY_ENTER]: 'Enter',
+  [GLFWKey.KEY_EQUAL]: 'Equal',
+  [GLFWKey.KEY_ESCAPE]: 'Escape',
+  [GLFWKey.KEY_F10]: 'F10',
+  [GLFWKey.KEY_F11]: 'F11',
+  [GLFWKey.KEY_F12]: 'F12',
+  [GLFWKey.KEY_F13]: 'F13',
+  [GLFWKey.KEY_F14]: 'F14',
+  [GLFWKey.KEY_F15]: 'F15',
+  [GLFWKey.KEY_F16]: 'F16',
+  [GLFWKey.KEY_F17]: 'F17',
+  [GLFWKey.KEY_F18]: 'F18',
+  [GLFWKey.KEY_F19]: 'F19',
+  [GLFWKey.KEY_F1]: 'F1',
+  [GLFWKey.KEY_F20]: 'F20',
+  [GLFWKey.KEY_F21]: 'F21',
+  [GLFWKey.KEY_F22]: 'F22',
+  [GLFWKey.KEY_F23]: 'F23',
+  [GLFWKey.KEY_F24]: 'F24',
+  [GLFWKey.KEY_F25]: 'F25',
+  [GLFWKey.KEY_F2]: 'F2',
+  [GLFWKey.KEY_F3]: 'F3',
+  [GLFWKey.KEY_F4]: 'F4',
+  [GLFWKey.KEY_F5]: 'F5',
+  [GLFWKey.KEY_F6]: 'F6',
+  [GLFWKey.KEY_F7]: 'F7',
+  [GLFWKey.KEY_F8]: 'F8',
+  [GLFWKey.KEY_F9]: 'F9',
+  [GLFWKey.KEY_GRAVE_ACCENT]: 'Backquote',
+  [GLFWKey.KEY_HOME]: 'Home',
+  [GLFWKey.KEY_INSERT]: 'Insert',
+  [GLFWKey.KEY_KP_0]: 'Numpad0',
+  [GLFWKey.KEY_KP_1]: 'Numpad1',
+  [GLFWKey.KEY_KP_2]: 'Numpad2',
+  [GLFWKey.KEY_KP_3]: 'Numpad3',
+  [GLFWKey.KEY_KP_4]: 'Numpad4',
+  [GLFWKey.KEY_KP_5]: 'Numpad5',
+  [GLFWKey.KEY_KP_6]: 'Numpad6',
+  [GLFWKey.KEY_KP_7]: 'Numpad7',
+  [GLFWKey.KEY_KP_8]: 'Numpad8',
+  [GLFWKey.KEY_KP_9]: 'Numpad9',
+  [GLFWKey.KEY_KP_ADD]: 'NumpadAdd',
+  [GLFWKey.KEY_KP_DECIMAL]: 'NumpadDecimal',
+  [GLFWKey.KEY_KP_DIVIDE]: 'NumpadDivide',
+  [GLFWKey.KEY_KP_ENTER]: 'NumpadEnter',
+  [GLFWKey.KEY_KP_EQUAL]: 'NumpadEqual',
+  [GLFWKey.KEY_KP_MULTIPLY]: 'NumpadMultiply',
+  [GLFWKey.KEY_KP_SUBTRACT]: 'NumpadSubtract',
+  [GLFWKey.KEY_LEFT]: 'ArrowLeft',
+  [GLFWKey.KEY_LEFT_ALT]: 'AltLeft',
+  [GLFWKey.KEY_LEFT_BRACKET]: 'BracketLeft',
+  [GLFWKey.KEY_LEFT_CONTROL]: 'ControlLeft',
+  [GLFWKey.KEY_LEFT_SHIFT]: 'ShiftLeft',
+  [GLFWKey.KEY_LEFT_SUPER]: 'MetaLeft',
+  [GLFWKey.KEY_MENU]: 'Menu',
+  [GLFWKey.KEY_MINUS]: 'Minus',
+  [GLFWKey.KEY_NUM_LOCK]: 'NumLock',
+  [GLFWKey.KEY_PAGE_DOWN]: 'PageDown',
+  [GLFWKey.KEY_PAGE_UP]: 'PageUp',
+  [GLFWKey.KEY_PAUSE]: 'Pause',
+  [GLFWKey.KEY_PERIOD]: 'Period',
+  [GLFWKey.KEY_PRINT_SCREEN]: 'PrintScreen',
+  [GLFWKey.KEY_RIGHT]: 'ArrowRight',
+  [GLFWKey.KEY_RIGHT_ALT]: 'AltRight',
+  [GLFWKey.KEY_RIGHT_BRACKET]: 'BracketRight',
+  [GLFWKey.KEY_RIGHT_CONTROL]: 'ControlRight',
+  [GLFWKey.KEY_RIGHT_SHIFT]: 'ShiftRight',
+  [GLFWKey.KEY_RIGHT_SUPER]: 'MetaRight',
+  [GLFWKey.KEY_SCROLL_LOCK]: 'ScrollLock',
+  [GLFWKey.KEY_SEMICOLON]: 'Semicolon',
+  [GLFWKey.KEY_SLASH]: 'Slash',
+  [GLFWKey.KEY_SPACE]: 'Space',
+  [GLFWKey.KEY_TAB]: 'Tab',
+  [GLFWKey.KEY_UP]: 'ArrowUp',
+};
+
+// Map of `GLFWKey` to `KeyboardEvent.prototype.key`:
+const glfwKeyToKey: any = Object.assign({}, glfwKeyToCode, {
+  [GLFWKey.KEY_SPACE]: ' ',
+  [GLFWKey.KEY_LEFT_ALT]: 'Alt',
+  [GLFWKey.KEY_LEFT_CONTROL]: 'Control',
+  [GLFWKey.KEY_LEFT_SHIFT]: 'Shift',
+  [GLFWKey.KEY_LEFT_SUPER]: 'Super',
+  [GLFWKey.KEY_RIGHT_ALT]: 'Alt',
+  [GLFWKey.KEY_RIGHT_CONTROL]: 'Control',
+  [GLFWKey.KEY_RIGHT_SHIFT]: 'Shift',
+  [GLFWKey.KEY_RIGHT_SUPER]: 'Super',
+});
+
+// Map of `GLFWKey` to `KeyboardEvent.prototype.which`:
+const glfwKeyToKeyCode: any = {
   [GLFWKey.KEY_APOSTROPHE]: 222,
   [GLFWKey.KEY_BACKSLASH]: 220,
   [GLFWKey.KEY_BACKSPACE]: 8,
@@ -280,69 +397,4 @@ const glfwToDOMKey: any = {
   [GLFWKey.KEY_SPACE]: 32,
   [GLFWKey.KEY_TAB]: 9,
   [GLFWKey.KEY_UP]: 38,
-};
-
-const keyToCode: any = {
-  100: 'Numpad4',
-  101: 'Numpad5',
-  102: 'Numpad6',
-  103: 'Numpad7',
-  104: 'Numpad8',
-  105: 'Numpad9',
-  106: 'NumpadMultiply',
-  107: 'NumpadAdd',
-  109: 'NumpadSubtract',
-  110: 'NumpadDecimal',
-  111: 'NumpadDivide',
-  112: 'F1',
-  113: 'F2',
-  114: 'F3',
-  115: 'F4',
-  116: 'F5',
-  117: 'F6',
-  118: 'F7',
-  119: 'F8',
-  120: 'F9',
-  121: 'F10',
-  122: 'F11',
-  123: 'F12',
-  13: 'Enter',
-  144: 'NumLock',
-  145: 'ScrollLock',
-  16: 'Shift',
-  17: 'Control',
-  18: 'Alt',
-  186: 'Semicolon',
-  187: 'Equal',
-  188: 'Comma',
-  189: 'Minus',
-  19: 'Pause',
-  190: 'Period',
-  191: 'Slash',
-  192: 'Tilda',
-  20: 'CapsLock',
-  219: 'LeftBracket',
-  220: 'Backslash',
-  221: 'RightBracket',
-  222: 'Apostrophe',
-  27: 'Escape',
-  32: 'Space',
-  33: 'PageUp',
-  34: 'PageDown',
-  35: 'End',
-  36: 'Home',
-  37: 'ArrowLeft',
-  38: 'ArrowUp',
-  39: 'ArrowRight',
-  40: 'ArrowDown',
-  45: 'Insert',
-  46: 'Delete',
-  8: 'Backspace',
-  9: 'Tab',
-  91: 'LeftSuper',
-  93: 'RightSuper',
-  96: 'Numpad0',
-  97: 'Numpad1',
-  98: 'Numpad2',
-  99: 'Numpad3',
 };

@@ -17,6 +17,7 @@ that utilizes this GPU-accelerated data for rendering larger datasets
 than available via only CPU.
 
 ## Main Dependencies
+
 - @rapidsai/cudf
 - fastify
 - fastify-arrow
@@ -34,6 +35,7 @@ yarn
 ```
 
 To run the demo
+
 ```bash
 # Select the api-server demo from the list of demos
 yarn demo
@@ -44,7 +46,7 @@ yarn start
 
 ## Dataset
 
-Run the graph generator at https://github.com/thomcom/sigma.js/blob/add-gpu-graph-to-example/examples/extra-large-graphs/generate-graph.js
+Run the graph generator at <https://github.com/thomcom/sigma.js/blob/add-gpu-graph-to-example/examples/extra-large-graphs/generate-graph.js>
 to create a very large graph using the object
 
 ```js
@@ -66,7 +68,7 @@ Which will create a file `./large-graph.json`. Copy `./large-graph.json` into `a
 API request to the location of the file relative to `routes/graphology/index.js`:
 
 ```
-curl http://localhost:3000/graphology/read_large_demo?filename=../../large-graph.json
+curl http://localhost:3010/graphology/read_large_demo?filename=../../large-graph.json
 ```
 
 Which will use parallel JSON parsing to load the graph onto the GPU.
@@ -86,4 +88,3 @@ Which will use parallel JSON parsing to load the graph onto the GPU.
 /graphology/edges
 /graphology/release
 ```
-

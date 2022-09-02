@@ -84,8 +84,8 @@ const json_large = {
         }
       ],
       "edges": [
-        {"key": "geid_115_98", "source": "291", "target": "290"},
-        {"key": "geid_115_99", "source": "290", "target": "291"}
+        {"key": "geid_115_98", "source": "1", "target": "0"},
+        {"key": "geid_115_99", "source": "0", "target": "1"}
       ],
       "options": {"type": "mixed", "multi": false, "allowSelfLoops": true}
     }`
@@ -127,8 +127,45 @@ const json_out_of_order = {
     }`
 };
 
+const json_bad_map = {
+  'json_bad_map.txt':
+    ` {
+      "attributes": {},
+      "nodes": [
+        {
+          "key": "290",
+          "attributes": {
+            "cluster": 0,
+            "x": -13.364310772761677,
+            "y": 4.134339113107921,
+            "size": 0,
+            "label": "Node n°291, in cluster n°0",
+            "color": "#e24b04"
+          }
+        },
+        {
+          "key": "291",
+          "attributes": {
+            "cluster": 1,
+            "x": 1.3836898237261988,
+            "y": -11.536596764896206,
+            "size": 1,
+            "label": "Node n°292, in cluster n°1",
+            "color": "#323455"
+          }
+        }
+      ],
+      "edges": [
+        {"key": "geid_115_98", "source": "0", "target": "1"},
+        {"key": "geid_115_99", "source": "1", "target": "0"}
+      ],
+      "options": {"type": "mixed", "multi": false, "allowSelfLoops": true}
+    }`
+};
+
 module.exports = {
   json_good: json_good,
   json_large: json_large,
-  json_out_of_order: json_out_of_order
+  json_out_of_order: json_out_of_order,
+  json_bad_map: json_bad_map,
 };

@@ -219,7 +219,7 @@ ARG NODE_WEBRTC_VERSION=0.4.7
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install --no-install-recommends -y \
-    jq entr ssh vim nano sudo less bash-completion \
+    jq entr ssh vim nano sudo less bash-completion ripgrep fzf \
     # X11 dependencies
     libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies

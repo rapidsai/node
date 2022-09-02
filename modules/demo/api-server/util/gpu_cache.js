@@ -29,12 +29,10 @@ function json_key_attributes_to_dataframe(str) {
   const no_open_list = str.split('[\n').gather([1], false);
   const tokenized    = no_open_list.split('},');
   const keys         = tokenized.getJSONObject('.key');
-  keys.setNullMask(1, 0);
-  arr['key'] = keys.cast(new Int32);
+  arr['key']         = keys.cast(new Int32);
   columns.forEach((col, ix) => {
     const parse_result = tokenized.getJSONObject('.attributes.' + columns[ix]);
-    parse_result.setNullMask([], 0);
-    arr[col] = parse_result.cast(dtypes[ix]);
+    arr[col]           = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
@@ -46,8 +44,7 @@ function json_aos_to_dataframe(str, columns, dtypes) {
     const no_open_list = str.split('[\n').gather([1], false);
     const tokenized    = no_open_list.split('},');
     const parse_result = tokenized.getJSONObject('.' + columns[ix]);
-    parse_result.setNullMask(1, 0);
-    arr[col] = parse_result.cast(dtypes[ix]);
+    arr[col]           = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
@@ -60,8 +57,7 @@ function json_aoa_to_dataframe(str, dtypes) {
   dtypes.forEach((_, ix) => {
     const get_ix       = `[${ix}]`;
     const parse_result = tokenized.getJSONObject(get_ix);
-    parse_result.setNullMask([], 0);
-    arr[ix] = parse_result.cast(dtypes[ix]);
+    arr[ix]            = parse_result.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
