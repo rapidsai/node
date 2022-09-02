@@ -21,8 +21,6 @@ namespace nv {
 
 Column::wrapper_t Column::get_json_object(std::string const& json_path,
                                           rmm::mr::device_memory_resource* mr) {
-  auto options = cudf::strings::get_json_object_options{};
-  options.set_missing_fields_as_nulls(true);
   try {
     auto col =
       Column::New(Env(),

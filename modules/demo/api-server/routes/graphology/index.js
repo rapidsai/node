@@ -306,9 +306,7 @@ module.exports = async function(fastify, opts) {
           // Duplicatin the sigma.js createNormalizationFunction here because this is the best way
           // to let the Graph object compute it on GPU.
           //
-          // Remap the indices in the key table to their real targets. See
-          // https://github.com/rapidsai/node/issue/397
-          /** Series<Utf8String> */
+          // Remap the indices in the key table to their real targets.
           const keys             = df.get('key');
           const keys_df          = new DataFrame({'keys': keys});
           const source_unordered = edges.get('source');
@@ -323,9 +321,8 @@ module.exports = async function(fastify, opts) {
           });
           const source_idx_df    = keys_df.join({other: source_df, on: ['keys'], how: 'left'});
           const target_idx_df    = keys_df.join({other: target_df, on: ['keys'], how: 'left'});
-          /** Series<Int32> */
-          let source_map = source_idx_df.get('idx')
-          let target_map = target_idx_df.get('idx')
+          let source_map         = source_idx_df.get('idx')
+          let target_map         = target_idx_df.get('idx')
           if (source_map.nullCount > 0) { throw 'Edge sources do not match node keys'; }
           if (target_map.nullCount > 0) { throw 'Edge targets do not match node keys'; }
           let x              = df.get('x');
