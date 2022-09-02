@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cudf",
-  "version": "22.8.0",
+  "version": "22.8.1",
   "description": "cuDF - NVIDIA RAPIDS GPU DataFrame Library",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -46,8 +46,8 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cuda": "~22.8.0",
-    "@rapidsai/rmm": "~22.8.0",
+    "@rapidsai/cuda": "~22.8.1",
+    "@rapidsai/rmm": "~22.8.1",
     "apache-arrow": "^8.0.0"
   },
   "devDependencies": {

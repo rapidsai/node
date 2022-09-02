@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cuda",
-  "version": "22.8.0",
+  "version": "22.8.1",
   "description": "NVIDIA CUDA driver and runtime API bindings",
   "main": "index.js",
   "types": "build/js",
@@ -46,7 +46,7 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/core": "~22.8.0"
+    "@rapidsai/core": "~22.8.1"
   },
   "files": [
     "LICENSE",
