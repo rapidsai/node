@@ -478,8 +478,14 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
       {name: 'scrollX', aliases: ['scrollLeft', 'pageXOffset']},
       {name: 'scrollY', aliases: ['scrollTop', 'pageYOffset']},
       {name: 'onwheel', aliases: ['onscroll', 'onmousewheel']},
-      {name: 'width', aliases: ['clientWidth', 'innerWidth', 'outerWidth', 'offsetWidth']},
-      {name: 'height', aliases: ['clientHeight', 'innerHeight', 'outerHeight', 'offsetHeight']},
+      {
+        name: 'width',
+        aliases: ['clientWidth', 'innerWidth', 'outerWidth', 'offsetWidth', 'scrollWidth']
+      },
+      {
+        name: 'height',
+        aliases: ['clientHeight', 'innerHeight', 'outerHeight', 'offsetHeight', 'scrollHeight']
+      },
     ]);
 
     // Attaching functions
@@ -852,6 +858,8 @@ function defineLayoutProps(window: jsdom.DOMWindow, proto: any) {
    'screenLeft',
    'scrollTop',
    'scrollLeft',
+   'scrollWidth',
+   'scrollHeight',
    'pageXOffset',
    'pageYOffset',
    'clientWidth',
