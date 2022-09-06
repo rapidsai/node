@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-3d-tiles",
-  "version": "22.8.0",
+  "version": "22.8.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -20,7 +20,7 @@
     "@loaders.gl/3d-tiles": "3.1.6",
     "@loaders.gl/core": "3.1.6",
     "@loaders.gl/draco": "3.1.6",
-    "@rapidsai/jsdom": "~22.8.0",
+    "@rapidsai/jsdom": "~22.8.1",
     "mjolnir.js": "2.6.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",

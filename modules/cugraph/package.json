@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cugraph",
-  "version": "22.8.0",
+  "version": "22.8.1",
   "description": "cuGraph - NVIDIA RAPIDS Graph Analytics Library",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -46,10 +46,10 @@
     "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
   },
   "dependencies": {
-    "@rapidsai/cudf": "~22.8.0"
+    "@rapidsai/cudf": "~22.8.1"
   },
   "devDependencies": {
-    "@rapidsai/cuml": "~22.8.0"
+    "@rapidsai/cuml": "~22.8.1"
   },
   "files": [
     "LICENSE",
