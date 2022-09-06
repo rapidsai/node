@@ -102,7 +102,7 @@ Napi::Value WebGL2RenderingContext::GetShaderParameter(Napi::CallbackInfo const&
     case GL_COMPILE_STATUS: {
       GLint param{};
       GL_EXPORT::glGetShaderiv(shader, pname, &param);
-      return CPPToNapi(info)(param);
+      return CPPToNapi(info)(static_cast<bool>(param));
     }
     case GL_SHADER_TYPE: {
       GLint param{};
