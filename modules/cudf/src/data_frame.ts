@@ -2110,10 +2110,10 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns a DataFrame without duplicate rows
    * ```
    */
-  dropDuplicates(keep: keyof typeof DuplicateKeepOption,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
-                 subset = this.names,
+  dropDuplicates(keep: keyof typeof DuplicateKeepOption = 'any',
+                 nullsEqual                             = true,
+                 nullsFirst                             = true,
+                 subset                                 = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;
