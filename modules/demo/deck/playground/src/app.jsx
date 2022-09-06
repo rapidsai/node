@@ -1,7 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import * as React from 'react'
+import { Component, Fragment } from 'react';
 import { StaticMap } from 'react-map-gl';
-import DeckWithMapboxMaps from './deck-with-mapbox-maps';
-import DeckWithGoogleMaps from './deck-with-google-maps';
+import DeckWithMapboxMaps from './deck-with-mapbox-maps.jsx';
+import DeckWithGoogleMaps from './deck-with-google-maps.jsx';
 
 import { FlyToInterpolator } from '@deck.gl/core';
 import { JSONConverter, JSONConfiguration, _shallowEqualObjects } from '@deck.gl/json';

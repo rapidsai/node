@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import { render } from 'react-dom';
-import { StaticMap } from 'react-map-gl';
-import DeckGL from '@deck.gl/react';
 import { Tile3DLayer } from '@deck.gl/geo-layers';
-
+import DeckGL from '@deck.gl/react';
+import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
 import { registerLoaders } from '@loaders.gl/core';
 // To manage dependencies and bundle size, the app must decide which supporting loaders to bring in
 import { DracoWorkerLoader } from '@loaders.gl/draco';
-import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
+import * as React from 'react';
+import { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
 
 registerLoaders([DracoWorkerLoader]);
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+const MAPBOX_TOKEN = process.env.MapboxAccessToken;  // eslint-disable-line
 
 const ION_ASSET_ID = 43978;
 const ION_TOKEN =
@@ -33,10 +33,7 @@ const INITIAL_VIEW_STATE = {
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      initialViewState: INITIAL_VIEW_STATE,
-      attributions: []
-    };
+    this.state = { initialViewState: INITIAL_VIEW_STATE, attributions: [] };
   }
 
   _onTilesetLoad(tileset) {
@@ -84,11 +81,8 @@ export default class App extends Component {
         <DeckGL layers={[tile3DLayer]} initialViewState={initialViewState} controller={true}>
           <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={MAPBOX_TOKEN} preventStyleDiffing />
         </DeckGL>
-      </div>
-    );
+      </div>);
   }
 }
 
-export function renderToDOM(container) {
-  render(<App />, container);
-}
+export function renderToDOM(container) { render(<App />, container); }

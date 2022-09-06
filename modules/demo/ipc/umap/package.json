@@ -10,8 +10,8 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "start": "node --experimental-vm-modules --trace-uncaught index.js",
-    "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
+    "start": "node --experimental-vm-modules --enable-source-maps --trace-uncaught index.js",
+    "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --enable-source-maps --trace-uncaught index.js"
   },
   "dependencies": {
     "@deck.gl/core": "8.6.6",

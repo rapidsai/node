@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import DeckGL from '@deck.gl/react';
 import { View } from '@deck.gl/core';
+import DeckGL from '@deck.gl/react';
+import * as React from 'react';
+import { Component } from 'react';
 
 export default class DeckWithMapboxMaps extends Component {
   render() {
@@ -22,7 +23,7 @@ export default class DeckWithMapboxMaps extends Component {
     }
 
     return (
-      <DeckGL id="json-deck" {...this.props}>
+      <DeckGL id='json-deck' {...this.props}>
         {maps}
       </DeckGL>
     );

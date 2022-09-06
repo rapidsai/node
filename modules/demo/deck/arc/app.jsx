@@ -1,16 +1,18 @@
 /* global fetch */
-import React, { Component } from 'react';
-import { StaticMap } from 'react-map-gl';
+import { ArcLayer, GeoJsonLayer } from '@deck.gl/layers';
 import DeckGL from '@deck.gl/react';
-import { GeoJsonLayer, ArcLayer } from '@deck.gl/layers';
 import { scaleQuantile } from 'd3-scale';
+import * as React from 'react';
+import { Component } from 'react';
+import { StaticMap } from 'react-map-gl';
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
+const MAPBOX_TOKEN =
+  'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA';  // eslint-disable-line
 
 // Source data GeoJSON
 const DATA_URL =
-  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/arc/counties.json'; // eslint-disable-line
+  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/arc/counties.json';  // eslint-disable-line
 
 export const inFlowColors = [
   [255, 255, 204],
@@ -54,27 +56,23 @@ export default class App extends Component {
     this._onSelectCounty = this._onSelectCounty.bind(this);
     this._renderTooltip = this._renderTooltip.bind(this);
 
-    fetch(DATA_URL)
-      .then(response => response.json())
-      .then(({ features }) => {
-        this._recalculateArcs(features);
-        this.setState({ data: features });
-      });
+    fetch(DATA_URL).then(response => response.json()).then(({ features }) => {
+      this._recalculateArcs(features);
+      this.setState({ data: features });
+    });
   }
 
-  _onHoverCounty({ x, y, object }) {
-    this.setState({ x, y, hoveredCounty: object });
-  }
+  _onHoverCounty({ x, y, object }) { this.setState({ x, y, hoveredCounty: object }); }
 
-  _onSelectCounty({ object }) {
-    this._recalculateArcs(this.state.data, object);
-  }
+  _onSelectCounty({ object }) { this._recalculateArcs(this.state.data, object); }
 
   _renderTooltip() {
     const { x, y, hoveredCounty } = this.state;
     return (
       hoveredCounty && (
-        <div className="tooltip" style={{ left: x, top: y }}>
+        <div className='tooltip' style={{
+          left: x, top: y
+        }}>
           {hoveredCounty.properties.name}
         </div>
       )
@@ -146,14 +144,16 @@ export default class App extends Component {
     const { mapStyle = 'mapbox://styles/mapbox/light-v9' } = this.props;
 
     return (
-      <DeckGL layers={this._renderLayers()} initialViewState={INITIAL_VIEW_STATE} controller={true}>
+      <DeckGL
+        layers={this._renderLayers()}
+        initialViewState={INITIAL_VIEW_STATE}
+        controller={true}>
         <StaticMap
           reuseMaps
           mapStyle={mapStyle}
           preventStyleDiffing={true}
           mapboxApiAccessToken={MAPBOX_TOKEN}
         />
-
         {this._renderTooltip}
       </DeckGL>
     );

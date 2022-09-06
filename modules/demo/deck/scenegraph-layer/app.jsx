@@ -1,13 +1,14 @@
 /* global fetch, setTimeout, clearTimeout */
-import React, {Component, Fragment} from 'react';
-import {render} from 'react-dom';
+import * as React from 'react'
+import { Component, Fragment } from 'react';
+import { render } from 'react-dom';
 
-import {StaticMap} from 'react-map-gl';
+import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {ScenegraphLayer} from '@deck.gl/mesh-layers';
+import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 
-import {GLTFLoader} from '@loaders.gl/gltf';
-import {registerLoaders} from '@loaders.gl/core';
+import { GLTFLoader } from '@loaders.gl/gltf';
+import { registerLoaders } from '@loaders.gl/core';
 
 registerLoaders([GLTFLoader]);
 
@@ -23,7 +24,7 @@ const MODEL_URL =
 const REFRESH_TIME = 30000;
 
 const ANIMATIONS = {
-  '*': {speed: 1}
+  '*': { speed: 1 }
 };
 
 const INITIAL_VIEW_STATE = {
@@ -81,7 +82,7 @@ export default class App extends Component {
       .then(resp => {
         if (resp && resp.states && !this.unmounted) {
           const nextTimeoutId = setTimeout(() => this._loadData(), REFRESH_TIME);
-          this.setState({data: this._sort(resp.states, this.state.data), nextTimeoutId});
+          this.setState({ data: this._sort(resp.states, this.state.data), nextTimeoutId });
         }
       });
   }
@@ -94,7 +95,7 @@ export default class App extends Component {
   }
 
   _renderLayers() {
-    const {data} = this.state;
+    const { data } = this.state;
 
     if (Array.isArray(data)) {
       return [
@@ -118,7 +119,7 @@ export default class App extends Component {
           transitions: {
             getPosition: REFRESH_TIME * 0.9
           },
-          onHover: ({object}) => this.setState({hoverObject: object})
+          onHover: ({ object }) => this.setState({ hoverObject: object })
         })
       ];
     }
@@ -161,7 +162,7 @@ export default class App extends Component {
       >
         Data provided by{' '}
         <a
-          style={{color: 'white'}}
+          style={{ color: 'white' }}
           href="http://www.opensky-network.org"
           target="_blank"
           rel="noopener noreferrer"
@@ -174,7 +175,7 @@ export default class App extends Component {
   }
 
   render() {
-    const {mapStyle = MAPBOX_STYLE} = this.props;
+    const { mapStyle = MAPBOX_STYLE } = this.props;
 
     return (
       <Fragment>

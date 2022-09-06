@@ -1,16 +1,17 @@
 /* eslint-disable max-len */
 /* global fetch, window */
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
+import { TextLayer } from '@deck.gl/layers';
 import DeckGL from '@deck.gl/react';
-import {TextLayer} from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
+import * as React from 'react';
+import { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+const MAPBOX_TOKEN = process.env.MapboxAccessToken || 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA';  // eslint-disable-line
 // mapbox style file path
-const MAPBOX_STYLE =
+const MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v9' ||
   'https://rivulet-zhang.github.io/dataRepo/mapbox/style/map-style-dark-v9-no-labels.json';
 // sample data
 const DATA_URL = 'https://rivulet-zhang.github.io/dataRepo/text-layer/hashtagsOneDayWithTime.json';
@@ -34,41 +35,33 @@ export default class App extends Component {
 
     this.state = {};
 
-    if (!window.demoLauncherActive) {
-      this._loadData();
-    }
+    if (!window.demoLauncherActive) { this._loadData(); }
   }
 
   componentWillUnmount() {
-    if (this._animationFrame) {
-      window.cancelAnimationFrame(this._animationFrame);
-    }
+    if (this._animationFrame) { window.cancelAnimationFrame(this._animationFrame); }
   }
 
   _loadData() {
-    fetch(DATA_URL)
-      .then(resp => resp.json())
-      .then(resp => {
-        // each entry in the data object contains all tweets posted at that second
-        const data = Array.from({length: SECONDS_PER_DAY}, () => []);
-        resp.forEach(val => {
-          const second = parseInt(val.time, 10) % SECONDS_PER_DAY;
-          data[second].push(val);
-        });
-        this.setState({data});
-        window.requestAnimationFrame(this._animateData.bind(this));
+    fetch(DATA_URL).then(resp => resp.json()).then(resp => {
+      // each entry in the data object contains all tweets posted at that second
+      const data = Array.from({ length: SECONDS_PER_DAY }, () => []);
+      resp.forEach(val => {
+        const second = parseInt(val.time, 10) % SECONDS_PER_DAY;
+        data[second].push(val);
       });
+      this.setState({ data });
+      window.requestAnimationFrame(this._animateData.bind(this));
+    });
   }
 
   _animateData() {
-    const {data} = this.state;
+    const { data } = this.state;
     const now = Date.now();
     const getSecCeil = ms => Math.ceil(ms / 1000, 10) % SECONDS_PER_DAY;
     const getSecFloor = ms => Math.floor(ms / 1000, 10) % SECONDS_PER_DAY;
-    const timeWindow = [
-      getSecCeil(now - TIME_WINDOW * 1000),
-      getSecFloor(now + TIME_WINDOW * 1000)
-    ];
+    const timeWindow =
+      [getSecCeil(now - TIME_WINDOW * 1000), getSecFloor(now + TIME_WINDOW * 1000)];
     if (data) {
       let dataSlice = [];
       for (let i = timeWindow[0]; i <= timeWindow[1]; i++) {
@@ -78,32 +71,30 @@ export default class App extends Component {
             // use non-linear function to achieve smooth animation
             const opac = Math.cos((offset * Math.PI) / 2);
             const color = [...TEXT_COLOR, opac * 255];
-            return Object.assign({}, val, {color}, {size: 12 * (opac + 1)});
+            return Object.assign({}, val, { color }, { size: 12 * (opac + 1) });
           });
           dataSlice = [...dataSlice, ...slice];
         }
       }
-      this.setState({dataSlice});
+      this.setState({ dataSlice });
     }
 
     this._animationFrame = window.requestAnimationFrame(this._animateData.bind(this));
   }
 
   _renderLayers() {
-    return [
-      new TextLayer({
-        id: 'hashtag-layer',
-        data: this.state.dataSlice,
-        sizeScale: 4,
-        getPosition: d => d.coordinates,
-        getColor: d => d.color,
-        getSize: d => d.size
-      })
-    ];
+    return [new TextLayer({
+      id: 'hashtag-layer',
+      data: this.state.dataSlice,
+      sizeScale: 4,
+      getPosition: d => d.coordinates,
+      getColor: d => d.color,
+      getSize: d => d.size
+    })];
   }
 
   render() {
-    const {mapStyle = MAPBOX_STYLE} = this.props;
+    const { mapStyle = MAPBOX_STYLE } = this.props;
 
     return (
       <DeckGL
@@ -113,8 +104,7 @@ export default class App extends Component {
         parameters={{
           blendFunc: [GL.SRC_ALPHA, GL.ONE, GL.ONE_MINUS_DST_ALPHA, GL.ONE],
           blendEquation: GL.FUNC_ADD
-        }}
-      >
+        }}>
         <StaticMap
           reuseMaps
           mapStyle={mapStyle}
@@ -126,6 +116,4 @@ export default class App extends Component {
   }
 }
 
-export function renderToDOM(container) {
-  render(<App />, container);
-}
+export function renderToDOM(container) { render(<App />, container); }

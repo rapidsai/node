@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
+import { _SunLight as SunLight, AmbientLight, LightingEffect } from '@deck.gl/core';
+import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers';
+import DeckGL from '@deck.gl/react';
+import * as React from 'react';
+import { Component } from 'react';
 import { render } from 'react-dom';
 import { StaticMap } from 'react-map-gl';
-import DeckGL from '@deck.gl/react';
-import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers';
-import { LightingEffect, AmbientLight, _SunLight as SunLight } from '@deck.gl/core';
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
+const MAPBOX_TOKEN =
+  'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA';  // eslint-disable-line
 
 // Source data GeoJSON
 const DATA_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
@@ -20,17 +22,10 @@ export const INITIAL_VIEW_STATE = {
   bearing: 0
 };
 
-const ambientLight = new AmbientLight({
-  color: [255, 255, 255],
-  intensity: 1.0
-});
+const ambientLight = new AmbientLight({ color: [255, 255, 255], intensity: 1.0 });
 
-const dirLight = new SunLight({
-  timestamp: Date.UTC(2019, 7, 1, 22),
-  color: [255, 255, 255],
-  intensity: 1.0,
-  _shadow: true
-});
+const dirLight = new SunLight(
+  { timestamp: Date.UTC(2019, 7, 1, 22), color: [255, 255, 255], intensity: 1.0, _shadow: true });
 
 const landCover = [[[-123.0, 49.196], [-123.0, 49.324], [-123.306, 49.324], [-123.306, 49.196]]];
 
@@ -38,9 +33,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      hoveredObject: null
-    };
+    this.state = { hoveredObject: null };
     this._onHover = this._onHover.bind(this);
     this._renderTooltip = this._renderTooltip.bind(this);
 
@@ -49,9 +42,7 @@ export default class App extends Component {
     this._effects = [lightingEffect];
   }
 
-  _onHover({ x, y, object }) {
-    this.setState({ x, y, hoveredObject: object });
-  }
+  _onHover({ x, y, object }) { this.setState({ x, y, hoveredObject: object }); }
 
   _renderLayers() {
     const { data = DATA_URL } = this.props;
@@ -86,19 +77,16 @@ export default class App extends Component {
   _renderTooltip() {
     const { x, y, hoveredObject } = this.state;
     return (
-      hoveredObject && (
-        <div className="tooltip" style={{ top: y, left: x }}>
+      hoveredObject &&
+      (<div className='tooltip' style={{ top: y, left: x }}><div><b>Country</b>
+      </div>
+        <div>
+          <div>{hoveredObject.properties
+            .name}</div>
           <div>
-            <b>Country</b>
-          </div>
-          <div>
-            <div>{hoveredObject.properties.name}</div>
-            <div>
-              id:{hoveredObject.id}             </div>
-          </div>
+            id:{hoveredObject.id}             </div>
         </div>
-      )
-    );
+      </div>));
   }
 
   render() {
@@ -109,8 +97,7 @@ export default class App extends Component {
         layers={this._renderLayers()}
         effects={this._effects}
         initialViewState={INITIAL_VIEW_STATE}
-        controller={true}
-      >
+        controller={true}>
         <StaticMap
           reuseMaps
           mapStyle={mapStyle}
@@ -124,6 +111,4 @@ export default class App extends Component {
   }
 }
 
-export function renderToDOM(container) {
-  render(<App />, container);
-}
+export function renderToDOM(container) { render(<App />, container); }

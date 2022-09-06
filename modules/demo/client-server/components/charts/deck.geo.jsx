@@ -12,25 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BASEMAP} from '@deck.gl/carto';
-import {GeoJsonLayer} from '@deck.gl/layers';
+import { BASEMAP } from '@deck.gl/carto';
+import { GeoJsonLayer } from '@deck.gl/layers';
 import DeckGL from '@deck.gl/react';
-import {tableFromIPC} from 'apache-arrow';
-import React from 'react';
-import {Button, Card} from 'react-bootstrap';
-import {StaticMap} from 'react-map-gl';
+import { tableFromIPC } from 'apache-arrow';
+import * as React from 'react';
+import { Button, Card } from 'react-bootstrap';
+import { StaticMap } from 'react-map-gl';
 
-import {generateLegend} from '../../components/utils/legend';
+import { generateLegend } from '../../components/utils/legend';
 
 export default class CustomChoropleth extends React.Component {
   constructor(props) {
     super(props);
-    this.state    = {gjson: [], data: [], clicked: false, current_query: this.props.getquery()};
+    this.state = { gjson: [], data: [], clicked: false, current_query: this.props.getquery() };
     this._onHover = this._onHover.bind(this);
     this._onClick = this._onClick.bind(this);
     this._renderTooltip = this._renderTooltip.bind(this);
-    this._getFillColor  = this._getFillColor.bind(this);
-    this._reset         = this._reset.bind(this);
+    this._getFillColor = this._getFillColor.bind(this);
+    this._reset = this._reset.bind(this);
   }
 
   _fillColor() {
@@ -44,14 +44,14 @@ export default class CustomChoropleth extends React.Component {
   }
 
   componentDidMount() {
-    const {geojsonurl = undefined} = this.props;
+    const { geojsonurl = undefined } = this.props;
 
     if (geojsonurl) {
       fetch(geojsonurl)
         .then(response => response.json())
-        .then(({features}) => { this.setState({gjson: features}); })
+        .then(({ features }) => { this.setState({ gjson: features }); })
         .then(() => this._updateLayerData())
-        .then((data) => this.setState({data: data}))
+        .then((data) => this.setState({ data: data }))
         .catch((e) => console.log(e));
     }
     generateLegend(
@@ -74,7 +74,7 @@ export default class CustomChoropleth extends React.Component {
       this.setState(updateState);
       // update data
       this._updateLayerData()
-        .then((data) => this.setState({data: data}))
+        .then((data) => this.setState({ data: data }))
         .catch((e) => console.log(e));
     }
   }
@@ -82,15 +82,14 @@ export default class CustomChoropleth extends React.Component {
   _generateApiUrl() {
     const {
       dataset = undefined,
-      by      = undefined,
-      agg     = undefined,
+      by = undefined,
+      agg = undefined,
       columns = undefined  // return all columns
     } = this.props;
 
     if (!dataset || !by || !agg) { return null; }
     const query = JSON.stringify(this.props.getquery());
-    return `http://localhost:3000/api/${dataset}/groupby/${by}/${agg}?columns=${
-      columns}&query_dict=${query}`;
+    return `http://localhost:3000/api/${dataset}/groupby/${by}/${agg}?columns=${columns}&query_dict=${query}`;
   }
 
   /**
@@ -126,14 +125,14 @@ export default class CustomChoropleth extends React.Component {
    * @returns geoJSON object consumable by DeckGL GeoJSONLayer
    */
   _convertToGeoJSON(table, by, properties, geojsonProp) {
-    const data   = this._transformData(table.toArray(), by, properties);
+    const data = this._transformData(table.toArray(), by, properties);
     let tempjson = [];
     this.state.gjson.forEach((val) => {
       if (val.properties[geojsonProp] in data) {
         tempjson.push({
           type: val.type,
           geometry: val.geometry,
-          properties: {...val.properties, ...data[val.properties[geojsonProp]]}
+          properties: { ...val.properties, ...data[val.properties[geojsonProp]] }
         })
       }
     });
@@ -144,12 +143,12 @@ export default class CustomChoropleth extends React.Component {
     const url =
       this._generateApiUrl();  // `/uber/tracts/groupby/sourceid/mean?columns=travel_time`;
     if (!url) { return null; }
-    const table = await tableFromIPC(fetch(url, {method: 'GET'}));
+    const table = await tableFromIPC(fetch(url, { method: 'GET' }));
     return this._convertToGeoJSON(table, this.props.by, this.props.columns, this.props.geojsonprop);
   }
 
   _getFillColor(f) {
-    const x  = f?.properties[this._fillColor()];
+    const x = f?.properties[this._fillColor()];
     const id = f?.properties[this.props.geojsonprop];
     if (x !== undefined && id !== undefined) {
       if (this.state.clicked !== false) {
@@ -164,89 +163,91 @@ export default class CustomChoropleth extends React.Component {
     }
   }
 
-  _onHover({x, y, object}) { this.setState({x, y, hoveredRegion: object}); }
+  _onHover({ x, y, object }) { this.setState({ x, y, hoveredRegion: object }); }
 
   _renderTooltip() {
-    const {x, y, hoveredRegion} = this.state;
-        return (
-            hoveredRegion && (
-                <div className='deck-tooltip' style={{
-      position: 'absolute', left: x, top: y }}>
-                    {
-                        Object.keys(hoveredRegion.properties).map((value, idx) => {
-      return `
+    const { x, y, hoveredRegion } = this.state;
+    return (
+      hoveredRegion && (
+        <div className='deck-tooltip' style={{
+          position: 'absolute', left: x, top: y
+        }}>
+          {
+            Object.keys(hoveredRegion.properties).map((value, idx) => {
+              return `
                             ${value}: ${hoveredRegion.properties[[value]]}
                             `;
-                        })
-                    }
-                    {/* {hoveredRegion.properties.DISPLAY_NAME} <br />
+            })
+          }
+          {/* {hoveredRegion.properties.DISPLAY_NAME} <br />
                 Mean Travel Time: {hoveredRegion.properties.travel_time} */}
-                </div >)
-        );
-    }
-
-    _onClick(f) {
-        const id = f?.object?.properties[this.props.geojsonprop];
-        if (this.state.clicked !== parseInt(id)) {
-            this.props.updatequery({ [this.props.by]: parseInt(id) });
-            this.setState({ clicked: parseInt(id) });
-        } else {
-            //double click deselects
-            this._reset();
+        </div >)
+    );
   }
-}
 
-_renderLayers() {
-  const {data} = this.state;
-
-  return [new GeoJsonLayer({
-    data,
-    highlightColor: [200, 200, 200, 200],
-    autoHighlight: true,
-    wireframe: false,
-    pickable: true,
-    stroked: false,  // only on extrude false
-    filled: true,
-    extruded: true,
-    lineWidthScale: 10,  // only if extrude false
-    lineWidthMinPixels: 1,
-    getRadius: 100,  // only if points
-    getLineWidth: 10,
-    opacity: 50,
-    getFillColor: this._getFillColor,
-    getElevation: f => f?.properties[this._elevation()] * 5,
-    onClick: this._onClick,
-    onHover: this._onHover,
-    getLineColor: [0, 188, 212, 100],
-    updateTriggers:
-      {getFillColor: [this.state.clicked, this.state.data], getElevation: [this.state.data]}
-  })]
-}
-
-_reset() {
-  this.props.updatequery({[this.props.by]: undefined});
-  this.setState({clicked: false})
-}
-
-render() {
-        return (
-            <Card border='light' bg='secondary' text='light' className='text-center'>
-                <Card.Header className='h5'>Trip {this.props.by} aggregated by {this.props.agg}
-                    <Button variant='primary' size='sm' onClick={this._reset} className='float-sm-right'> Reset </Button>
-                </Card.Header>
-                <Card.Body>
-                    <svg className='legend float-left' id={this.props.by + 'legend'} height='110' width='200' style={{
-    'zIndex': 1, 'position': 'relative' }}></svg>
-                    <DeckGL
-                        layers={this._renderLayers()}
-                        initialViewState={this.props.initialviewstate}
-                        controller={true} style={{ "zIndex": 0 }}
-                    >
-                        <StaticMap mapStyle={BASEMAP.DARK_MATTER} />
-                        {this._renderTooltip}
-                    </DeckGL>
-                </Card.Body>
-            </Card >
-        )
+  _onClick(f) {
+    const id = f?.object?.properties[this.props.geojsonprop];
+    if (this.state.clicked !== parseInt(id)) {
+      this.props.updatequery({ [this.props.by]: parseInt(id) });
+      this.setState({ clicked: parseInt(id) });
+    } else {
+      //double click deselects
+      this._reset();
     }
+  }
+
+  _renderLayers() {
+    const { data } = this.state;
+
+    return [new GeoJsonLayer({
+      data,
+      highlightColor: [200, 200, 200, 200],
+      autoHighlight: true,
+      wireframe: false,
+      pickable: true,
+      stroked: false,  // only on extrude false
+      filled: true,
+      extruded: true,
+      lineWidthScale: 10,  // only if extrude false
+      lineWidthMinPixels: 1,
+      getRadius: 100,  // only if points
+      getLineWidth: 10,
+      opacity: 50,
+      getFillColor: this._getFillColor,
+      getElevation: f => f?.properties[this._elevation()] * 5,
+      onClick: this._onClick,
+      onHover: this._onHover,
+      getLineColor: [0, 188, 212, 100],
+      updateTriggers:
+        { getFillColor: [this.state.clicked, this.state.data], getElevation: [this.state.data] }
+    })]
+  }
+
+  _reset() {
+    this.props.updatequery({ [this.props.by]: undefined });
+    this.setState({ clicked: false })
+  }
+
+  render() {
+    return (
+      <Card border='light' bg='secondary' text='light' className='text-center'>
+        <Card.Header className='h5'>Trip {this.props.by} aggregated by {this.props.agg}
+          <Button variant='primary' size='sm' onClick={this._reset} className='float-sm-right'> Reset </Button>
+        </Card.Header>
+        <Card.Body>
+          <svg className='legend float-left' id={this.props.by + 'legend'} height='110' width='200' style={{
+            'zIndex': 1, 'position': 'relative'
+          }}></svg>
+          <DeckGL
+            layers={this._renderLayers()}
+            initialViewState={this.props.initialviewstate}
+            controller={true} style={{ "zIndex": 0 }}
+          >
+            <StaticMap mapStyle={BASEMAP.DARK_MATTER} />
+            {this._renderTooltip}
+          </DeckGL>
+        </Card.Body>
+      </Card >
+    )
+  }
 }

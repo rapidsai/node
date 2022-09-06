@@ -1,14 +1,16 @@
 /* global fetch */
-import React, { Component } from 'react';
-import { StaticMap } from 'react-map-gl';
-import DeckGL from '@deck.gl/react';
-import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers';
 import { BrushingExtension } from '@deck.gl/extensions';
+import { ArcLayer, ScatterplotLayer } from '@deck.gl/layers';
+import DeckGL from '@deck.gl/react';
 import { scaleLinear } from 'd3-scale';
+import * as React from 'react';
+import { Component } from 'react';
+import { StaticMap } from 'react-map-gl';
 
 // Set your mapbox token here
 // const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
-const MAPBOX_TOKEN = "pk.eyJ1IjoicGF1bGV0YXlsb3IiLCJhIjoiY2pocHhhajlwMmtvbTMxczg0d2wzcnlwYiJ9.K0XJGZ_I7dQVIaJ8HpthTg"
+const MAPBOX_TOKEN =
+  'pk.eyJ1IjoicGF1bGV0YXlsb3IiLCJhIjoiY2pocHhhajlwMmtvbTMxczg0d2wzcnlwYiJ9.K0XJGZ_I7dQVIaJ8HpthTg'
 
 const TOOLTIP_STYLE = {
   position: 'absolute',
@@ -23,7 +25,7 @@ const TOOLTIP_STYLE = {
 
 // Source data GeoJSON
 const DATA_URL =
-  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/arc/counties.json'; // eslint-disable-line
+  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/arc/counties.json';  // eslint-disable-line
 
 export const inFlowColors = [[35, 181, 184]];
 export const outFlowColors = [[166, 3, 3]];
@@ -48,28 +50,17 @@ const brushingExtension = new BrushingExtension();
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      arcs: [],
-      targets: [],
-      sources: [],
-      ...this._getLayerData(props)
-    };
+    this.state = { arcs: [], targets: [], sources: [], ...this._getLayerData(props) };
     this._onHover = this._onHover.bind(this);
     fetch(DATA_URL)
       .then(response => response.json())
-      .then(({ features }) => {
-        this.setState(this._getLayerData({ data: features }));
-      });
+      .then(({ features }) => { this.setState(this._getLayerData({ data: features })); });
   }
 
-  _onHover({ x, y, object }) {
-    this.setState({ x, y, hoveredObject: object });
-  }
+  _onHover({ x, y, object }) { this.setState({ x, y, hoveredObject: object }); }
 
   _getLayerData({ data }) {
-    if (!data || !data.length) {
-      return null;
-    }
+    if (!data || !data.length) { return null; }
     const arcs = [];
     const targets = [];
     const sources = [];
@@ -83,9 +74,7 @@ export default class App extends Component {
         value[flows[toId] > 0 ? 'gain' : 'loss'] += flows[toId];
 
         // if number too small, ignore it
-        if (Math.abs(flows[toId]) < 50) {
-          return;
-        }
+        if (Math.abs(flows[toId]) < 50) { return; }
         const pairKey = [i, Number(toId)].sort((a, b) => a - b).join('-');
         const sourceCentroid = data[toId].properties.centroid;
         const gain = Math.sign(flows[toId]);
@@ -100,9 +89,7 @@ export default class App extends Component {
         });
 
         // eliminate duplicates arcs
-        if (pairs[pairKey]) {
-          return;
-        }
+        if (pairs[pairKey]) { return; }
 
         pairs[pairKey] = true;
 
@@ -124,13 +111,9 @@ export default class App extends Component {
 
     // sort targets by radius large -> small
     targets.sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
-    const sizeScale = scaleLinear()
-      .domain([0, Math.abs(targets[0].net)])
-      .range([36, 400]);
+    const sizeScale = scaleLinear().domain([0, Math.abs(targets[0].net)]).range([36, 400]);
 
-    targets.forEach(pt => {
-      pt.radius = Math.sqrt(sizeScale(Math.abs(pt.net)));
-    });
+    targets.forEach(pt => { pt.radius = Math.sqrt(sizeScale(Math.abs(pt.net))); });
 
     return { arcs, targets, sources };
   }
@@ -138,12 +121,12 @@ export default class App extends Component {
   _renderTooltip() {
     const { x, y, hoveredObject } = this.state;
 
-    if (!hoveredObject) {
-      return null;
-    }
+    if (!hoveredObject) { return null; }
 
     return (
-      <div style={{ ...TOOLTIP_STYLE, left: x, top: y }}>
+      <div style={{
+        ...TOOLTIP_STYLE, left: x, top: y
+      }}>
         <div>{hoveredObject.name}</div>
         <div>{`Net gain: ${hoveredObject.net}`}</div>
       </div>
@@ -186,8 +169,7 @@ export default class App extends Component {
         brushingEnabled: enableBrushing,
         // only show rings when brushing
         radiusScale: enableBrushing ? 4000 : 0,
-        getLineColor: d => (d.net > 0 ? TARGET_COLOR : SOURCE_COLOR),
-        extensions: [brushingExtension]
+        getLineColor: d => (d.net > 0 ? TARGET_COLOR : SOURCE_COLOR), extensions: [brushingExtension]
       }),
       new ScatterplotLayer({
         id: 'targets',
@@ -232,7 +214,6 @@ export default class App extends Component {
           preventStyleDiffing={true}
           mapboxApiAccessToken={MAPBOX_TOKEN}
         />
-
         {this._renderTooltip()}
       </DeckGL>
     );

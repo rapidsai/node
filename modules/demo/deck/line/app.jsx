@@ -1,10 +1,14 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-
-import {StaticMap} from 'react-map-gl';
+import * as React from 'react';
+import { Component } from 'react';
+import { render } from 'react-dom';
 import DeckGL from '@deck.gl/react';
-import {LineLayer, ScatterplotLayer} from '@deck.gl/layers';
+import { LineLayer, ScatterplotLayer } from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
+import { StaticMap } from 'react-map-gl';
+import { log as deckLog } from '@deck.gl/core';
+
+deckLog.level = 0;
+deckLog.enable(false);
 
 // Set your mapbox token here
 const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
@@ -53,15 +57,15 @@ export default class App extends Component {
     this._renderTooltip = this._renderTooltip.bind(this);
   }
 
-  _onHover({x, y, object}) {
-    this.setState({x, y, hoveredObject: object});
+  _onHover({ x, y, object }) {
+    this.setState({ x, y, hoveredObject: object });
   }
 
   _renderTooltip() {
-    const {x, y, hoveredObject} = this.state;
+    const { x, y, hoveredObject } = this.state;
     return (
       hoveredObject && (
-        <div className="tooltip" style={{left: x, top: y}}>
+        <div className="tooltip" style={{ left: x, top: y }}>
           <div>{hoveredObject.country || hoveredObject.abbrev}</div>
           <div>{hoveredObject.name.indexOf('0x') >= 0 ? '' : hoveredObject.name}</div>
         </div>
@@ -102,7 +106,7 @@ export default class App extends Component {
   }
 
   render() {
-    const {mapStyle = 'mapbox://styles/mapbox/dark-v9'} = this.props;
+    const { mapStyle = 'mapbox://styles/mapbox/dark-v9' } = this.props;
 
     return (
       <DeckGL
@@ -121,7 +125,6 @@ export default class App extends Component {
           preventStyleDiffing={true}
           mapboxApiAccessToken={MAPBOX_TOKEN}
         />
-
         {this._renderTooltip}
       </DeckGL>
     );

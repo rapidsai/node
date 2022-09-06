@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
-import { render } from 'react-dom';
-import { StaticMap } from 'react-map-gl';
-import DeckGL from '@deck.gl/react';
 import { MapView } from '@deck.gl/core';
 import { IconLayer } from '@deck.gl/layers';
+import DeckGL from '@deck.gl/react';
+import * as React from 'react';
+import { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
 
 import IconClusterLayer from './icon-cluster-layer';
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+const MAPBOX_TOKEN = process.env.MapboxAccessToken;  // eslint-disable-line
 
 // Source data CSV
 const DATA_URL =
-  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/icon/meteorites.json'; // eslint-disable-line
+  'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/icon/meteorites.json';  // eslint-disable-line
 
 const MAP_VIEW = new MapView({ repeat: true });
 const INITIAL_VIEW_STATE = {
@@ -29,12 +30,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      x: 0,
-      y: 0,
-      hoveredObject: null,
-      expandedObjects: null
-    };
+    this.state = { x: 0, y: 0, hoveredObject: null, expandedObjects: null };
     this._onHover = this._onHover.bind(this);
     this._onClick = this._onClick.bind(this);
     this._closePopup = this._closePopup.bind(this);
@@ -42,9 +38,7 @@ export default class App extends Component {
   }
 
   _onHover(info) {
-    if (this.state.expandedObjects) {
-      return;
-    }
+    if (this.state.expandedObjects) { return; }
 
     const { x, y, object } = info;
     this.setState({ x, y, hoveredObject: object });
@@ -62,9 +56,7 @@ export default class App extends Component {
   }
 
   _closePopup() {
-    if (this.state.expandedObjects) {
-      this.setState({ expandedObjects: null, hoveredObject: null });
-    }
+    if (this.state.expandedObjects) { this.setState({ expandedObjects: null, hoveredObject: null }); }
   }
 
   _renderhoveredItems() {
@@ -72,19 +64,19 @@ export default class App extends Component {
 
     if (expandedObjects) {
       return (
-        <div className="tooltip interactive" style={{ left: x, top: y }}>
+        <div className='tooltip interactive' style={{
+          left: x, top: y
+        }}>
           {expandedObjects.map(({ name, year, mass, class: meteorClass }) => {
-            return (
-              <div key={name}>
-                <h5>{name}</h5>
-                <div>Year: {year || 'unknown'}</div>
-                <div>Class: {meteorClass}</div>
-                <div>Mass: {mass}g</div>
-              </div>
+            return (<div key={name}>
+              <h5>{name}</h5>
+              <div>Year: {year || 'unknown'}</div>
+              <div>Class: {meteorClass}</div>
+              <div>Mass: {mass}g</div>
+            </div>
             );
           })}
-        </div>
-      );
+        </div>);
     }
 
     if (!hoveredObject) {
@@ -92,11 +84,15 @@ export default class App extends Component {
     }
 
     return hoveredObject.cluster ? (
-      <div className="tooltip" style={{ left: x, top: y }}>
+      <div className='tooltip' style={{
+        left: x, top: y
+      }}>
         <h5>{hoveredObject.point_count} records</h5>
       </div>
     ) : (
-      <div className="tooltip" style={{ left: x, top: y }}>
+      <div className='tooltip' style={{
+        left: x, top: y
+      }}>
         <h5>
           {hoveredObject.name} {hoveredObject.year ? `(${hoveredObject.year})` : ''}
         </h5>
@@ -153,13 +149,10 @@ export default class App extends Component {
           preventStyleDiffing={true}
           mapboxApiAccessToken={MAPBOX_TOKEN}
         />
-
         {this._renderhoveredItems}
       </DeckGL>
     );
   }
 }
 
-export function renderToDOM(container) {
-  render(<App />, container);
-}
+export function renderToDOM(container) { render(<App />, container); }

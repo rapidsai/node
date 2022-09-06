@@ -1,6 +1,7 @@
 /* global console, document, window */
-import React, { Component } from 'react';
 import { GoogleMapsOverlay } from '@deck.gl/google-maps';
+import * as React from 'react';
+import { Component } from 'react';
 
 const HOST = 'https://maps.googleapis.com/maps/api/js';
 const LOADING_GIF = 'https://upload.wikimedia.org/wikipedia/commons/d/de/Ajax-loader.gif';
@@ -31,27 +32,24 @@ function loadGoogleMapApi(apiKey, onComplete) {
 export default class DeckWithGoogleMaps extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      googleMapsLoaded: window.google && window.google.maps
-    };
+    this.state = { googleMapsLoaded: window.google && window.google.maps };
   }
 
   componentDidMount() {
     const { googleMapsToken } = this.props;
     if (!window.google || (window.google && !window.google.maps)) {
-      loadGoogleMapApi(googleMapsToken, () => {
-        this.setState({ googleMapsLoaded: true });
-      });
+      loadGoogleMapApi(googleMapsToken, () => { this.setState({ googleMapsLoaded: true }); });
     }
   }
 
   render() {
     const { googleMapsLoaded } = this.state;
     if (!googleMapsLoaded) {
-      return <img src={LOADING_GIF} alt="Loading Google Maps overlay..." />;
+      return <img src={LOADING_GIF} alt='Loading Google Maps overlay...' />;
     }
 
-    return <DeckOverlayWrapper {...this.props} />;
+    return < DeckOverlayWrapper {...this.props}
+    />;
   }
 }
 
@@ -76,7 +74,7 @@ class DeckOverlayWrapper extends Component {
     const map = new window.google.maps.Map(this.containerRef.current, view);
     this.DeckOverlay.setMap(map);
     this.DeckOverlay.setProps({ layers: this.props.layers });
-    // eslint-disable-next-line react/no-did-mount-set-state
+    //eslint-disable-next-line react/no-did-mount-set-state
     this.setState({ isOverlayConfigured: true });
   }
 
@@ -84,9 +82,7 @@ class DeckOverlayWrapper extends Component {
     this.DeckOverlay.setProps({ layers: this.props.layers });
   }
 
-  componentWillUnmount() {
-    delete this.DeckOverlay;
-  }
+  componentWillUnmount() { delete this.DeckOverlay; }
 
   render() {
     return <div ref={this.containerRef} style={style} />;

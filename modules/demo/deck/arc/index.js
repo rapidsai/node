@@ -18,7 +18,7 @@ module.exports = (glfwOptions = {
   title: 'Arc Demo',
   transparent: false
 }) => {
-  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
+  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.jsx', {
     glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved
     module: {path: __dirname},

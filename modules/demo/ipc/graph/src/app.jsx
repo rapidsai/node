@@ -26,7 +26,7 @@ import DeckGL from '@deck.gl/react';
 import { createDeckGLReactRef } from '@rapidsai/deck.gl';
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';
-import React from 'react';
+import * as React from 'react';
 
 import { GraphLayer } from '@rapidsai/deck.gl';
 
@@ -65,13 +65,10 @@ export class App extends React.Component {
         _framebuffer={props.getRenderTarget ? props.getRenderTarget() : null}
         onAfterRender={composeFns([onAfterRender, this.state.onAfterRender])}>
         <GraphLayer
-          edgeStrokeWidth={2}
-          edgeOpacity={.5}
-          nodesStroked={true}
-          nodeFillOpacity={.5}
-          nodeStrokeOpacity={.9}
-          {...this.state.graph}
-        />
+          edgeStrokeWidth={2} edgeOpacity={.5} nodesStroked={true} nodeFillOpacity={
+            .5} nodeStrokeOpacity={.9} {
+          ...this.state.graph
+          } />
         {selectedParameter !== undefined ?
           <TextLayer
             sizeScale={1}
@@ -93,7 +90,8 @@ export class App extends React.Component {
               color: [255, 255, 255],
               position: [0, i * 15],
             }))}
-          /> : null}
+          /> : null
+        }
       </DeckGL>
     );
   }
@@ -123,15 +121,13 @@ App.defaultProps = {
 };
 
 function onDragStart({ index }, { target }) {
-  if (target) {
-    [window, target].forEach((element) => (element.style || {}).cursor = 'grabbing');
-  }
+  if (target) { [window, target].forEach((element) => (element.style || {}).cursor = 'grabbing'); }
 }
 
 function onDragEnd({ index }, { target }) {
   if (target) {
-    [window, target].forEach((element) =>
-      (element.style || {}).cursor = ~index ? 'pointer' : 'default');
+    [window, target].forEach((element) => (element.style || {}).cursor =
+      ~index ? 'pointer' : 'default');
   }
 }
 

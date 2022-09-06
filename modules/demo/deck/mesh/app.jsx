@@ -1,5 +1,6 @@
-import React, {PureComponent} from 'react';
-import {render} from 'react-dom';
+import * as React from 'react'
+import { PureComponent } from 'react';
+import { render } from 'react-dom';
 import DeckGL from '@deck.gl/react';
 import {
   COORDINATE_SYSTEM,
@@ -8,11 +9,11 @@ import {
   LightingEffect,
   AmbientLight
 } from '@deck.gl/core';
-import {SolidPolygonLayer} from '@deck.gl/layers';
-import {SimpleMeshLayer} from '@deck.gl/mesh-layers';
+import { SolidPolygonLayer } from '@deck.gl/layers';
+import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 
-import {OBJLoader} from '@loaders.gl/obj';
-import {registerLoaders} from '@loaders.gl/core';
+import { OBJLoader } from '@loaders.gl/obj';
+import { registerLoaders } from '@loaders.gl/core';
 
 // Add the loaders that handle your mesh format here
 registerLoaders([OBJLoader]);
@@ -56,7 +57,7 @@ const dirLight = new DirectionalLight({
   _shadow: true
 });
 
-const lightingEffect = new LightingEffect({ambientLight, dirLight});
+const lightingEffect = new LightingEffect({ ambientLight, dirLight });
 
 const background = [
   [[-1000.0, -1000.0, -40], [1000.0, -1000.0, -40], [1000.0, 1000.0, -40], [-1000.0, 1000.0, -40]]
