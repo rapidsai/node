@@ -808,6 +808,27 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Repeats a Series n times, returning a new Series.
+   *
+   * @param repeats The number of times to repeat this.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).repeat(2) // [1, 2, 3, 1, 2, 3]
+   * // StringSeries
+   * Series.new(["foo", "bar", "test"]).repeat(2) // ["foo", "bar", "test", "foo", "bar", "test"]
+   * // Bool8Series
+   * Series.new([true, true, true]).repeat(2) // [true, false, false, true, false, false]
+   * ```
+   */
+  repeat(repeats: T['scalarType'], memoryResource?: MemoryResource): Series<T> {
+    return this.__construct(this._col.repeat(repeats, memoryResource));
+  }
+
+  /**
    * Fills a range of elements in-place in a column with a scalar value.
    *
    * @param begin The starting index of the fill range (inclusive)

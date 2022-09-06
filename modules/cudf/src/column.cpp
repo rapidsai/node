@@ -49,6 +49,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/filling.cpp
                        InstanceMethod<&Column::fill>("fill"),
                        InstanceMethod<&Column::fill_in_place>("fillInPlace"),
+                       // column/repeat.cpp
+                       InstanceMethod<&Column::repeat>("repeat"),
                        // column/binaryop.cpp
                        InstanceMethod<&Column::add>("add"),
                        InstanceMethod<&Column::sub>("sub"),

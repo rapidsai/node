@@ -245,6 +245,16 @@ export interface Column<T extends DataType = any> {
   fill(value: Scalar<T>, begin?: number, end?: number, memoryResource?: MemoryResource): Column<T>;
 
   /**
+   * Repeats the values of this n times.
+   *
+   * @param repeats The number of times to repeat the column.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  repeat(value: Scalar<T>, begin?: number, end?: number, memoryResource?: MemoryResource):
+    Column<T>;
+
+  /**
    * Fills a range of elements in-place in a column with a scalar value.
    *
    * @param begin The starting index of the fill range (inclusive)
