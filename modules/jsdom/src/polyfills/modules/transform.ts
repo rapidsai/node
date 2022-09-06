@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import * as Path from 'path';
 const cloneDeep        = require('clone-deep');
 const sourceMapSupport = require('source-map-support');
 
-export type Transform = (path: string, code: string) => string|null|undefined;
+export type Transform = (path: string, code: string) => string;
 const identityTransform: Transform = (_: string, code: string) => code;
 
 export function createTransform(opts?: Partial<babel.TransformOptions>) {
@@ -46,7 +46,7 @@ export function createTransform(opts?: Partial<babel.TransformOptions>) {
             installSourceMaps();
             maps[path] = transformed.map;
           }
-          return transformed.code;
+          return transformed.code || code;
         }
       }
       return code;
@@ -59,13 +59,13 @@ export function createTransform(opts?: Partial<babel.TransformOptions>) {
 function compilersByExtension(transform: Transform) {
   return {
     ...(Module as any)._extensions,
+    // compile `.js` files even if "type": "module" is set in the file's package.json
     ['.js']: transformAndCompile,
     ['.jsx']: transformAndCompile,
     ['.mjs']: transformAndCompile,
     ['.cjs']: transformAndCompile,
   };
 
-  // compile `.js` files even if "type": "module" is set in the file's package.json
   function transformAndCompile(module: Module, filename: string) {
     return (<any>module)._compile(transform(filename, fs.readFileSync(filename, 'utf8')), filename);
   }

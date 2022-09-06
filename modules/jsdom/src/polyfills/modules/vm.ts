@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 import * as jsdom from 'jsdom';
 import * as vm from 'vm';
+import {installWorker} from './worker';
 
 const {
   implSymbol,
@@ -30,6 +31,10 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
   window.jsdom.global               = implForWrapper(window)._globalObject;
   window.jsdom.global.__cwd         = cwd;
 
+  window.jsdom.global.URL  = window.URL;
+  window.jsdom.global.Blob = window.Blob;
+  window.Worker = window.jsdom.global.Worker = installWorker(window);
+
   return createContext;
 
   function createContext(globals: Record<string, any> = {}) {
@@ -37,6 +42,7 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
     const outerGlobal = window.jsdom.global;
     const innerGlobal = Object.create(outerGlobal, {
       ...Object.getOwnPropertyDescriptors(global),
+      ...Object.getOwnPropertyDescriptors(outerGlobal),
       window: {get: () => innerWindow, configurable: true, enumerable: true},
       global: {get: () => innerContext, configurable: true, enumerable: true},
       globalThis: {get: () => innerContext, configurable: true, enumerable: true},
@@ -50,7 +56,7 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
     });
 
     const innerContext =
-      vm.createContext(Object.assign(innerGlobal, {process: innerProcess, ...globals}));
+      vm.createContext(Object.assign(innerGlobal, {process: innerProcess}, globals));
 
     return installSymbolHasInstanceImpls(innerContext);
   }
@@ -62,6 +68,7 @@ const {
 } = Object;
 
 const nodeGlobals = Object.keys(getOwnPropertyDescriptors(vm.runInNewContext('this')));
+
 const clone = (obj: any) => Object.create(getPrototypeOf(obj), getOwnPropertyDescriptors(obj));
 
 function installSymbolHasInstanceImpls(context: vm.Context) {

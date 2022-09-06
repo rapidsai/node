@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as webp from '@cwasm/webp';
 import * as jsdom from 'jsdom';
 import * as Url from 'url';
-
-const btoa = require('btoa') as (x: string) => string;
 
 export class ImageLoader extends jsdom.ResourceLoader {
   declare private _svg2img: typeof import('svg2img').default;
@@ -43,6 +42,8 @@ export class ImageLoader extends jsdom.ResourceLoader {
   private _loadDataURL(url: string, options: jsdom.FetchOptions) {
     const {mediaType, encoding, contents} = parseDataURLPrefix(url);
     switch (mediaType) {
+      case 'image/webp':  //
+        return loadWebpDataUrl(webp, encoding, contents);
       case 'image/svg+xml':  //
         return loadSVGDataUrl(this._svg2img, encoding, contents, options);
       default: break;
@@ -67,7 +68,8 @@ function loadSVGDataUrl(svg2img: typeof import('svg2img').default,
   const options = {width: element?.offsetWidth, height: element?.offsetHeight};
   const data    = (() => {
     switch (encoding) {
-      case 'base64': return btoa(contents).trim();
+      case 'base64':  //
+        return Buffer.from(contents).toString('base64');
       default: return decodeURIComponent(contents).trim();
     }
   })();
@@ -75,5 +77,20 @@ function loadSVGDataUrl(svg2img: typeof import('svg2img').default,
     svg2img(data, options, (err, data: Buffer) => {  //
       err == null ? resolve(data) : reject(err);
     });
+  });
+}
+
+function loadWebpDataUrl(webp: typeof import('@cwasm/webp'), encoding: string, contents: string) {
+  const data = (() => {
+    switch (encoding) {
+      case 'base64':  //
+        return Buffer.from(contents, 'base64');
+      default: return Buffer.from(decodeURIComponent(contents).trim());
+    }
+  })();
+  return new Promise<ImageData>((resolve, reject) => {
+    try {
+      resolve(webp.decode(data));
+    } catch (e) { reject(e); }
   });
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,23 +14,13 @@
 
 import * as jsdom from 'jsdom';
 
-import {installGetContext} from './polyfills/canvas';
-import {installFetch} from './polyfills/fetch';
-import {GLFWWindowOptions, installGLFWWindow} from './polyfills/glfw';
-import {installImageData, installImageDecode} from './polyfills/image';
+import {GLFWWindowOptions} from './polyfills/glfw';
 import {installJSDOMUtils} from './polyfills/jsdom';
 import {mjolnirHammerResolvers} from './polyfills/modules/mjolnir';
-import {createContextRequire as createRequire} from './polyfills/modules/require';
+import {reactMapGLMapboxResolvers} from './polyfills/modules/reactmapgl';
 import {createResolve, ResolversMap} from './polyfills/modules/resolve';
-import {createTransform} from './polyfills/modules/transform';
-import {createContextFactory} from './polyfills/modules/vm';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
-import {
-  AnimationFrameRequest,
-  AnimationFrameRequestedCallback,
-  installAnimationFrame
-} from './polyfills/raf';
-import {installStreams} from './polyfills/streams';
+import {AnimationFrameRequestedCallback, defaultFrameScheduler} from './polyfills/raf';
 import {ImageLoader} from './resourceloader';
 
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
@@ -44,15 +34,17 @@ export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
 }
 
 const defaultOptions = {
+  frameRate: 60,
   glfwOptions: {},
   reportUnhandledExceptions: true,
   onAnimationFrameRequested: undefined,
   babel: {
     babelrc: false,
     presets: [
-      ['@babel/preset-env', {'targets': {'node': 'current'}}],
-      ['@babel/preset-react', {'useBuiltIns': true}]
-    ]
+      // Uncomment this if we want to transpile all ESM to CJS
+      // ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}],
+    ],
   }
 };
 
@@ -60,83 +52,122 @@ export class RapidsJSDOM extends jsdom.JSDOM {
   static fromReactComponent(componentPath: string,
                             jsdomOptions: RapidsJSDOMOptions = {},
                             reactProps                       = {}) {
-    const jsdom  = new RapidsJSDOM(jsdomOptions);
-    const loaded = jsdom.window.evalFn(async () => {
-      const React     = require('react');
-      const ReactDOM  = require('react-dom');
-      const Component = await eval(`import('${componentPath}')`);
-      ReactDOM.render(React.createElement(Component.default || Component, reactProps),
-                      document.body.appendChild(document.createElement('div')));
-    }, {componentPath, reactProps});
-    return Object.assign(jsdom, {loaded});
+    const jsdom = new RapidsJSDOM(jsdomOptions);
+    return Object.assign(jsdom, {
+      loaded: jsdom.window.evalFn(
+        async () => {
+          const {createElement} = require('react');
+          const {render}        = require('react-dom');
+          return window.eval(`import('${componentPath}')`).then((Component: any) => {
+            render(createElement(Component.default || Component, reactProps),
+                   document.body.appendChild(document.createElement('div')));
+          });
+        },
+        {componentPath, reactProps})
+    });
   }
 
+  public loaded: Promise<jsdom.DOMWindow>;
+
   constructor(options: RapidsJSDOMOptions = {}) {
-    const opts                             = Object.assign({}, defaultOptions, options);
-    const {path: dir = process.cwd()}      = opts.module ?? require.main ?? module;
-    const {url, install: installObjectURL} = createObjectUrlAndTmpDir();
+    const opts                        = Object.assign({}, defaultOptions, options);
+    const {path: dir = process.cwd()} = opts.module ?? require.main ?? module;
+    const babel = Object.assign({}, defaultOptions.babel, opts.babel, {cwd: dir});
+
+    const {url, tmpdir} = createObjectUrlAndTmpDir();
 
     const imageLoader = new ImageLoader(url, dir);
+
+    const polyfillRAFPath       = require.resolve('./polyfills/raf');
+    const polyfillGLFWPath      = require.resolve('./polyfills/glfw');
+    const polyfillFetchPath     = require.resolve('./polyfills/fetch');
+    const polyfillImagePath     = require.resolve('./polyfills/image');
+    const polyfillCanvasPath    = require.resolve('./polyfills/canvas');
+    const polyfillStreamsPath   = require.resolve('./polyfills/streams');
+    const polyfillObjectURLPath = require.resolve('./polyfills/object-url');
+    const polyfillTransformPath = require.resolve('./polyfills/modules/transform');
 
     super(undefined, {
       ...opts,
       url,
       resources: imageLoader,
       pretendToBeVisual: true,
-      runScripts: 'outside-only',
-      beforeParse(window) {
-        if (opts.reportUnhandledExceptions) { installUnhandledExceptionListeners(); }
+      runScripts: options.runScripts ?? 'outside-only',
+      beforeParse: (window) => {
+        if (opts.reportUnhandledExceptions) {  //
+          installUnhandledExceptionListeners();
+        }
+
+        window = installJSDOMUtils({
+          dir,
+          resolve: createResolve({
+            ...opts.resolvers,
+            ...mjolnirHammerResolvers(),
+            ...reactMapGLMapboxResolvers(),
+          }),
+        })(window);
 
         const {
-          onAnimationFrameRequested = defaultFrameScheduler(window, opts.frameRate),
+          frameRate,
+          glfwOptions,
+          onAnimationFrameRequested = defaultFrameScheduler(window, frameRate),
         } = opts;
 
-        const createContext = createContextFactory(window, dir);
+        window.evalFn(() => {
+          const {createTransform} =
+            require(polyfillTransformPath) as typeof import('./polyfills/modules/transform');
 
-        window = [
-          installJSDOMUtils({
-            createContext,
-            require: createRequire({
-              dir,
-              context: createContext(),
-              resolve: createResolve({...opts.resolvers, ...mjolnirHammerResolvers()}),
-              ...createTransform((opts.babel || undefined) &&  //
-                                     (typeof opts.babel === 'object')
-                                   ? {...opts.babel, cwd: dir}
-                                   : {...defaultOptions.babel, cwd: dir}),
-            })
-          }),
-          installFetch,
-          installStreams,
-          installObjectURL,
-          installImageData,
-          installImageDecode,
-          installGetContext,
-          installGLFWWindow(opts.glfwOptions),
-          installAnimationFrame(onAnimationFrameRequested),
-        ].reduce((window, fn) => fn(window), window);
+          const {extensions: _extensions, transform: _transform} = createTransform(babel);
+          Object.assign(window.jsdom.global.require, {extensions: _extensions});
+          Object.assign(window.jsdom.global.require.main, {_extensions, _transform});
 
-        imageLoader.svg2img = window.evalFn(() => require('svg2img').default);
+          const {installAnimationFrame} =
+            require(polyfillRAFPath) as typeof import('./polyfills/raf');
+          const {installGLFWWindow} =
+            require(polyfillGLFWPath) as typeof import('./polyfills/glfw');
+          const {installFetch} =  //
+            require(polyfillFetchPath) as typeof import('./polyfills/fetch');
+          const {installImageData, installImageDecode} =
+            require(polyfillImagePath) as typeof import('./polyfills/image');
+          const {installGetContext} =
+            require(polyfillCanvasPath) as typeof import('./polyfills/canvas');
+          const {installStreams} =
+            require(polyfillStreamsPath) as typeof import('./polyfills/streams');
+          const {installObjectURL} =
+            require(polyfillObjectURLPath) as typeof import('./polyfills/object-url');
+
+          [installFetch,
+           installStreams,
+           installObjectURL(tmpdir),
+           installImageData,
+           installImageDecode,
+           installGetContext,
+           installGLFWWindow(glfwOptions),
+           installAnimationFrame(onAnimationFrameRequested),
+          ].reduce((window, fn) => fn(window), window);
+
+          imageLoader.svg2img = require('svg2img').default;
+        }, {
+          babel,
+          tmpdir,
+          frameRate,
+          glfwOptions,
+          imageLoader,
+          polyfillRAFPath,
+          polyfillGLFWPath,
+          polyfillFetchPath,
+          polyfillImagePath,
+          polyfillCanvasPath,
+          polyfillStreamsPath,
+          polyfillObjectURLPath,
+          polyfillTransformPath,
+          onAnimationFrameRequested,
+        });
       }
     });
-  }
-}
 
-function defaultFrameScheduler(window: jsdom.DOMWindow, fps = 60) {
-  let request: AnimationFrameRequest|null = null;
-  let interval: any                       = setInterval(() => {
-    if (request) {
-      const f = request.flush;
-      request = null;
-      f(() => {});
-    }
-    window.poll();
-  }, 1000 / fps);
-  window.addEventListener('close', () => {
-    interval && clearInterval(interval);
-    request = interval = null;
-  }, {once: true});
-  return (r_: AnimationFrameRequest) => { request = r_; };
+    this.loaded = Promise.resolve(this.window);
+  }
 }
 
 function installUnhandledExceptionListeners() {

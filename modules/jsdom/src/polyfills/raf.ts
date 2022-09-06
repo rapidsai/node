@@ -97,3 +97,20 @@ export function installAnimationFrame(onAnimationFrameRequested: AnimationFrameR
     }
   };
 }
+
+export function defaultFrameScheduler(window: jsdom.DOMWindow, fps = 60) {
+  let request: AnimationFrameRequest|null = null;
+  let interval: any                       = setInterval(() => {
+    if (request) {
+      const f = request.flush;
+      request = null;
+      f(() => {});
+    }
+    window.poll && window.poll();
+  }, 1000 / fps);
+  window.addEventListener('close', () => {
+    interval && clearInterval(interval);
+    request = interval = null;
+  }, {once: true});
+  return (r_: AnimationFrameRequest) => { request = r_; };
+}
