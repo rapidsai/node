@@ -35,6 +35,24 @@ test('writes and reads a Parquet', () => {
   expect(result.toString()).toEqual(expected.toString());
 });
 
+test('reading a Parquet file deserializes the types', () => {
+  const expected = new DataFrame({
+    a: Series.new([1, 2, 3]),
+    b: Series.new([1, 2, 3]),
+    c: Series.new([1, 2, 3]),
+  });
+
+  const path = Path.join(tmpDir, 'floats.parquet');
+  expected.toParquet(path);
+
+  const result = DataFrame.readParquet({
+    sourceType: 'files',
+    sources: [path],
+  });
+
+  expect(result.sum().sum()).toEqual(18);
+});
+
 let tmpDir = '';
 
 const rimraf = require('rimraf');
