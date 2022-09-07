@@ -32,6 +32,7 @@ import {
   Uint8,
   Utf8String
 } from '../types/dtypes';
+import {GetJSONObjectOptions} from '../types/json';
 
 export type ConcatenateOptions = {
   /** String that should inserted between each string from each row. Default is an empty string. */
@@ -488,8 +489,14 @@ export class StringSeries extends Series<Utf8String> {
    * [...a.getJSONObject("$.foo").map(JSON.parse)] // object [{ bar: 'baz' }, { baz: 'bar' }]
    * ```
    */
-  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): Series<Utf8String> {
-    return this.__construct(this._col.getJSONObject(jsonPath, memoryResource));
+  getJSONObject(jsonPath: string,
+                options: GetJSONObjectOptions = {
+                  allowSingleQuotes: false,
+                  missingFieldsAsNulls: false,
+                  stripQuotesFromSingleStrings: true,
+                },
+                memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.getJSONObject(jsonPath, options, memoryResource));
   }
 
   /**

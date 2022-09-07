@@ -80,9 +80,7 @@ type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends
 function _seriesToColumns<T extends TypeMap>(data: ColumnsMap<T>|SeriesMap<T>) {
   const columns = {} as any;
   for (const [name, col] of Object.entries(data)) {
-    if (col instanceof Column) {
-      columns[name] = col;
-    } else if (col instanceof Series) {
+    if (col instanceof Series) {
       columns[name] = col._col;
     } else {
       columns[name] = Series.new(col)._col;
@@ -147,10 +145,9 @@ export class DataFrame<T extends TypeMap = any> {
    * })
    * ```
    */
-  public static readORC(options: ReadORCOptions) {
+  public static readORC<T extends TypeMap = any>(options: ReadORCOptions) {
     const {names, table} = Table.readORC(options);
-    return new DataFrame(new ColumnAccessor(
-      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+    return DataFrame.fromTable<T>(table, names);
   }
 
   /**
@@ -165,10 +162,9 @@ export class DataFrame<T extends TypeMap = any> {
    * })
    * ```
    */
-  public static readParquet(options: ReadParquetOptions) {
+  public static readParquet<T extends TypeMap = any>(options: ReadParquetOptions) {
     const {names, table} = Table.readParquet(options);
-    return new DataFrame(new ColumnAccessor(
-      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+    return DataFrame.fromTable<T>(table, names);
   }
 
   /**
@@ -2110,10 +2106,10 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns a DataFrame without duplicate rows
    * ```
    */
-  dropDuplicates(keep: keyof typeof DuplicateKeepOption,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
-                 subset = this.names,
+  dropDuplicates(keep: keyof typeof DuplicateKeepOption = 'any',
+                 nullsEqual                             = true,
+                 nullsFirst                             = true,
+                 subset                                 = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;

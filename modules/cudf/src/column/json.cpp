@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <node_cudf/utilities/napi_to_cpp.hpp>
+
 #include <node_cudf/column.hpp>
 #include <node_cudf/scalar.hpp>
 
@@ -20,22 +22,21 @@
 namespace nv {
 
 Column::wrapper_t Column::get_json_object(std::string const& json_path,
+                                          cudf::strings::get_json_object_options const& opts,
                                           rmm::mr::device_memory_resource* mr) {
   try {
     auto col =
-      Column::New(Env(),
-                  cudf::strings::get_json_object(
-                    this->view(), json_path, cudf::strings::get_json_object_options{}, mr));
+      Column::New(Env(), cudf::strings::get_json_object(this->view(), json_path, opts, mr));
     cudf::scalar& valid_count = *col->is_valid(mr)->sum(mr);
     auto& count_scalar        = static_cast<cudf::numeric_scalar<cudf::size_type>&>(valid_count);
-    col->set_null_count(count_scalar.value());
+    col->set_null_count(col->size() - count_scalar.value());
     return col;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Column::get_json_object(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return get_json_object(args[0], args[1]);
+  return get_json_object(args[0], args[1], args[2]);
 }
 
 }  // namespace nv

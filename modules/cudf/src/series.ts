@@ -1484,9 +1484,9 @@ export class AbstractSeries<T extends DataType = any> {
    * ) // [1, 2, 3]
    * ```
    */
-  dropDuplicates(keep: boolean,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
+  dropDuplicates(keep       = true,
+                 nullsEqual = true,
+                 nullsFirst = true,
                  memoryResource?: MemoryResource) {
     return new DataFrame({0: this})
       .dropDuplicates(keep ? 'first' : 'none', nullsEqual, nullsFirst, ['0'], memoryResource)
