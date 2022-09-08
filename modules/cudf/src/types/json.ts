@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @summary The desired order of null compared to other elements for a column.
- */
-export enum NullOrder
-{
-  after,
-  before
-}
-
-export enum DuplicateKeepOption
-{
-  any,    // Keeps an unspecified occurrence.
-  first,  // Keeps first duplicate row and unique rows.
-  last,   // Keeps last duplicate row and unique rows.
-  none,   // Keeps only unique rows are kept.
+export interface GetJSONObjectOptions {
+  /* Whether to allow single quotes to represent strings in JSON. */
+  allowSingleQuotes?: boolean;
+  /* Whether to return nulls when an object does not contain the requested field. */
+  missingFieldsAsNulls?: boolean;
+  /* Whether to return individual string values with quotes stripped. */
+  stripQuotesFromSingleStrings?: boolean;
 }

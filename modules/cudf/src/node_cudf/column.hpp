@@ -30,6 +30,7 @@
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
 #include <cudf/strings/combine.hpp>
+#include <cudf/strings/json.hpp>
 #include <cudf/strings/padding.hpp>
 #include <cudf/types.hpp>
 #include <cudf/unary.hpp>
@@ -789,6 +790,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/strings/json.cpp
   Column::wrapper_t get_json_object(
     std::string const& json_path,
+    cudf::strings::get_json_object_options const& opts,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/strings/padding.cpp
