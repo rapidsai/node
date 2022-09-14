@@ -29,11 +29,11 @@
     "tsc:watch": "yarn tsc:clean && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@deck.gl/core": "8.6.6",
-    "@deck.gl/layers": "8.6.6",
-    "@luma.gl/core": "8.5.10",
-    "@luma.gl/engine": "8.5.10",
-    "@luma.gl/webgl": "8.5.10",
+    "@deck.gl/core": "8.8.10",
+    "@deck.gl/layers": "8.8.10",
+    "@luma.gl/core": "8.5.16",
+    "@luma.gl/engine": "8.5.16",
+    "@luma.gl/webgl": "8.5.16",
     "@rapidsai/core": "~22.8.1",
     "@rapidsai/cuda": "~22.8.1",
     "@rapidsai/cudf": "~22.8.1",

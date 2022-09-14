@@ -48,7 +48,7 @@
   "dependencies": {
     "@rapidsai/cuda": "~22.8.1",
     "@rapidsai/rmm": "~22.8.1",
-    "apache-arrow": "^8.0.0"
+    "apache-arrow": "^9.0.0"
   },
   "devDependencies": {
     "ix": "4.4.1"
