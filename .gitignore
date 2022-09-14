@@ -15,7 +15,8 @@
 
 .env
 .creds
-.vscode
+.vscode/server
+.vscode/server-insiders
 .cmake-js
 modules/*/include/napi.h
 modules/*/include/napi-inl.h
