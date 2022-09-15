@@ -59,12 +59,11 @@ export interface CreateContextRequireOptions {
   transform?: Transform;
   /** An object containing any context specific require hooks to be used in this module. */
   extensions?: Partial<NodeJS.RequireExtensions>;
-  /** A function to make the exports object for ES6 modules */
-  makeExports?: (module: Module, exports: any) => any,
 }
 
 export class ContextModule extends Module {
   declare public _context: vm.Context;
+  declare public _proxyExports: Record<string, boolean>;
   declare public _moduleCache: NodeJS.Dict<NodeModule>;
   declare public _resolveCache: NodeJS.Dict<string>;
   declare public _extensions?: Partial<NodeJS.RequireExtensions>;
@@ -73,7 +72,6 @@ export class ContextModule extends Module {
   declare public __resolve: Resolver;
   declare public _transform: Transform;
 
-  declare public _exports: (mod: Module, exports: any)       => any;
   declare public _cachedDynamicImporter: (specifier: string) => Promise<vm.Module>;
 
   /**
@@ -86,7 +84,6 @@ export class ContextModule extends Module {
     context,
     resolve,
     extensions,
-    makeExports = (_: Module, e: any) => e,
     transform = (_path: string, code: string) => code,
   }: CreateContextRequireOptions) {
     const filename = Path.join(dir, `index.${moduleId++}.ctx`);
@@ -95,12 +92,12 @@ export class ContextModule extends Module {
     this.filename = filename;
     this.paths    = Module_._nodeModulePaths(dir);
 
+    this._proxyExports = {};
     this._moduleCache  = {};
     this._resolveCache = {};
     this._transform    = transform;
     this._extensions   = extensions;
-    this._exports      = makeExports;
-    this._require      = createRequire(this);
+    this._require      = createRequire(this, this);
     this._context      = isContext(context) ? context : vm.createContext(context);
 
     if (typeof resolve === 'function') {
@@ -130,6 +127,7 @@ export class ContextModule extends Module {
   }) {
     const cache    = this._resolveCache;
     const cacheKey = `${parent.path}\x00${request}`;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (cache[cacheKey]) { return cache[cacheKey]!; }
     const resolved = this.__resolve(request, parent, isMain, options);
     if (resolved) { cache[cacheKey] = resolved; }
@@ -254,9 +252,14 @@ function patched_prototype__compile(this: Module, content: string, filename: str
   const module = findNearestContextModule(this);
 
   if (module) {
+    const {id}    = this;
     const require = createRequire(this);
     const dirname = Path.dirname(filename);
-    const exports = module._exports(this, this.exports);
+    let exports   = this.exports;
+    if (module._proxyExports[id]) {
+      delete module._proxyExports[id];
+      exports = makeESMExportsProxy(this, exports);
+    }
     return module.exec(require, Module_.wrap(content), filename)
       .call(exports, exports, require, this, filename, dirname);
   }
@@ -317,7 +320,8 @@ function tryAndReset<Work extends() => any>(setup: () => any, work: Work, reset:
  * @param mod The module to create a require function for.
  */
 function createRequire(mod: Module, main = findNearestContextModule(mod)) {
-  function require(id: string) {
+  function require(id: string, isAttemptingToRequireCJSAsESM = false) {
+    main && (main._proxyExports[id] = isAttemptingToRequireCJSAsESM);
     return tryAndReset(
       installModuleHooks,
       () => mod.require(id),
@@ -360,4 +364,34 @@ function uninstallModuleHooks() {
     Module_.prototype._compile = module_prototype__compile;
     Module_.prototype.load     = module_prototype_load;
   }
+}
+
+export const ESMSyntheticModule = Symbol('ESMSyntheticModule');
+
+const ES6ExportsProxyHandler: ProxyHandler<any> = {
+  set(target: any, p: string|symbol, v: any, receiver: any) {  //
+    const success = Reflect.set(target, p, v, receiver);
+    if (success && p !== ESMSyntheticModule) {
+      const mod = Reflect.get(target, ESMSyntheticModule, receiver);
+      if (mod) { mod.setExport(p, v); }
+    }
+    return success;
+  },
+};
+
+function makeESMExportsProxy(module: Module, exports: any) {
+  let proxiedExports = new Proxy(exports, ES6ExportsProxyHandler);
+  Object.defineProperty(module, 'exports', {
+    get() { return proxiedExports; },
+    set(value: any) {
+      if (value !== proxiedExports) {
+        if (value && typeof value === 'object') {  //
+          proxiedExports = new Proxy(value, ES6ExportsProxyHandler);
+        } else {
+          proxiedExports = value;
+        }
+      }
+    },
+  });
+  return proxiedExports;
 }

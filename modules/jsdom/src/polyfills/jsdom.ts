@@ -19,7 +19,6 @@ import {
   createContextRequire as createRequire,
   CreateContextRequireOptions
 } from './modules/require';
-import {createContextFactory} from './modules/vm';
 
 declare module 'jsdom' {
   // clang-format off
@@ -30,10 +29,11 @@ declare module 'jsdom' {
   // clang-format on
 }
 
-export function installJSDOMUtils(
-  options: Pick<CreateContextRequireOptions, 'dir'|'resolve'|'transform'|'extensions'>) {
+export function installJSDOMUtils(options: {
+  createContext: (globals?: Record<string, any>) => import('vm').Context,
+}&Pick<CreateContextRequireOptions, 'dir'|'resolve'|'transform'|'extensions'>) {
   return (window: jsdom.DOMWindow) => {
-    const createContext = createContextFactory(window, options.dir);
+    const {createContext} = options;
 
     const require = window.jsdom.global.require =
       createRequire({...options, context: createContext()});

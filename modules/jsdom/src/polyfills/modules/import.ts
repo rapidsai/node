@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import * as fs from 'fs/promises';
-import * as Module from 'module';
 import * as Path from 'path';
 import * as vm from 'vm';
 import {SourceTextModule, SyntheticModule} from 'vm';
-import {createContextRequire as createRequire, Require} from './require';
+
+import {createContextRequire as createRequire, ESMSyntheticModule, Require} from './require';
 
 Object.entries({SyntheticModule, SourceTextModule}).forEach(([name, Class]) => {
   if (!Class) {
@@ -47,7 +47,7 @@ declare module 'vm' {
   }
   const SyntheticModule: SyntheticModuleConstructor;
 
-  interface SourceTextModule extends Module {}
+  type SourceTextModule = Module
   interface SourceTextModuleConstructor {
     new(code: string,
         options?: string|{identifier: string, context?: vm.Context}): SourceTextModule;
@@ -72,32 +72,19 @@ export function createImport(require: Require,
     try {
       // Try importing as CJS first
       return await tryRequire(path, opts);
-    } catch (_: any) {
+    } catch (e1: any) {
       try {
         // If CJS throws, try importing as ESM
         return await tryImport(path, opts);
-      } catch (e: any) {  //
-        throw e;
+      } catch (e2: any) {  //
+        throw[e1, e2];
       }
     }
   }
 
   function tryRequire(path: string, opts: any) {
-    let exports: any;
-    if (require.main._exports === makeESMExports) {
-      exports = require(path);
-    } else {
-      const old_makeExports = require.main._exports;
-      try {
-        require.main._exports = makeESMExports;
-        exports               = require(path);
-      } catch (e) {
-        require.main._exports = old_makeExports;
-        throw e;
-      }
-      require.main._exports = old_makeExports;
-    }
-    const keys = Object.keys(exports);
+    const exports = (require as any)(path, true);
+    const keys    = Object.keys(exports);
     if (exports.__esModule && !('default' in exports)) {
       exports.default                  = exports;
       keys[keys.indexOf('__esModule')] = 'default';
@@ -109,11 +96,14 @@ export function createImport(require: Require,
   }
 
   function tryImport(path: string, opts: any) {
+    const dir = Path.dirname(path);
+    const ext = Path.extname(path);
     return fs.readFile(path, 'utf8')
       .then((code) => {
-        const extension = Path.extname(path);
-        if (extension in require.extensions) {  //
-          return new SourceTextModule(transform(path, code), opts);
+        code = `var __dirname='${dir}';\n${code}`;
+        code = `var __filename='${path}';\n${code}`;
+        if (ext in require.extensions) {  //
+          code = transform(path, code);
         }
         return new SourceTextModule(code, opts);
       })
@@ -128,7 +118,6 @@ export function createImport(require: Require,
         dir,
         transform,
         parent: require.main,
-        makeExports: makeESMExports,
         extensions: require.extensions,
         resolve: require.main.__resolve,
         context: module.context || context,
@@ -143,36 +132,3 @@ export function createImport(require: Require,
       .then(() => module);
   }
 }
-
-function makeESMExports(module: Module, exports: any) {
-  exports = new Proxy(exports, ES6ExportsHandler);
-  Object.defineProperty(module, 'exports', {
-    get() { return exports; },
-    set(value: any) {
-      if (value !== exports) {
-        if (value && typeof value === 'object') {  //
-          exports = new Proxy(value, ES6ExportsHandler);
-        } else {
-          exports = value;
-        }
-      }
-    },
-  });
-  return exports;
-}
-
-const ESMSyntheticModule = Symbol('ESMSyntheticModule');
-
-const ES6ExportsHandler: ProxyHandler<any> = {
-  // get(target: any, p: string|symbol, receiver: any) {  //
-  //   return Reflect.get(target, p, receiver);
-  // },
-  set(target: any, p: string|symbol, v: any, receiver: any) {  //
-    const success = Reflect.set(target, p, v, receiver);
-    if (success && p !== ESMSyntheticModule) {
-      const mod = Reflect.get(target, ESMSyntheticModule, receiver);
-      if (mod) { mod.setExport(p, v); }
-    }
-    return success;
-  },
-};

@@ -16,13 +16,15 @@ import * as fs from 'fs';
 import * as jsdom from 'jsdom';
 import {Worker, WorkerOptions} from 'worker_threads';
 
-export function installWorker(window: jsdom.DOMWindow): typeof Worker {
-  return class JSDOMWorker extends Worker {
+export function installWorker(window: jsdom.DOMWindow) {
+  window.Worker = class JSDOMWorker extends Worker {
     constructor(filename: string|URL, options?: WorkerOptions) {  //
+      /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
       if (`${filename}`.startsWith('file:')) {
-        const file = fs.readFileSync(filename, 'utf8');
-        if (!file.startsWith('// rapidsai_jsdom_worker_preamble')) {
-          fs.writeFileSync(filename, injectPreamble(window, file));
+        const contents = fs.readFileSync(filename, 'utf8');
+        if (!contents.startsWith('// rapidsai_jsdom_worker_preamble')) {
+          /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
+          fs.writeFileSync(filename, injectPreamble(`${filename}`, contents));
         }
       }
       super(filename, options);
@@ -33,18 +35,45 @@ export function installWorker(window: jsdom.DOMWindow): typeof Worker {
     removeEventListener(...[type, handler]: Parameters<Worker['removeListener']>) {
       return this.removeListener(type, handler);
     }
-  }
+  };
+  return window;
 }
 
-function injectPreamble(window: jsdom.DOMWindow, rest: string) {  //
+function injectPreamble(filename: string, code: string) {
   return `// rapidsai_jsdom_worker_preamble
-class ImageData {};
+const {Blob} = require('buffer');
+class ImageData {
+  constructor(data, width, height, settings) {
+    if(typeof data === 'number') {
+      settings = height, height = width, width = data, data = undefined;
+    }
+    if (data) {
+      if (data.byteLength === 0) throw new RangeError("The input data has a zero byte length");
+      const pitch = (() => {
+        if (data instanceof Uint16Array) { return 2; }
+        if (data instanceof Uint8Array) { return 4; }
+        if (data instanceof Uint8ClampedArray) { return 4; }
+        throw new TypeError('Expected (Uint8ClampedArray, width[, height]), (Uint16Array, width[, height]) or (width, height)');
+      })();
+      if (typeof width !== 'number' || width !== width) throw new RangeError("The source width is zero");
+      if (typeof height !== 'number' || height !== height) height = (data.byteLength / pitch) / width;
+      data = new Uint8ClampedArray(data.buffer);
+    } else {
+      if (typeof width !== 'number' || width !== width) throw new RangeError("The source width is zero");
+      if (typeof height !== 'number' || height !== height) throw new RangeError("The source height is zero");
+      data = new Uint8ClampedArray(width * height * 4);
+    }
+    this.data = data;
+    this.width = width;
+    this.height = height;
+  }
+}
 const {parentPort} = require('worker_threads');
 class WorkerGlobalScope extends require('events') {
   constructor(global) {
     super();
     this.self = global;
-    this.origin = '${window.origin}';
+    this.origin = '${filename}';
 
     if (!global.fetch) {
       const {Headers, Request, Response, fetch} = require('${require.resolve('cross-fetch')}');
@@ -80,5 +109,5 @@ class WorkerGlobalScope extends require('events') {
   postMessage(data, ...xs) { parentPort.postMessage({data}, ...xs); }
 }
 global.self = new WorkerGlobalScope(Object.assign(global, {ImageData})).self;
-${rest}`;
+${code}`;
 }

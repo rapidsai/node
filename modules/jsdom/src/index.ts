@@ -14,13 +14,19 @@
 
 import * as jsdom from 'jsdom';
 
-import {GLFWWindowOptions} from './polyfills/glfw';
+import {GLFWWindowOptions, installGLFWWindow} from './polyfills/glfw';
 import {installJSDOMUtils} from './polyfills/jsdom';
 import {mjolnirHammerResolvers} from './polyfills/modules/mjolnir';
 import {reactMapGLMapboxResolvers} from './polyfills/modules/reactmapgl';
 import {createResolve, ResolversMap} from './polyfills/modules/resolve';
+import {createContextFactory} from './polyfills/modules/vm';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
-import {AnimationFrameRequestedCallback, defaultFrameScheduler} from './polyfills/raf';
+import {
+  AnimationFrameRequestedCallback,
+  defaultFrameScheduler,
+  installAnimationFrame
+} from './polyfills/raf';
+import {installWorker} from './polyfills/worker';
 import {ImageLoader} from './resourceloader';
 
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
@@ -28,7 +34,7 @@ export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
   frameRate?: number;
   glfwOptions?: GLFWWindowOptions;
   resolvers?: ResolversMap;
-  babel?: boolean|Partial<import('@babel/core').TransformOptions>;
+  babel?: false|Partial<import('@babel/core').TransformOptions>;
   reportUnhandledExceptions?: boolean;
   onAnimationFrameRequested?: AnimationFrameRequestedCallback;
 }
@@ -58,7 +64,7 @@ export class RapidsJSDOM extends jsdom.JSDOM {
         async () => {
           const {createElement} = require('react');
           const {render}        = require('react-dom');
-          return window.eval(`import('${componentPath}')`).then((Component: any) => {
+          return await window.eval(`import('${componentPath}')`).then((Component: any) => {
             render(createElement(Component.default || Component, reactProps),
                    document.body.appendChild(document.createElement('div')));
           });
@@ -72,14 +78,13 @@ export class RapidsJSDOM extends jsdom.JSDOM {
   constructor(options: RapidsJSDOMOptions = {}) {
     const opts                        = Object.assign({}, defaultOptions, options);
     const {path: dir = process.cwd()} = opts.module ?? require.main ?? module;
-    const babel = Object.assign({}, defaultOptions.babel, opts.babel, {cwd: dir});
+    const babel =
+      Object.assign({}, defaultOptions.babel, !opts.babel ? {} : opts.babel, {cwd: dir});
 
     const {url, tmpdir} = createObjectUrlAndTmpDir();
 
     const imageLoader = new ImageLoader(url, dir);
 
-    const polyfillRAFPath       = require.resolve('./polyfills/raf');
-    const polyfillGLFWPath      = require.resolve('./polyfills/glfw');
     const polyfillFetchPath     = require.resolve('./polyfills/fetch');
     const polyfillImagePath     = require.resolve('./polyfills/image');
     const polyfillCanvasPath    = require.resolve('./polyfills/canvas');
@@ -98,33 +103,47 @@ export class RapidsJSDOM extends jsdom.JSDOM {
           installUnhandledExceptionListeners();
         }
 
-        window = installJSDOMUtils({
-          dir,
-          resolve: createResolve({
-            ...opts.resolvers,
-            ...mjolnirHammerResolvers(),
-            ...reactMapGLMapboxResolvers(),
-          }),
-        })(window);
-
         const {
           frameRate,
           glfwOptions,
           onAnimationFrameRequested = defaultFrameScheduler(window, frameRate),
         } = opts;
 
+        window = [
+          installWorker,
+          installGLFWWindow(glfwOptions),
+          installAnimationFrame(onAnimationFrameRequested),
+          installJSDOMUtils({
+            dir,
+            createContext: createContextFactory(window, dir),
+            resolve: createResolve({
+              ...opts.resolvers,
+              ...mjolnirHammerResolvers(),
+              ...reactMapGLMapboxResolvers(),
+            }),
+          })
+        ].reduce((window, fn) => fn(window), window);
+
         window.evalFn(() => {
           const {createTransform} =
             require(polyfillTransformPath) as typeof import('./polyfills/modules/transform');
 
-          const {extensions: _extensions, transform: _transform} = createTransform(babel);
+          const {extensions: _extensions, transform: _transform} = createTransform({
+            ...babel,
+            preTransform(path: string, code: string) {
+              // prepend a fix for mapbox-gl's serialization code
+              if (path.includes('mapbox-gl/dist/mapbox-gl') ||
+                  path.includes('maplibre-gl/dist/maplibre-gl')) {
+                return `
+    Object.defineProperty(({}).constructor, '_classRegistryKey', {value: 'Object', writable: false});
+    ${code}`;
+              }
+              return code;
+            }
+          });
           Object.assign(window.jsdom.global.require, {extensions: _extensions});
           Object.assign(window.jsdom.global.require.main, {_extensions, _transform});
 
-          const {installAnimationFrame} =
-            require(polyfillRAFPath) as typeof import('./polyfills/raf');
-          const {installGLFWWindow} =
-            require(polyfillGLFWPath) as typeof import('./polyfills/glfw');
           const {installFetch} =  //
             require(polyfillFetchPath) as typeof import('./polyfills/fetch');
           const {installImageData, installImageDecode} =
@@ -142,8 +161,6 @@ export class RapidsJSDOM extends jsdom.JSDOM {
            installImageData,
            installImageDecode,
            installGetContext,
-           installGLFWWindow(glfwOptions),
-           installAnimationFrame(onAnimationFrameRequested),
           ].reduce((window, fn) => fn(window), window);
 
           imageLoader.svg2img = require('svg2img').default;
@@ -153,8 +170,6 @@ export class RapidsJSDOM extends jsdom.JSDOM {
           frameRate,
           glfwOptions,
           imageLoader,
-          polyfillRAFPath,
-          polyfillGLFWPath,
           polyfillFetchPath,
           polyfillImagePath,
           polyfillCanvasPath,

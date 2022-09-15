@@ -14,7 +14,6 @@
 
 import * as jsdom from 'jsdom';
 import * as vm from 'vm';
-import {installWorker} from './worker';
 
 const {
   implSymbol,
@@ -30,22 +29,20 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
   window.jsdom.utils.wrapperForImpl = wrapperForImpl;
   window.jsdom.global               = implForWrapper(window)._globalObject;
   window.jsdom.global.__cwd         = cwd;
-
-  window.jsdom.global.URL  = window.URL;
-  window.jsdom.global.Blob = window.Blob;
-  window.Worker = window.jsdom.global.Worker = installWorker(window);
+  window.jsdom.global.URL           = window.URL;
+  window.jsdom.global.Blob          = window.Blob;
+  window.jsdom.global.Worker        = window.Worker;
 
   return createContext;
 
   function createContext(globals: Record<string, any> = {}) {
-    const innerWindow = window;
     const outerGlobal = window.jsdom.global;
     const innerGlobal = Object.create(outerGlobal, {
       ...Object.getOwnPropertyDescriptors(global),
       ...Object.getOwnPropertyDescriptors(outerGlobal),
-      window: {get: () => innerWindow, configurable: true, enumerable: true},
       global: {get: () => innerContext, configurable: true, enumerable: true},
       globalThis: {get: () => innerContext, configurable: true, enumerable: true},
+      window: {value: window, configurable: true, enumerable: true, writable: false},
     });
 
     const innerProcess = Object.assign(clone(process), {

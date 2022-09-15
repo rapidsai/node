@@ -23,14 +23,16 @@ const sourceMapSupport = require('source-map-support');
 export type Transform = (path: string, code: string) => string;
 const identityTransform: Transform = (_: string, code: string) => code;
 
-export function createTransform(opts?: Partial<babel.TransformOptions>) {
-  let transform = identityTransform;
+export function createTransform({preTransform = identityTransform, ...opts}:
+                                  {preTransform?: Transform}&Partial<babel.TransformOptions> = {}) {
+  let transform = preTransform;
 
   if (opts) {
     const maps: any         = {};
     const transformOpts     = normalizeOptions(opts);
     const installSourceMaps = supportSourceMaps(maps);
     transform = (path: string, code: string) => {
+      const content = preTransform(path, code);
       // merge in base options and resolve all the plugins and presets relative to this file
       const compileOpts = babel.loadOptions({
         // sourceRoot can be overwritten
@@ -40,16 +42,16 @@ export function createTransform(opts?: Partial<babel.TransformOptions>) {
       });
       if (compileOpts) {
         const {sourceMaps = 'both'} = <any>compileOpts;
-        const transformed = babel.transform(code, {...compileOpts, sourceMaps, ast: false});
+        const transformed = babel.transform(content, {...compileOpts, sourceMaps, ast: false});
         if (transformed) {
           if (transformed.map) {
             installSourceMaps();
             maps[path] = transformed.map;
           }
-          return transformed.code || code;
+          return transformed.code || content;
         }
       }
-      return code;
+      return content;
     };
   }
 
