@@ -122,8 +122,11 @@ export default class App extends Component {
   }
 
   render() {
-    const { viewState, mapStyle = 'mapbox://styles/mapbox/dark-v9', theme = DEFAULT_THEME } =
-      this.props;
+    const {
+      viewState,
+      mapStyle = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json',
+      theme = DEFAULT_THEME
+    } = this.props;
 
     return (
       <DeckGL

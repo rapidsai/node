@@ -199,7 +199,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { mapStyle = 'mapbox://styles/mapbox/light-v9' } = this.props;
+    const { mapStyle = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json' } = this.props;
 
     return (
       <DeckGL

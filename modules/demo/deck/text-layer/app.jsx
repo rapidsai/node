@@ -11,8 +11,10 @@ import { StaticMap } from 'react-map-gl';
 // Set your mapbox token here
 const MAPBOX_TOKEN = process.env.MapboxAccessToken || 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA';  // eslint-disable-line
 // mapbox style file path
-const MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v9' ||
-  'https://rivulet-zhang.github.io/dataRepo/mapbox/style/map-style-dark-v9-no-labels.json';
+const MAPBOX_STYLE = (
+  'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json' ||
+  'https://rivulet-zhang.github.io/dataRepo/mapbox/style/map-style-dark-v9-no-labels.json'
+);
 // sample data
 const DATA_URL = 'https://rivulet-zhang.github.io/dataRepo/text-layer/hashtagsOneDayWithTime.json';
 const SECONDS_PER_DAY = 24 * 60 * 60;
