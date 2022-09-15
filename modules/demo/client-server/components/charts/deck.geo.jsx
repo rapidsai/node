@@ -18,7 +18,7 @@ import DeckGL from '@deck.gl/react';
 import { tableFromIPC } from 'apache-arrow';
 import * as React from 'react';
 import { Button, Card } from 'react-bootstrap';
-import { StaticMap } from 'react-map-gl';
+import { Map } from 'react-map-gl';
 
 import { generateLegend } from '../../components/utils/legend';
 
@@ -210,7 +210,7 @@ export default class CustomChoropleth extends React.Component {
       extruded: true,
       lineWidthScale: 10,  // only if extrude false
       lineWidthMinPixels: 1,
-      getRadius: 100,  // only if points
+      getPointRadius: 100,  // only if points
       getLineWidth: 10,
       opacity: 50,
       getFillColor: this._getFillColor,
@@ -243,7 +243,7 @@ export default class CustomChoropleth extends React.Component {
             initialViewState={this.props.initialviewstate}
             controller={true} style={{ "zIndex": 0 }}
           >
-            <StaticMap mapStyle={BASEMAP.DARK_MATTER} />
+            <Map mapStyle={BASEMAP.DARK_MATTER} />
             {this._renderTooltip}
           </DeckGL>
         </Card.Body>
