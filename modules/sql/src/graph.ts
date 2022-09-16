@@ -16,10 +16,14 @@
 
 import {DataFrame, Table} from '@rapidsai/cudf';
 
+let nonce = Math.random() * 1e3 | 0;
+
 export class ExecutionGraph {
   constructor(private _graph?: import('./rapidsai_sql').ExecutionGraph) {}
 
   start(): void { this._graph?.start(); }
+
+  then() { return this.result(); }
 
   async result() {
     const {names, tables} =
@@ -38,7 +42,7 @@ export class ExecutionGraph {
       const {_graph}                                  = this;
       const inFlightTables: Record<string, DataFrame> = {};
       if (_graph) {
-        _graph.sendTo(id, dfs).forEach((messageId, i) => {  //
+        _graph.sendTo(id, dfs, `${nonce++}`).forEach((messageId, i) => {  //
           inFlightTables[messageId] = dfs[i];
         });
       }

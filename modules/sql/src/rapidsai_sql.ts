@@ -69,7 +69,7 @@ export declare class ExecutionGraph {
 
   start(): void;
   result(): Promise<{names: string[], tables: Table[]}>;
-  sendTo(id: number, df: DataFrame[]): string[];
+  sendTo(id: number, df: DataFrame[], nonce: string): string[];
 }
 
 export declare class UcpContext {
