@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ export interface Worker {
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
 }
 
-export interface ClusterProps {
+export interface ClusterProps extends ContextProps {
   ip: string;
   port: number;
   numWorkers: number;
@@ -54,7 +54,7 @@ export class SQLCluster {
    * const cluster = await Cluster.init();
    * ```
    */
-  public static async init(options: Partial<ClusterProps>&Partial<ContextProps> = {}) {
+  public static async init(options: Partial<ClusterProps> = {}) {
     const {numWorkers = Device.numDevices, ip = '0.0.0.0', port = 4000} = options;
     const {
       networkIfaceName = 'lo',

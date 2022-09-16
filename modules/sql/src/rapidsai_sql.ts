@@ -14,6 +14,7 @@
 
 import {DataFrame, Table} from '@rapidsai/cudf';
 import {ParsedSchema} from './SQLTable';
+import type {defaultContextConfigValues} from './config';
 
 /** @ignore */
 export declare const _cpp_exports: any;
@@ -37,7 +38,7 @@ export type ContextProps = {
   ucpContext?: UcpContext;   //
   networkIfaceName: string;  //
   workersUcpInfo: WorkerUcpInfo[];
-  configOptions: Record<string, unknown>;
+  configOptions: typeof defaultContextConfigValues;
   allocationMode: string;
   initialPoolSize: number | null;
   maximumPoolSize: number | null;
