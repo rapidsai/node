@@ -37,7 +37,7 @@
     "@rapidsai/core": "~22.8.1",
     "@rapidsai/cuda": "~22.8.1",
     "@rapidsai/cudf": "~22.8.1",
-    "mjolnir.js": "2.6.0"
+    "mjolnir.js": "2.7.1"
   },
   "files": [
     "build",

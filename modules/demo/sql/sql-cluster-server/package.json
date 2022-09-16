@@ -33,8 +33,13 @@
     "react-loading-overlay": "1.0.1"
   },
   "files": [
-    "package.json",
+    ".next",
     "pages",
-    "components"
+    "components",
+    "data.js",
+    "index.js",
+    "README.md",
+    "package.json",
+    "next.config.js"
   ]
 }

@@ -19,7 +19,7 @@
     "@rapidsai/jsdom": "~22.8.1",
     "d3-scale": "2.2.2",
     "gl-matrix": "3.4.3",
-    "mjolnir.js": "2.6.0",
+    "mjolnir.js": "2.7.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-map-gl": "7.0.19"

@@ -22,7 +22,7 @@
     "@rapidsai/cuspatial": "~22.8.1",
     "@rapidsai/glfw": "~22.8.1",
     "@rapidsai/jsdom": "~22.8.1",
-    "mjolnir.js": "2.6.0",
+    "mjolnir.js": "2.7.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },

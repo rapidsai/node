@@ -133,7 +133,6 @@
   },
   "resolutions": {
     "**/@deck.gl/aggregation-layers": "8.8.10",
-    "**/@deck.gl/arcgis": "8.8.10",
     "**/@deck.gl/carto": "8.8.10",
     "**/@deck.gl/core": "8.8.10",
     "**/@deck.gl/extensions": "8.8.10",
@@ -161,11 +160,12 @@
     "**/@luma.gl/gltools": "8.5.16",
     "**/@luma.gl/shadertools": "8.5.16",
     "**/@luma.gl/webgl": "8.5.16",
+    "**/@math.gl/core": "3.6.3",
     "**/apache-arrow": "^9.0.0",
     "**/gl-matrix": "3.4.3",
     "**/jsdom": "16.6.0",
-    "**/math.gl": "3.5.7",
-    "**/mjolnir.js": "2.6.0",
+    "**/math.gl": "3.6.3",
+    "**/mjolnir.js": "2.7.1",
     "**/maplibre-gl": "2.4.0"
   },
   "release": {
