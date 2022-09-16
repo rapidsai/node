@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {DataFrame} from '@rapidsai/cudf';
+
 import {ContextProps, UcpContext} from '../addon';
 import {SQLContext} from '../context';
 
 let context: SQLContext;
+const allInFlightTables: Record<string, DataFrame> = {};
 
 function die({code = 0}: any) { process.exit(code); }
 
@@ -45,7 +48,17 @@ function createORCTable({name, paths}: {name: string, paths: string[]}) {
 
 async function sql({query, token, destinationId}:
                      {uuid: string, query: string, token: number; destinationId: number}) {
-  return {messageIds: await context.sql(query, token).sendTo(destinationId)};
+  const newInFlightTables = await context.sql(query, token).sendTo(destinationId);
+  Object.assign(allInFlightTables, newInFlightTables);
+  return {messageIds: Object.keys(newInFlightTables)};
+}
+
+function release({messageId}: {messageId: string}) {
+  const df = allInFlightTables[messageId];
+  if (df) {
+    delete allInFlightTables[messageId];
+    df.dispose();
+  }
 }
 
 process.on('message', ({type, ...opts}: any) => {
@@ -55,6 +68,7 @@ process.on('message', ({type, ...opts}: any) => {
       case 'kill': return die(opts);
       case 'init': return init(opts);
       case 'sql': return await sql(opts);
+      case 'release': return release(opts);
       case 'dropTable': return dropTable(opts);
       case 'createDataFrameTable': return await createDataFrameTable(opts);
       case 'createCSVTable': return createCSVTable(opts);

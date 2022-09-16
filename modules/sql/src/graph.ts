@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@
 
 import {DataFrame, Table} from '@rapidsai/cudf';
 
+let nonce = Math.random() * 1e3 | 0;
+
 export class ExecutionGraph {
   constructor(private _graph?: import('./rapidsai_sql').ExecutionGraph) {}
 
   start(): void { this._graph?.start(); }
+
+  then() { return this.result(); }
 
   async result() {
     const {names, tables} =
@@ -33,5 +37,16 @@ export class ExecutionGraph {
     return results;
   }
 
-  async sendTo(id: number) { return await this.result().then((df) => this._graph?.sendTo(id, df)); }
+  async sendTo(id: number) {
+    return await this.result().then((dfs) => {
+      const {_graph}                                  = this;
+      const inFlightTables: Record<string, DataFrame> = {};
+      if (_graph) {
+        _graph.sendTo(id, dfs, `${nonce++}`).forEach((messageId, i) => {  //
+          inFlightTables[messageId] = dfs[i];
+        });
+      }
+      return inFlightTables;
+    });
+  }
 }
