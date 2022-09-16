@@ -263,7 +263,7 @@ export class SQLContext {
    * const sqlContext = new SQLContext();
    * sqlContext.createTable('test_table', df);
    *
-   * sqlContext.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
+   * await sqlContext.sql('SELECT a FROM test_table'); // [1, 2, 3]
    * ```
    */
   public sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
