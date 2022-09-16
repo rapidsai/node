@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {performance}             = require('perf_hooks');
-const {SQLCluster}              = require('@rapidsai/sql');
-const {DataFrame}               = require('@rapidsai/cudf');
-const {RecordBatchStreamWriter} = require('apache-arrow');
 const fs                        = require('fs');
+const {performance}             = require('perf_hooks');
+const {RecordBatchStreamWriter} = require('apache-arrow');
+const {SQLCluster}              = require('@rapidsai/sql');
+const {DataFrame, scope}        = require('@rapidsai/cudf');
 
 const fastify = require('fastify')({
   pluginTimeout: 30000,
@@ -48,7 +48,24 @@ fastify.register((require('fastify-arrow')))
     dev: process.env.NODE_ENV !== 'production',
   }))
   .register(async (instance, opts, done) => {
-    sqlCluster = await SQLCluster.init({numWorkers: 10});
+    const logPath = `${__dirname}/.logs`;
+    require('rimraf').sync(logPath);
+    fs.mkdirSync(logPath, {recursive: true});
+
+    sqlCluster = await SQLCluster.init({
+      numWorkers: Infinity,
+      enableLogging: true,
+      // allocationMode: 'pool_memory_resource',
+      configOptions: {
+        PROTOCOL: 'TCP',
+        ENABLE_TASK_LOGS: true,
+        ENABLE_COMMS_LOGS: true,
+        ENABLE_OTHER_ENGINE_LOGS: true,
+        ENABLE_GENERAL_ENGINE_LOGS: true,
+        BLAZING_LOGGING_DIRECTORY: logPath,
+        BLAZING_LOCAL_LOGGING_DIRECTORY: logPath,
+      }
+    });
     await sqlCluster.createCSVTable('test_table', DATA_PATHS);
     done();
   })
@@ -57,23 +74,21 @@ fastify.register((require('fastify-arrow')))
     fastify.post('/run_query', async function(request, reply) {
       try {
         request.log.info({query: request.body}, `calling sqlCluster.sql()`);
-        const t0        = performance.now();
-        const dfs       = await sqlCluster.sql(request.body).catch((err) => {
-          request.log.error({err}, `Error calling sqlCluster.sql`);
-          return new DataFrame();
+        await scope(async () => {
+          const t0        = performance.now();
+          const dfs       = await sqlCluster.sql(request.body).catch((err) => {
+            request.log.error({err}, `Error calling sqlCluster.sql`);
+            return new DataFrame();
+          });
+          const t1        = performance.now();
+          const queryTime = t1 - t0;
+
+          const {result, rowCount} = head(dfs, 500);
+          const arrowTable         = result.toArrow();
+          arrowTable.schema.metadata.set('queryTime', queryTime);
+          arrowTable.schema.metadata.set('queryResults', rowCount);
+          RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
         });
-        const t1        = performance.now();
-        const queryTime = t1 - t0;
-
-        const {results, resultCount} = head(dfs, 500);
-        const arrowTable             = results.toArrow();
-        arrowTable.schema.metadata.set('queryTime', queryTime);
-        arrowTable.schema.metadata.set('queryResults', resultCount);
-        RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
-
-        // TODO: remove these calls to dispose once scope() supports async
-        results.dispose();
-        dfs.forEach((df) => df.dispose());
       } catch (err) {
         request.log.error({err}, '/run_query error');
         reply.code(500).send(err);
@@ -91,16 +106,15 @@ function head(dfs, rows) {
   let rowCount = 0;
 
   for (let i = 0; i < dfs.length; ++i) {
-    if (dfs[i].numRows == 0) continue;
-    rowCount += dfs[i].numRows;
-    if (result.numRows <= rows) {
-      const head = dfs[i].head(rows - result.numRows);
-      result     = result.concat(head);
-
-      // TODO: remove this call to dispose once scope() supports async
-      head.dispose();
+    if (dfs[i].numRows > 0) {
+      rowCount += dfs[i].numRows;
+      if (result.numRows <= rows) {
+        result = scope(() => {  //
+          return result.concat(dfs[i].head(rows - result.numRows));
+        });
+      }
     }
   }
 
-  return {results: result, resultCount: rowCount};
+  return {result, rowCount};
 }
