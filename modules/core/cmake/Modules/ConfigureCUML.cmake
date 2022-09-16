@@ -36,36 +36,37 @@ function(find_and_configure_cuml)
     if(NOT TARGET cuml::cuml)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cuml ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME     cuml
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW         TRUE
+        CPMFindPackage(NAME        cuml
+            VERSION                ${VERSION}
+            # EXCLUDE_FROM_ALL       TRUE
+            GIT_REPOSITORY         https://github.com/rapidsai/cuml.git
+            GIT_TAG                branch-${MAJOR_AND_MINOR}
+            GIT_SHALLOW            TRUE
             ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR       cpp
-            OPTIONS             "SINGLEGPU ON"
-                                "WITH_UCX OFF"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
-                                "DISABLE_OPENMP OFF"
-                                "DETECT_CONDA_ENV OFF"
-                                "ENABLE_CUMLPRIMS_MG ON"
-                                "BUILD_SHARED_LIBS OFF"
-                                "BUILD_CUML_MG_TESTS OFF"
-                                "BUILD_CUML_MG_BENCH OFF"
-                                "BUILD_CUML_STD_COMMS OFF"
-                                "BUILD_CUML_MPI_COMMS OFF"
-                                "BUILD_CUML_TESTS OFF"
-                                "BUILD_CUML_BENCH OFF"
-                                "BUILD_PRIMS_TESTS OFF"
-                                "BUILD_CUML_EXAMPLES OFF"
-                                "BUILD_CUML_C_LIBRARY OFF"
-                                "BUILD_CUML_CPP_LIBRARY ON"
-                                "BUILD_CUML_PRIMS_BENCH OFF"
-                                "RAFT_USE_FAISS_STATIC ON"
-                                "CUML_USE_FAISS_STATIC ON"
-                                "CUML_USE_TREELITE_STATIC ON"
+            SOURCE_SUBDIR          cpp
+            OPTIONS                "SINGLEGPU ON"
+                                   "WITH_UCX OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
+                                   "BUILD_TESTS OFF"
+                                   "BUILD_BENCHMARKS OFF"
+                                   "DISABLE_OPENMP OFF"
+                                   "DETECT_CONDA_ENV OFF"
+                                   "ENABLE_CUMLPRIMS_MG ON"
+                                   "BUILD_SHARED_LIBS OFF"
+                                   "BUILD_CUML_MG_TESTS OFF"
+                                   "BUILD_CUML_MG_BENCH OFF"
+                                   "BUILD_CUML_STD_COMMS OFF"
+                                   "BUILD_CUML_MPI_COMMS OFF"
+                                   "BUILD_CUML_TESTS OFF"
+                                   "BUILD_CUML_BENCH OFF"
+                                   "BUILD_PRIMS_TESTS OFF"
+                                   "BUILD_CUML_EXAMPLES OFF"
+                                   "BUILD_CUML_C_LIBRARY OFF"
+                                   "BUILD_CUML_CPP_LIBRARY ON"
+                                   "BUILD_CUML_PRIMS_BENCH OFF"
+                                   "RAFT_USE_FAISS_STATIC ON"
+                                   "CUML_USE_FAISS_STATIC ON"
+                                   "CUML_USE_TREELITE_STATIC ON"
         )
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
