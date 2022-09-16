@@ -48,5 +48,5 @@ export const defaultContextConfigValues = {
 
 export const defaultClusterConfigValues = {
   ...defaultContextConfigValues,
-  PROTOCOL: 'UCX'
+  PROTOCOL: 'TCP'
 };
