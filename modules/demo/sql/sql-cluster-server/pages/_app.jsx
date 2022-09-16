@@ -17,7 +17,7 @@ import './style.css';
 
 import { Container, Navbar, Nav } from 'react-bootstrap';
 import { QueryDashboard } from '../components/querydashboard';
-import React from 'react';
+import * as React from 'react';
 
 export default function App() {
   return (

@@ -36,18 +36,19 @@ function(find_and_configure_cugraph)
     if(NOT TARGET cugraph::cugraph)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME     cugraph
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW         TRUE
+        CPMFindPackage(NAME        cugraph
+            VERSION                ${VERSION}
+            GIT_REPOSITORY         https://github.com/rapidsai/cugraph.git
+            GIT_TAG                branch-${MAJOR_AND_MINOR}
+            # EXCLUDE_FROM_ALL       TRUE
+            GIT_SHALLOW            TRUE
             ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR       cpp
-            OPTIONS             "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
-                                "BUILD_SHARED_LIBS OFF"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "BUILD_CUGRAPH_MG_TESTS OFF"
+            SOURCE_SUBDIR          cpp
+            OPTIONS                "BUILD_TESTS OFF"
+                                   "BUILD_BENCHMARKS OFF"
+                                   "BUILD_SHARED_LIBS OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
+                                   "BUILD_CUGRAPH_MG_TESTS OFF"
         )
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph

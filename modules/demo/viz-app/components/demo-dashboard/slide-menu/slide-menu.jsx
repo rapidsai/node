@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
+import * as React from 'react';
 import FileInput from '../file-input/file-input';
 import HeaderUnderline from '../header-underline/header-underline';
 import { slide as Menu } from 'react-burger-menu';

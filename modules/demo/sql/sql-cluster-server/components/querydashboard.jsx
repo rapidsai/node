@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Button from '@material-ui/core/Button';
-import React from 'react';
+import * as React from 'react';
 import { Col, Container, FormControl, InputGroup, Row } from 'react-bootstrap';
 import { QueryBuilder } from './querybuilder';
 import { tableFromIPC } from 'apache-arrow';

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 import {clampRange as clamp, Float32Buffer} from '@rapidsai/cuda';
 import {DataFrame, Float32, Int32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
 import {Graph} from '@rapidsai/cugraph';
-import * as arrow from 'apache-arrow';
 import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
 import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
 

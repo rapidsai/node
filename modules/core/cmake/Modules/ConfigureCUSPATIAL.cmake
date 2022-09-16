@@ -36,19 +36,20 @@ function(find_and_configure_cuspatial)
     if(NOT TARGET cuspatial::cuspatial)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME     cuspatial
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW         TRUE
+        CPMFindPackage(NAME        cuspatial
+            VERSION                ${VERSION}
+            # EXCLUDE_FROM_ALL       TRUE
+            GIT_REPOSITORY         https://github.com/rapidsai/cuspatial.git
+            GIT_TAG                branch-${MAJOR_AND_MINOR}
+            GIT_SHALLOW            TRUE
             ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR       cpp
-            OPTIONS             "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
-                                "BUILD_SHARED_LIBS OFF"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "PER_THREAD_DEFAULT_STREAM ON"
-                                "DISABLE_DEPRECATION_WARNING ON")
+            SOURCE_SUBDIR          cpp
+            OPTIONS                "BUILD_TESTS OFF"
+                                   "BUILD_BENCHMARKS OFF"
+                                   "BUILD_SHARED_LIBS OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
+                                   "PER_THREAD_DEFAULT_STREAM ON"
+                                   "DISABLE_DEPRECATION_WARNING ON")
     endif()
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)

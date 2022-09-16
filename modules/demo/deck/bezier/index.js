@@ -18,7 +18,7 @@ module.exports = (glfwOptions = {
   title: 'Bezier Demo',
   transparent: false
 }) => {
-  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.js', {
+  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.jsx', {
     glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved
     module: {path: __dirname},

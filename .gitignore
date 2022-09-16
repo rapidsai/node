@@ -15,18 +15,19 @@
 
 .env
 .creds
-.vscode
+.vscode/server
+.vscode/server-insiders
 .cmake-js
 modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h
 modules/*/include/node_api.h
 
-modules/demo/**/*/data
+modules/demo/**/*/data/*
 
 modules/**/.eslintrc.js
 
-modules/**/notebooks/data
+modules/**/notebooks/data/*
 
 internal/*
 

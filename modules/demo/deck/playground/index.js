@@ -19,7 +19,7 @@ module.exports = (glfwOptions = {
   transparent: false
 }) => {
   return require('@rapidsai/jsdom')
-    .RapidsJSDOM.fromReactComponent(require('path').join(__dirname, 'src', 'app.js'), {
+    .RapidsJSDOM.fromReactComponent(require('path').join(__dirname, 'src', 'app.jsx'), {
       glfwOptions,
       // Change cwd to the example dir so relative file paths are resolved
       module: {path: __dirname},

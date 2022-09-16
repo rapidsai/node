@@ -46,8 +46,6 @@ export function installAnimationFrame(onAnimationFrameRequested: AnimationFrameR
       window.removeEventListener('refresh', refresh);
     }, {once: true});
 
-    Object.assign(window.jsdom.global, {requestAnimationFrame, cancelAnimationFrame});
-
     return Object.assign(window, {requestAnimationFrame, cancelAnimationFrame});
 
     function cancelAnimationFrame(cb?: (time: number) => any) {
@@ -96,4 +94,21 @@ export function installAnimationFrame(onAnimationFrameRequested: AnimationFrameR
       // glfw.pollEvents();
     }
   };
+}
+
+export function defaultFrameScheduler(window: jsdom.DOMWindow, fps = 60) {
+  let request: AnimationFrameRequest|null = null;
+  let interval: any                       = setInterval(() => {
+    if (request) {
+      const f = request.flush;
+      request = null;
+      f(() => {});
+    }
+    window.poll && window.poll();
+  }, 1000 / fps);
+  window.addEventListener('close', () => {
+    interval && clearInterval(interval);
+    request = interval = null;
+  }, {once: true});
+  return (r_: AnimationFrameRequest) => { request = r_; };
 }

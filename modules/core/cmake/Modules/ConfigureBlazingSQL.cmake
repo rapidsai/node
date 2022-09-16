@@ -39,21 +39,25 @@ function(find_and_configure_blazingsql)
 
     if(NOT TARGET blazingdb::blazingsql-io)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
-        CPMFindPackage(NAME     blazingsql-io
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/rapids-cmake-${MAJOR_AND_MINOR}
-            SOURCE_SUBDIR       io
-            OPTIONS             # "S3_SUPPORT ON"
-                                "S3_SUPPORT OFF"
-                                "GCS_SUPPORT OFF"
-                                "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
-                                "BUILD_SHARED_LIBS OFF"
-                                # "ARROW_DEPENDENCY_SOURCE AUTO"
-                                "BLAZINGSQL_IO_BUILD_ARROW_ORC OFF"
-                                "BLAZINGSQL_IO_USE_ARROW_STATIC ON"
-                                "BLAZINGSQL_IO_BUILD_ARROW_PYTHON OFF"
+        _get_update_disconnected_state(blazingsql-io ${VERSION} UPDATE_DISCONNECTED)
+        CPMFindPackage(NAME        blazingsql-io
+            VERSION                ${VERSION}
+            # EXCLUDE_FROM_ALL       TRUE
+            GIT_REPOSITORY         https://github.com/trxcllnt/blazingsql.git
+            GIT_TAG                fea/rapids-cmake-${MAJOR_AND_MINOR}
+            GIT_SHALLOW            TRUE
+            ${UPDATE_DISCONNECTED}
+            SOURCE_SUBDIR          io
+            OPTIONS                # "S3_SUPPORT ON"
+                                   "S3_SUPPORT OFF"
+                                   "GCS_SUPPORT OFF"
+                                   "BUILD_TESTS OFF"
+                                   "BUILD_BENCHMARKS OFF"
+                                   "BUILD_SHARED_LIBS OFF"
+                                   # "ARROW_DEPENDENCY_SOURCE AUTO"
+                                   "BLAZINGSQL_IO_BUILD_ARROW_ORC OFF"
+                                   "BLAZINGSQL_IO_USE_ARROW_STATIC ON"
+                                   "BLAZINGSQL_IO_BUILD_ARROW_PYTHON OFF"
         )
     endif()
 
@@ -66,31 +70,35 @@ function(find_and_configure_blazingsql)
 
     if(NOT TARGET blazingdb::blazingsql-engine)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
-        CPMFindPackage(NAME     blazingsql-engine
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/rapids-cmake-${MAJOR_AND_MINOR}
-            SOURCE_SUBDIR       engine
-            OPTIONS             "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
-                                "BUILD_SHARED_LIBS OFF"
-                                # "S3_SUPPORT ON"
-                                "S3_SUPPORT OFF"
-                                "GCS_SUPPORT OFF"
-                                "MYSQL_SUPPORT OFF"
-                                "SQLITE_SUPPORT OFF"
-                                "POSTGRESQL_SUPPORT OFF"
-                                "CUDA_STATIC_RUNTIME ON"
-                                # "ARROW_DEPENDENCY_SOURCE AUTO"
-                                "BLAZINGSQL_ENGINE_USE_ARROW_STATIC ON"
-                                "DISABLE_DEPRECATION_WARNING ON"
-                                "BLAZINGSQL_IO_USE_ARROW_STATIC ON"
-                                "BLAZINGSQL_IO_BUILD_ARROW_ORC OFF"
-                                "BLAZINGSQL_IO_BUILD_ARROW_PYTHON OFF"
-                                "BLAZINGSQL_ENGINE_ENABLE_DEBUG_UTILS OFF"
-                                "BLAZINGSQL_ENGINE_BUILD_ARROW_ORC OFF"
-                                "BLAZINGSQL_ENGINE_BUILD_ARROW_PYTHON OFF"
-                                "BLAZINGSQL_ENGINE_WITH_PYTHON_ERRORS OFF"
+        _get_update_disconnected_state(blazingsql-engine ${VERSION} UPDATE_DISCONNECTED)
+        CPMFindPackage(NAME        blazingsql-engine
+            VERSION                ${VERSION}
+            # EXCLUDE_FROM_ALL       TRUE
+            GIT_REPOSITORY         https://github.com/trxcllnt/blazingsql.git
+            GIT_TAG                fea/rapids-cmake-${MAJOR_AND_MINOR}
+            GIT_SHALLOW            TRUE
+            ${UPDATE_DISCONNECTED}
+            SOURCE_SUBDIR          engine
+            OPTIONS                "BUILD_TESTS OFF"
+                                   "BUILD_BENCHMARKS OFF"
+                                   "BUILD_SHARED_LIBS OFF"
+                                   # "S3_SUPPORT ON"
+                                   "S3_SUPPORT OFF"
+                                   "GCS_SUPPORT OFF"
+                                   "MYSQL_SUPPORT OFF"
+                                   "SQLITE_SUPPORT OFF"
+                                   "POSTGRESQL_SUPPORT OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
+                                   # "ARROW_DEPENDENCY_SOURCE AUTO"
+                                   "BLAZINGSQL_ENGINE_USE_ARROW_STATIC ON"
+                                   "DISABLE_DEPRECATION_WARNING ON"
+                                   "BLAZINGSQL_IO_USE_ARROW_STATIC ON"
+                                   "BLAZINGSQL_IO_BUILD_ARROW_ORC OFF"
+                                   "BLAZINGSQL_IO_BUILD_ARROW_PYTHON OFF"
+                                   "BLAZINGSQL_ENGINE_ENABLE_DEBUG_UTILS OFF"
+                                   "BLAZINGSQL_ENGINE_BUILD_ARROW_ORC OFF"
+                                   "BLAZINGSQL_ENGINE_BUILD_ARROW_PYTHON OFF"
+                                   "BLAZINGSQL_ENGINE_WITH_PYTHON_ERRORS OFF"
         )
     endif()
 

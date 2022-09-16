@@ -18,7 +18,7 @@ import { default as DeckGL } from '@deck.gl/react';
 import { GraphLayer } from '@rapidsai/deck.gl';
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';
-import React from 'react';
+import * as React from 'react';
 
 import { default as loadGraphData } from './loader';
 
