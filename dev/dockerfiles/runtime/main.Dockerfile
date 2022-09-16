@@ -33,7 +33,11 @@ RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
             -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
             --wildcards --strip-components=2 \
             -x "**/lib/rapidsai_${x}.node" ; \
-    done
+    done; \
+    tar -C node_modules/@rapidsai/sql/build/Release \
+        -f /tmp/rapids/rapidsai_sql-*.tar.gz \
+        --wildcards --strip-components=2 \
+        -x "*/blazingsql-*.jar" ;
 
 FROM scratch as ucx-deb-amd64
 
@@ -65,7 +69,7 @@ RUN --mount=type=bind,from=ucx-deb,target=/usr/src/ucx \
     # GLEW dependencies
     libglvnd0 libgl1 libglx0 libegl1 libgles2 libglu1-mesa \
     # UCX runtime dependencies
-    libibverbs1 librdmacm1 libnuma1 \
+    libibverbs1 librdmacm1 libnuma1 numactl \
     # node-canvas dependencies
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg8 libgif7 librsvg2-2 \
     # SQL dependencies
