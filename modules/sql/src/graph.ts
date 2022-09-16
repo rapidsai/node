@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,5 +33,16 @@ export class ExecutionGraph {
     return results;
   }
 
-  async sendTo(id: number) { return await this.result().then((df) => this._graph?.sendTo(id, df)); }
+  async sendTo(id: number) {
+    return await this.result().then((dfs) => {
+      const {_graph}                                  = this;
+      const inFlightTables: Record<string, DataFrame> = {};
+      if (_graph) {
+        _graph.sendTo(id, dfs).forEach((messageId, i) => {  //
+          inFlightTables[messageId] = dfs[i];
+        });
+      }
+      return inFlightTables;
+    });
+  }
 }
