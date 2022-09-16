@@ -85,6 +85,7 @@ Napi::Value ExecutionGraph::send(Napi::CallbackInfo const& info) {
 
   int32_t dst_ral_id      = args[0];
   Napi::Array data_frames = args[1];
+  int32_t nonce           = args[2];
 
   auto messages = Napi::Array::New(env, data_frames.Length());
   for (int i = 0; i < data_frames.Length(); ++i) {
@@ -97,8 +98,9 @@ Napi::Value ExecutionGraph::send(Napi::CallbackInfo const& info) {
     auto ctx_token =
       std::to_string(_graph->get_last_kernel()->input_cache()->get_context()->getContextToken());
 
-    std::string message = "broadcast_table_message_" + std::to_string(i);
-    messages[i]         = message;
+    std::string message =
+      "broadcast_table_message_" + std::to_string(nonce) + "_" + std::to_string(i);
+    messages[i] = message;
 
     _context.Value()->send(dst_ral_id, ctx_token, message, names, *table);
   }

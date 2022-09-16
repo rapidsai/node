@@ -40,7 +40,7 @@ export class SQLContext {
   declare private _schema: any;
   declare private _generator: any;
   declare private _tables: Map<string, SQLTable>;
-  declare private _configOptions: Record<string, unknown>;
+  declare private _configOptions: typeof defaultContextConfigValues;
 
   constructor(options: Partial<ContextProps> = {}) {
     this._db        = CatalogDatabaseImpl('main');

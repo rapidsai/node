@@ -86,8 +86,15 @@ export class RemoteSQLWorker implements Worker {
 
   public sql(query: string, token: number) {
     return this._send({type: 'sql', query, token, destinationId: this._cluster.context.id})
-      .then(({messageIds}: {messageIds: string[]}) =>
-              Promise.all(messageIds.map((id: string) => this._cluster.context.pull(id))));
+      .then(({messageIds}: {messageIds: string[]}) => {
+        return Promise.all(messageIds.map((messageId: string) => {
+          return this._cluster.context.pull(messageId).then((df) => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this._send({type: 'release', messageId});
+            return df;
+          });
+        }));
+      });
   }
 
   private _send({type, ...rest}: any = {}) {
