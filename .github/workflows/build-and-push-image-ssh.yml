@@ -114,10 +114,10 @@ jobs:
           files: |
             ${{ inputs.file }}
             ${{ inputs.files-to-diff }}
-            lerna\.json
-            \.github/workflows/merge\.pr\.yml
-            \.github/workflows/build-and-push-image\.yml
-            \.github/actions/build-and-publish-image-ssh/action\.yml
+            lerna.json
+            .github/workflows/merge.pr.yml
+            .github/workflows/build-and-push-image.yml
+            .github/actions/build-and-publish-image-ssh/action.yml
 
       - name: Set environment variables
         shell: bash

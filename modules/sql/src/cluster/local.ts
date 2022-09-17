@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,5 @@ export class LocalSQLWorker implements Worker {
 
   public async dropTable(name: string) { await this.context.dropTable(name); }
 
-  public async sql(query: string, token: number) {
-    return await (await this.context.sql(query, token)).result();
-  }
+  public async sql(query: string, token: number) { return await this.context.sql(query, token); }
 }

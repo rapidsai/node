@@ -216,6 +216,7 @@
             "**/.git/objects/**": true,
             "**/.git/subtree-cache/**": true,
             "**/build/**": true,
+            "**/.next/**": true,
             "**/.cache/**": true,
             "**/.cmake-js/**": true,
             "**/node_modules/**": true
@@ -226,6 +227,7 @@
             "**/napi-inl.deprecated.h": false,
             "**/node_api.h": false,
             "**/build/**": true,
+            "**/.next/**": true,
             "**/.cache/**": true,
             "**/.cmake-js/**": true,
             "**/node_modules/**": true

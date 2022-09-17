@@ -36,6 +36,7 @@ function(find_and_configure_raft)
         _get_update_disconnected_state(raft ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME        raft
             VERSION                ${VERSION}
+            # EXCLUDE_FROM_ALL       TRUE
             GIT_REPOSITORY         https://github.com/rapidsai/raft.git
             GIT_TAG                branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW            TRUE

@@ -36,5 +36,14 @@
   "devDependencies": {
     "path": "0.12.7",
     "tap": "^16.1.0"
-  }
+  },
+  "files": [
+    "util",
+    "routes",
+    "plugins",
+    "app.js",
+    "index.js",
+    "README.md",
+    "package.json"
+  ]
 }

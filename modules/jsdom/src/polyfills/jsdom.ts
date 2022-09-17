@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,31 +13,45 @@
 // limitations under the License.
 
 import * as jsdom from 'jsdom';
-import * as vm from 'vm';
+import * as Module from 'module';
 
-import {Require} from './modules/require';
+import {
+  createContextRequire as createRequire,
+  CreateContextRequireOptions
+} from './modules/require';
 
 declare module 'jsdom' {
+  // clang-format off
   interface DOMWindow {
+    import: (specifier: string) => Promise<import('vm').Module>;
     evalFn: (script: () => any, globals?: Record<string, any>) => any;
   }
+  // clang-format on
 }
 
-export function installJSDOMUtils({require, createContext}: {
-  require: Require,
-  createContext: (globals?: Record<string, any>) => vm.Context,
-}) {
+export function installJSDOMUtils(options: {
+  createContext: (globals?: Record<string, any>) => import('vm').Context,
+}&Pick<CreateContextRequireOptions, 'dir'|'resolve'|'transform'|'extensions'>) {
   return (window: jsdom.DOMWindow) => {
-    window.jsdom.global.require = require;
+    const {createContext} = options;
+
+    const require = window.jsdom.global.require =
+      createRequire({...options, context: createContext()});
+
+    window.import = window.jsdom.global.import = require.main._cachedDynamicImporter;
 
     if (window.jsdom.utils.implForWrapper(window.document)._origin === 'null') {
       window.jsdom.utils.implForWrapper(window.document)._origin = '';
     }
 
     window.evalFn = (f: () => any, globals: Record<string, any> = {}) => {
-      const source   = `(${f.toString()}).call(this)`;
+      const exports  = {};
+      const context  = createContext(globals);
+      const source   = `return (${f.toString()}).call(this);`;
       const filename = `evalmachine.<${f.name || 'anonymous'}>`;
-      return require.main.exec(source, filename, createContext(globals));
+      return require.main
+        .exec(require, Module.wrap(source), filename, context)  //
+        .call(exports, exports, require, require.main, filename, '.');
     };
 
     return window;

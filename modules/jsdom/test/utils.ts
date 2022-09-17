@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ import * as jsdom from 'jsdom';
 
 export let globalWindow: jsdom.DOMWindow;
 
-beforeAll(() => { ({window: globalWindow} = new RapidsJSDOM({module: require.main})); });
+beforeAll(() => {
+  ({window: globalWindow} = new RapidsJSDOM({glfwOptions: {visible: false}, module: require.main}));
+});
 afterAll(() => {
   if (globalWindow) {  //
     globalWindow.dispatchEvent(new globalWindow.CloseEvent('close'));

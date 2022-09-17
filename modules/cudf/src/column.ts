@@ -30,9 +30,10 @@ import {
   Numeric,
   Utf8String,
 } from './types/dtypes';
+import {GetJSONObjectOptions} from './types/json';
 import {CommonType, Interpolation} from './types/mappings';
 
-export type PadSideType = 'left'|'right'|'both'
+export type PadSideType = 'left'|'right'|'both';
 
 export type ColumnProps<T extends DataType = any> = {
   /*
@@ -1396,7 +1397,8 @@ export interface Column<T extends DataType = any> {
    */
   nansToNulls(memoryResource?: MemoryResource): Column<T>;
 
-  getJSONObject(jsonPath?: string, memoryResource?: MemoryResource): Column<T>;
+  getJSONObject(jsonPath?: string, opts?: GetJSONObjectOptions, memoryResource?: MemoryResource):
+    Column<T>;
 
   /**
    * Returns the number of bytes of each string in the Column.
