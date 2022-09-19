@@ -648,6 +648,20 @@ export class StringSeries extends Series<Utf8String> {
                   stripQuotesFromSingleStrings: true,
                 },
                 memoryResource?: MemoryResource): Series<Utf8String> {
-    return this.__construct(this._col.getJSONObject(jsonPath, options, memoryResource));
+    let col = this._col.getJSONObject(jsonPath, options, memoryResource);
+    // Work around a bug where libcudf can return String columns with no offsets or data children
+    if (col.numChildren === 0) {
+      ({_col: col} = Series.new({
+        type: new Utf8String,
+        length: col.length,
+        nullMask: col.mask,
+        nullCount: col.nullCount,
+        children: [
+          new Int32Array(col.length + 1).fill(0),
+          new Uint8Array(0),
+        ],
+      }));
+    }
+    return this.__construct(col);
   }
 }

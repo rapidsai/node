@@ -17,6 +17,7 @@
 #include <node_cudf/column.hpp>
 #include <node_cudf/scalar.hpp>
 
+#include <cudf/detail/null_mask.hpp>
 #include <cudf/strings/json.hpp>
 
 namespace nv {
@@ -25,12 +26,11 @@ Column::wrapper_t Column::get_json_object(std::string const& json_path,
                                           cudf::strings::get_json_object_options const& opts,
                                           rmm::mr::device_memory_resource* mr) {
   try {
-    auto col =
-      Column::New(Env(), cudf::strings::get_json_object(this->view(), json_path, opts, mr));
-    cudf::scalar& null_count = *col->is_null(mr)->sum(mr);
-    auto& count_scalar       = static_cast<cudf::numeric_scalar<cudf::size_type>&>(null_count);
-    col->set_null_count(count_scalar.value());
-    return col;
+    auto obj        = cudf::strings::get_json_object(view(), json_path, opts, mr);
+    auto null_count = cudf::detail::count_unset_bits(
+      obj->view().null_mask(), 0, obj->size(), rmm::cuda_stream_default);
+    obj->set_null_count(null_count);
+    return Column::New(Env(), std::move(obj));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
