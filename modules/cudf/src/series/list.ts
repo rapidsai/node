@@ -113,8 +113,9 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    * @summary Flatten the list elements.
    */
   flatten(memoryResource?: MemoryResource): Series<T> {
-    return Series.new<T>(
-      new Table({columns: [this._col]}).explode(0, memoryResource).getColumnByIndex(0));
+    return (this.elements as any)
+      .__construct(
+        new Table({columns: [this._col]}).explode(0, memoryResource).getColumnByIndex(0));
   }
 
   /**

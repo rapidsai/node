@@ -15,7 +15,6 @@
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {DataFrame, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
-import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
@@ -26,7 +25,7 @@ describe(`DataFrame.flatten`, () => {
     b: Series.new([[1, 2, 7], [5, 6], [0, 3]]),
     c: Series.new(['string0', 'string1', 'string2']),
     d: Series.new([[1, 2, 7], [5, 6], [0, 3]]),
-    e: Series.new(arrow.vectorFromArray([{a: 0, b: '0'}, {a: 1, b: '1'}, {a: 2, b: '2'}])),
+    e: Series.new([{a: 0, b: '0'}, {a: 1, b: '1'}, {a: 2, b: '2'}]),
   });
 
   test(`doesn't flatten non-list columns`, () => {
@@ -48,7 +47,7 @@ describe(`DataFrame.flatten`, () => {
       b: Series.new([1, 2, 7, 5, 6, 0, 3]),
       c: Series.new(['string0', 'string0', 'string0', 'string1', 'string1', 'string2', 'string2']),
       d: Series.new([[1, 2, 7], [1, 2, 7], [1, 2, 7], [5, 6], [5, 6], [0, 3], [0, 3]]),
-      e: Series.new(arrow.vectorFromArray([
+      e: Series.new([
         {a: 0, b: '0'},
         {a: 0, b: '0'},
         {a: 0, b: '0'},
@@ -56,7 +55,7 @@ describe(`DataFrame.flatten`, () => {
         {a: 1, b: '1'},
         {a: 2, b: '2'},
         {a: 2, b: '2'},
-      ])),
+      ]),
     });
 
     const actual = input.flatten(['b']);
@@ -94,7 +93,7 @@ describe(`DataFrame.flatten`, () => {
         'string2'
       ]),
       d: Series.new([1, 2, 7, 1, 2, 7, 1, 2, 7, 5, 6, 5, 6, 0, 3, 0, 3]),
-      e: Series.new(arrow.vectorFromArray([
+      e: Series.new([
         {a: 0, b: '0'},
         {a: 0, b: '0'},
         {a: 0, b: '0'},
@@ -112,8 +111,7 @@ describe(`DataFrame.flatten`, () => {
         {a: 2, b: '2'},
         {a: 2, b: '2'},
         {a: 2, b: '2'},
-      ])),
-
+      ]),
     });
 
     const actual = input.flatten();
@@ -133,7 +131,7 @@ describe(`DataFrame.flattenIndices`, () => {
     b: Series.new([[1, 2, 7], [5, 6], [0, 3]]),
     c: Series.new(['string0', 'string1', 'string2']),
     d: Series.new([[1, 2, 7], [5, 6], [0, 3]]),
-    e: Series.new(arrow.vectorFromArray([{a: 0, b: '0'}, {a: 1, b: '1'}, {a: 2, b: '2'}])),
+    e: Series.new([{a: 0, b: '0'}, {a: 1, b: '1'}, {a: 2, b: '2'}]),
   });
 
   test(`doesn't flatten non-list columns`, () => {
@@ -155,7 +153,7 @@ describe(`DataFrame.flattenIndices`, () => {
       b: Series.new([0, 1, 2, 0, 1, 0, 1]),
       c: Series.new(['string0', 'string0', 'string0', 'string1', 'string1', 'string2', 'string2']),
       d: Series.new([[1, 2, 7], [1, 2, 7], [1, 2, 7], [5, 6], [5, 6], [0, 3], [0, 3]]),
-      e: Series.new(arrow.vectorFromArray([
+      e: Series.new([
         {a: 0, b: '0'},
         {a: 0, b: '0'},
         {a: 0, b: '0'},
@@ -163,7 +161,7 @@ describe(`DataFrame.flattenIndices`, () => {
         {a: 1, b: '1'},
         {a: 2, b: '2'},
         {a: 2, b: '2'},
-      ])),
+      ]),
     });
 
     const actual = input.flattenIndices(['b']);
@@ -201,7 +199,7 @@ describe(`DataFrame.flattenIndices`, () => {
         'string2'
       ]),
       d: Series.new([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 0, 1, 0, 1, 0, 1]),
-      e: Series.new(arrow.vectorFromArray([
+      e: Series.new([
         {a: 0, b: '0'},
         {a: 0, b: '0'},
         {a: 0, b: '0'},
@@ -219,8 +217,7 @@ describe(`DataFrame.flattenIndices`, () => {
         {a: 2, b: '2'},
         {a: 2, b: '2'},
         {a: 2, b: '2'},
-      ])),
-
+      ]),
     });
 
     const actual = input.flattenIndices();
