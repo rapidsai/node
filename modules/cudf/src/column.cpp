@@ -154,11 +154,19 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/strings/padding.cpp
                        InstanceMethod<&Column::pad>("pad"),
                        InstanceMethod<&Column::zfill>("zfill"),
+                       // column/strings/replace_re.cpp
+                       InstanceMethod<&Column::string_partition>("partitionStrings"),
+                       // column/strings/replace_re.cpp
+                       InstanceMethod<&Column::replace_re>("replaceRe"),
                        // column/strings/replace.cpp
                        InstanceMethod<&Column::replace_slice>("replaceSlice"),
                        // column/convert.cpp
+                       InstanceMethod<&Column::strings_from_lists>("stringsFromLists"),
                        InstanceMethod<&Column::strings_from_booleans>("stringsFromBooleans"),
                        InstanceMethod<&Column::strings_to_booleans>("stringsToBooleans"),
+                       InstanceMethod<&Column::string_is_timestamp>("stringIsTimestamp"),
+                       InstanceMethod<&Column::strings_from_timestamps>("stringsFromTimestamps"),
+                       InstanceMethod<&Column::strings_to_timestamps>("stringsToTimestamps"),
                        InstanceMethod<&Column::string_is_float>("stringIsFloat"),
                        InstanceMethod<&Column::strings_from_floats>("stringsFromFloats"),
                        InstanceMethod<&Column::strings_to_floats>("stringsToFloats"),
