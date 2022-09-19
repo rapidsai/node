@@ -25,14 +25,14 @@ export interface GraphOptions {
 }
 
 export class Graph<T extends DataType = any> {
-  public static fromEdgeList<T extends DataType>(
-    src: Series<T>,
-    dst: Series<T>,
+  public static fromEdgeList<T extends Series<DataType>>(
+    src: T,
+    dst: T,
     weights = Series.sequence({type: new Float32, size: src.length, init: 1, step: 0}),
     options: GraphOptions = {directed: true}) {
     const nodes = renumberNodes(src, dst);
     const edges = renumberEdges(src, dst, weights, nodes);
-    return new Graph(nodes, edges, options);
+    return new Graph<T['type']>(nodes, edges, options);
   }
 
   protected constructor(nodes: DataFrame<{id: Int32, node: T}>,
@@ -95,7 +95,7 @@ export class Graph<T extends DataType = any> {
     const src    = this.edges.get('src');
     const dst    = this.edges.get('dst');
     const weight = this.edges.get('weight');
-    return DedupedEdgesGraph.fromEdgeList<T>(src, dst, weight, {directed: this._directed});
+    return DedupedEdgesGraph.fromEdgeList(src, dst, weight, {directed: this._directed});
   }
 
   /**
@@ -150,11 +150,11 @@ export interface AnalyzeClusteringOptions {
 }
 
 export class DedupedEdgesGraph<T extends DataType = any> extends Graph<T> {
-  public static fromEdgeList<T extends DataType>(
-    src: Series<T>,
-    dst: Series<T>,
+  public static fromEdgeList<T extends Series<DataType>>(
+    src: T,
+    dst: T,
     weights = Series.sequence({type: new Float32, size: src.length, init: 1, step: 0}),
-    options: GraphOptions = {directed: true}): DedupedEdgesGraph {
+    options: GraphOptions = {directed: true}) {
     return scope(() => {
       const ids = new DataFrame({src, dst, id: Series.sequence({size: src.length})})
                     .groupBy({by: ['src', 'dst'], index_key: 'src_dst'})
@@ -166,13 +166,13 @@ export class DedupedEdgesGraph<T extends DataType = any> extends Graph<T> {
 
       const edges = ids.join({on: ['src_dst'], other: weight}).sortValues({id: {ascending: true}});
 
-      const dd_src = edges.get('src_dst').getChild('src');
-      const dd_dst = edges.get('src_dst').getChild('dst');
+      const dd_src = edges.get('src_dst').getChild('src') as T;
+      const dd_dst = edges.get('src_dst').getChild('dst') as T;
 
       const rn_nodes = renumberNodes(dd_src, dd_dst);
       const rn_edges = renumberEdges(dd_src, dd_dst, edges.get('weights'), rn_nodes);
 
-      return new DedupedEdgesGraph(rn_nodes, rn_edges, options);
+      return new DedupedEdgesGraph<T['type']>(rn_nodes, rn_edges, options);
     }, [src, dst, weights]);
   }
 

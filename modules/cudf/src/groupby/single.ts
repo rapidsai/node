@@ -188,8 +188,12 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   collectList(include_nulls = true, memoryResource?: MemoryResource) {
-    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : List<T[P]>}>(
-      this._cudf_groupby._collect_list(this._values.asTable(), memoryResource, include_nulls));
+    const {keys, cols} =
+      this._cudf_groupby._collect_list(this._values.asTable(), memoryResource, include_nulls);
+    this._values.names.forEach((name, index) => {  //
+      cols[index] = this._propagateListFieldNames(name, cols[index]);
+    });
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : List<T[P]>}>({keys, cols});
   }
 
   /**
@@ -207,8 +211,11 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
              nulls_equal   = true,
              nans_equal    = false,
              memoryResource?: MemoryResource) {
-    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : List<T[P]>}>(
-      this._cudf_groupby._collect_set(
-        this._values.asTable(), memoryResource, include_nulls, nulls_equal, nans_equal));
+    const {keys, cols} = this._cudf_groupby._collect_set(
+      this._values.asTable(), memoryResource, include_nulls, nulls_equal, nans_equal);
+    this._values.names.forEach((name, index) => {  //
+      cols[index] = this._propagateListFieldNames(name, cols[index]);
+    });
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : List<T[P]>}>({keys, cols});
   }
 }
