@@ -32,6 +32,17 @@ describe('StructSeries', () => {
     expect(expectedElements).toEqualTypedArray(actualElements);
   };
 
+  test('Can create from Array of Objects', () => {
+    const col = Series.new([
+      {a: 1, b: 2},
+      {a: 3, b: 3},
+    ]);
+    expect([...col].map((x) => x!.toJSON())).toEqual([
+      {a: 1, b: 2},
+      {a: 3, b: 3},
+    ]);
+  });
+
   test('Can create from Arrow', () => {
     const vec = structsOfInt32s([
       {x: 0, y: 3},

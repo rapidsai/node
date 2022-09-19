@@ -26,11 +26,16 @@ import {
   Int64,
   Int8,
   Integral,
+  TimestampDay,
+  TimestampMicrosecond,
+  TimestampMillisecond,
+  TimestampNanosecond,
+  TimestampSecond,
   Uint16,
   Uint32,
   Uint64,
   Uint8,
-  Utf8String
+  Utf8String,
 } from '../types/dtypes';
 import {GetJSONObjectOptions} from '../types/json';
 
@@ -55,41 +60,104 @@ export type ConcatenateOptions = {
  * A Series of utf8-string values in GPU memory.
  */
 export class StringSeries extends Series<Utf8String> {
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+  /**
+   * Row-wise concatenates the given list of strings series and returns a single string series
+   * result.
+   *
+   * @param series List of string series to concatenate.
+   * @param opts Options for the concatenation
+   * @returns New series with concatenated results.
+   *
+   * @example
+   * ```typescript
+   * import {StringSeries} from '@rapidsai/cudf';
+   * const s = StringSeries.new(['a', 'b', null])
+   * const t = StringSeries.new(['foo', null, 'bar'])
+   * [...StringSeries.concatenate([s, t])] // ["afoo", null, null]
+   * ```
+   */
+  public static concatenate(series: StringSeries[],
+                            opts: ConcatenateOptions = {}): Series<Utf8String> {
+    const columns: Column[] = [];
+    for (const s of series) { columns.push(s._col); }
+    const separator        = opts.separator ?? '';
+    const nullRepr         = opts.nullRepr ?? null;
+    const separatorOnNulls = opts.separatorOnNulls ?? true;
+
+    return Series.new(Column.concatenate(
+      new Table({columns: columns}), separator, nullRepr, separatorOnNulls, opts.memoryResource));
+  }
+
+  /** @ignore */
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   _castAsString(_memoryResource?: MemoryResource): StringSeries {
     return StringSeries.new(this._col);
   }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
 
+  /** @ignore */
   _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
     return Series.new(this._col.stringsToIntegers(new Int8, memoryResource));
   }
+  /** @ignore */
   _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
     return Series.new(this._col.stringsToIntegers(new Int16, memoryResource));
   }
+  /** @ignore */
   _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
     return Series.new(this._col.stringsToIntegers(new Int32, memoryResource));
   }
+  /** @ignore */
   _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
     return Series.new(this._col.stringsToIntegers(new Int64, memoryResource));
   }
+  /** @ignore */
   _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
     return Series.new(this._col.stringsToIntegers(new Uint8, memoryResource));
   }
+  /** @ignore */
   _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
     return Series.new(this._col.stringsToIntegers(new Uint16, memoryResource));
   }
+  /** @ignore */
   _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
     return Series.new(this._col.stringsToIntegers(new Uint32, memoryResource));
   }
+  /** @ignore */
   _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
     return Series.new(this._col.stringsToIntegers(new Uint64, memoryResource));
   }
+  /** @ignore */
   _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {
     return Series.new(this._col.stringsToFloats(new Float32, memoryResource));
   }
+  /** @ignore */
   _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {
     return Series.new(this._col.stringsToFloats(new Float64, memoryResource));
+  }
+  /** @ignore */
+  _castAsTimeStampDay(memoryResource?: MemoryResource): Series<TimestampDay> {
+    return Series.new(
+      this._col.stringsToTimestamps(new TimestampDay, '%Y-%m-%dT%H:%M:%SZ', memoryResource));
+  }
+  /** @ignore */
+  _castAsTimeStampSecond(memoryResource?: MemoryResource): Series<TimestampSecond> {
+    return Series.new(
+      this._col.stringsToTimestamps(new TimestampSecond, '%Y-%m-%dT%H:%M:%SZ', memoryResource));
+  }
+  /** @ignore */
+  _castAsTimeStampMillisecond(memoryResource?: MemoryResource): Series<TimestampMillisecond> {
+    return Series.new(this._col.stringsToTimestamps(
+      new TimestampMillisecond, '%Y-%m-%dT%H:%M:%SZ', memoryResource));
+  }
+  /** @ignore */
+  _castAsTimeStampMicrosecond(memoryResource?: MemoryResource): Series<TimestampMicrosecond> {
+    return Series.new(this._col.stringsToTimestamps(
+      new TimestampMicrosecond, '%Y-%m-%dT%H:%M:%SZ', memoryResource));
+  }
+  /** @ignore */
+  _castAsTimeStampNanosecond(memoryResource?: MemoryResource): Series<TimestampNanosecond> {
+    return Series.new(
+      this._col.stringsToTimestamps(new TimestampNanosecond, '%Y-%m-%dT%H:%M:%SZ', memoryResource));
   }
 
   /**
@@ -447,23 +515,107 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   /**
-   * Resplits a StringSeries along the delimiter.
+   * For each string in the column, replaces any character sequence matching the given pattern with
+   * the provided replacement string.
+   *
+   * Null string entries will return null output string entries.
+   *
+   * Position values are 0-based meaning position 0 is the first character of each string.
+   *
+   * This function can be used to insert a string into specific position by specifying the same
+   * position value for start and stop. The repl string can be appended to each string by specifying
+   * -1 for both start and stop.
+   *
+   * @param pattern The regular expression pattern to search within each string.
+   * @param replacement The string used to replace the matched sequence in each string.
+   * Default is an empty string.
+   * @param maxReplaceCount The maximum number of times to replace the matched pattern within each
+   *   string. Default replaces every substring that is matched.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New strings column with matching elements replaced.
+   */
+  replaceRe(pattern: RegExp,
+            replacement     = '',
+            maxReplaceCount = -1,
+            memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(
+      this._col.replaceRe(pattern.source, replacement, maxReplaceCount, pattern, memoryResource));
+  }
+
+  /**
+   * Replaces each string in the column with the provided repl string within the [start,stop)
+   * character position range.
+   *
+   * Null string entries will return null output string entries.
+   *
+   * Position values are 0-based meaning position 0 is the first character of each string.
+   *
+   * This function can be used to insert a string into specific position by specifying the same
+   * position value for start and stop. The repl string can be appended to each string by specifying
+   * -1 for both start and stop.
+   *
+   * @param repl Replacement string for specified positions found.
+   * @param start Start position where repl will be added. Default is 0, first character position.
+   * @param stop End position (exclusive) to use for replacement. Default of -1 specifies the end of
+   *   each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceSlice(repl: string, start: number, stop: number, memoryResource?: MemoryResource):
+    Series<Utf8String> {
+    return this.__construct(this._col.replaceSlice(repl, start, stop, memoryResource));
+  }
+
+  /**
+   * Splits a StringSeries along the delimiter.
    *
    * @note If delimiter is omitted, the default is ''.
    *
    * @param delimiter Optional delimiter.
    *
    * @returns Series with new splits determined by the delimiter.
+   */
+  split(delimiter = '', memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.split(delimiter, memoryResource));
+  }
+
+  /**
+   * Returns a set of 3 columns by splitting each string using the specified delimiter.
+   *
+   * The number of rows in the output columns will be the same as the input column. The first column
+   * will contain the first tokens of each string as a result of the split. The second column will
+   * contain the delimiter. The third column will contain the remaining characters of each string
+   * after the delimiter.
+   *
+   * Any null string entries return corresponding null output columns.
+   *
+   * @note If delimiter is omitted, the default is ''.
+   *
+   * @param delimiter UTF-8 encoded string indicating where to split each string. Default of empty
+   *   string indicates split on whitespace.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns 3 new string columns representing before the delimiter, the delimiter, and after the
+   *   delimiter.
    *
    * @example
    * ```typescript
-   * import {Series} from '@rapidsai/cudf';
+   * import {DataFrame, Series} from '@rapidsai/cudf';
    *
-   * Series.readText('./inputAsciiFile.txt')
+   * const strs = Series.new(["a_b", "c_d"]);
+   * const [before, delim, after] = strs.partition('_');
+   *
+   * new DataFrame({ before, delim, after }).toString();
+   * // before delim after
+   * //      a     _     b
+   * //      c     _     d
    * ```
    */
-  split(delimiter: string): Series<Utf8String> {
-    return this.__construct(this._col.split(delimiter));
+  partition(delimiter = '', memoryResource?: MemoryResource):
+    [Series<Utf8String>, Series<Utf8String>, Series<Utf8String>] {
+    const [before, delim, after] = this._col.partitionStrings(delimiter, memoryResource);
+    return [this.__construct(before), this.__construct(delim), this.__construct(after)];
   }
 
   /**
@@ -496,34 +648,20 @@ export class StringSeries extends Series<Utf8String> {
                   stripQuotesFromSingleStrings: true,
                 },
                 memoryResource?: MemoryResource): Series<Utf8String> {
-    return this.__construct(this._col.getJSONObject(jsonPath, options, memoryResource));
-  }
-
-  /**
-   * Row-wise concatenates the given list of strings series and returns a single string series
-   * result.
-   *
-   * @param series List of string series to concatenate.
-   * @param opts Options for the concatenation
-   * @returns New series with concatenated results.
-   *
-   * @example
-   * ```typescript
-   * import {StringSeries} from '@rapidsai/cudf';
-   * const s = StringSeries.new(['a', 'b', null])
-   * const t = StringSeries.new(['foo', null, 'bar'])
-   * [...StringSeries.concatenate([s, t])] // ["afoo", null, null]
-   * ```
-   */
-  public static concatenate(series: StringSeries[],
-                            opts: ConcatenateOptions = {}): Series<Utf8String> {
-    const columns: Column[] = [];
-    for (const s of series) { columns.push(s._col); }
-    const separator        = opts.separator ?? '';
-    const nullRepr         = opts.nullRepr ?? null;
-    const separatorOnNulls = opts.separatorOnNulls ?? true;
-
-    return Series.new(Column.concatenate(
-      new Table({columns: columns}), separator, nullRepr, separatorOnNulls, opts.memoryResource));
+    let col = this._col.getJSONObject(jsonPath, options, memoryResource);
+    // Work around a bug where libcudf can return String columns with no offsets or data children
+    if (col.numChildren === 0) {
+      ({_col: col} = Series.new({
+        type: new Utf8String,
+        length: col.length,
+        nullMask: col.mask,
+        nullCount: col.nullCount,
+        children: [
+          new Int32Array(col.length + 1).fill(0),
+          new Uint8Array(0),
+        ],
+      }));
+    }
+    return this.__construct(col);
   }
 }
