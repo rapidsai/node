@@ -152,9 +152,9 @@ export class DataFrame<T extends TypeMap = any> {
   public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>): DataFrame<T>;
 
   public static readCSV<T extends TypeMap = any>(...args: any[]) {
-    args               = args.flat();
+    args                 = args.flat();
     const sources: any[] = args.slice(0, -1);
-    let options        = args[args.length - 1] as ReadCSVOptions<T>| string;
+    let options          = args[args.length - 1] as ReadCSVOptions<T>| string;
     if (typeof options === 'string') {
       sources.push(options);
       options = {} as ReadCSVOptions<T>;
@@ -195,9 +195,9 @@ export class DataFrame<T extends TypeMap = any> {
   public static readORC<T extends TypeMap = any>(options: ReadORCOptions): DataFrame<T>;
 
   public static readORC<T extends TypeMap = any>(...args: any[]) {
-    args               = args.flat();
+    args                 = args.flat();
     const sources: any[] = args.slice(0, -1);
-    let options        = args[args.length - 1] as ReadORCOptions | string;
+    let options          = args[args.length - 1] as ReadORCOptions | string;
     if (typeof options === 'string') {
       sources.push(options);
       options = {} as ReadORCOptions;
@@ -240,9 +240,9 @@ export class DataFrame<T extends TypeMap = any> {
   public static readParquet<T extends TypeMap = any>(options: ReadParquetOptions): DataFrame<T>;
 
   public static readParquet<T extends TypeMap = any>(...args: any[]) {
-    args               = args.flat();
+    args                 = args.flat();
     const sources: any[] = args.slice(0, -1);
-    let options        = args[args.length - 1] as ReadParquetOptions | string;
+    let options          = args[args.length - 1] as ReadParquetOptions | string;
     if (typeof options === 'string') {
       sources.push(options);
       options = {} as ReadParquetOptions;
@@ -672,7 +672,8 @@ export class DataFrame<T extends TypeMap = any> {
                                             : df.asTable().explode(i, mr);
                  return new DataFrame(df.names.reduce((series_map, name, index) => {
                    if (index === i) {
-                     series_map[name] = Series.new(table.getColumnByIndex(index));
+                     series_map[name] =
+                       (this.get(name) as any).elements.__construct(table.getColumnByIndex(index));
                    } else {
                      series_map[name] = df.__constructChild(name, table.getColumnByIndex(index));
                    }
@@ -719,7 +720,8 @@ export class DataFrame<T extends TypeMap = any> {
                                             : df.asTable().explodePosition(i, mr);
                  return new DataFrame(df.names.reduce((series_map, name, index) => {
                    if (index <= i) {
-                     series_map[name] = Series.new(table.getColumnByIndex(index));
+                     series_map[name] =
+                       (this.get(name) as any).elements.__construct(table.getColumnByIndex(index));
                    } else {
                      series_map[name] =
                        df.__constructChild(name, table.getColumnByIndex(index + 1));
