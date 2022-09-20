@@ -29,6 +29,7 @@ import {
 } from '@rapidsai/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
+import {JavaScriptArrayDataType} from 'apache-arrow/interfaces';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column} from './column';
@@ -513,6 +514,9 @@ export class AbstractSeries<T extends DataType = any> {
    */
   static new(input: (Date|null|undefined)[][]): Series<List<TimestampMillisecond>>;
 
+  static new<T extends readonly unknown[]>(input: T):
+    Series<ArrowToCUDFType<JavaScriptArrayDataType<T>>>;
+
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
                                  (bigint|null|undefined)[]|(boolean|null|undefined)[]|
@@ -660,7 +664,7 @@ export class AbstractSeries<T extends DataType = any> {
   _castAsUint64(_memoryResource?: MemoryResource): Series<Uint64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint64 unimplemented`); }
   _castAsFloat32(_memoryResource?: MemoryResource): Series<Float32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float32 unimplemented`); }
   _castAsFloat64(_memoryResource?: MemoryResource): Series<Float64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float64 unimplemented`); }
-  _castAsString(_memoryResource?: MemoryResource): StringSeries { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to String unimplemented`); }
+  _castAsString(_memoryResource?: MemoryResource): Series<Utf8String> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to String unimplemented`); }
   _castAsTimeStampDay(_memoryResource?: MemoryResource): Series<TimestampDay> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampDay unimplemented`); }
   _castAsTimeStampSecond(_memoryResource?: MemoryResource): Series<TimestampSecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampSecond unimplemented`); }
   _castAsTimeStampMillisecond(_memoryResource?: MemoryResource): Series<TimestampMillisecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMillisecond unimplemented`); }
@@ -701,8 +705,8 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([1, 2, 3]).concat(Series.new([4, 5, 6])) // [1, 2, 3, 4, 5, 6]
    * ```
    */
-  concat<R extends DataType>(other: Series<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>> {
+  concat<R extends Series<DataType>>(other: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>> {
     type U     = typeof type;
     const type = findCommonType(this.type, other.type);
     const lhs  = <Column<U>>(compareTypes(type, this.type) ? this._col : this.cast(type)._col);
@@ -1589,7 +1593,7 @@ function inferType(value: any[]): DataType {
       Object.keys(val).forEach((key) => {
         if (!fields.has(key)) {
           // use the type inferred for the first instance of a found key
-          fields.set(key, new arrow.Field(key, inferType(val[key])));
+          fields.set(key, new arrow.Field(key, inferType([val[key]]), true));
         }
       });
     }, {});

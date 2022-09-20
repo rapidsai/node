@@ -139,8 +139,7 @@ test('getJSONObject', () => {
   const b = Series.new(['']).getJSONObject('');
   expect(b.length).toBe(1);
   expect(b.nullCount).toBe(1);
-  // This is failing but I think it's a bug in libcudf's `to_arrow()`
-  // expect([...b]).toStrictEqual(['']);
+  expect([...b]).toStrictEqual([null]);
 
   const c = Series.new(['']).getJSONObject('$');
   expect(c.length).toBe(1);

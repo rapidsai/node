@@ -76,7 +76,7 @@ fastify.register((require('fastify-arrow')))
         request.log.info({query: request.body}, `calling sqlCluster.sql()`);
         await scope(async () => {
           const t0        = performance.now();
-          const dfs       = await sqlCluster.sql(request.body).catch((err) => {
+          const dfs       = await toArray(sqlCluster.sql(request.body)).catch((err) => {
             request.log.error({err}, `Error calling sqlCluster.sql`);
             return new DataFrame();
           });
@@ -117,4 +117,10 @@ function head(dfs, rows) {
   }
 
   return {result, rowCount};
+}
+
+async function toArray(src) {
+  const dfs = [];
+  for await (const df of src) { dfs.push(df); }
+  return dfs;
 }

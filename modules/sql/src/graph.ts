@@ -48,13 +48,7 @@ export class ExecutionGraph implements Promise<DataFrame[]> {
       this._result = (async () => {
         const {names, tables} =
           this._graph ? (await this._graph.result()) : {names: [], tables: [new Table({})]};
-        const results: DataFrame[] = [];
-        tables.forEach((table: Table) => {
-          results.push(new DataFrame(
-            names.reduce((cols, name, i) => ({...cols, [name]: table.getColumnByIndex(i)}), {})));
-        });
-
-        return results;
+        return tables.map((table: Table) => DataFrame.fromTable(table, names));
       })();
     }
     return this._result;

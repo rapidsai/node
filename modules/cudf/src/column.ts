@@ -28,7 +28,8 @@ import {
   Int64,
   Integral,
   Numeric,
-  Utf8String,
+  Timestamp,
+  Utf8String
 } from './types/dtypes';
 import {GetJSONObjectOptions} from './types/json';
 import {CommonType, Interpolation} from './types/mappings';
@@ -133,11 +134,14 @@ export interface ColumnConstructor {
    *
    * @param filepath The location of the input file.
    * @param delimiter Optional delimiter.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory
    * @returns column containing one or more strings.
    *
    * @note The maximum size of a string read with this method is 2^30
    */
-  readText(filepath: string, delimiter: string): Column<Utf8String>;
+  readText(filepath: string, delimiter: string, memoryResource?: MemoryResource):
+    Column<Utf8String>;
 }
 
 /**
@@ -757,6 +761,24 @@ export interface Column<T extends DataType = any> {
   isNotNaN(memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
+   * Convert a list column of strings into a formatted strings column.
+   *
+   * The `separators` column should contain 3 strings elements in the following order:
+   * - element separator (default is comma `,`)
+   * - left-hand enclosure (default is `[`)
+   * - right-hand enclosure (default is `]`)
+   *
+   * @param na_rep Replacement string for null elements.
+   * @param separators Strings to use for enclosing list components and separating elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A string Column with the lists as strings.
+   */
+  stringsFromLists(na_rep: string, separators: Column<Utf8String>, memoryResource?: MemoryResource):
+    Column<Utf8String>;
+
+  /**
    * Returns a new strings column converting the boolean values from the provided column into
    * strings.
    *
@@ -780,6 +802,51 @@ export interface Column<T extends DataType = any> {
    *  @returns A Column of boolean type with the results of the conversion.
    */
   stringsToBooleans(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Returns a new timestamp column converting a strings column into timestamps using the provided
+   * format pattern.
+   *
+   * The format pattern can include the following specifiers: "%Y,%y,%m,%d,%H,%I,%p,%M,%S,%f,%z".
+   *
+   * @param format The string specifying output format. Default format is "%Y-%m-%dT%H:%M:%SZ".
+   * @param memoryResource  The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A Column of boolean type with the results of the conversion.
+   */
+  stringIsTimestamp(format: string, memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Returns a new strings column converting a timestamp column into strings using the provided
+   * format pattern.
+   *
+   * The format pattern can include the following specifiers: "%Y,%y,%m,%d,%H,%I,%p,%M,%S,%f,%z,%Z"
+   *
+   * @param format The string specifying output format. Default format is "%Y-%m-%dT%H:%M:%SZ".
+   * @param memoryResource  The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A Column of string type with the results of the conversion.
+   */
+  stringsFromTimestamps(format: string, memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a new timestamp column converting a strings column into timestamps using the provided
+   * format pattern.
+   *
+   * The format pattern can include the following specifiers: "%Y,%y,%m,%d,%H,%I,%p,%M,%S,%f,%z".
+   *
+   * @param type The timestamp type used for creating the output column.
+   * @param format String specifying the timestamp format in strings.
+   * @param memoryResource  The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A Column of timestamp type with the results of the conversion.
+   */
+  stringsToTimestamps<T extends Timestamp>(type: T,
+                                           format: string,
+                                           memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
@@ -1454,6 +1521,34 @@ export interface Column<T extends DataType = any> {
   zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>;
 
   /**
+   * For each string in the column, replaces any character sequence matching the given pattern with
+   * the provided replacement string.
+   *
+   * Null string entries will return null output string entries.
+   *
+   * Position values are 0-based meaning position 0 is the first character of each string.
+   *
+   * This function can be used to insert a string into specific position by specifying the same
+   * position value for start and stop. The repl string can be appended to each string by specifying
+   * -1 for both start and stop.
+   *
+   * @param pattern The regular expression pattern to search within each string.
+   * @param replacement The string used to replace the matched sequence in each string.
+   * Default is an empty string.
+   * @param maxReplaceCount The maximum number of times to replace the matched pattern within each
+   *   string. Default replaces every substring that is matched.
+   * @param flags Regex flags for interpreting special characters in the pattern.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New strings column with matching elements replaced.
+   */
+  replaceRe(pattern: string,
+            replacement: string,
+            maxReplaceCount: number,
+            flags: {dotAll: boolean, multiline: boolean},
+            memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
    * Replaces each string in the column with the provided repl string within the [start,stop)
    * character position range.
    *
@@ -1492,9 +1587,31 @@ export interface Column<T extends DataType = any> {
    * [ 'abcdefgbcdefgh' ]
    * ```
    * @param delimiter split along the delimiter.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
    * @returns New strings column
    */
-  split(delimiter: string): Column<Utf8String>;
+  split(delimiter: string, memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a set of 3 columns by splitting each string using the specified delimiter.
+   *
+   * The number of rows in the output columns will be the same as the input column. The first column
+   * will contain the first tokens of each string as a result of the split. The second column will
+   * contain the delimiter. The third column will contain the remaining characters of each string
+   * after the delimiter.
+   *
+   * Any null string entries return corresponding null output columns.
+   *
+   * @param delimiter UTF-8 encoded string indicating where to split each string. Default of empty
+   *   string indicates split on whitespace.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns 3 new string columns representing before the delimiter, the delimiter, and after the
+   *   delimiter.
+   */
+  partitionStrings(delimiter: string, memoryResource?: MemoryResource):
+    [Column<Utf8String>, Column<Utf8String>, Column<Utf8String>];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

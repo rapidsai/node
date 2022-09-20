@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {DataFrame, DataType} from '@rapidsai/cudf';
+import {UcpContext} from '.';
 
 import {
   Context,
@@ -39,6 +40,7 @@ export class SQLContext {
   declare private _db: any;
   declare private _schema: any;
   declare private _generator: any;
+  declare private _ucpContext?: UcpContext;
   declare private _tables: Map<string, SQLTable>;
   declare private _configOptions: typeof defaultContextConfigValues;
 
@@ -60,6 +62,7 @@ export class SQLContext {
       ucpContext,
     } = options;
 
+    this._ucpContext    = ucpContext;
     this._configOptions = {...defaultContextConfigValues, ...options.configOptions};
 
     this.context = new Context({

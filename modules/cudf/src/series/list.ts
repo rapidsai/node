@@ -13,15 +13,40 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Series} from '../series';
 import {Table} from '../table';
-import {DataType, Int32, List} from '../types/dtypes';
+import {DataType, Int32, List, Utf8String} from '../types/dtypes';
+
+let _separators: Series<Utf8String>|undefined;
 
 /**
  * A Series of lists of values.
  */
 export class ListSeries<T extends DataType> extends Series<List<T>> {
+  /** @ignore */
+  _castAsString(memoryResource?: MemoryResource): Series<Utf8String> {
+    if (!_separators) {
+      // Lazily initialize the default separators
+      _separators = Series.new([',', '[', ']']);
+    }
+    if (compareTypes(this.elements.type, new Utf8String)) {
+      return Series.new(this._col.stringsFromLists('null', _separators._col, memoryResource));
+    }
+    const elements = this.elements.cast(new Utf8String)._col;
+    const type     = new List(this.type.valueField.clone({type: elements.type}));
+    return Series
+      .new({
+        type,
+        length: this.length,
+        nullMask: this.mask,
+        nullCount: this.nullCount,
+        children: [this._col.getChild<Int32>(0), elements]
+      })
+      ._castAsString(memoryResource);
+  }
+
   /**
    * Series of integer offsets for each list
    * @example
@@ -81,15 +106,16 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    */
   getValue(index: number) {
     const value = this._col.getValue(index);
-    return value === null ? null : Series.new(value);
+    return value === null ? null : (this.elements as any).__construct(value);
   }
 
   /**
    * @summary Flatten the list elements.
    */
   flatten(memoryResource?: MemoryResource): Series<T> {
-    return Series.new<T>(
-      new Table({columns: [this._col]}).explode(0, memoryResource).getColumnByIndex(0));
+    return (this.elements as any)
+      .__construct(
+        new Table({columns: [this._col]}).explode(0, memoryResource).getColumnByIndex(0));
   }
 
   /**
