@@ -29,12 +29,7 @@ const genScripts = () => {
 
 const watch = () => ({
   exclude: [
-    'build/favicon.ico',
-    'build/logo192.png',
-    'build/logo512.png',
-    'build/manifest.json',
-    'build/robots.txt',
-    'build/index.html',
+    'build/**/*',
   ],
 });
 

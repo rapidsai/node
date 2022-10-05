@@ -10,6 +10,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 import GLView from './GLView';
+import ParticlesView from './ParticlesView';
 import BackgroundView from './BackgroundView';
 
 function App({ scene }) {
@@ -20,6 +21,9 @@ function App({ scene }) {
       </div>
       <div className="BackgroundView" >
         <BackgroundView />
+      </div>
+      <div className="ParticlesView" >
+        <ParticlesView />
       </div>
       <div className="App-title">WebGL React App</div>
     </div>

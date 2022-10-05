@@ -28,3 +28,8 @@ body {
   position: absolute;
   z-index: 1;
 }
+
+.ParticlesView {
+  position: absolute;
+  z-index: 0;
+}
