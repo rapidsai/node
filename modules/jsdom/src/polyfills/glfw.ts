@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import {
   isHeadless,
 } from '@rapidsai/glfw';
 import * as jsdom from 'jsdom';
+import {performance} from 'perf_hooks';
 import {Subscription} from 'rxjs';
 
 import {dndEvents, GLFWDndEvent} from './events/dnd';
@@ -155,6 +156,17 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
         enumerable: true,
         configurable: false,
         get() { return _maximized; },
+      },
+      matchMedia: {
+        enumerable: true,
+        configurable: true,
+        value: undefined,
+      },
+      performance: {
+        writable: false,
+        enumerable: true,
+        configurable: true,
+        value: performance,
       },
       transparent: {
         enumerable: true,
@@ -478,8 +490,14 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
       {name: 'scrollX', aliases: ['scrollLeft', 'pageXOffset']},
       {name: 'scrollY', aliases: ['scrollTop', 'pageYOffset']},
       {name: 'onwheel', aliases: ['onscroll', 'onmousewheel']},
-      {name: 'width', aliases: ['clientWidth', 'innerWidth', 'outerWidth', 'offsetWidth']},
-      {name: 'height', aliases: ['clientHeight', 'innerHeight', 'outerHeight', 'offsetHeight']},
+      {
+        name: 'width',
+        aliases: ['clientWidth', 'innerWidth', 'outerWidth', 'offsetWidth', 'scrollWidth']
+      },
+      {
+        name: 'height',
+        aliases: ['clientHeight', 'innerHeight', 'outerHeight', 'offsetHeight', 'scrollHeight']
+      },
     ]);
 
     // Attaching functions
@@ -852,6 +870,8 @@ function defineLayoutProps(window: jsdom.DOMWindow, proto: any) {
    'screenLeft',
    'scrollTop',
    'scrollLeft',
+   'scrollWidth',
+   'scrollHeight',
    'pageXOffset',
    'pageYOffset',
    'clientWidth',

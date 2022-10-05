@@ -14,7 +14,7 @@
 
 import 'react-awesome-query-builder/lib/css/styles.css';
 
-import React from 'react';
+import * as React from 'react';
 import { Builder, Query, Utils as QbUtils } from 'react-awesome-query-builder';
 import MaterialConfig from 'react-awesome-query-builder/lib/config/material';
 

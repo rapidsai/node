@@ -30,7 +30,9 @@
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
 #include <cudf/strings/combine.hpp>
+#include <cudf/strings/json.hpp>
 #include <cudf/strings/padding.hpp>
+#include <cudf/strings/regex/flags.hpp>
 #include <cudf/types.hpp>
 #include <cudf/unary.hpp>
 
@@ -794,6 +796,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/strings/json.cpp
   Column::wrapper_t get_json_object(
     std::string const& json_path,
+    cudf::strings::get_json_object_options const& opts,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/strings/padding.cpp
@@ -806,6 +809,14 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t zfill(
     cudf::size_type width,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  // column/strings/replace_re.cpp
+  Column::wrapper_t replace_re(
+    std::string const& pattern,
+    std::string const& replacement,
+    cudf::size_type max_replace_count      = -1,
+    cudf::strings::regex_flags const flags = cudf::strings::regex_flags::DEFAULT,
+    rmm::mr::device_memory_resource* mr    = rmm::mr::get_current_device_resource()) const;
 
   // column/strings/replace_slice.cpp
   Column::wrapper_t replace_slice(
@@ -821,6 +832,16 @@ struct Column : public EnvLocalObjectWrap<Column> {
 
   Column::wrapper_t strings_to_booleans(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t string_is_timestamp(std::string_view format,
+                                        rmm::mr::device_memory_resource* mr) const;
+
+  Column::wrapper_t strings_from_timestamps(std::string_view format,
+                                            rmm::mr::device_memory_resource* mr) const;
+
+  Column::wrapper_t strings_to_timestamps(cudf::data_type timestamp_type,
+                                          std::string_view format,
+                                          rmm::mr::device_memory_resource* mr) const;
 
   Column::wrapper_t string_is_float(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -1020,12 +1041,23 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value pad(Napi::CallbackInfo const& info);
   Napi::Value zfill(Napi::CallbackInfo const& info);
 
+  // column/strings/partition.cpp
+  Napi::Value string_partition(Napi::CallbackInfo const& info);
+
+  // column/strings/replace_re.cpp
+  Napi::Value replace_re(Napi::CallbackInfo const& info);
+
   // column/strings/replace.cpp
   Napi::Value replace_slice(Napi::CallbackInfo const& info);
 
   // column/convert.hpp
+
+  Napi::Value strings_from_lists(Napi::CallbackInfo const& info);
   Napi::Value strings_from_booleans(Napi::CallbackInfo const& info);
   Napi::Value strings_to_booleans(Napi::CallbackInfo const& info);
+  Napi::Value string_is_timestamp(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_timestamps(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_timestamps(Napi::CallbackInfo const& info);
   Napi::Value string_is_float(Napi::CallbackInfo const& info);
   Napi::Value strings_from_floats(Napi::CallbackInfo const& info);
   Napi::Value strings_to_floats(Napi::CallbackInfo const& info);

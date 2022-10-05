@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
+import * as React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import DataTable from './data-table/data-table';
 import DataMetrics from './data-metrics/data-metrics';

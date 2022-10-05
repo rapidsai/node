@@ -136,9 +136,19 @@ test('getJSONObject', () => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   expect(JSON.parse(a.getJSONObject('$.leopard').getValue(1)!)).toEqual(object_data[1].leopard);
 
-  const b = Series.new(['']);
-  expect([...b.getJSONObject('$')]).toStrictEqual([null]);
-  expect([...b.getJSONObject('')]).toStrictEqual([]);
+  const b = Series.new(['']).getJSONObject('');
+  expect(b.length).toBe(1);
+  expect(b.nullCount).toBe(1);
+  expect([...b]).toStrictEqual([null]);
+
+  const c = Series.new(['']).getJSONObject('$');
+  expect(c.length).toBe(1);
+  expect(c.nullCount).toBe(1);
+  expect(c.getValue(0)).toBeNull();
+  expect([...c]).toStrictEqual([null]);
+
+  expect([...Series.new(['']).getJSONObject('$.foo')]).toStrictEqual([null]);
+  expect([...Series.new(['{"foo":0}']).getJSONObject('$.bar')]).toStrictEqual([null]);
 });
 
 function testIntegralCast<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32>(type: T) {

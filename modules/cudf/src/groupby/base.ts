@@ -15,9 +15,11 @@
 import {MemoryResource} from '@rapidsai/rmm';
 
 import * as CUDF from '../addon';
+import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {GroupByBaseProps, GroupByProps} from '../groupby';
 import {Series} from '../series';
+import {Int32, List} from '../types/dtypes';
 import {TypeMap} from '../types/mappings';
 
 export type Groups<KeysMap extends TypeMap, ValuesMap extends TypeMap> = {
@@ -81,5 +83,21 @@ export class GroupByBase<T extends TypeMap, R extends keyof T> {
     }
 
     return results;
+  }
+
+  protected _propagateListFieldNames(name: string&keyof Omit<T, R>, col: Column<List>) {
+    (col.type.children[0] as any).name = '0';
+    return Series
+      .new({
+        type: col.type,
+        length: col.length,
+        nullMask: col.mask,
+        nullCount: col.nullCount,
+        children: [
+          col.getChild<Int32>(0),
+          (this._values.get(name) as any).__construct(col.getChild(1))._col
+        ]
+      })
+      ._col;
   }
 }

@@ -55,6 +55,6 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@rapidsai\/jsdom(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/jsdom(.*)": "<rootDir>/build/js/$1",
   }
 };

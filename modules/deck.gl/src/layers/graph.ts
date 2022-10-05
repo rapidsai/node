@@ -154,8 +154,10 @@ export class GraphLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
     }
 
     if (changeFlags.propsChanged) {
-      changeFlags.numEdgesChanged = props.numEdges > 0 && (oldProps.numEdges !== props.numEdges);
-      changeFlags.numNodesChanged = props.numNodes > 0 && (oldProps.numNodes !== props.numNodes);
+      if (typeof props.numEdges !== 'number') { props.numEdges = 0; }
+      if (typeof props.numNodes !== 'number') { props.numNodes = 0; }
+      changeFlags.numEdgesChanged = oldProps.numEdges !== props.numEdges;
+      changeFlags.numNodesChanged = oldProps.numNodes !== props.numNodes;
     }
 
     if (changeFlags.numEdgesChanged) {
@@ -171,6 +173,7 @@ export class GraphLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
         }
         resizeBuffer(length, this.state.buffers[name]);
       });
+      this.setState({numNodesLoaded: Math.min(this.state.numNodesLoaded, props.numNodes)});
     }
     if (changeFlags.graphChanged) {
       this.setState(copyUpdatesIntoBuffers({...this.state, updates}));

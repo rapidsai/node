@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import React from 'react';
+import * as React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';

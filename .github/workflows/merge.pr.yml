@@ -21,9 +21,9 @@ jobs:
       file: dev/dockerfiles/devel/main.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules
-        yarn\.lock
+        yarn.lock
       build-args: |
         "UCX_VERSION=1.12.1"
 
@@ -39,10 +39,10 @@ jobs:
       file: dev/dockerfiles/devel/package.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules
-        yarn\.lock
-        dev/dockerfiles/devel/main\.Dockerfile
+        yarn.lock
+        dev/dockerfiles/devel/main.Dockerfile
       build-args: |
         "CUDAARCHS=ALL"
         "SCCACHE_IDLE_TIMEOUT=32768"
@@ -77,7 +77,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/cudf.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/(core|rmm|cuda|cudf)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
@@ -95,7 +95,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/cuml.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/(core|rmm|cuda|cudf|cuml)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
@@ -113,7 +113,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/cugraph.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/(core|rmm|cuda|cudf|cugraph)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
@@ -131,7 +131,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/cuspatial.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/(core|rmm|cuda|cudf|cuspatial)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
@@ -149,7 +149,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/glfw.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/(core|glfw|webgl)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
@@ -167,7 +167,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/sql.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/(core|rmm|cuda|cudf|sql)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
@@ -187,8 +187,8 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/main.Dockerfile
       files-to-diff: |
-        \.npmrc
-        modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
+        .npmrc
+        modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck.gl|jsdom)
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
         "UCX_VERSION=1.12.1"
@@ -207,7 +207,7 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/demo.Dockerfile
       files-to-diff: |
-        \.npmrc
+        .npmrc
         modules/demo
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
@@ -224,7 +224,7 @@ jobs:
       image: runtime-notebook
       file: dev/dockerfiles/runtime/notebook.Dockerfile
       files-to-diff: |
-        \.npmrc
-        **/*\.ipynb
+        .npmrc
+        **/*.ipynb
         modules/demo
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}

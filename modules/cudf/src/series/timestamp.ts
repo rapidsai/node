@@ -14,6 +14,7 @@
 
 import {Int32Buffer, Int64Buffer} from '@rapidsai/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
+
 import {Series} from '../series';
 import {
   Timestamp,
@@ -21,22 +22,32 @@ import {
   TimestampMicrosecond,
   TimestampMillisecond,
   TimestampNanosecond,
-  TimestampSecond
+  TimestampSecond,
+  Utf8String
 } from '../types/dtypes';
 
 export abstract class TimestampSeries<T extends Timestamp> extends Series<T> {
+  /** @ignore */
+  _castAsString(memoryResource?: MemoryResource): Series<Utf8String> {
+    return Series.new(this._col.stringsFromTimestamps('%Y-%m-%dT%H:%M:%SZ', memoryResource));
+  }
+  /** @ignore */
   _castAsTimeStampDay(memoryResource?: MemoryResource): Series<TimestampDay> {
     return Series.new(this._col.cast(new TimestampDay, memoryResource));
   }
+  /** @ignore */
   _castAsTimeStampSecond(memoryResource?: MemoryResource): Series<TimestampSecond> {
     return Series.new(this._col.cast(new TimestampSecond, memoryResource));
   }
+  /** @ignore */
   _castAsTimeStampMillisecond(memoryResource?: MemoryResource): Series<TimestampMillisecond> {
     return Series.new(this._col.cast(new TimestampMillisecond, memoryResource));
   }
+  /** @ignore */
   _castAsTimeStampMicrosecond(memoryResource?: MemoryResource): Series<TimestampMicrosecond> {
     return Series.new(this._col.cast(new TimestampMicrosecond, memoryResource));
   }
+  /** @ignore */
   _castAsTimeStampNanosecond(memoryResource?: MemoryResource): Series<TimestampNanosecond> {
     return Series.new(this._col.cast(new TimestampNanosecond, memoryResource));
   }

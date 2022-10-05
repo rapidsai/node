@@ -6,6 +6,7 @@ module.exports = {
     // Note: we provide webpack above so you should not `require` it
     // Perform customizations to webpack config
     // config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /.*?\.node/ig }))
+    config.externals.push({'mapbox-gl': 'maplibre-gl'});
     if (isServer) {
       config.externals.push({
         '@rapidsai/core': '@rapidsai/core',

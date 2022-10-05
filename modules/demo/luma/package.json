@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-luma.gl-lessons",
   "main": "index.js",
-  "version": "22.8.0",
+  "version": "22.8.2",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -10,12 +10,12 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "start": "node --experimental-vm-modules --trace-uncaught index.js",
-    "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
+    "start": "node --experimental-vm-modules --enable-source-maps --trace-uncaught index.js",
+    "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --enable-source-maps --trace-uncaught index.js"
   },
   "dependencies": {
-    "@rapidsai/glfw": "~22.8.0",
-    "@rapidsai/jsdom": "~22.8.0"
+    "@rapidsai/glfw": "~22.8.2",
+    "@rapidsai/jsdom": "~22.8.2"
   },
   "files": [
     "lessons",

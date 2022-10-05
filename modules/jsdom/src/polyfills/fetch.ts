@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,11 +23,17 @@ export function installFetch(window: jsdom.DOMWindow) {
     Request,
     Response,
     fetch,
-  } = window.evalFn(() => require('cross-fetch')) as typeof import('cross-fetch');
+  }                            = require('cross-fetch') as typeof import('cross-fetch');
   window.jsdom.global.Headers  = Headers;
   window.jsdom.global.Request  = Request;
   window.jsdom.global.Response = Response;
-  window.jsdom.global.fetch    = function fileAwareFetch(url: string, options: RequestInit = {}) {
+  window.jsdom.global.fetch    = function fileAwareFetch(inp: string|Request,
+                                                      options: RequestInit = {}) {
+    if (typeof inp !== 'string' && ((inp instanceof Request) || ('url' in inp))) {
+      return fetch(inp, options);
+    }
+
+    let url          = inp as string;
     const isDataURI  = url && url.startsWith('data:');
     const isFilePath = url && !isDataURI && !Url.parse(url).protocol;
     if (isFilePath) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,17 +29,20 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
   window.jsdom.utils.wrapperForImpl = wrapperForImpl;
   window.jsdom.global               = implForWrapper(window)._globalObject;
   window.jsdom.global.__cwd         = cwd;
+  window.jsdom.global.URL           = window.URL;
+  window.jsdom.global.Blob          = window.Blob;
+  window.jsdom.global.Worker        = window.Worker;
 
   return createContext;
 
   function createContext(globals: Record<string, any> = {}) {
-    const innerWindow = window;
     const outerGlobal = window.jsdom.global;
     const innerGlobal = Object.create(outerGlobal, {
       ...Object.getOwnPropertyDescriptors(global),
-      window: {get: () => innerWindow, configurable: true, enumerable: true},
+      ...Object.getOwnPropertyDescriptors(outerGlobal),
       global: {get: () => innerContext, configurable: true, enumerable: true},
       globalThis: {get: () => innerContext, configurable: true, enumerable: true},
+      window: {value: window, configurable: true, enumerable: true, writable: false},
     });
 
     const innerProcess = Object.assign(clone(process), {
@@ -50,7 +53,7 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
     });
 
     const innerContext =
-      vm.createContext(Object.assign(innerGlobal, {process: innerProcess, ...globals}));
+      vm.createContext(Object.assign(innerGlobal, {process: innerProcess}, globals));
 
     return installSymbolHasInstanceImpls(innerContext);
   }
@@ -62,6 +65,7 @@ const {
 } = Object;
 
 const nodeGlobals = Object.keys(getOwnPropertyDescriptors(vm.runInNewContext('this')));
+
 const clone = (obj: any) => Object.create(getPrototypeOf(obj), getOwnPropertyDescriptors(obj));
 
 function installSymbolHasInstanceImpls(context: vm.Context) {
@@ -73,7 +77,7 @@ function installSymbolHasInstanceImpls(context: vm.Context) {
         configurable: true,
         value: (x: any) => {
           if (x?.constructor?.name === name) { return true; }
-          for (let p = x; p != null && (p = getPrototypeOf(p));) {
+          for (let p = x; p && (p = getPrototypeOf(p));) {
             if (p === Prototype) { return true; }
           }
           return false;

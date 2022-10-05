@@ -5,7 +5,7 @@ on:
     inputs:
       rapids-version:
         type: string
-        default: "22.8.0"
+        default: "22.8.2"
         description: "RAPIDS version"
       make-release:
         type: boolean
@@ -126,7 +126,7 @@ jobs:
 
           docker run --rm --pull always --platform "linux/${ARCH}" -v "$PWD/build:/out" \
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
-            sh -c "find /opt/rapids/ -type f -name 'rapidsai-[^demo]*.tgz' -exec cp {} /out/ \;"
+            sh -c "find /opt/rapids/ -type f \( -name 'rapidsai-deck.gl*.tgz' -or -name 'rapidsai-[^demo]*.tgz' \) -exec cp {} /out/ \;"
 
           echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > "$HOME/.npmrc"
           find build -type f -name 'rapidsai-*.tgz' -exec npm publish --access public ./{} \;

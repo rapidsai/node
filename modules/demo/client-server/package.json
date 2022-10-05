@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/demo-client-server",
-  "version": "22.8.0",
+  "version": "22.8.2",
   "private": true,
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -13,26 +13,30 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@deck.gl/carto": "8.6.6",
-    "@deck.gl/core": "8.6.6",
-    "@deck.gl/geo-layers": "8.6.6",
-    "@deck.gl/layers": "8.6.6",
-    "@deck.gl/mesh-layers": "8.6.6",
-    "@deck.gl/react": "8.6.6",
+    "@deck.gl/carto": "8.8.10",
+    "@deck.gl/core": "8.8.10",
+    "@deck.gl/geo-layers": "8.8.10",
+    "@deck.gl/layers": "8.8.10",
+    "@deck.gl/mesh-layers": "8.8.10",
+    "@deck.gl/react": "8.8.10",
     "@fortawesome/fontawesome-svg-core": "1.2.35",
     "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",
-    "apache-arrow": "^8.0.0",
+    "apache-arrow": "^9.0.0",
     "bootstrap": "4.6.0",
     "d3": "6.6.2",
     "echarts": "5.0.2",
     "echarts-for-react": "3.0.1",
-    "mjolnir.js": "2.6.0",
+    "maplibre-gl": "2.4.0",
+    "mjolnir.js": "2.7.1",
     "next": "11.1.3",
     "react": "17.0.2",
     "react-bootstrap": "1.6.1",
     "react-dom": "17.0.2",
-    "react-map-gl": "5.3.16"
+    "react-map-gl": "7.0.19"
+  },
+  "devDependencies": {
+    "@babel/core": "7.15.5"
   },
   "files": [
     "pages",

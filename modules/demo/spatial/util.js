@@ -28,7 +28,7 @@ import {existsSync} from 'fs';
 import {readFile as fsReadFile} from 'fs/promises';
 import * as Path from 'path';
 
-import loadSpatialDataset from './data';
+import * as loadSpatialDataset from './data';
 
 /**
  * @param {Map<number, [number, number, number, number]>} colorMap

@@ -15,7 +15,6 @@
 import {MemoryResource} from '@rapidsai/rmm';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
-import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
@@ -113,7 +112,7 @@ export class Join<
     const lhs    = this.lhs.gather(lhsMap, true);
     const rhs    = this.rhs.drop(on).gather(rhsMap, true);
     const result = mergeResults(lhs, rhs, on, this.lsuffix, this.rsuffix);
-    return new DataFrame(new ColumnAccessor(result));
+    return new DataFrame(result);
   }
 
   public right() {
@@ -142,7 +141,7 @@ export class Join<
     const lhs    = this.lhs.gather(lhsMap, true);
     const rhs    = this.rhs.drop(on).gather(rhsMap, true);
     const result = mergeResults(lhs, rhs, on, this.lsuffix, this.rsuffix);
-    return new DataFrame(new ColumnAccessor(result));
+    return new DataFrame(result);
   }
 
   public outer() {
@@ -168,7 +167,7 @@ export class Join<
     // clang-format on
 
     const result = mergeResults(lhsValids, rhs.drop(on), on, this.lsuffix, this.rsuffix);
-    return new DataFrame(new ColumnAccessor(result));
+    return new DataFrame(result);
   }
 
   public leftSemi() {

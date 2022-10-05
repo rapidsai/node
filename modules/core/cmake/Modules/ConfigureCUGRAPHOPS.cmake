@@ -32,17 +32,18 @@ function(find_and_configure_cugraph_ops)
     if(NOT TARGET cugraph-ops::cugraph-ops++)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cugraph-ops ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME     cugraph-ops
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      "git@github.com:rapidsai/cugraph-ops.git"
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW         TRUE
+        CPMFindPackage(NAME       cugraph-ops
+            VERSION               ${VERSION}
+            # EXCLUDE_FROM_ALL       TRUE
+            GIT_REPOSITORY         "git@github.com:rapidsai/cugraph-ops.git"
+            GIT_TAG                branch-${MAJOR_AND_MINOR}
+            GIT_SHALLOW            TRUE
             ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR       cpp
-            OPTIONS             "DETECT_CONDA_ENV OFF"
-                                "BUILD_SHARED_LIBS OFF"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "BUILD_CUGRAPH_OPS_CPP_TESTS OFF")
+            SOURCE_SUBDIR          cpp
+            OPTIONS                "DETECT_CONDA_ENV OFF"
+                                   "BUILD_SHARED_LIBS OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
+                                   "BUILD_CUGRAPH_OPS_CPP_TESTS OFF")
     endif()
     # Make sure consumers of our libs can see cugraph-ops::Thrust
     _fix_cmake_global_defaults(cugraph-ops::Thrust)

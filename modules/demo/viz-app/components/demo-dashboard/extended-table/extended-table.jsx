@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
+import * as React from 'react';
 import { useTable, useSortBy, usePagination } from 'react-table';
 import styles from './extended-table.module.css';
 

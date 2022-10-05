@@ -18,7 +18,7 @@ import { GraphLayer } from '@rapidsai/deck.gl';
 // Preload cuDF kernels into device memory
 Series.new([0, 1, 2]).sum();
 
-import React from 'react';
+import * as React from 'react';
 import DeckGL from '@deck.gl/react';
 import { log as deckLog, OrthographicView } from '@deck.gl/core';
 

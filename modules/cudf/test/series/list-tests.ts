@@ -20,6 +20,7 @@ import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Int32, Int32Series, List, Series} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 const mr = new CudaMemoryResource();
 
@@ -60,7 +61,7 @@ describe('ListSeries', () => {
       const elt = col.getValue(i);
       expect(elt).not.toBeNull();
       expect(elt).toBeInstanceOf(Int32Series);
-      expect([...elt!]).toEqual([...vec.get(i)!]);
+      expect([...elt]).toEqual([...vec.get(i)!]);
     }
   });
 
@@ -158,6 +159,30 @@ describe('ListSeries', () => {
 
     const indices = col.flattenIndices();
     expect([...indices]).toEqual([0, 0, 1]);
+  });
+
+  test('Can flatten Lists of Structs', () => {
+    const vec = Series.new([
+      [{a: 0, b: '0'}, {a: 1, b: '1'}],
+      [{a: 2, b: '2'}],
+      [{a: 3, b: '3'}, {a: 4, b: '4'}, {a: 5, b: '5'}],
+    ]);
+
+    const expected = Series.new([
+      {a: 0, b: '0'},
+      {a: 1, b: '1'},
+      {a: 2, b: '2'},
+      {a: 3, b: '3'},
+      {a: 4, b: '4'},
+      {a: 5, b: '5'},
+    ]);
+
+    const actual = vec.flatten();
+
+    expect([...actual].map((x) => x!.toJSON()))  //
+      .toEqual([...expected].map((x) => x!.toJSON()));
+
+    compareTypes(actual.type, expected.type);
   });
 });
 

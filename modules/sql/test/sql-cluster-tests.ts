@@ -78,6 +78,12 @@ test('explain', async () => {
 `);
 });
 
+async function toArray(src: AsyncIterable<DataFrame>) {
+  const dfs = [];
+  for await (const df of src) { dfs.push(df); }
+  return dfs;
+}
+
 test('select a single column (one worker)', async () => {
   const a  = Series.new([6, 9, 1, 6, 2]);
   const b  = Series.new([7, 2, 7, 1, 2]);
@@ -85,7 +91,7 @@ test('select a single column (one worker)', async () => {
 
   await sqlCluster.createDataFrameTable('test_table', df);
 
-  const result = concat(await sqlCluster.sql('SELECT a FROM test_table'));
+  const result = concat(await toArray(sqlCluster.sql('SELECT a FROM test_table')));
   expect(result).toStrictEqual(new DataFrame({a}));
 });
 
@@ -96,7 +102,7 @@ test('select all columns (one worker)', async () => {
 
   await sqlCluster.createDataFrameTable('test_table', df);
 
-  const result = concat(await sqlCluster.sql('SELECT * FROM test_table'));
+  const result = concat(await toArray(sqlCluster.sql('SELECT * FROM test_table')));
   expect(result).toStrictEqual(new DataFrame({'a': a, 'b': b}));
 });
 
@@ -108,7 +114,8 @@ test('union columns from two tables (one worker)', async () => {
   await sqlCluster.createDataFrameTable('t1', df1);
   await sqlCluster.createDataFrameTable('t2', df2);
 
-  const result = concat(await sqlCluster.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2'));
+  const result =
+    concat(await toArray(sqlCluster.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2')));
   expect(result).toStrictEqual(new DataFrame({'a': Series.new([...a, ...a])}));
 });
 
@@ -119,7 +126,7 @@ test('find all columns within a table that meet condition (one worker)', async (
 
   await sqlCluster.createDataFrameTable('test_table', df);
 
-  const result = concat(await sqlCluster.sql('SELECT * FROM test_table WHERE val > 4'));
+  const result = concat(await toArray(sqlCluster.sql('SELECT * FROM test_table WHERE val > 4')));
   expect(result).toStrictEqual(
     new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])}));
 });
@@ -133,7 +140,7 @@ test('empty sql result', async () => {
 
   // Query should be empty since BETWEEN values are reversed.
   const result =
-    concat(await sqlCluster.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0'));
+    concat(await toArray(sqlCluster.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0')));
   expect(result).toStrictEqual(new DataFrame({}));
 });
 
