@@ -86,45 +86,49 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
   set(BUILD_WARNING_LEVEL "PRODUCTION" PARENT_SCOPE)
   set(BUILD_WARNING_LEVEL "PRODUCTION" CACHE STRING "" FORCE)
 
-  rapids_cpm_find(
-    Arrow ${VERSION}
+  _get_update_disconnected_state(Arrow ${VERSION} UPDATE_DISCONNECTED)
+
+  rapids_cpm_find( Arrow ${VERSION}
     GLOBAL_TARGETS arrow_shared arrow_static
                    parquet_shared parquet_static
                    arrow_cuda_shared arrow_cuda_static
                    arrow_dataset_shared arrow_dataset_static
     CPM_ARGS
-    GIT_REPOSITORY https://github.com/apache/arrow.git
-    GIT_TAG apache-arrow-${VERSION}
-    GIT_SHALLOW TRUE SOURCE_SUBDIR cpp
-    OPTIONS "CMAKE_VERBOSE_MAKEFILE ON"
-            "CUDA_USE_STATIC_CUDA_RUNTIME OFF"
-            "ARROW_IPC ON"
-            "ARROW_CUDA ON"
-            "ARROW_DATASET ON"
-            "ARROW_WITH_BACKTRACE ON"
-            "ARROW_CXXFLAGS -w"
-            "ARROW_JEMALLOC OFF"
-            "ARROW_S3 ${ENABLE_S3}"
-            "ARROW_ORC ${ENABLE_ORC}"
-            # e.g. needed by blazingsql-io
-            ${ARROW_PARQUET_OPTIONS}
-            "ARROW_PARQUET ${ENABLE_PARQUET}"
-            ${ARROW_PYTHON_OPTIONS}
-            # Arrow modifies CMake's GLOBAL RULE_LAUNCH_COMPILE unless this is off
-            "ARROW_USE_CCACHE OFF"
-            "ARROW_POSITION_INDEPENDENT_CODE ON"
-            "ARROW_ARMV8_ARCH ${ARROW_ARMV8_ARCH}"
-            "ARROW_SIMD_LEVEL ${ARROW_SIMD_LEVEL}"
-            "ARROW_BUILD_STATIC ${ARROW_BUILD_STATIC}"
-            "ARROW_BUILD_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_DEPENDENCY_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_BOOST_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_BROTLI_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_GFLAGS_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_GRPC_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_PROTOBUF_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "ARROW_ZSTD_USE_SHARED ${ARROW_BUILD_SHARED}"
-            "xsimd_SOURCE AUTO"
+    ${UPDATE_DISCONNECTED}
+    # EXCLUDE_FROM_ALL       TRUE
+    GIT_REPOSITORY         https://github.com/apache/arrow.git
+    GIT_TAG                apache-arrow-${VERSION}
+    GIT_SHALLOW            TRUE
+    SOURCE_SUBDIR          cpp
+    OPTIONS                "CMAKE_VERBOSE_MAKEFILE ON"
+                           "CUDA_USE_STATIC_CUDA_RUNTIME ON"
+                           "ARROW_IPC ON"
+                           "ARROW_CUDA ON"
+                           "ARROW_DATASET ON"
+                           "ARROW_WITH_BACKTRACE ON"
+                           "ARROW_CXXFLAGS -w"
+                           "ARROW_JEMALLOC OFF"
+                           "ARROW_S3 ${ENABLE_S3}"
+                           "ARROW_ORC ${ENABLE_ORC}"
+                           # e.g. needed by blazingsql-io
+                           ${ARROW_PARQUET_OPTIONS}
+                           "ARROW_PARQUET ${ENABLE_PARQUET}"
+                           ${ARROW_PYTHON_OPTIONS}
+                           # Arrow modifies CMake's GLOBAL RULE_LAUNCH_COMPILE unless this is off
+                           "ARROW_USE_CCACHE OFF"
+                           "ARROW_POSITION_INDEPENDENT_CODE ON"
+                           "ARROW_ARMV8_ARCH ${ARROW_ARMV8_ARCH}"
+                           "ARROW_SIMD_LEVEL ${ARROW_SIMD_LEVEL}"
+                           "ARROW_BUILD_STATIC ${ARROW_BUILD_STATIC}"
+                           "ARROW_BUILD_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_DEPENDENCY_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_BOOST_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_BROTLI_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_GFLAGS_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_GRPC_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_PROTOBUF_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "ARROW_ZSTD_USE_SHARED ${ARROW_BUILD_SHARED}"
+                           "xsimd_SOURCE AUTO"
   )
 
   set(ARROW_FOUND TRUE)

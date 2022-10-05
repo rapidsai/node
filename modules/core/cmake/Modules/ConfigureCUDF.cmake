@@ -43,6 +43,7 @@ function(find_and_configure_cudf)
         _get_update_disconnected_state(cudf ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
+            # EXCLUDE_FROM_ALL    TRUE
             GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
             GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ export interface Worker {
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
 }
 
-export interface ClusterProps {
+export interface ClusterProps extends ContextProps {
   ip: string;
   port: number;
   numWorkers: number;
@@ -54,7 +54,7 @@ export class SQLCluster {
    * const cluster = await Cluster.init();
    * ```
    */
-  public static async init(options: Partial<ClusterProps>&Partial<ContextProps> = {}) {
+  public static async init(options: Partial<ClusterProps> = {}) {
     const {numWorkers = Device.numDevices, ip = '0.0.0.0', port = 4000} = options;
     const {
       networkIfaceName = 'lo',
@@ -272,7 +272,9 @@ export class SQLCluster {
    * const sqlCluster = await SQLCluster.init();
    * await sqlCluster.createTable('test_table', df);
    *
-   * console.log((await sqlCluster.sql('SELECT a FROM test_table')).toString())
+   * for await (const df of sqlCluster.sql('SELECT a FROM test_table')) {
+   *   console.log(df.toString());
+   * }
    * //  a
    * //  0
    * //  1
@@ -280,14 +282,20 @@ export class SQLCluster {
    * //  3
    * ```
    */
-  public async sql(query: string) {
+  public async * sql(query: string) {
     const algebra = await this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])')) {
       // SQL returns empty result.
-      return [];
+      return;
     }
-    const token = ctxToken++;
-    return (await Promise.all(this._workers.map((worker) => worker.sql(query, token)))).flat();
+    const token    = ctxToken++;
+    const promises = this._workers.map((worker) => worker.sql(query, token));
+    while (promises.length > 0) {
+      const {dfs, idx} =
+        await Promise.race(promises.map((dfs, idx) => dfs.then((dfs) => ({dfs, idx}))));
+      promises.splice(idx, 1);
+      yield* dfs;
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ module.exports = (glfwOptions = {
   title: 'Arc Demo',
   transparent: false
 }) => {
-  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
+  const jsdom = new (require('@rapidsai/jsdom').RapidsJSDOM)({
     glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved
     module: {path: __dirname},
+  });
+  return Object.assign(jsdom, {
+    loaded: jsdom.window.evalFn(async () => await import('./app.js')),
   });
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cudf",
-  "version": "22.8.0",
+  "version": "22.8.2",
   "description": "cuDF - NVIDIA RAPIDS GPU DataFrame Library",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -43,12 +43,12 @@
     "tsc:clean": "rimraf build/js",
     "tsc:build": "yarn tsc:clean && tsc -p ./tsconfig.json",
     "tsc:watch": "yarn tsc:clean && tsc -p ./tsconfig.json -w",
-    "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
+    "dev:cpack:enabled": "echo $npm_package_name"
   },
   "dependencies": {
-    "@rapidsai/cuda": "~22.8.0",
-    "@rapidsai/rmm": "~22.8.0",
-    "apache-arrow": "^8.0.0"
+    "@rapidsai/cuda": "~22.8.2",
+    "@rapidsai/rmm": "~22.8.2",
+    "apache-arrow": "^9.0.0"
   },
   "devDependencies": {
     "ix": "4.4.1"

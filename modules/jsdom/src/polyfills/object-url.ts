@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,34 +20,35 @@ import * as Path from 'path';
 export function createObjectUrlAndTmpDir() {
   const tmpdir = mkdtempSync(os.tmpdir() + Path.sep);
   const url    = `http://${Path.basename(tmpdir)}/`.toLowerCase();
+  return {url, tmpdir};
+}
 
-  return {url, tmpdir, install: installObjectURL};
-
-  function installObjectURL(window: jsdom.DOMWindow) {
+export function installObjectURL(tmpdir: string) {
+  return function installObjectURL(window: jsdom.DOMWindow) {
     let filesCount = 0;
-    const map: any = {};
+    const map      = new Map<URL, string>();
 
-    if (!window.jsdom.global.URL) {  //
-      Object.defineProperty(window.jsdom.global, 'URL', {});
-    }
+    window.jsdom.global.URL ??= window.URL;
 
-    window.jsdom.global.URL.createObjectURL = createObjectURL;
-    window.jsdom.global.URL.revokeObjectURL = revokeObjectURL;
+    [window.URL, window.jsdom.global.URL].forEach((URL) => {
+      URL.createObjectURL ??= createObjectURL;
+      URL.revokeObjectURL ??= revokeObjectURL;
+    });
 
     return window;
 
     function createObjectURL(blob: Blob) {
       const path = Path.join(tmpdir, `${filesCount++}`);
       writeFileSync(path, window.jsdom.utils.implForWrapper(blob)._buffer);
-      const url = `file://${path}`;
-      map[url]  = path;
+      const url = new window.jsdom.global.URL(`file://${path}`);
+      map.set(url, path);
       return url;
     }
 
     function revokeObjectURL(url: any) {
-      if (url in map) {
-        const p = map[url];
-        delete map[url];
+      if (map.has(url)) {
+        const p = map.get(url)!;
+        map.delete(url);
         unlinkSync(p);
       }
     }

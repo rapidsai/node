@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ let moduleId = 0;
  * Patch nodejs module system to support context,
  * compilation and module resolution overrides.
  */
-const Module_: any                   = Module;
+
+const Module_: any                   = getRealModule();
 const module_static__load            = Module_._load;
 const module_static__cache           = Module_._cache;
 const module_static__extensions_js   = Module_._extensions['.js'];
@@ -46,11 +47,12 @@ const module_static__resolveFilename = Module_._resolveFilename;
 const module_prototype__compile      = Module_.prototype._compile;
 const module_prototype_load          = Module_.prototype.load;
 
-interface CreateContextRequireOptions {
+export interface CreateContextRequireOptions {
   /** The directory from which to resolve requires for this module. */
   dir: string;
   /** A vm.Context to be used as the context for any required modules. */
   context: any;
+  parent?: Module;
   /** A function to override the native module resolution. */
   resolve?: Resolver;
   /** A function to transform code during dynamic import. */
@@ -61,38 +63,41 @@ interface CreateContextRequireOptions {
 
 export class ContextModule extends Module {
   declare public _context: vm.Context;
-  declare public _moduleCache: Record<string, Module>;
-  declare public _resolveCache: Record<string, string>;
+  declare public _proxyExports: Record<string, boolean>;
+  declare public _moduleCache: NodeJS.Dict<NodeModule>;
+  declare public _resolveCache: NodeJS.Dict<string>;
   declare public _extensions?: Partial<NodeJS.RequireExtensions>;
 
   declare public _require: Require;
   declare public __resolve: Resolver;
   declare public _transform: Transform;
 
-  declare public _cachedDynamicImporter: (specifier: string) => Promise<any>;
+  declare public _cachedDynamicImporter: (specifier: string) => Promise<vm.Module>;
 
   /**
    * Custom nodejs Module implementation which uses a provided
    * resolver, require hooks, and context.
    */
   constructor({
-    dir,
+    parent = require.main ?? module,
+    dir    = parent.path,
     context,
     resolve,
     extensions,
     transform = (_path: string, code: string) => code,
   }: CreateContextRequireOptions) {
     const filename = Path.join(dir, `index.${moduleId++}.ctx`);
-    super(filename, require.main || module);
+    super(filename, parent);
 
     this.filename = filename;
     this.paths    = Module_._nodeModulePaths(dir);
 
+    this._proxyExports = {};
     this._moduleCache  = {};
     this._resolveCache = {};
-    this._extensions   = extensions;
     this._transform    = transform;
-    this._require      = createRequire(this);
+    this._extensions   = extensions;
+    this._require      = createRequire(this, this);
     this._context      = isContext(context) ? context : vm.createContext(context);
 
     if (typeof resolve === 'function') {
@@ -101,7 +106,8 @@ export class ContextModule extends Module {
       this._resolveFilename = module_static__resolveFilename;
     }
 
-    this._cachedDynamicImporter = createImport(this._require, context, this._transform);
+    this._cachedDynamicImporter = createImport(
+      this._require, context, (path: string, code: string) => this._transform(path, code));
 
     this.loaded = true;
   }
@@ -121,7 +127,8 @@ export class ContextModule extends Module {
   }) {
     const cache    = this._resolveCache;
     const cacheKey = `${parent.path}\x00${request}`;
-    if (cache[cacheKey]) { return cache[cacheKey]; }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (cache[cacheKey]) { return cache[cacheKey]!; }
     const resolved = this.__resolve(request, parent, isMain, options);
     if (resolved) { cache[cacheKey] = resolved; }
     return resolved;
@@ -133,12 +140,12 @@ export class ContextModule extends Module {
 
   public load(filename: string) { return patched_prototype_load.call(this, filename); }
 
-  public exec(content: string, filename: string, inner = this._context) {
+  public exec(require: Require, content: string, filename: string, inner = this._context) {
     const outer   = this._context;
     const options = {
       filename,
       displayErrors: true,
-      importModuleDynamically: this.createDynamicImporter(inner),
+      importModuleDynamically: this.createDynamicImporter(require, inner),
     };
     return tryAndReset(
       () => { this._context = inner; },
@@ -147,10 +154,10 @@ export class ContextModule extends Module {
     );
   }
 
-  public createDynamicImporter(context = this._context) {
+  public createDynamicImporter(require: Require = this._require, context = this._context) {
     return context === this._context  //
              ? this._cachedDynamicImporter
-             : createImport(this._require, context, this._transform);
+             : createImport(require, context, this._transform);
   }
 }
 
@@ -162,7 +169,7 @@ export class ContextModule extends Module {
  * @param isMain
  */
 function patched_static__load(request: string, parent: Module, isMain: boolean): any {
-  if (Module.builtinModules.indexOf(request) !== -1) {
+  if (Module_.builtinModules.indexOf(request) !== -1) {
     return module_static__load(request, parent, isMain);
   }
 
@@ -170,7 +177,7 @@ function patched_static__load(request: string, parent: Module, isMain: boolean):
 
   if (module) {
     const filename = patched_static__resolveFilename(request, parent, isMain);
-    // ensure native addons are added to the global static Module._cache
+    // ensure native addons are added to the global static Module_._cache
     const cache = Path.extname(filename) === '.node' ? module_static__cache : module._moduleCache;
     const child = cache[filename];
     if (child) {
@@ -200,7 +207,7 @@ function patched_static__extensions_js(module: any, filename: string) {
  */
 function patched_static__resolveFilename(
   request: string, parent: Module, isMain?: boolean, options?: {paths?: string[]|undefined;}) {
-  if (Module.builtinModules.indexOf(request) === -1) {
+  if (Module_.builtinModules.indexOf(request) === -1) {
     const module = findNearestContextModule(parent);
     if (module) {
       return tryAndReset(
@@ -245,10 +252,15 @@ function patched_prototype__compile(this: Module, content: string, filename: str
   const module = findNearestContextModule(this);
 
   if (module) {
-    const exports = this.exports;
+    const {id}    = this;
     const require = createRequire(this);
     const dirname = Path.dirname(filename);
-    return module.exec(Module.wrap(content), filename)
+    let exports   = this.exports;
+    if (module._proxyExports[id]) {
+      delete module._proxyExports[id];
+      exports = makeESMExportsProxy(this, exports);
+    }
+    return module.exec(require, Module_.wrap(content), filename)
       .call(exports, exports, require, this, filename, dirname);
   }
 
@@ -307,9 +319,9 @@ function tryAndReset<Work extends() => any>(setup: () => any, work: Work, reset:
  *
  * @param mod The module to create a require function for.
  */
-function createRequire(mod: Module) {
-  const main = findNearestContextModule(mod);
-  function require(id: string) {
+function createRequire(mod: Module, main = findNearestContextModule(mod)) {
+  function require(id: string, isAttemptingToRequireCJSAsESM = false) {
+    main && (main._proxyExports[id] = isAttemptingToRequireCJSAsESM);
     return tryAndReset(
       installModuleHooks,
       () => mod.require(id),
@@ -328,28 +340,58 @@ function createRequire(mod: Module) {
 
 let installedCount = 0;
 
+// Jest hijacks the Module builtin, this gets the real one.
+function getRealModule(): typeof Module {
+  const M = Module as any;
+  return M.__proto__ && M.__proto__.prototype ? M.__proto__ : M;
+}
+
 function installModuleHooks() {
   if (++installedCount === 1) {
-    // Jest hijacks the Module builtin, this gets the real one.
-    let M                = Module as any;
-    M                    = M.__proto__ && M.__proto__.prototype ? M.__proto__ : M;
-    M._load              = patched_static__load;
-    M._extensions['.js'] = patched_static__extensions_js;
-    M._resolveFilename   = patched_static__resolveFilename;
-    M.prototype._compile = patched_prototype__compile;
-    M.prototype.load     = patched_prototype_load;
+    Module_._load              = patched_static__load;
+    Module_._extensions['.js'] = patched_static__extensions_js;
+    Module_._resolveFilename   = patched_static__resolveFilename;
+    Module_.prototype._compile = patched_prototype__compile;
+    Module_.prototype.load     = patched_prototype_load;
   }
 }
 
 function uninstallModuleHooks() {
   if (--installedCount === 0) {
-    // Jest hijacks the Module builtin, this gets the real one.
-    let M                = Module as any;
-    M                    = M.__proto__ && M.__proto__.prototype ? M.__proto__ : M;
-    M._load              = module_static__load;
-    M._extensions['.js'] = module_static__extensions_js;
-    M._resolveFilename   = module_static__resolveFilename;
-    M.prototype._compile = module_prototype__compile;
-    M.prototype.load     = module_prototype_load;
+    Module_._load              = module_static__load;
+    Module_._extensions['.js'] = module_static__extensions_js;
+    Module_._resolveFilename   = module_static__resolveFilename;
+    Module_.prototype._compile = module_prototype__compile;
+    Module_.prototype.load     = module_prototype_load;
   }
+}
+
+export const ESMSyntheticModule = Symbol('ESMSyntheticModule');
+
+const ES6ExportsProxyHandler: ProxyHandler<any> = {
+  set(target: any, p: string|symbol, v: any, receiver: any) {  //
+    const success = Reflect.set(target, p, v, receiver);
+    if (success && p !== ESMSyntheticModule) {
+      const mod = Reflect.get(target, ESMSyntheticModule, receiver);
+      if (mod) { mod.setExport(p, v); }
+    }
+    return success;
+  },
+};
+
+function makeESMExportsProxy(module: Module, exports: any) {
+  let proxiedExports = new Proxy(exports, ES6ExportsProxyHandler);
+  Object.defineProperty(module, 'exports', {
+    get() { return proxiedExports; },
+    set(value: any) {
+      if (value !== proxiedExports) {
+        if (value && typeof value === 'object') {  //
+          proxiedExports = new Proxy(value, ES6ExportsProxyHandler);
+        } else {
+          proxiedExports = value;
+        }
+      }
+    },
+  });
+  return proxiedExports;
 }

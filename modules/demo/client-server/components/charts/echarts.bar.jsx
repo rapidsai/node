@@ -15,7 +15,7 @@
 import { tableFromIPC } from 'apache-arrow';
 import * as d3 from 'd3';
 import ReactECharts from 'echarts-for-react';
-import React from 'react';
+import * as React from 'react';
 import { Card } from 'react-bootstrap';
 
 export default class CustomBar extends React.Component {

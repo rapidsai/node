@@ -20,6 +20,7 @@
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <cudf/stream_compaction.hpp>
+#include <cudf/strings/json.hpp>
 #include <cudf/types.hpp>
 
 #include <napi.h>
@@ -121,6 +122,18 @@ inline NapiToCPP::operator cudf::interpolation() const {
 template <>
 inline NapiToCPP::operator cudf::duplicate_keep_option() const {
   return static_cast<cudf::duplicate_keep_option>(operator int32_t());
+}
+
+template <>
+inline NapiToCPP::operator cudf::strings::get_json_object_options() const {
+  cudf::strings::get_json_object_options opts{};
+  if (IsObject()) {
+    auto obj = ToObject();
+    opts.set_allow_single_quotes(obj.Get("allowSingleQuotes").ToBoolean());
+    opts.set_missing_fields_as_nulls(obj.Get("missingFieldsAsNulls").ToBoolean());
+    opts.set_strip_quotes_from_single_strings(obj.Get("stripQuotesFromSingleStrings").ToBoolean());
+  }
+  return opts;
 }
 
 }  // namespace nv

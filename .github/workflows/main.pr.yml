@@ -65,12 +65,22 @@ jobs:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
-            yarn\.lock
-            lerna\.json
-            package\.json
-            modules/**/package\.json
-            modules/**/CMakeLists\.txt
-            modules/**/*\.(c|h|ts|js|cu|cuh|cpp|hpp|json|cmake|tsconfig)
+            yarn.lock
+            lerna.json
+            package.json
+            modules/**/*.c
+            modules/**/*.h
+            modules/**/*.ts
+            modules/**/*.js
+            modules/**/*.cu
+            modules/**/*.cuh
+            modules/**/*.cpp
+            modules/**/*.hpp
+            modules/**/*.json
+            modules/**/*.cmake
+            modules/**/*.tsconfig
+            modules/**/package.json
+            modules/**/CMakeLists.txt
 
       - name: Check if GitHub Actions or devel main Dockerfile changed
         id: dev_changed
@@ -79,7 +89,7 @@ jobs:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
-            dev/dockerfiles/devel/main\.Dockerfile
+            dev/dockerfiles/devel/main.Dockerfile
 
       - name: Update runner env
         env:

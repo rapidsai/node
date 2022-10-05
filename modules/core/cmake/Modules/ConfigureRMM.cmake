@@ -30,15 +30,16 @@ function(find_and_configure_rmm)
     if(NOT TARGET rmm::rmm)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(rmm ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME     rmm
-            VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/rmm.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW         TRUE
+        CPMFindPackage(NAME        rmm
+            # EXCLUDE_FROM_ALL       TRUE
+            VERSION                ${VERSION}
+            GIT_REPOSITORY         https://github.com/rapidsai/rmm.git
+            GIT_TAG                branch-${MAJOR_AND_MINOR}
+            GIT_SHALLOW            TRUE
             ${UPDATE_DISCONNECTED}
-            OPTIONS             "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
-                                "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+            OPTIONS               "BUILD_TESTS OFF"
+                                  "BUILD_BENCHMARKS OFF"
+                                  "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
     endif()
     # Make sure consumers of our libs can see rmm::rmm
     _fix_cmake_global_defaults(rmm::rmm)

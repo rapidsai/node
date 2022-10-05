@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {DataFrame, DataType} from '@rapidsai/cudf';
+import {UcpContext} from '.';
 
 import {
   Context,
@@ -39,8 +40,9 @@ export class SQLContext {
   declare private _db: any;
   declare private _schema: any;
   declare private _generator: any;
+  declare private _ucpContext?: UcpContext;
   declare private _tables: Map<string, SQLTable>;
-  declare private _configOptions: Record<string, unknown>;
+  declare private _configOptions: typeof defaultContextConfigValues;
 
   constructor(options: Partial<ContextProps> = {}) {
     this._db        = CatalogDatabaseImpl('main');
@@ -60,6 +62,7 @@ export class SQLContext {
       ucpContext,
     } = options;
 
+    this._ucpContext    = ucpContext;
     this._configOptions = {...defaultContextConfigValues, ...options.configOptions};
 
     this.context = new Context({
@@ -263,7 +266,7 @@ export class SQLContext {
    * const sqlContext = new SQLContext();
    * sqlContext.createTable('test_table', df);
    *
-   * sqlContext.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
+   * await sqlContext.sql('SELECT a FROM test_table'); // [1, 2, 3]
    * ```
    */
   public sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {

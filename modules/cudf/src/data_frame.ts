@@ -27,7 +27,7 @@ import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps
 import {DISPOSER, scope} from './scope';
 import {Series} from './series';
 import {Table, ToArrowMetadata} from './table';
-import {ReadCSVOptions, WriteCSVOptions} from './types/csv';
+import {ReadCSVOptions, ReadCSVOptionsCommon, WriteCSVOptions} from './types/csv';
 import {
   Bool8,
   DataType,
@@ -41,11 +41,12 @@ import {
   List,
   Numeric,
   NumericTypes,
+  Struct,
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
-import {ReadORCOptions, WriteORCOptions} from './types/orc';
-import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
+import {ReadORCOptions, ReadORCOptionsCommon, WriteORCOptions} from './types/orc';
+import {ReadParquetOptions, ReadParquetOptionsCommon, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap = any> = {
   [P in keyof T]: {readonly type: T[P]}
@@ -80,9 +81,7 @@ type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends
 function _seriesToColumns<T extends TypeMap>(data: ColumnsMap<T>|SeriesMap<T>) {
   const columns = {} as any;
   for (const [name, col] of Object.entries(data)) {
-    if (col instanceof Column) {
-      columns[name] = col;
-    } else if (col instanceof Series) {
+    if (col instanceof Series) {
       columns[name] = col._col;
     } else {
       columns[name] = Series.new(col)._col;
@@ -111,8 +110,28 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(names.reduce(
       (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>));
   }
+
   /**
-   * Read CSV files from disk and create a cudf.DataFrame
+   * Read a CSV file from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import * as cudf  from '@rapidsai/cudf';
+   * const df = cudf.DataFrame.readCSV('test.csv', {
+   *  header: 0,
+   *  dataTypes: {
+   *    a: new cudf.Int16,
+   *    b: new cudf.Bool,
+   *    c: new cudf.Float32,
+   *    d: new cudf.Utf8String
+   *  }
+   * })
+   * ```
+   */
+  public static readCSV<T extends TypeMap = any>(path: string,
+                                                 options?: ReadCSVOptionsCommon<T>): DataFrame<T>;
+  /**
+   * Read a CSV file from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
@@ -130,10 +149,36 @@ export class DataFrame<T extends TypeMap = any> {
    * })
    * ```
    */
-  public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>) {
+  public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>): DataFrame<T>;
+
+  public static readCSV<T extends TypeMap = any>(...args: any[]) {
+    args                 = args.flat();
+    const sources: any[] = args.slice(0, -1);
+    let options          = args[args.length - 1] as ReadCSVOptions<T>| string;
+    if (typeof options === 'string') {
+      sources.push(options);
+      options = {} as ReadCSVOptions<T>;
+    }
+    if (sources.length > 0 || !(options && typeof options === 'object')) {
+      options = {...options, sourceType: 'files', sources};
+    }
     const {names, table} = Table.readCSV(options);
     return DataFrame.fromTable<T>(table, names);
   }
+
+  /**
+   * Read Apache ORC files from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame}  from '@rapidsai/cudf';
+   * const df = DataFrame.readORC('test.orc', {
+   *  skipRows: 10, numRows: 10,
+   * })
+   * ```
+   */
+  public static readORC<T extends TypeMap = any>(paths: string|(string[]),
+                                                 options?: ReadORCOptionsCommon): DataFrame<T>;
 
   /**
    * Read Apache ORC files from disk and create a cudf.DataFrame
@@ -147,11 +192,38 @@ export class DataFrame<T extends TypeMap = any> {
    * })
    * ```
    */
-  public static readORC(options: ReadORCOptions) {
+  public static readORC<T extends TypeMap = any>(options: ReadORCOptions): DataFrame<T>;
+
+  public static readORC<T extends TypeMap = any>(...args: any[]) {
+    args                 = args.flat();
+    const sources: any[] = args.slice(0, -1);
+    let options          = args[args.length - 1] as ReadORCOptions | string;
+    if (typeof options === 'string') {
+      sources.push(options);
+      options = {} as ReadORCOptions;
+    }
+    if (sources.length > 0 || !(options && typeof options === 'object')) {
+      options = {...options, sourceType: 'files', sources};
+    }
     const {names, table} = Table.readORC(options);
-    return new DataFrame(new ColumnAccessor(
-      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+    return DataFrame.fromTable<T>(table, names);
   }
+
+  /**
+   * Read Apache Parquet files from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame}  from '@rapidsai/cudf';
+   * const df = DataFrame.readParquet('test.parquet', {
+   *  skipRows: 10, numRows: 10,
+   * })
+   * ```
+   */
+  // clang-format off
+  public static readParquet<T extends TypeMap = any>(paths: string|(string[]),
+                                                     options?: ReadParquetOptionsCommon): DataFrame<T>;
+  // clang-format on
 
   /**
    * Read Apache Parquet files from disk and create a cudf.DataFrame
@@ -165,10 +237,21 @@ export class DataFrame<T extends TypeMap = any> {
    * })
    * ```
    */
-  public static readParquet(options: ReadParquetOptions) {
+  public static readParquet<T extends TypeMap = any>(options: ReadParquetOptions): DataFrame<T>;
+
+  public static readParquet<T extends TypeMap = any>(...args: any[]) {
+    args                 = args.flat();
+    const sources: any[] = args.slice(0, -1);
+    let options          = args[args.length - 1] as ReadParquetOptions | string;
+    if (typeof options === 'string') {
+      sources.push(options);
+      options = {} as ReadParquetOptions;
+    }
+    if (sources.length > 0 || !(options && typeof options === 'object')) {
+      options = {...options, sourceType: 'files', sources};
+    }
     const {names, table} = Table.readParquet(options);
-    return new DataFrame(new ColumnAccessor(
-      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+    return DataFrame.fromTable<T>(table, names);
   }
 
   /**
@@ -301,6 +384,18 @@ export class DataFrame<T extends TypeMap = any> {
   /** @ignore */
   asTable() { return new Table({columns: this._accessor.columns}); }
 
+  /** @ignore */
+  asStruct() {
+    const {types, _accessor: {columns}} = this;
+    return Series.new({
+      nullCount: 0,
+      children: columns,
+      length: this.numRows,
+      type: new Struct(
+        this.names.map((name, i) => arrow.Field.new(name, types[name], columns[i].nullable))),
+    });
+  }
+
   /**
    * Return a string with a tabular representation of the DataFrame, pretty-printed according to the
    * options given.
@@ -308,6 +403,15 @@ export class DataFrame<T extends TypeMap = any> {
    * @param options
    */
   toString(options: DisplayOptions = {}) { return new DataFrameFormatter(options, this).render(); }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    const [width, maxRows] = process.stdout.getWindowSize();
+    const rows             = this.toString({width, maxRows, maxColWidth: width});
+    return [
+      `cols=${this.numColumns.toLocaleString()}, rows=${this.numRows.toLocaleString()}`,
+      rows,
+    ].join(`\n`);
+  }
 
   /**
    * Return a new DataFrame containing only specified columns.
@@ -473,7 +577,7 @@ export class DataFrame<T extends TypeMap = any> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         [name]: name in types ? this.get(name).cast(types[name]!, memoryResource) : this.get(name)
       }),
-      {} as SeriesMap<Omit<T, keyof R>&R>));
+      {} as SeriesMap<{[P in keyof(Omit<T, keyof R>& R)]: (Omit<T, keyof R>& R)[P]}>));
   }
 
   /**
@@ -568,9 +672,59 @@ export class DataFrame<T extends TypeMap = any> {
                                             : df.asTable().explode(i, mr);
                  return new DataFrame(df.names.reduce((series_map, name, index) => {
                    if (index === i) {
-                     series_map[name] = Series.new(table.getColumnByIndex(index));
+                     series_map[name] =
+                       (this.get(name) as any).elements.__construct(table.getColumnByIndex(index));
                    } else {
                      series_map[name] = df.__constructChild(name, table.getColumnByIndex(index));
+                   }
+                   return series_map;
+                 }, {} as SeriesMap<U>));
+               }, [this]) as any;
+      }, new DataFrame<U>(this._accessor as any));
+    }, [this]);
+  }
+
+  /**
+   * @summary Flatten the elements of this DataFrame's list columns into their positions in its
+   * original list, duplicating the corresponding rows for other columns in this DataFrame.
+   *
+   * @param {string[]} names Names of List Columns to flatten. Defaults to all list Columns.
+   * @param {boolean} [includeNulls=true] Whether to retain null entries and map empty lists to
+   *   null.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  flattenIndices<R extends string&keyof T>(names: readonly R[] = this.names as any,
+                                           includeNulls        = true,
+                                           memoryResource?: MemoryResource) {
+    const listColumnIndices =
+      names.map((n) => [this.types[n], this.names.indexOf(n)] as [DataType, number])
+        .filter(([t]) => arrow.DataType.isList(t))
+        .map(([, i]) => i);
+
+    type U = {
+      // clang-format off
+      [P in R | keyof T]:
+        P extends R
+        ? T[P] extends List
+          ? Int32
+          : T[P]
+        : T[P]
+      // clang-format on
+    };
+
+    return scope(() => {
+      return listColumnIndices.reduce((df, i, j, a) => {
+        return scope(() => {
+                 const mr    = j === a.length - 1 ? memoryResource : undefined;
+                 const table = includeNulls ? df.asTable().explodeOuterPosition(i, mr)  //
+                                            : df.asTable().explodePosition(i, mr);
+                 return new DataFrame(df.names.reduce((series_map, name, index) => {
+                   if (index <= i) {
+                     series_map[name] =
+                       (this.get(name) as any).elements.__construct(table.getColumnByIndex(index));
+                   } else {
+                     series_map[name] =
+                       df.__constructChild(name, table.getColumnByIndex(index + 1));
                    }
                    return series_map;
                  }, {} as SeriesMap<U>));
@@ -2110,10 +2264,10 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns a DataFrame without duplicate rows
    * ```
    */
-  dropDuplicates(keep: keyof typeof DuplicateKeepOption,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
-                 subset = this.names,
+  dropDuplicates(keep: keyof typeof DuplicateKeepOption = 'any',
+                 nullsEqual                             = true,
+                 nullsFirst                             = true,
+                 subset                                 = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;

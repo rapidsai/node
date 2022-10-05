@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {MemoryResource} from '@rapidsai/rmm';
 import {Series} from '../series';
-import {Struct} from '../types/dtypes';
+import {Struct, Utf8String} from '../types/dtypes';
 import {TypeMap} from '../types/mappings';
 
 /**
  * A Series of structs.
  */
 export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
+  /** @ignore */
+  _castAsString(_memoryResource?: MemoryResource): Series<Utf8String> {
+    return Series.new(this.toArray().map((x) => JSON.stringify(x)));
+  }
   /**
    * Return a child series by name.
    *
@@ -58,14 +63,8 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
    * ```typescript
    * import {Series} from "@rapidsai/cudf";
    *
-   * // Series<List<Float64>>
-   * Series.new([[1, 2], [3]]).getValue(0) // Series([1, 2])
-   *
-   * // Series<List<Utf8String>>
-   * Series.new([["foo", "bar"], ["test"]]).getValue(1) // Series(["test"])
-   *
-   * // Series<List<Bool8>>
-   * Series.new([[false, true], [true]]).getValue(2) // throws index out of bounds error
+   * // Series<Struct<{a: Float64, b: Float64}>>
+   * Series.new([{a: 0, b: 1}]).getValue(0) // {a: 0, b: 1}
    * ```
    */
   getValue(index: number) {

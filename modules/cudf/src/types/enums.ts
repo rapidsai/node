@@ -23,6 +23,7 @@ export enum NullOrder
 
 export enum DuplicateKeepOption
 {
+  any,    // Keeps an unspecified occurrence.
   first,  // Keeps first duplicate row and unique rows.
   last,   // Keeps last duplicate row and unique rows.
   none,   // Keeps only unique rows are kept.

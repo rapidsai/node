@@ -27,13 +27,17 @@ function(_statically_link_cuda_toolkit_libs target)
 
     get_target_property(_link_libs ${target} INTERFACE_LINK_LIBRARIES)
 
-    foreach(_lib IN ITEMS blas cublas cublasLt cudart cufft cufft cufftw cupti curand
+    foreach(_lib IN ITEMS blas cublas cublasLt cudart cufft cufftw cupti curand
                           cusolver cusolver_lapack cusolver_metis cusparse lapack nppc
                           nppial nppicc nppicom nppidei nppif nppig nppim nppist nppisu
                           nppitc npps nvgraph)
-      string(REPLACE "CUDA::${_lib};" "CUDA::${_lib}_static;" _link_libs "${_link_libs}")
-      string(REPLACE "CUDA::${_lib}>" "CUDA::${_lib}_static>" _link_libs "${_link_libs}")
-      string(REPLACE "CUDA::${_lib}\"" "CUDA::${_lib}_static\"" _link_libs "${_link_libs}")
+      set(_suf "_static")
+      if(_lib STREQUAL "cufft")
+        set(_suf "_static_nocallback")
+      endif()
+      string(REPLACE "CUDA::${_lib};" "CUDA::${_lib}${_suf};" _link_libs "${_link_libs}")
+      string(REPLACE "CUDA::${_lib}>" "CUDA::${_lib}${_suf}>" _link_libs "${_link_libs}")
+      string(REPLACE "CUDA::${_lib}\"" "CUDA::${_lib}${_suf}\"" _link_libs "${_link_libs}")
     endforeach()
 
     set_target_properties(${target} PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")

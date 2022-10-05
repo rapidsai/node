@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cuda",
-  "version": "22.8.0",
+  "version": "22.8.2",
   "description": "NVIDIA CUDA driver and runtime API bindings",
   "main": "index.js",
   "types": "build/js",
@@ -43,10 +43,10 @@
     "tsc:clean": "rimraf build/js",
     "tsc:build": "yarn tsc:clean && tsc -p ./tsconfig.json",
     "tsc:watch": "yarn tsc:clean && tsc -p ./tsconfig.json -w",
-    "dev:cpack": "cd build/Release && cpack -G TGZ >/dev/null && echo \"$(realpath -m ./rapidsai_*-*-*.tar.gz)\""
+    "dev:cpack:enabled": "echo $npm_package_name"
   },
   "dependencies": {
-    "@rapidsai/core": "~22.8.0"
+    "@rapidsai/core": "~22.8.2"
   },
   "files": [
     "LICENSE",

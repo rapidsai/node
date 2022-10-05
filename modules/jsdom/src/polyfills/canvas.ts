@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 import * as jsdom from 'jsdom';
 
 export function installGetContext(window: jsdom.DOMWindow) {
-  const gl = window.evalFn(() => require('@rapidsai/webgl')) as typeof import('@rapidsai/webgl');
+  const gl = require('@rapidsai/webgl') as typeof import('@rapidsai/webgl');
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;

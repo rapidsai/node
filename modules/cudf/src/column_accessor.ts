@@ -16,28 +16,28 @@ import {Column} from './column';
 import {ColumnsMap, TypeMap} from './types/mappings';
 
 export class ColumnAccessor<T extends TypeMap = any> {
-  private _data: ColumnsMap<T>;
-  private _types!: T;
-  private _names!: ReadonlyArray<(string & keyof T)>;
-  private _columns!: ReadonlyArray<Column<T[keyof T]>>;
-  private _labels_to_indices: Map<keyof T, number> = new Map();
+  private _labels_to_indices = new Map<keyof T, number>();
 
-  constructor(data: ColumnsMap<T>) {
-    const columns = Object.values(data);
+  constructor(private _data: ColumnsMap<T>) {
+    const columns = Object.values(_data);
     if (columns.length > 0) {
       const N = columns[0].length;
       if (!columns.every((col) => col.length == N)) {
         throw new Error('Column lengths must all be the same');
       }
     }
-    this._data = data;
+    this._data = _data;
     this.names.forEach((val, index) => this._labels_to_indices.set(val, index));
   }
+
+  private declare _names: ReadonlyArray<(string & keyof T)>;
 
   get names() {
     return this._names ||
            (this._names = Object.freeze(Object.keys(this._data) as (string & keyof T)[]));
   }
+
+  private declare _types: T;
 
   get types() {
     return this._types || (this._types = Object.freeze(this.names.reduce((types, name) => {
@@ -45,6 +45,8 @@ export class ColumnAccessor<T extends TypeMap = any> {
              return types;
            }, {} as T)));
   }
+
+  private declare _columns: ReadonlyArray<Column<T[keyof T]>>;
 
   get columns() {
     return this._columns || (this._columns = Object.freeze(Object.values(this._data)));

@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-api-server",
   "main": "index.js",
-  "version": "22.8.0",
+  "version": "22.8.2",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -36,5 +36,14 @@
   "devDependencies": {
     "path": "0.12.7",
     "tap": "^16.1.0"
-  }
+  },
+  "files": [
+    "util",
+    "routes",
+    "plugins",
+    "app.js",
+    "index.js",
+    "README.md",
+    "package.json"
+  ]
 }
