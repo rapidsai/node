@@ -1,6 +1,7 @@
 body {
   margin: 0px;
   padding: 0px;
+  overflow: hidden;
 }
 
 .App {
@@ -21,7 +22,16 @@ body {
 
 .BackgroundView {
   position: absolute;
+  height: 100%;
+  width: 100%;
   z-index: 0;
+  background-size: cover;
+  background: url(../public/images/usa_map.png) no-repeat center center fixed;
+}
+
+.foreground {
+  height: 100%;
+  width: 100%;
 }
 
 .GLView {

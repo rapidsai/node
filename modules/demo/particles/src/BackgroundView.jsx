@@ -11,7 +11,16 @@ import usa_map from "../public/images/usa_map.png";
 
 const BackgroundView = () => {
   return (
-    <img src={usa_map} alt="The background" />
+    <div className="background" style={{
+      backgroundImage: `url(${usa_map})`,
+      backgroundSize: "contain",
+      backgroundRepeat: "no-repeat",
+      height: "100%",
+      width: "100%",
+    }}>
+      Hello World
+      <div className="foreground"></div>
+    </div>
   )
 };
 

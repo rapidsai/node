@@ -16,9 +16,6 @@ import BackgroundView from './BackgroundView';
 function App({ scene }) {
   return (
     <div className="App">
-      <div className="GLView">
-        <GLView width={720} height={480} scene={scene} />
-      </div>
       <div className="BackgroundView" >
         <BackgroundView />
       </div>
