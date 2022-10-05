@@ -13,13 +13,11 @@ const BackgroundView = () => {
   return (
     <div className="background" style={{
       backgroundImage: `url(${usa_map})`,
-      backgroundSize: "contain",
+      backgroundSize: "covers",
       backgroundRepeat: "no-repeat",
       height: "100%",
       width: "100%",
     }}>
-      Hello World
-      <div className="foreground"></div>
     </div>
   )
 };
