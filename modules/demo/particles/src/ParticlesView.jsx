@@ -13,10 +13,35 @@ import WebGL from './WebGL';
 const regl = require('regl')()
 const mat4 = require('gl-mat4')
 
-const NUM_POINTS = 1e2
+const NUM_POINTS = 8
 const VERT_SIZE = 4 * (4 + 4 + 3)
 
-const pointBuffer = regl.buffer(Array(NUM_POINTS).fill().map(function () {
+const pointBuffer = regl.buffer([
+  1, 11, 0, 1,
+  1, 1, 1, 1,
+  1.0, 0, 0,
+  1, 10, 0, 1,
+  1, 1, 1, 1,
+  0, 1.0, 0,
+  0, 10, 0, 1,
+  1, 1, 1, 1,
+  0, 0, 1.0,
+  0, 10, -1, 1,
+  1, 1, 1, 1,
+  1.0, 1.0, 0,
+  -1, 10, 0, 1,
+  1, 1, 1, 1,
+  1.0, 0, 1.0,
+  -2, 10, 1, 1,
+  1, 1, 1, 1,
+  0, 1.0, 1.0,
+  -3, 10, 0, 1,
+  1, 1, 1, 1,
+  1.0, 1.0, 1.0,
+  -4, 10, 0, 1,
+  1, 1, 1, 1,
+  0, 0, 0,
+]);  /*Array(NUM_POINTS).fill().map(function () {
   const color = [Math.random() * 255, Math.random() * 255, Math.random(0) * 255, 255]; //  hsv2rgb(Math.random() * 360, 0.6, 1)
   return [
     // freq
@@ -25,14 +50,14 @@ const pointBuffer = regl.buffer(Array(NUM_POINTS).fill().map(function () {
     Math.random() * 10,
     Math.random() * 10,
     // phase
-    2.0 * Math.PI * Math.random(),
-    2.0 * Math.PI * Math.random(),
-    2.0 * Math.PI * Math.random(),
+    1, //2.0 * Math.PI * Math.random(),
+    1, //2.0 * Math.PI * Math.random(),
+    1, //2.0 * Math.PI * Math.random(),
     2.0 * Math.PI * Math.random(),
     // color
     color[0] / 255, color[1] / 255, color[2] / 255
   ]
-}))
+}))*/
 
 const drawParticles = regl({
   vert: `
@@ -43,8 +68,8 @@ const drawParticles = regl({
     uniform mat4 view, projection;
     varying vec3 fragColor;
     void main() {
-      vec3 position = 8.0 * cos(freq.xyz * time + phase.xyz);
-      gl_PointSize = 5.0 * (1.0 + cos(freq.w * time + phase.w));
+      vec3 position = 0.1 * freq.xyz; //cos(freq.xyz * time + phase.xyz);
+      gl_PointSize = 25.0; //* (1.0 + cos(freq.w * time + phase.w));
       gl_Position = projection * view * vec4(position, 1);
       fragColor = color;
     }`,
@@ -81,9 +106,9 @@ const drawParticles = regl({
     view: ({ tick }) => {
       const t = 0.01 * tick
       return mat4.lookAt([],
-        [30 * Math.cos(t), 2.5, 30 * Math.sin(t)],
-        [0, 0, 0],
-        [0, 1, 0])
+        [1, 0, 0], // * Math.cos(t), 2.5, 30 * Math.sin(t)],
+        [0, 1, 0],
+        [0, 0, 1])
     },
     projection: ({ viewportWidth, viewportHeight }) =>
       mat4.perspective([],
