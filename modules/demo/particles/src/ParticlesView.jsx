@@ -17,28 +17,28 @@ const NUM_POINTS = 8
 const VERT_SIZE = 4 * (4 + 4 + 3)
 
 const pointBuffer = regl.buffer([
-  1, 11, 0, 1,
+  0, 0, 0, 1,
   1, 1, 1, 1,
   1.0, 0, 0,
-  1, 10, 0, 1,
+  1, 0, 0, 1,
   1, 1, 1, 1,
   0, 1.0, 0,
-  0, 10, 0, 1,
+  0, 1, 0, 1,
   1, 1, 1, 1,
   0, 0, 1.0,
-  0, 10, -1, 1,
+  1, -1, 0, 1,
   1, 1, 1, 1,
   1.0, 1.0, 0,
-  -1, 10, 0, 1,
+  -1, 1, 0, 1,
   1, 1, 1, 1,
   1.0, 0, 1.0,
-  -2, 10, 1, 1,
+  1, 1, 0, 1,
   1, 1, 1, 1,
   0, 1.0, 1.0,
-  -3, 10, 0, 1,
+  0, -1, 0, 1,
   1, 1, 1, 1,
   1.0, 1.0, 1.0,
-  -4, 10, 0, 1,
+  -1, -1, 0, 1,
   1, 1, 1, 1,
   0, 0, 0,
 ]);  /*Array(NUM_POINTS).fill().map(function () {
@@ -106,9 +106,9 @@ const drawParticles = regl({
     view: ({ tick }) => {
       const t = 0.01 * tick
       return mat4.lookAt([],
-        [1, 0, 0], // * Math.cos(t), 2.5, 30 * Math.sin(t)],
-        [0, 1, 0],
-        [0, 0, 1])
+        [0, 0, 1], // * Math.cos(t), 2.5, 30 * Math.sin(t)],
+        [0, 0, 0],
+        [0, 10, 0])
     },
     projection: ({ viewportWidth, viewportHeight }) =>
       mat4.perspective([],
