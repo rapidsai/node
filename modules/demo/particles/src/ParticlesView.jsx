@@ -28,31 +28,31 @@ const ParticlesView = (props) => {
       1.0, 0, 0,
       //
       1, 0, 0, 1,
-      1,
+      2,
       0, 1.0, 0,
       //
       0, 1, 0, 1,
-      1,
+      4,
       0, 0, 1.0,
       //
       1, -1, 0, 1,
-      1,
+      8,
       1.0, 1.0, 0,
       //
       -1, 1, 0, 1,
-      1,
+      16,
       1.0, 0, 1.0,
       //
       1, 1, 0, 1,
-      1,
+      32,
       0, 1.0, 1.0,
       //
       0, -1, 0, 1,
-      1,
+      64,
       1.0, 1.0, 1.0,
       //
       -1, -1, 0, 1,
-      1,
+      128,
       0, 0, 0,
     ]);
 
@@ -60,14 +60,14 @@ const ParticlesView = (props) => {
       vert: `
     precision mediump float;
     attribute vec4 freq;
-    attribute float scale;
     attribute vec3 color;
+    uniform float scale;
     uniform float time;
     uniform mat4 view, projection;
     varying vec3 fragColor;
     void main() {
-      vec3 position = freq.xyz * (scale * 0.5); //cos(freq.xyz * time + phase.xyz);
-      gl_PointSize = 25.0; //* (1.0 + cos(freq.w * time + phase.w));
+      vec3 position = freq.xyz; //cos(freq.xyz * time + phase.xyz);
+      gl_PointSize = scale;
       gl_Position = projection * view * vec4(position, 1);
       fragColor = color;
     }`,
@@ -88,11 +88,6 @@ const ParticlesView = (props) => {
           stride: VERT_SIZE,
           offset: 0
         },
-        scale: {
-          buffer: pointBuffer,
-          stride: VERT_SIZE,
-          offset: 16
-        },
         color: {
           buffer: pointBuffer,
           stride: VERT_SIZE,
@@ -102,18 +97,18 @@ const ParticlesView = (props) => {
 
       uniforms: {
         view: ({ tick }, props) => {
-          const t = 0.01 * (props.angle + tick);
-          const lookAtZ = 2 * Math.pow(1.1, props.zoomLevel);
-          if (tick % 100 == 0) {
-            console.log(tick);
-            console.log(props.zoomLevel);
-            console.log(lookAtZ);
-          }
+          const t = 0.005 * (props.angle);
+          const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
           const result = mat4.lookAt([],
             [0, 0, lookAtZ],
             [0, 0, 0],
-            [0, 1, 0])
-          return mat4.rotate([], result, Math.cos(t), [0, 0, 1]);
+            [0, 1, 0]);
+          const translation = mat4.translate([], result, [1, 1, 0]);
+          const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
+          return rotation;
+        },
+        scale: () => {
+          return 50 - (25 + props.zoomLevel);
         },
         projection: ({ viewportWidth, viewportHeight }) =>
           mat4.perspective([],
@@ -135,7 +130,6 @@ const ParticlesView = (props) => {
         depth: 1,
         color: [0, 0, 0, 0]
       })
-      console.log(props);
       drawParticles(props);
     });
     return () => {

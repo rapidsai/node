@@ -15,8 +15,8 @@ const BackgroundView = () => {
       backgroundImage: `url(${usa_map})`,
       backgroundSize: "covers",
       backgroundRepeat: "no-repeat",
-      height: "100%",
-      width: "100%",
+      height: "1000px",
+      width: "1000px",
     }}>
     </div>
   )

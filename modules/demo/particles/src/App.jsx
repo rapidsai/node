@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
+import ReglFrame from 'react-regl';
 import './App.css';
 import ParticlesCanvas from './ParticlesCanvas';
 import ParticlesView from './ParticlesView';
@@ -17,6 +17,8 @@ const initialState = {
   angle: 0.0,
   mouseX: 0,
   mouseY: 0,
+  centerX: 0,
+  centerY: 0,
   isHeld: false,
   zoomLevel: 1.0
 }
@@ -49,6 +51,12 @@ const reducer = (state, action) => {
         ...state,
         zoomLevel: result
       }
+    case 'ROTATE':
+      const angle = state.angle;
+      return {
+        ...state,
+        angle: angle + 1 % 360
+      }
     default:
       throw new Error('chalupa batman');
   }
@@ -62,13 +70,20 @@ function App() {
   }
   const scrollHandler = (event) => {
     dispatch({ type: 'SCROLL', event: event });
+    event.stopPropagation();
   }
   const clickHandler = (event) => {
     dispatch({ type: 'MOUSE_CLICK', event: event });
+    clearTimeout(state.timeout);
+    event.stopPropagation();
   }
   const releaseHandler = (event) => {
     dispatch({ type: 'MOUSE_RELEASE', event: event });
+    event.stopPropagation();
   }
+  state.timeout = setTimeout(() => {
+    dispatch({ type: 'ROTATE' });
+  }, 16);
   useEffect(() => {
     // subscribe event
     window.addEventListener("wheel", scrollHandler);
@@ -93,7 +108,7 @@ function App() {
         <ParticlesCanvas />
       </div>
       <div className="ParticlesView" >
-        <ParticlesView zoomLevel={state.zoomLevel} angle={state.angle} />
+        <ParticlesView zoomLevel={state.zoomLevel} angle={state.angle} state={state} />
       </div>
       <div className="App-title">WebGL React App</div>
     </div >
