@@ -7,8 +7,6 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import WebGL from './WebGL';
 
 const regl = require('regl')()
 const mat4 = require('gl-mat4')
@@ -48,23 +46,7 @@ const pointBuffer = regl.buffer([
   -1, -1, 0, 1,
   1,
   0, 0, 0,
-]);  /*Array(NUM_POINTS).fill().map(function () {
-  const color = [Math.random() * 255, Math.random() * 255, Math.random(0) * 255, 255]; //  hsv2rgb(Math.random() * 360, 0.6, 1)
-  return [
-    // freq
-    Math.random() * 10,
-    Math.random() * 10,
-    Math.random() * 10,
-    Math.random() * 10,
-    // phase
-    1, //2.0 * Math.PI * Math.random(),
-    1, //2.0 * Math.PI * Math.random(),
-    1, //2.0 * Math.PI * Math.random(),
-    2.0 * Math.PI * Math.random(),
-    // color
-    color[0] / 255, color[1] / 255, color[2] / 255
-  ]
-}))*/
+]);
 
 const drawParticles = regl({
   vert: `
@@ -114,7 +96,7 @@ const drawParticles = regl({
     view: ({ tick }) => {
       const t = 0.01 * tick
       return mat4.lookAt([],
-        [0, 0, -10], // * Math.cos(t), 2.5, 30 * Math.sin(t)],
+        [0, 0, -10],
         [0, 0, 0],
         [0, 1, 0])
     },
@@ -132,7 +114,7 @@ const drawParticles = regl({
   primitive: 'points'
 })
 
-const ParticlesView = () => {
+const ParticlesView = (appState) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -142,10 +124,10 @@ const ParticlesView = () => {
         color: [0, 0, 0, 0]
       })
 
-      drawParticles()
-    })
+      drawParticles();
+    });
   })
-  return <canvas ref={ref} />
+  return <div />;
 }
 
 export default ParticlesView;

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import usa_map from "../public/images/usa_map.png";
 
 const BackgroundView = () => {

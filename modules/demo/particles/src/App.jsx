@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 import ParticlesView from './ParticlesView';
@@ -49,7 +49,7 @@ const reducer = (state, action) => {
   }
 }
 
-function App({ scene }) {
+function App() {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
   const mouseState = () => {
@@ -85,19 +85,14 @@ function App({ scene }) {
   return (
     <div className="App">
       <div className="BackgroundView">
-        <BackgroundView />
+        <BackgroundView appState={state} />
       </div>
       <div className="ParticlesView" >
-        <ParticlesView />
+        <ParticlesView appState={state} />
       </div>
       <div className="App-title">WebGL React App</div>
     </div >
   );
 }
-
-App.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  scene: PropTypes.object.isRequired,
-};
 
 export default App;
