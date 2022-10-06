@@ -9,10 +9,12 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
+import ParticlesCanvas from './ParticlesCanvas';
 import ParticlesView from './ParticlesView';
 import BackgroundView from './BackgroundView';
 
 const initialState = {
+  angle: 0.0,
   mouseX: 0,
   mouseY: 0,
   isHeld: false,
@@ -34,6 +36,12 @@ const reducer = (state, action) => {
         ...state,
         isHeld: toggle()
       }
+    case 'MOUSE_RELEASE':
+      console.log('unclick');
+      return {
+        ...state,
+        isHeld: toggle()
+      }
     case 'SCROLL':
       const zoom = action.event.deltaY > 0 ? 1 : -1;
       const result = state.zoomLevel + zoom;
@@ -42,21 +50,15 @@ const reducer = (state, action) => {
         zoomLevel: result
       }
     default:
-      return {
-        ...state,
-        isHeld: false
-      }
+      throw new Error('chalupa batman');
   }
 }
 
 function App() {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  const mouseState = () => {
-    return appState.mouse;
-  }
   const overHandler = (event) => {
-    dispatch({ type: 'MOUSE_MOVE', event: event });
+    //dispatch({ type: 'MOUSE_MOVE', event: event });
   }
   const scrollHandler = (event) => {
     dispatch({ type: 'SCROLL', event: event });
@@ -85,10 +87,13 @@ function App() {
   return (
     <div className="App">
       <div className="BackgroundView">
-        <BackgroundView appState={state} />
+        <BackgroundView appState={state.zoomLevel} />
+      </div>
+      <div className="ParticlesCanvas" >
+        <ParticlesCanvas />
       </div>
       <div className="ParticlesView" >
-        <ParticlesView appState={state} />
+        <ParticlesView zoomLevel={state.zoomLevel} angle={state.angle} />
       </div>
       <div className="App-title">WebGL React App</div>
     </div >
