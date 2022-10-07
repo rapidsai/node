@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import usa_map from "../public/images/usa_map.png";
+import usa_map from "./usa_map.png";
 
 const BackgroundView = () => {
   return (

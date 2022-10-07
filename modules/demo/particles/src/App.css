@@ -27,7 +27,7 @@ body {
   z-index: 0;
 }
 
-.ParticlesCanvas {
+.ParticlesView {
   z-index: 1;
   border: 0px;
   margin: 0px;
@@ -39,7 +39,7 @@ body {
   position: absolute;
 }
 
-.ParticlesCanvas canvas {
+.ParticlesView canvas {
   z-index: 1;
   border: 0px;
   margin: 0px;

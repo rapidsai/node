@@ -6,17 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 const mat4 = require('gl-mat4')
 
 const NUM_POINTS = 8
-const VERT_SIZE = 4 * (4 + 1 + 3)
+const VERT_SIZE = 4 * (4 + 3)
 
 
 const ParticlesView = (props) => {
-  const ref = useRef();
-
   useEffect(() => {
     const canvas = document.getElementById('reglCanvas');
     canvas.height = 1000;
@@ -24,35 +22,27 @@ const ParticlesView = (props) => {
     const regl = require('regl')(canvas.getContext('webgl'));
     const pointBuffer = regl.buffer([
       0, 0, 0, 1,
-      1.0,
       1.0, 0, 0,
       //
       1, 0, 0, 1,
-      2,
       0, 1.0, 0,
       //
       0, 1, 0, 1,
-      4,
       0, 0, 1.0,
       //
       1, -1, 0, 1,
-      8,
       1.0, 1.0, 0,
       //
       -1, 1, 0, 1,
-      16,
       1.0, 0, 1.0,
       //
       1, 1, 0, 1,
-      32,
       0, 1.0, 1.0,
       //
       0, -1, 0, 1,
-      64,
       1.0, 1.0, 1.0,
       //
       -1, -1, 0, 1,
-      128,
       0, 0, 0,
     ]);
 
@@ -91,7 +81,7 @@ const ParticlesView = (props) => {
         color: {
           buffer: pointBuffer,
           stride: VERT_SIZE,
-          offset: 20
+          offset: 16
         }
       },
 
@@ -140,7 +130,7 @@ const ParticlesView = (props) => {
       regl.destroy();
     };
   })
-  return <canvas ref={ref} />;
+  return <canvas id="reglCanvas" />;
 }
 
 export default ParticlesView;
