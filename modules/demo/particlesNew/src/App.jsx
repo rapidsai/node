@@ -25,31 +25,26 @@ const initialState = {
 function App() {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  const overHandler = (event) => {
-    //dispatch({ type: 'MOUSE_MOVE', event: event });
-  }
-  const scrollHandler = (event) => {
-    dispatch({ type: 'SCROLL', event: event });
-    event.stopPropagation();
-  }
-  const clickHandler = (event) => {
-    dispatch({ type: 'MOUSE_CLICK', event: event });
-    clearTimeout(state.timeout);
-    event.stopPropagation();
-  }
-  const releaseHandler = (event) => {
-    dispatch({ type: 'MOUSE_RELEASE', event: event });
-    event.stopPropagation();
-  }
-  state.timeout = setTimeout(() => {
-    dispatch({ type: 'ROTATE' });
-  }, 16);
   useEffect(() => {
     // subscribe event
+    const overHandler = (event) => {
+      dispatch({ type: 'MOUSE_MOVE', event: event });
+    }
+    const scrollHandler = (event) => {
+      dispatch({ type: 'SCROLL', event: event });
+    }
+    const clickHandler = (event) => {
+      dispatch({ type: 'MOUSE_CLICK', event: event });
+    }
+    const releaseHandler = (event) => {
+      dispatch({ type: 'MOUSE_RELEASE', event: event });
+    }
+
     window.addEventListener("wheel", scrollHandler);
     window.addEventListener("mousemove", overHandler);
     window.addEventListener("mousedown", clickHandler);
     window.addEventListener("mouseup", releaseHandler);
+
     return () => {
       // unsubscribe event
       window.removeEventListener("wheel", scrollHandler);
@@ -62,7 +57,7 @@ function App() {
   return (
     <div className="App">
       <div className="BackgroundView">
-        <BackgroundView appState={state.zoomLevel} />
+        <BackgroundView zoomLevel={state.zoomLevel} />
       </div>
       <div className="ParticlesView" >
         <ParticlesView zoomLevel={state.zoomLevel} angle={state.angle} state={state} />

@@ -6,26 +6,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const toggle = previous => !previous;
 const reducer = (state, action) => {
   switch (action.type) {
     case 'MOUSE_MOVE':
-      return {
-        ...state,
-        mouseX: action.event.screenX,
-        mouseY: action.event.screenY,
+      if (state.isHeld) {
+        return {
+          ...state,
+          centerX: state.centerX + action.event.screenX - state.mouseX,
+          centerY: state.centerY + action.event.screenY - state.mouseY,
+          mouseX: action.event.screenX,
+          mouseY: action.event.screenY,
+        }
       }
+      else { return state; }
     case 'MOUSE_CLICK':
       console.log('click');
       return {
         ...state,
-        isHeld: toggle()
+        isHeld: true,
+        mouseX: action.event.screenX,
+        mouseY: action.event.screenY,
       }
     case 'MOUSE_RELEASE':
       console.log('unclick');
       return {
         ...state,
-        isHeld: toggle()
+        isHeld: false
       }
     case 'SCROLL':
       const zoom = action.event.deltaY > 0 ? 1 : -1;
@@ -36,6 +42,7 @@ const reducer = (state, action) => {
       }
     case 'ROTATE':
       const angle = state.angle;
+      console.log('angle event');
       return {
         ...state,
         angle: angle + 1 % 360
