@@ -10,6 +10,52 @@ const mat4 = require('gl-mat4');
 const NUM_POINTS = 8
 const VERT_SIZE = 4 * (4 + 3)
 
+const props = {
+  zoomLevel: 0,
+  centerX: 0,
+  centerY: 0,
+  angle: 0
+};
+
+const getViewMatrix = (props) => {
+    const t = 0.005 * (props.angle);
+    const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
+    const result = mat4.lookAt([],
+    [props.centerX / 100, props.centerY / 100, lookAtZ],
+    [props.centerX / 100, props.centerY / 100, 0],
+    [0, 1, 0]);
+    const translation = mat4.translate([], result, [1, 1, 0]);
+    const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
+    return rotation;
+}
+
+const getProjectionMatrix = (props) => {
+  return mat4.frustum([],
+    -500, 500, 500, -500, -1000, 1)
+};
+
+window.addEventListener('wheel', (event) => {
+  const zoom = event.deltaY > 0 ? 1 : -1;
+  props.zoomLevel = props.zoomLevel + zoom;
+});
+
+window.addEventListener('mousedown', (event) => {
+  props.isHeld = true;
+});
+window.addEventListener('mouseup', (event) => {
+  props.isHeld = false;
+});
+window.addEventListener('mousemove', (event) => {
+  if(props.isHeld) {
+    props.centerX = props.centerX + event.movementX;
+    props.centerY = props.centerY + event.movementY;
+  }
+});
+
+setInterval(() => {
+  props.angle = (props.angle + 1)
+}, 16);
+
 const pointBuffer = regl.buffer([
   0, 0, 1, 1,
   1.0, 0, 0,
@@ -81,52 +127,6 @@ void main() {
 
   primitive: 'points'
 })
-
-const getViewMatrix = (props) => {
-    const t = 0.005 * (props.angle);
-    const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
-    const result = mat4.lookAt([],
-    [props.centerX / 100, props.centerY / 100, lookAtZ],
-    [props.centerX / 100, props.centerY / 100, 0],
-    [0, 1, 0]);
-    const translation = mat4.translate([], result, [1, 1, 0]);
-    const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
-    return rotation;
-}
-
-const getProjectionMatrix = (props) => {
-  return mat4.frustum([],
-    -500, 500, 500, -500, -1000, 1)
-};
-
-const props = {
-  zoomLevel: 0,
-  centerX: 0,
-  centerY: 0,
-  angle: 0
-};
-
-window.addEventListener('wheel', (event) => {
-  const zoom = event.deltaY > 0 ? 1 : -1;
-  props.zoomLevel = props.zoomLevel + zoom;
-});
-
-window.addEventListener('mousedown', (event) => {
-  props.isHeld = true;
-});
-window.addEventListener('mouseup', (event) => {
-  props.isHeld = false;
-});
-window.addEventListener('mousemove', (event) => {
-  if(props.isHeld) {
-    props.centerX = props.centerX + event.movementX;
-    props.centerY = props.centerY + event.movementY;
-  }
-});
-
-setInterval(() => {
-  props.angle = (props.angle + 1)
-}, 16);
 
 var cubePosition = [
   [-0.5, +0.5, +0.5], [+0.5, +0.5, +0.5], [+0.5, -0.5, +0.5], [-0.5, -0.5, +0.5], // positive z face.
