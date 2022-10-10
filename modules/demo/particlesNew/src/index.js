@@ -11,21 +11,21 @@ const NUM_POINTS = 8
 const VERT_SIZE = 4 * (4 + 3)
 
 const pointBuffer = regl.buffer([
-  0, 0, 0, 1,
+  0, 0, 1, 1,
   1.0, 0, 0,
-  1, 0, 0, 1,
+  1, 0, 1, 1,
   0, 1.0, 0,
-  0, 1, 0, 1,
+  0, 1, 1, 1,
   0, 0, 1.0,
-  1, -1, 0, 1,
+  1, -1, 1, 1,
   1.0, 1.0, 0,
-  -1, 1, 0, 1,
+  -1, 1, 1, 1,
   1.0, 0, 1.0,
-  1, 1, 0, 1,
+  1, 1, 1, 1,
   0, 1.0, 1.0,
-  0, -1, 0, 1,
-  1.0, 1.0, 1.0,
-  -1, -1, 0, 1,
+  0, -1, 1, 1,
+  0.5, 0.5, 0.5,
+  -1, -1, 1, 1,
   0, 0, 0,
 ]);
 
@@ -39,7 +39,7 @@ uniform float time;
 uniform mat4 view, projection;
 varying vec3 fragColor;
 void main() {
-  vec3 position = freq.xyz; //cos(freq.xyz * time + phase.xyz);
+  vec3 position = freq.xyz;
   gl_PointSize = scale;
   gl_Position = projection * view * vec4(position, 1);
   fragColor = color;
@@ -70,22 +70,14 @@ void main() {
 
   uniforms: {
     view: ({ tick }, props) => {
-      const t = 0.005 * (props.angle);
-      const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
-      const result = mat4.lookAt([],
-        [props.centerX / 100, props.centerY / 100, lookAtZ],
-        [props.centerX / 100, props.centerY / 100, 0],
-        [0, 1, 0]);
-      const translation = mat4.translate([], result, [1, 1, 0]);
-      const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
-      return rotation;
+      return getViewMatrix(props);
     },
     scale: ({tick}, props) => {
       return 50 - (25 + props.zoomLevel);
     },
     projection: ({ viewportWidth, viewportHeight }) =>
       mat4.frustum([],
-        -500, 500, 300, -300, -1000, 1),
+        -500, 500, 500, -500, -1000, 1),
     time: ({ tick }) => tick * 0.001
   },
 
@@ -93,6 +85,18 @@ void main() {
 
   primitive: 'points'
 })
+
+const getViewMatrix = (props) => {
+    const t = 0.005 * (props.angle);
+    const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
+    const result = mat4.lookAt([],
+    [props.centerX / 100, props.centerY / 100, lookAtZ],
+    [props.centerX / 100, props.centerY / 100, 0],
+    [0, 1, 0]);
+    const translation = mat4.translate([], result, [1, 1, 0]);
+    const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
+    return rotation;
+}
 
 const props = {
   zoomLevel: 0,
@@ -174,19 +178,12 @@ const drawCube = regl({
   },
   elements: cubeElements,
   uniforms: {
-    view: ({tick}) => {
-      const t = 0.01 * tick
-      return mat4.lookAt([],
-                         [5 * Math.cos(t), 2.5 * Math.sin(t), 5 * Math.sin(t)],
-                         [0, 0.0, 0],
-                         [0, 1, 0])
+    view: ({tick}, props) => {
+      return getViewMatrix(props.props);
     },
-    projection: ({viewportWidth, viewportHeight}) =>
-      mat4.perspective([],
-                       Math.PI / 4,
-                       viewportWidth / viewportHeight,
-                       0.01,
-                       10),
+    projection: ({ viewportWidth, viewportHeight }) =>
+      mat4.frustum([],
+        -500, 500, 500, -500, -1000, 0),
     tex: regl.prop('data')
   }
 })
@@ -195,7 +192,7 @@ const data = regl.texture({
   width: 2,
   height: 2,
   data: [
-    255, 255, 255, 255, 0, 0, 0, 0,
+    0, 255, 0, 255, 0, 0, 0, 255,
     255, 0, 255, 255, 0, 0, 255, 255
   ]
 })
@@ -216,5 +213,8 @@ const tick = regl.frame(() => {
     color: [0, 0, 0, 0]
   })
   drawParticles(props);
-  drawCube({data})
+  const temp_props = props.angle;
+  props.angle = 0;
+  drawCube({data, props})
+  props.angle = temp_props;
 });
