@@ -69,15 +69,11 @@ void main() {
   },
 
   uniforms: {
-    view: ({ tick }, props) => {
-      return getViewMatrix(props);
-    },
+    view: ({ tick }, props) => getViewMatrix(props),
     scale: ({tick}, props) => {
       return 50 - (25 + props.zoomLevel);
     },
-    projection: ({ viewportWidth, viewportHeight }) =>
-      mat4.frustum([],
-        -500, 500, 500, -500, -1000, 1),
+    projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
     time: ({ tick }) => tick * 0.001
   },
 
@@ -97,6 +93,11 @@ const getViewMatrix = (props) => {
     const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
     return rotation;
 }
+
+const getProjectionMatrix = (props) => {
+  return mat4.frustum([],
+    -500, 500, 500, -500, -1000, 1)
+};
 
 const props = {
   zoomLevel: 0,
@@ -178,12 +179,8 @@ const drawCube = regl({
   },
   elements: cubeElements,
   uniforms: {
-    view: ({tick}, props) => {
-      return getViewMatrix(props.props);
-    },
-    projection: ({ viewportWidth, viewportHeight }) =>
-      mat4.frustum([],
-        -500, 500, 500, -500, -1000, 0),
+    view: ({tick}, props) => getViewMatrix(props.props),
+    projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
     tex: regl.prop('data')
   }
 })
