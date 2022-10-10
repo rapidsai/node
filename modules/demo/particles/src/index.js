@@ -66,11 +66,12 @@ const pointBuffer = regl.buffer([
 ]);
 
 var cubePosition = [
-  [-0.5, +0.5, 0.1], [+0.5, +0.5, 0.1], [+0.5, -0.5, 0.1], [-0.5, -0.5, 0.1] // positive z face.
+  //[-0.5, +0.5, 0.1], [+0.5, +0.5, 0.1], [+0.5, -0.5, 0.1], [-0.5, -0.5, 0.1] // positive z face.
+  [-100, 100, 0.1], [100, 100, 0.1], [100, -100, 0.1], [-100, -100, 0.1]
 ]
 
 var cubeUv = [
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // positive z face.
+  [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], // positive z face.
 ]
 
 const cubeElements = [
@@ -101,7 +102,7 @@ void main() {
   },
   elements: cubeElements,
   uniforms: {
-    view: ({tick}, props) => getViewMatrix(props.props),
+    view: ({tick}, props) => getBackgroundViewMatrix(props.props),
     projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
     tex: regl.prop('data')
   }
@@ -144,7 +145,7 @@ void main() {
     }
   },
   uniforms: {
-    view: ({ tick }, props) => getViewMatrix(props),
+    view: ({ tick }, props) => getPointsViewMatrix(props),
     scale: ({tick}, props) => {
       return 50 - (25 + props.zoomLevel);
     },
@@ -155,8 +156,7 @@ void main() {
   primitive: 'points'
 })
 
-
-const getViewMatrix = (props) => {
+const getBackgroundViewMatrix = (props) => {
   const t = 0.015 * (props.angle);
   const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
   const result = mat4.lookAt([],
@@ -168,10 +168,22 @@ const getViewMatrix = (props) => {
   return rotation;
 }
 
+const getPointsViewMatrix = (props) => {
+  const t = 0.015 * (props.angle);
+  const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
+  const result = mat4.lookAt([],
+  [props.centerX / 100, props.centerY / 100, lookAtZ],
+  [props.centerX / 100, props.centerY / 100, 0],
+  [0, -1, 0]);
+  const translation = mat4.translate([], result, [0, 0, 0]);
+  const rotation = mat4.rotate([], translation, t, [t, t, 1]);
+  return rotation;
+}
+
 const getProjectionMatrix = (props) => {
 
 return mat4.frustum([],
-  -1, 1, 1, -1, 1, 30)
+  -1, 1, 1, -1, 1, 1000)
 };
 
 // Try to put an image in a context2d buffer
@@ -202,10 +214,10 @@ image.onload = () => {
       color: [0, 0, 0, 0]
     });
     drawParticles(props);
-    //const temp_props = props.angle;
-    //props.angle = 0;
+    const temp_props = props.angle;
+    props.angle = 0;
     drawCube({data, props})
-    //props.angle = temp_props;
+    props.angle = temp_props;
   });
 
 }
