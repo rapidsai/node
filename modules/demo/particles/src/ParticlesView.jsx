@@ -6,53 +6,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useEffect, useRef } from 'react';
-
+import React, { useEffect, useState } from 'react';
+const reglLib = require('regl');
 const mat4 = require('gl-mat4')
 
 const NUM_POINTS = 8
-const VERT_SIZE = 4 * (4 + 1 + 3)
-
+const VERT_SIZE = 4 * (4 + 3)
 
 const ParticlesView = (props) => {
-  const ref = useRef();
+  const [regl, setRegl] = useState(undefined);
 
   useEffect(() => {
     const canvas = document.getElementById('reglCanvas');
-    canvas.height = 1000;
-    canvas.width = 1000;
-    const regl = require('regl')(canvas.getContext('webgl'));
+    const webgl = canvas.getContext('webgl');
+    const regl = reglLib(webgl);
     const pointBuffer = regl.buffer([
       0, 0, 0, 1,
-      1.0,
       1.0, 0, 0,
-      //
       1, 0, 0, 1,
-      2,
       0, 1.0, 0,
-      //
       0, 1, 0, 1,
-      4,
       0, 0, 1.0,
-      //
       1, -1, 0, 1,
-      8,
       1.0, 1.0, 0,
-      //
       -1, 1, 0, 1,
-      16,
       1.0, 0, 1.0,
-      //
       1, 1, 0, 1,
-      32,
       0, 1.0, 1.0,
-      //
       0, -1, 0, 1,
-      64,
       1.0, 1.0, 1.0,
-      //
       -1, -1, 0, 1,
-      128,
       0, 0, 0,
     ]);
 
@@ -91,7 +74,7 @@ const ParticlesView = (props) => {
         color: {
           buffer: pointBuffer,
           stride: VERT_SIZE,
-          offset: 20
+          offset: 16
         }
       },
 
@@ -100,8 +83,8 @@ const ParticlesView = (props) => {
           const t = 0.005 * (props.angle);
           const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
           const result = mat4.lookAt([],
-            [0, 0, lookAtZ],
-            [0, 0, 0],
+            [props.state.centerX / 100, props.state.centerY / 100, lookAtZ],
+            [props.state.centerX / 100, props.state.centerY / 100, 0],
             [0, 1, 0]);
           const translation = mat4.translate([], result, [1, 1, 0]);
           const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
@@ -111,11 +94,8 @@ const ParticlesView = (props) => {
           return 50 - (25 + props.zoomLevel);
         },
         projection: ({ viewportWidth, viewportHeight }) =>
-          mat4.perspective([],
-            Math.PI / 4,
-            viewportWidth / viewportHeight,
-            0.01,
-            1000),
+          mat4.frustum([],
+            -500, 500, 300, -300, -1000, 1),
         time: ({ tick }) => tick * 0.001
       },
 
@@ -134,9 +114,9 @@ const ParticlesView = (props) => {
     });
     return () => {
       regl.destroy();
-    };
-  })
-  return <canvas ref={ref} />;
+    }
+  });
+  return <canvas id="reglCanvas" width="1000px" height="1000px" />;
 }
 
 export default ParticlesView;

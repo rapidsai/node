@@ -6,17 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import usa_map from "../public/images/usa_map.png";
+import React, { useEffect } from 'react';
+import usa_map from "./usa_map.png";
 
-const BackgroundView = () => {
+const BackgroundView = (props) => {
+  useEffect(() => {
+    console.log(props.zoomLevel);
+  });
   return (
-    <div className="background" style={{
+    <div id="background" style={{
       backgroundImage: `url(${usa_map})`,
-      backgroundSize: "covers",
+      backgroundSize: 'cover',
+      height: 40 * (50 - (25 + props.zoomLevel)),
+      width: 40 * (50 - (25 + props.zoomLevel)),
       backgroundRepeat: "no-repeat",
-      height: "1000px",
-      width: "1000px",
     }}>
     </div>
   )
