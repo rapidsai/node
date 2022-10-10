@@ -56,12 +56,6 @@ function App() {
 
   return (
     <div className="App">
-      <div className="BackgroundView">
-        <BackgroundView zoomLevel={state.zoomLevel} />
-      </div>
-      <div className="ParticlesView" >
-        <ParticlesView zoomLevel={state.zoomLevel} angle={state.angle} state={state} />
-      </div>
     </div >
   );
 }

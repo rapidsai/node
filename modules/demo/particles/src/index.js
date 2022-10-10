@@ -4,6 +4,10 @@
 
 // import drawCube from "./drawBackground"
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
 const regl = require('regl')();
 const mat4 = require('gl-mat4');
 
@@ -170,23 +174,40 @@ return mat4.frustum([],
   -1, 1, 1, -1, 1, 30)
 };
 
-const data = regl.texture({
-  width: 2,
-  height: 2,
-  data: [
-    0, 255, 0, 255, 0, 0, 0, 255,
-    255, 0, 255, 255, 0, 0, 255, 255
-  ]
-});
+// Try to put an image in a context2d buffer
+const backgroundCanvas = document.createElement('div');
+backgroundCanvas.innerHTML = "<canvas id='hiddenBackground' width=1000 height=1000 style='visibility: hidden'/>"
+const image = new Image();
+image.src = "./usa_map.png";
+image.style = "visibility: hidden";
+backgroundCanvas.appendChild(image);
+document.body.appendChild(backgroundCanvas);
+const canvas = document.getElementById('hiddenBackground');
+image.onload = () => {
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0);
+  console.log(context.getImageData(0, 0, 1000, 1000));
+  const imageData = context.getImageData(0, 0, 1000, 1000);
 
-const tick = regl.frame(() => {
-  regl.clear({
-    depth: 1,
-    color: [0, 0, 0, 0]
+  const data = regl.texture({
+    width: 1000,
+    height: 1000,
+    data: imageData.data
   });
-  drawParticles(props);
-  //const temp_props = props.angle;
-  //props.angle = 0;
-  drawCube({data, props})
-  //props.angle = temp_props;
-});
+
+  console.log(data.texture);
+  const tick = regl.frame(() => {
+    regl.clear({
+      depth: 1,
+      color: [0, 0, 0, 0]
+    });
+    drawParticles(props);
+    //const temp_props = props.angle;
+    //props.angle = 0;
+    drawCube({data, props})
+    //props.angle = temp_props;
+  });
+
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
