@@ -71,11 +71,11 @@ var cubePosition = [
 ]
 
 var cubeUv = [
-  [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], // positive z face.
+  [1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0], // positive z face.
 ]
 
 const cubeElements = [
-  [0, 2, 1], [0, 3, 2]       // positive z face.
+  [0, 1, 2], [0, 3, 2]       // positive z face.
 ]
 
 const drawCube = regl({
@@ -94,7 +94,8 @@ varying vec2 vUv;
 uniform mat4 projection, view;
 void main() {
   vUv = uv;
-  gl_Position = projection * view * vec4(position, 1);
+  vec3 pos = -position;
+  gl_Position = projection * view * vec4(pos, 1);
 }`,
   attributes: {
     position: cubePosition,
@@ -188,7 +189,7 @@ return mat4.frustum([],
 
 // Try to put an image in a context2d buffer
 const backgroundCanvas = document.createElement('div');
-backgroundCanvas.innerHTML = "<canvas id='hiddenBackground' width=1000 height=1000 style='visibility: hidden'/>"
+backgroundCanvas.innerHTML = "<canvas id='hiddenBackground' width=3000 height=3000 style='visibility: hidden'/>"
 const image = new Image();
 image.src = "./usa_map.png";
 image.style = "visibility: hidden";
@@ -198,12 +199,14 @@ const canvas = document.getElementById('hiddenBackground');
 image.onload = () => {
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);
-  console.log(context.getImageData(0, 0, 1000, 1000));
-  const imageData = context.getImageData(0, 0, 1000, 1000);
+  const imWidth = image.width;
+  const imHeight = image.height;
+  console.log(context.getImageData(0, 0, imWidth, imHeight));
+  const imageData = context.getImageData(0, 0, imWidth, imHeight);
 
   const data = regl.texture({
-    width: 1000,
-    height: 1000,
+    width: imWidth,
+    height: imHeight,
     data: imageData.data
   });
 
