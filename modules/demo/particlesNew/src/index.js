@@ -7,7 +7,7 @@
 const regl = require('regl')();
 const mat4 = require('gl-mat4');
 
-const NUM_POINTS = 8
+const NUM_POINTS = 9
 const VERT_SIZE = 4 * (4 + 3)
 
 const props = {
@@ -17,22 +17,6 @@ const props = {
   angle: 0
 };
 
-const getViewMatrix = (props) => {
-    const t = 0.005 * (props.angle);
-    const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
-    const result = mat4.lookAt([],
-    [props.centerX / 100, props.centerY / 100, lookAtZ],
-    [props.centerX / 100, props.centerY / 100, 0],
-    [0, 1, 0]);
-    const translation = mat4.translate([], result, [1, 1, 0]);
-    const rotation = mat4.rotate([], translation, t, [0, 0, 1]);
-    return rotation;
-}
-
-const getProjectionMatrix = (props) => {
-  return mat4.frustum([],
-    -500, 500, 500, -500, -1000, 1)
-};
 
 window.addEventListener('wheel', (event) => {
   const zoom = event.deltaY > 0 ? 1 : -1;
@@ -73,7 +57,51 @@ const pointBuffer = regl.buffer([
   0.5, 0.5, 0.5,
   -1, -1, 1, 1,
   0, 0, 0,
+  -1, 0, 1, 1,
+  1.0, 0, 0,
 ]);
+
+var cubePosition = [
+  [-0.5, +0.5, 0.1], [+0.5, +0.5, 0.1], [+0.5, -0.5, 0.1], [-0.5, -0.5, 0.1] // positive z face.
+]
+
+var cubeUv = [
+  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // positive z face.
+]
+
+const cubeElements = [
+  [0, 2, 1], [0, 3, 2]       // positive z face.
+]
+
+const drawCube = regl({
+  frag: `
+precision mediump float;
+varying vec2 vUv;
+uniform sampler2D tex;
+void main () {
+  gl_FragColor = texture2D(tex,vUv);
+}`,
+  vert: `
+precision mediump float;
+attribute vec3 position;
+attribute vec2 uv;
+varying vec2 vUv;
+uniform mat4 projection, view;
+void main() {
+  vUv = uv;
+  gl_Position = projection * view * vec4(position, 1);
+}`,
+  attributes: {
+    position: cubePosition,
+    uv: cubeUv
+  },
+  elements: cubeElements,
+  uniforms: {
+    view: ({tick}, props) => getViewMatrix(props.props),
+    projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
+    tex: regl.prop('data')
+  }
+})
 
 const drawParticles = regl({
   vert: `
@@ -90,7 +118,6 @@ void main() {
   gl_Position = projection * view * vec4(position, 1);
   fragColor = color;
 }`,
-
   frag: `
 precision lowp float;
 varying vec3 fragColor;
@@ -100,7 +127,6 @@ void main() {
   }
   gl_FragColor = vec4(fragColor, 1);
 }`,
-
   attributes: {
     freq: {
       buffer: pointBuffer,
@@ -113,7 +139,6 @@ void main() {
       offset: 16
     }
   },
-
   uniforms: {
     view: ({ tick }, props) => getViewMatrix(props),
     scale: ({tick}, props) => {
@@ -122,68 +147,28 @@ void main() {
     projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
     time: ({ tick }) => tick * 0.001
   },
-
   count: NUM_POINTS,
-
   primitive: 'points'
 })
 
-var cubePosition = [
-  [-0.5, +0.5, +0.5], [+0.5, +0.5, +0.5], [+0.5, -0.5, +0.5], [-0.5, -0.5, +0.5], // positive z face.
-  [+0.5, +0.5, +0.5], [+0.5, +0.5, -0.5], [+0.5, -0.5, -0.5], [+0.5, -0.5, +0.5], // positive x face
-  [+0.5, +0.5, -0.5], [-0.5, +0.5, -0.5], [-0.5, -0.5, -0.5], [+0.5, -0.5, -0.5], // negative z face
-  [-0.5, +0.5, -0.5], [-0.5, +0.5, +0.5], [-0.5, -0.5, +0.5], [-0.5, -0.5, -0.5], // negative x face.
-  [-0.5, +0.5, -0.5], [+0.5, +0.5, -0.5], [+0.5, +0.5, +0.5], [-0.5, +0.5, +0.5], // top face
-  [-0.5, -0.5, -0.5], [+0.5, -0.5, -0.5], [+0.5, -0.5, +0.5], [-0.5, -0.5, +0.5]  // bottom face
-]
 
-var cubeUv = [
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // positive z face.
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // positive x face.
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // negative z face.
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // negative x face.
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], // top face
-  [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]  // bottom face
-]
+const getViewMatrix = (props) => {
+  const t = 0.015 * (props.angle);
+  const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
+  const result = mat4.lookAt([],
+  [props.centerX / 100, props.centerY / 100, lookAtZ],
+  [props.centerX / 100, props.centerY / 100, 0],
+  [0, 1, 0]);
+  const translation = mat4.translate([], result, [0, 0, 0]);
+  const rotation = mat4.rotate([], translation, t, [t, t, 1]);
+  return rotation;
+}
 
-const cubeElements = [
-  [2, 1, 0], [2, 0, 3],       // positive z face.
-  [6, 5, 4], [6, 4, 7],       // positive x face.
-  [10, 9, 8], [10, 8, 11],    // negative z face.
-  [14, 13, 12], [14, 12, 15], // negative x face.
-  [18, 17, 16], [18, 16, 19], // top face.
-  [20, 21, 22], [23, 20, 22]  // bottom face
-]
+const getProjectionMatrix = (props) => {
 
-const drawCube = regl({
-  frag: `
-  precision mediump float;
-  varying vec2 vUv;
-  uniform sampler2D tex;
-  void main () {
-    gl_FragColor = texture2D(tex,vUv);
-  }`,
-  vert: `
-  precision mediump float;
-  attribute vec3 position;
-  attribute vec2 uv;
-  varying vec2 vUv;
-  uniform mat4 projection, view;
-  void main() {
-    vUv = uv;
-    gl_Position = projection * view * vec4(position, 1);
-  }`,
-  attributes: {
-    position: cubePosition,
-    uv: cubeUv
-  },
-  elements: cubeElements,
-  uniforms: {
-    view: ({tick}, props) => getViewMatrix(props.props),
-    projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
-    tex: regl.prop('data')
-  }
-})
+return mat4.frustum([],
+  -1, 1, 1, -1, 1, 30)
+};
 
 const data = regl.texture({
   width: 2,
@@ -192,26 +177,16 @@ const data = regl.texture({
     0, 255, 0, 255, 0, 0, 0, 255,
     255, 0, 255, 255, 0, 0, 255, 255
   ]
-})
-/*
-console.log(process.env.PUBLIC_URL);
-regl.frame(() => {
-  regl.clear({
-    color: [0, 0, 0, 255],
-    depth: 1
-  });
-  drawCube({data});
 });
-*/
 
 const tick = regl.frame(() => {
   regl.clear({
     depth: 1,
     color: [0, 0, 0, 0]
-  })
+  });
   drawParticles(props);
-  const temp_props = props.angle;
-  props.angle = 0;
+  //const temp_props = props.angle;
+  //props.angle = 0;
   drawCube({data, props})
-  props.angle = temp_props;
+  //props.angle = temp_props;
 });

@@ -6,8 +6,6 @@
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.4.0",
     "@testing-library/user-event": "13.5.0",
-    "Buffer": "0.0.0",
-    "baboon-image": "2.1.0",
     "gl-mat4": "1.2.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
