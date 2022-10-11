@@ -49,19 +49,33 @@ module.exports = async function(fastify, opts) {
     return result
   }
 
+  const cudf = async() => {
+    console.log(route);
+    console.log(args);
+  }
+
+  const cudf_dispatcher = async (route, args) => {
+    Function(route[0])(route, args);
+    console.log(route);
+    console.log(args);
+  }
+
   const post_handler =
     async (request, reply) => {
-    const query = request.query;
-    request.log.info('Parsing Query:');
-    request.log.info(query);
-    request.log.info('Sending query to gpu_cache');
-    request.log.info('Updating result');
-    request.log.info('Sending cache.tick');
-    let result = {
-      'params': JSON.stringify(query),
-      success: true,
-      message: `gpu method:${request.method} placeholder`,
-      statusCode: 200
+      request.log.info('Parsing Url:');
+      const url = request.url.split('/');
+      url.shift();
+      url.shift();
+      const query = request.query;
+      request.log.info('Sending query to gpu_cache');
+      cudf_dispatcher(url, query);
+      request.log.info('Updating result');
+      request.log.info('Sending cache.tick');
+      let result = {
+        'params': JSON.stringify(query),
+        success: true,
+        message: `gpu method:${request.method} placeholder`,
+        statusCode: 200
     };
     return result
   }
@@ -81,4 +95,6 @@ module.exports = async function(fastify, opts) {
 
   fastify.get('/', {...get_schema, handler: get_handler});
   fastify.post('/', {...get_schema, handler: post_handler});
+  fastify.get('/*', {...get_schema, handler: get_handler});
+  fastify.post('/*', {...get_schema, handler: post_handler});
 }
