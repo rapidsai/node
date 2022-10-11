@@ -20,6 +20,7 @@ const {promisify}                                                      = require
 const Stat                                                             = promisify(Fs.stat);
 const fastifyCors                                                      = require('@fastify/cors');
 const fastify                                                          = require('fastify');
+const cudf_api                                                         = require('@rapidsai/cudf');
 
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
@@ -49,33 +50,36 @@ module.exports = async function(fastify, opts) {
     return result
   }
 
-  const cudf = async() => {
-    console.log(route);
-    console.log(args);
+  const cudf =
+    async (route, args) => {
+    debugger;
+    const evalString   = route.join('.');
+    const paramsString = '(' + args + ')';
+    eval(evalString + paramsString);
   }
 
-  const cudf_dispatcher = async (route, args) => {
-    Function(route[0])(route, args);
-    console.log(route);
-    console.log(args);
+  const cudf_dispatcher =
+    async (route, args) => {
+    const fn = Function(route[0]);
+    eval(route[0])(route, args);
   }
 
   const post_handler =
     async (request, reply) => {
-      request.log.info('Parsing Url:');
-      const url = request.url.split('/');
-      url.shift();
-      url.shift();
-      const query = request.query;
-      request.log.info('Sending query to gpu_cache');
-      cudf_dispatcher(url, query);
-      request.log.info('Updating result');
-      request.log.info('Sending cache.tick');
-      let result = {
-        'params': JSON.stringify(query),
-        success: true,
-        message: `gpu method:${request.method} placeholder`,
-        statusCode: 200
+    request.log.info('Parsing Url:');
+    const url = request.url.split('/');
+    url.shift();
+    url.shift();
+    const query = request.query;
+    request.log.info('Sending query to gpu_cache');
+    cudf_dispatcher(url, query);
+    request.log.info('Updating result');
+    request.log.info('Sending cache.tick');
+    let result = {
+      'params': JSON.stringify(query),
+      success: true,
+      message: `gpu method:${request.method} placeholder`,
+      statusCode: 200
     };
     return result
   }
