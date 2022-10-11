@@ -11,7 +11,7 @@ import App from './App';
 const regl = require('regl')();
 const mat4 = require('gl-mat4');
 
-const NUM_POINTS = 9
+const NUM_POINTS = 1000000;
 const VERT_SIZE = 4 * (4 + 3)
 
 const props = {
@@ -44,30 +44,28 @@ setInterval(() => {
   props.angle = (props.angle + 1)
 }, 16);
 
-const pointBuffer = regl.buffer([
-  0, 0, 1, 1,
-  1.0, 0, 0,
-  1, 0, 1, 1,
-  0, 1.0, 0,
-  0, 1, 1, 1,
-  0, 0, 1.0,
-  1, -1, 1, 1,
-  1.0, 1.0, 0,
-  -1, 1, 1, 1,
-  1.0, 0, 1.0,
-  1, 1, 1, 1,
-  0, 1.0, 1.0,
-  0, -1, 1, 1,
-  0.5, 0.5, 0.5,
-  -1, -1, 1, 1,
-  0, 0, 0,
-  -1, 0, 1, 1,
-  1.0, 0, 0,
-]);
+const numGenerator = {
+  *[Symbol.iterator]() {
+    let i = 0;
+    while(i < NUM_POINTS * 4){
+      yield [
+        Math.random() * 100 - 20.0,
+        Math.random() * 100 - 20.0,
+        1.0,
+        1.0,
+        Math.random() > 0.5 ? 255 : 0,
+        Math.random() > 0.5 ? 255 : 0,
+        Math.random() > 0.5 ? 255 : 0,
+      ]
+      i ++;
+    }
+  }
+}
+const pointBuffer = regl.buffer([...numGenerator]);
 
 var cubePosition = [
   //[-0.5, +0.5, 0.1], [+0.5, +0.5, 0.1], [+0.5, -0.5, 0.1], [-0.5, -0.5, 0.1] // positive z face.
-  [-100, 100, 0.1], [100, 100, 0.1], [100, -100, 0.1], [-100, -100, 0.1]
+  [-50, 50, 0.1], [50, 50, 0.1], [50, -50, 0.1], [-50, -50, 0.1]
 ]
 
 var cubeUv = [
@@ -148,7 +146,7 @@ void main() {
   uniforms: {
     view: ({ tick }, props) => getPointsViewMatrix(props),
     scale: ({tick}, props) => {
-      return 50 - (25 + props.zoomLevel);
+      return 40 - (25 + Math.min(props.zoomLevel, 13));
     },
     projection: ({ viewportWidth, viewportHeight }) => getProjectionMatrix(),
     time: ({ tick }) => tick * 0.001
@@ -158,11 +156,11 @@ void main() {
 })
 
 const getBackgroundViewMatrix = (props) => {
-  const t = 0.015 * (props.angle);
+  const t = 0; //0.015 * (props.angle);
   const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
   const result = mat4.lookAt([],
-  [props.centerX / 100, props.centerY / 100, lookAtZ],
-  [props.centerX / 100, props.centerY / 100, 0],
+  [-props.centerX / 100, -props.centerY / 100, lookAtZ],
+  [-props.centerX / 100, -props.centerY / 100, 0],
   [0, 1, 0]);
   const translation = mat4.translate([], result, [0, 0, 0]);
   const rotation = mat4.rotate([], translation, t, [t, t, 1]);
@@ -170,13 +168,13 @@ const getBackgroundViewMatrix = (props) => {
 }
 
 const getPointsViewMatrix = (props) => {
-  const t = 0.015 * (props.angle);
+  const t = 0;//0.015 * (props.angle);
   const lookAtZ = 4 * Math.pow(1.1, props.zoomLevel);
   const result = mat4.lookAt([],
   [props.centerX / 100, props.centerY / 100, lookAtZ],
   [props.centerX / 100, props.centerY / 100, 0],
   [0, -1, 0]);
-  const translation = mat4.translate([], result, [0, 0, 0]);
+  const translation = mat4.translate([], result, [-25, -25, 0]);
   const rotation = mat4.rotate([], translation, t, [t, t, 1]);
   return rotation;
 }
@@ -201,7 +199,6 @@ image.onload = () => {
   context.drawImage(image, 0, 0);
   const imWidth = image.width;
   const imHeight = image.height;
-  console.log(context.getImageData(0, 0, imWidth, imHeight));
   const imageData = context.getImageData(0, 0, imWidth, imHeight);
 
   const data = regl.texture({
@@ -209,18 +206,13 @@ image.onload = () => {
     height: imHeight,
     data: imageData.data
   });
-
-  console.log(data.texture);
   const tick = regl.frame(() => {
     regl.clear({
       depth: 1,
       color: [0, 0, 0, 0]
     });
     drawParticles(props);
-    const temp_props = props.angle;
-    props.angle = 0;
-    drawCube({data, props})
-    props.angle = temp_props;
+    drawCube({data, props});
   });
 
 }
