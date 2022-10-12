@@ -37,10 +37,6 @@ window.addEventListener('mousemove', (event) => {
 
 setInterval(() => {props.angle = (props.angle + 1)}, 16);
 
-const getProjectionMatrix = (props) => { return mat4.frustum([], -1, 1, 1, -1, 1, 1000) };
-
-props.projectionMatrix = getProjectionMatrix(props);
-
 points(props);
 background(props);
 
