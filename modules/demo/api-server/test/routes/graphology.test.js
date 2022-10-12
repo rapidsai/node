@@ -24,7 +24,6 @@ test('graphology root returns api description', async t => {
   const app = await build(t);
   const res = await app.inject({url: '/graphology'})
   t.same(JSON.parse(res.payload), {
-    graphology: {
       description: 'The graphology api provides GPU acceleration of graphology datasets.',
       schema: {
         read_json: {
@@ -58,17 +57,16 @@ test('graphology root returns api description', async t => {
         nodes: {bounds: {returns: 'Returns the x and y bounds to be used in rendering.'}},
         edges:
           {return: 'Returns the existing edges table after applying normalization for sigma.js'}
-      }
     }
-  })
+})
 });
 
 test('read_json no filename', async t => {
-  const app = await build(t);
-  const res = await app.inject({method: 'POST', url: '/graphology/read_json'});
-  t.same(
-    JSON.parse(res.payload),
-    {success: false, message: 'Parameter filename is required', params: '{}', statusCode: 400});
+const app = await build(t);
+const res = await app.inject({method: 'POST', url: '/graphology/read_json'});
+t.same(
+  JSON.parse(res.payload),
+  {success: false, message: 'Parameter filename is required', params: '{}', statusCode: 400});
 });
 
 test('read_json no file', async (t) => {

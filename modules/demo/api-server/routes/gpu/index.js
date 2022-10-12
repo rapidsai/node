@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Fs                                                               = require('fs');
 const {Utf8String, Int32, Uint32, Float32, DataFrame, Series, Float64} = require('@rapidsai/cudf');
-const {RecordBatchStreamWriter, Field, Vector, List, Table}            = require('apache-arrow');
+const {RecordBatchStreamWriter, Field, Vector, List}                   = require('apache-arrow');
 const Path                                                             = require('path');
 const {promisify}                                                      = require('util');
+const Fs                                                               = require('fs');
 const Stat                                                             = promisify(Fs.stat);
 const fastifyCors                                                      = require('@fastify/cors');
-const fastify                                                          = require('fastify');
+const fastify = require('fastify')({logger: true});
 
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
@@ -30,41 +30,7 @@ module.exports = async function(fastify, opts) {
   fastify.register(fastifyCors, {origin: '*'});
   fastify.decorate('setDataframe', gpu_cache.setDataframe);
   fastify.decorate('getDataframe', gpu_cache.getDataframe);
-  fastify.decorate('gpu', gpu_cache);
-
-  const get_handler =
-    async (request, reply) => {
-    const query = request.query;
-    request.log.info('Parsing Query:');
-    request.log.info(query);
-    request.log.info('Sending query to gpu_cache');
-    request.log.info('Updating result');
-    request.log.info('Sending cache.tick');
-    let result = {
-      'params': JSON.stringify(query),
-      success: true,
-      message: `gpu method:${request.method} placeholder`,
-      statusCode: 200
-    };
-    return result
-  }
-
-  const post_handler =
-    async (request, reply) => {
-    const query = request.query;
-    request.log.info('Parsing Query:');
-    request.log.info(query);
-    request.log.info('Sending query to gpu_cache');
-    request.log.info('Updating result');
-    request.log.info('Sending cache.tick');
-    let result = {
-      'params': JSON.stringify(query),
-      success: true,
-      message: `gpu method:${request.method} placeholder`,
-      statusCode: 200
-    };
-    return result
-  }
+  fastify.decorate('readCSV', gpu_cache.readCSV);
 
   const get_schema = {
     logLevel: 'debug',
@@ -79,6 +45,56 @@ module.exports = async function(fastify, opts) {
     }
   };
 
-  fastify.get('/', {...get_schema, handler: get_handler});
-  fastify.post('/', {...get_schema, handler: post_handler});
+  fastify.get('/', {...get_schema, handler: () => root_schema['gpu']});
+  fastify.post('/', {...get_schema, handler: () => root_schema['gpu']});
+  fastify.route({
+    method: 'POST',
+    url: '/DataFrame/readCSV',
+    schema: {},
+    handler: async (request, reply) => {
+      const path        = Path.join(__dirname, request.body);
+      const stats       = await Stat(path);
+      const message     = 'File is available';
+      const cacheObject = await fastify.readCSV({
+        header: 0,
+        sourceType: 'files',
+        sources: [path],
+      });
+      const name        = request.body.replace('/\//g', '_');
+      await fastify.setDataframe(name, cacheObject);
+      await reply.code(200).send({success: true, message: 'CSV file in GPU memory', params: name});
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/get_column/:table/:column',
+    schema: {querystring: {table: {type: 'string'}, 'column': {type: 'string'}}},
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {'params': JSON.stringify(request.params), success: false, message: message};
+      const table = await fastify.getDataframe(request.params.table);
+      if (table == undefined) {
+        result.message = 'Table not found';
+        await reply.code(404).send(result);
+      } else {
+        try {
+          const name        = request.params.column;
+          const column      = table.get(name);
+          const newDfObject = {};
+          newDfObject[name] = column;
+          const result      = new DataFrame(newDfObject);
+          const writer      = RecordBatchStreamWriter.writeAll(result.toArrow());
+          await reply.code(200).send(writer.toNodeStream());
+        } catch (e) {
+          if (e.substring('Unknown column name') != -1) {
+            result.message = e;
+            await reply.code(404).send(result);
+          } else {
+            await reply.code(500).send(result);
+          }
+        }
+      }
+    }
+  });
 }
