@@ -143,5 +143,10 @@ module.exports = {
       ]);
     const edges = json_aoa_to_dataframe(tedges, [new Utf8String, new Utf8String]);
     return {nodes: nodes, edges: edges, tags: tags, clusters: clusters};
+  },
+
+  async readCSV(options) {
+    const result = await DataFrame.readCSV(options);
+    return result;
   }
 }
