@@ -6,7 +6,7 @@ const regl                                       = require('regl')();
 const mat4                                       = require('gl-mat4');
 const {getPointsViewMatrix, getProjectionMatrix} = require('./matrices');
 
-const NUM_POINTS = 10000;
+const NUM_POINTS = 400;
 const VERT_SIZE  = 4 * (4 + 3)
 
 const numGenerator = {
@@ -26,9 +26,9 @@ const numGenerator = {
     }
 };
 
-const pointBuffer = regl.buffer([...numGenerator]);
-
-export default (props) => {
+// let hostPoints                       = [...numGenerator];
+export default ({hostPoints, props}) => {
+  const pointBuffer   = regl.buffer(hostPoints);
   const drawParticles = regl({
     vert: `
 precision mediump float;
@@ -63,7 +63,7 @@ void main() {
       projection: ({viewportWidth, viewportHeight}) => getProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
-    count: NUM_POINTS,
+    count: hostPoints.length / VERT_SIZE,
     primitive: 'points'
   })
 

@@ -11,8 +11,9 @@ import App from './App';
 import background from './background';
 import points from './points';
 
-const regl = require('regl')();
-const mat4 = require('gl-mat4');
+const {tableFromIPC} = require('apache-arrow');
+const regl           = require('regl')();
+const mat4           = require('gl-mat4');
 
 const props = {
   zoomLevel: 0,
@@ -39,20 +40,35 @@ setInterval(() => {props.angle = (props.angle + 1)}, 16);
 
 const SERVER           = 'http://localhost';
 const PORT             = '3010';
-const READ_CSV_URL     = '/gpu/DataFrame/ReadCSV';
+const READ_CSV_URL     = '/gpu/DataFrame/readCSV';
 const READ_CSV_OPTIONS = {
   method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: 'points.csv'
+  headers: {
+    'access-control-allow-origin': '*',
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  },
+  body: '"NAD_State_ZIP_LonLat.csv"',
 };
-const FETCH_POINTS_URL = '/particles/get_shader_column';
+const FETCH_POINTS_URL     = '/particles/get_shader_column';
+const FETCH_POINTS_OPTIONS = {
+  method: 'GET',
+  headers: {'access-control-allow-origin': '*', 'access-control-allow-headers': 'Content-Type'},
+};
 
 (async () => {
+  var hostPoints = undefined;
   try {
-    const readCsvResult = await fetch(SERVER + ':' + PORT + READ_CSV_URL);
-    const remotePoints  = await fetch(SERVER + ':' + PORT + FETCH_POINTS_URL);
+    const readCsvResultPromise = await fetch(SERVER + ':' + PORT + READ_CSV_URL, READ_CSV_OPTIONS);
+    const readCsvResult        = await readCsvResultPromise.json()
+    const csvPath              = readCsvResult.params;
+    const remotePoints =
+      await fetch(SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvPath, FETCH_POINTS_OPTIONS);
+    const arrowTable = await tableFromIPC(remotePoints);
+    hostPoints       = arrowTable.getChild('gpu_buffer').toArray();
+    console.log(hostPoints);
   } finally {
-    points(props);
+    points({hostPoints, props});
     background(props);
   }
 })();

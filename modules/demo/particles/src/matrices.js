@@ -12,7 +12,7 @@ export const getPointsViewMatrix = (props) => {
                              [props.centerX / lookAtZ / 10, props.centerY / lookAtZ / 10, lookAtZ],
                              [props.centerX / lookAtZ / 10, props.centerY / lookAtZ / 10, 0],
                              [0, -1, 0]);
-  const translation = mat4.translate([], result, [-25, -25, 0]);
+  const translation = mat4.translate([], result, [0, 0, 0]);
   const rotation    = mat4.rotate([], translation, t, [t, t, 1]);
   return rotation;
 };
