@@ -17,9 +17,11 @@ const mat4           = require('gl-mat4');
 
 const props = {
   zoomLevel: 0,
-  centerX: 0,
-  centerY: 0,
-  angle: 0
+  centerX: 45.5,
+  centerY: -112.5,
+  angle: 0,
+  screenWidth: document.documentElement.clientHeight,
+  screenHeight: document.documentElement.clientWidth
 };
 
 window.addEventListener('wheel', (event) => {
@@ -27,7 +29,11 @@ window.addEventListener('wheel', (event) => {
   props.zoomLevel = props.zoomLevel + zoom;
 });
 
-window.addEventListener('mousedown', (event) => { props.isHeld = true; });
+window.addEventListener('mousedown', (event) => {
+  props.isHeld = true;
+  console.log(event);
+  console.log(props);
+});
 window.addEventListener('mouseup', (event) => { props.isHeld = false; });
 window.addEventListener('mousemove', (event) => {
   if (props.isHeld) {
@@ -48,7 +54,8 @@ const READ_CSV_OPTIONS = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Headers': 'Content-Type'
   },
-  body: '"NAD_State_ZIP_LonLat.csv"',
+  // body: '"NAD_State_ZIP_LonLat.csv"',
+  body: '"NAD_Small.csv"',
 };
 const FETCH_POINTS_URL     = '/particles/get_shader_column';
 const FETCH_POINTS_OPTIONS = {
