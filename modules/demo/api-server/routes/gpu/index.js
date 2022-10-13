@@ -45,24 +45,39 @@ module.exports = async function(fastify, opts) {
     }
   };
 
+  const filePath = () => Path.join(__dirname, '../../public');
+
   fastify.get('/', {...get_schema, handler: () => root_schema['gpu']});
-  fastify.post('/', {...get_schema, handler: () => root_schema['gpu']});
+
   fastify.route({
     method: 'POST',
     url: '/DataFrame/readCSV',
     schema: {},
     handler: async (request, reply) => {
-      const path        = Path.join(__dirname, request.body);
-      const stats       = await Stat(path);
-      const message     = 'File is available';
-      const cacheObject = await fastify.readCSV({
-        header: 0,
-        sourceType: 'files',
-        sources: [path],
-      });
-      const name        = request.body.replace('/\//g', '_');
-      await fastify.setDataframe(name, cacheObject);
-      await reply.code(200).send({success: true, message: 'CSV file in GPU memory', params: name});
+      let message = 'Error';
+      let result  = {'params': request.body, success: false, message: message};
+      try {
+        const path        = Path.join(filePath(), request.body);
+        const stats       = await Stat(path);
+        const message     = 'File is available';
+        const cacheObject = await fastify.readCSV({
+          header: 0,
+          sourceType: 'files',
+          sources: [path],
+        });
+        const name        = request.body.replace('/\//g', '_');
+        await fastify.setDataframe(name, cacheObject);
+        result.success = true;
+        result.message = 'CSV file in GPU memory';
+        await reply.code(200).send(result);
+      } catch (e) {
+        result.message = e.message;
+        if (e.message.search('no such file or directory') != -1) {
+          await reply.code(404).send(result);
+        } else {
+          await reply.code(500).send(result);
+        }
+      }
     }
   });
 
@@ -87,7 +102,7 @@ module.exports = async function(fastify, opts) {
           const writer      = RecordBatchStreamWriter.writeAll(result.toArrow());
           await reply.code(200).send(writer.toNodeStream());
         } catch (e) {
-          if (e.substring('Unknown column name') != -1) {
+          if (e.message.search('Unknown column name') != -1) {
             result.message = e;
             await reply.code(404).send(result);
           } else {
