@@ -72,7 +72,7 @@ module.exports = async function(fastify, opts) {
         await reply.code(200).send(result);
       } catch (e) {
         result.message = e.message;
-        if (e.message.search('no such file or directory') != -1) {
+        if (e.message.search('no such file or directory') !== -1) {
           await reply.code(404).send(result);
         } else {
           await reply.code(500).send(result);
