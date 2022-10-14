@@ -17,11 +17,11 @@ const mat4           = require('gl-mat4');
 
 const props = {
   zoomLevel: 0,
-  centerX: 45.5,
-  centerY: -112.5,
   angle: 0,
   screenWidth: document.documentElement.clientHeight,
-  screenHeight: document.documentElement.clientWidth
+  screenHeight: document.documentElement.clientWidth,
+  centerX: document.documentElement.clientWidth / 2.0,
+  centerY: document.documentElement.clientHeight / 2.0,
 };
 
 window.addEventListener('wheel', (event) => {
@@ -55,7 +55,7 @@ const READ_CSV_OPTIONS = {
     'Access-Control-Allow-Headers': 'Content-Type'
   },
   // body: '"NAD_State_ZIP_LonLat.csv"',
-  body: '"NAD_Small.csv"',
+  body: '"NAD_Shuffled_1000000.csv"',
 };
 const FETCH_POINTS_URL     = '/particles/get_shader_column';
 const FETCH_POINTS_OPTIONS = {
@@ -74,10 +74,9 @@ const FETCH_POINTS_OPTIONS = {
     const arrowTable = await tableFromIPC(remotePoints);
     hostPoints       = arrowTable.getChild('gpu_buffer').toArray();
     console.log(hostPoints);
-  } finally {
     points({hostPoints, props});
     background(props);
-  }
+  } catch (e) { console.log(e); }
 })();
 
 ReactDOM.render(React.createElement(App), document.getElementById('root'));

@@ -2,9 +2,9 @@
  * Copyright (c) 2022 NVIDIA Corporation
  */
 
-const regl                                       = require('regl')();
-const mat4                                       = require('gl-mat4');
-const {getPointsViewMatrix, getProjectionMatrix} = require('./matrices');
+const regl                                             = require('regl')();
+const mat4                                             = require('gl-mat4');
+const {getPointsViewMatrix, getPointsProjectionMatrix} = require('./matrices');
 
 const NUM_POINTS = 400;
 const VERT_SIZE  = 4 * (4 + 3)
@@ -51,7 +51,7 @@ void main() {
   if (length(gl_PointCoord.xy - 0.5) > 0.5) {
     discard;
   }
-  gl_FragColor = vec4(fragColor, 1);
+  gl_FragColor = vec4(fragColor, 0.5);
 }`,
     attributes: {
       freq: {buffer: pointBuffer, stride: VERT_SIZE, offset: 0},
@@ -59,8 +59,8 @@ void main() {
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
-      scale: ({tick}, props) => { return 40 - (25 + Math.min(props.zoomLevel, 13)); },
-      projection: ({viewportWidth, viewportHeight}) => getProjectionMatrix(props),
+      scale: ({tick}, props) => { return 32 - (25 + Math.min(props.zoomLevel, 13)); },
+      projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
     count: hostPoints.length / VERT_SIZE,

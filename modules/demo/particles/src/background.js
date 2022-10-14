@@ -2,24 +2,28 @@
  * Copyright (c) 2022 NVIDIA Corporation
  */
 
-const regl                                           = require('regl')();
-const mat4                                           = require('gl-mat4');
-const {getProjectionMatrix, getBackgroundViewMatrix} = require('./matrices');
+const regl                                                                  = require('regl')();
+const mat4                                                                  = require('gl-mat4');
+const {worldCoords, getBackgroundProjectionMatrix, getBackgroundViewMatrix} = require('./matrices');
 
 export default (props) => {
   var cubePosition = [
     //[-0.5, +0.5, 0.1], [+0.5, +0.5, 0.1], [+0.5, -0.5, 0.1], [-0.5, -0.5, 0.1] // positive z
     // face.
+    //[-131.7, 46.71, 0.9],  // top right
+    //[-59.2, 48, 0.9],      // top left
+    //[-67.8, 18.9, 0.9],    // bottom left
+    //[-121.32, 17.6, 0.9]   // bottom right
+    [worldCoords[0], worldCoords[1], 0.9],
+    [worldCoords[2], worldCoords[3], 0.9],
+    [worldCoords[4], worldCoords[5], 0.9],
+    [worldCoords[6], worldCoords[7], 0.9]
     /*
-    [-50, 50, 0.1],
-    [50, 50, 0.1],
-    [50, -50, 0.1],
-    [-50, -50, 0.1]
+    [-131.7, 48.71, 0.9],
+    [-59.2, 48, 0.9],
+    [-67.8, 18.9, 0.9],
+    [-121.32, 17.6, 0.9]
     */
-    [-131.7, 48.78, 0.1],
-    [-59.2, 48, 0.1],
-    [-67.8, 18.9, 0.1],
-    [-121.32, 17.6, 0.1]
   ];
 
   var cubeUv = [
@@ -55,7 +59,7 @@ void main() {
     attributes: {position: cubePosition, uv: cubeUv},
     elements: cubeElements,
     uniforms: {
-      projection: ({viewportWidth, viewportHeight}) => getProjectionMatrix(props),
+      projection: ({viewportWidth, viewportHeight}) => getBackgroundProjectionMatrix(props),
       view: ({tick}, props)                         => getBackgroundViewMatrix(props.props),
       tex: regl.prop('data')
     }
