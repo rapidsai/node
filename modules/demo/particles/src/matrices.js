@@ -2,7 +2,6 @@
  * Copyright (c) 2022 NVIDIA Corporation
  */
 
-const regl     = require('regl')();
 const mat4     = require('gl-mat4');
 const glmatrix = require('gl-matrix');
 
@@ -57,8 +56,8 @@ export const worldCoords =
       [], A, [props.centerX, 0, 0, 0, 0, props.centerY, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     const result = mat4.lookAt(
       [],
-      [-60, 33, getLookAtZ(props)],
-      [-60, 33, 0],
+      [-60, 34, 10],
+      [-60, 34, 0],
       [0, -1, 0],
     )
     const translation = mat4.translate([], result, [-newCenter[0], -newCenter[5], 0]);
@@ -95,11 +94,10 @@ export const getBackgroundViewMatrix = (props) => {
   const A      = mat4.multiply([], wst, sstInv);
   const newCenter =
     mat4.multiply([], A, [props.centerX, 0, 0, 0, 0, props.centerY, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-  console.log(newCenter);
   const result = mat4.lookAt(
     [],
-    [133, -31, getLookAtZ(props)],
-    [133, -31, 0],
+    [133, -29.5, 10],
+    [133, -29.5, 0],
     [0, 1, 0],
   );
   const translation = mat4.translate([], result, [-newCenter[0], newCenter[5], 0]);
@@ -107,8 +105,12 @@ export const getBackgroundViewMatrix = (props) => {
   return rotation;
 };
 
-export const getPointsProjectionMatrix =
-  (props) => { return mat4.frustum([], 1.15, -1, 0.95, -1, 1, 1000)};
+export const getPointsProjectionMatrix = (props) => {
+  const orthoScale = 35 * Math.pow(1.2, props.zoomLevel);
+  return mat4.ortho([], orthoScale, -orthoScale, orthoScale, -orthoScale, 1, 1000);
+};
 
-export const getBackgroundProjectionMatrix =
-  (props) => { return mat4.frustum([], -1, 0.85, 1, -1, 1, 1000)};
+export const getBackgroundProjectionMatrix = (props) => {
+  const orthoScale = 35 * Math.pow(1.2, props.zoomLevel);
+  return mat4.ortho([], -orthoScale, orthoScale, orthoScale, -orthoScale, 1, 1000);
+};

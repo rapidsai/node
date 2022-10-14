@@ -59,7 +59,7 @@ void main() {
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
-      scale: ({tick}, props) => { return 32 - (25 + Math.min(props.zoomLevel, 13)); },
+      scale: ({tick}, props) => { return 28 - (25 + Math.min(props.zoomLevel, 13)); },
       projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
