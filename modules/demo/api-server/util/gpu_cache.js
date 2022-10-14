@@ -19,7 +19,10 @@ let timeout  = -1;
 let datasets = {};
 
 function clearCachedGPUData() {
-  for (const key in datasets) { datasets[key] = null; }
+  for (const key in datasets) {
+    datasets[key].dispose();
+    datasets[key] = null;
+  }
 };
 
 function json_key_attributes_to_dataframe(str) {
@@ -68,6 +71,7 @@ module.exports = {
     if (timeout) { clearTimeout(timeout); }
     timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
     if (datasets === null) {
+      for (key in Object.datasets.keys()) { datasets.key.destroy(); }
       datasets = {};
     }
     datasets[name] = dataframe;
