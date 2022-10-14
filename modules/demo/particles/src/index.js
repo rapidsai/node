@@ -11,9 +11,10 @@ import App from './App';
 import background from './background';
 import points from './points';
 
-const {tableFromIPC} = require('apache-arrow');
-const regl           = require('regl')();
-const mat4           = require('gl-mat4');
+const {tableFromIPC}          = require('apache-arrow');
+const regl                    = require('regl')();
+const mat4                    = require('gl-mat4');
+const {getCurrentWorldBounds} = require('./matrices');
 
 const props = {
   zoomLevel: 0,
@@ -27,6 +28,7 @@ const props = {
 window.addEventListener('wheel', (event) => {
   const zoom      = event.deltaY > 0 ? 1 : -1;
   props.zoomLevel = props.zoomLevel + zoom;
+  console.log(getCurrentWorldBounds(props));
 });
 
 window.addEventListener('mousedown', (event) => {
@@ -39,6 +41,7 @@ window.addEventListener('mousemove', (event) => {
   if (props.isHeld) {
     props.centerX = props.centerX + event.movementX;
     props.centerY = props.centerY + event.movementY;
+    console.log(getCurrentWorldBounds(props));
   }
 });
 
@@ -73,7 +76,6 @@ const FETCH_POINTS_OPTIONS = {
       await fetch(SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvPath, FETCH_POINTS_OPTIONS);
     const arrowTable = await tableFromIPC(remotePoints);
     hostPoints       = arrowTable.getChild('gpu_buffer').toArray();
-    console.log(hostPoints);
     points({hostPoints, props});
     background(props);
   } catch (e) { console.log(e); }
