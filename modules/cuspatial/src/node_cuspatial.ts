@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
+import {Column, FloatingPoint, Int32, Series, Table, Uint32} from '@rapidsai/cudf';
 import {MemoryResource} from '@rapidsai/rmm';
 
 /** @ignore */
 export declare const _cpp_exports: any;
+
+export type SeriesPair<T extends FloatingPoint> = {
+  x: Series<T>; y: Series<T>;
+}
 
 export declare function createQuadtree<T extends FloatingPoint>(xs: Column<T>,
                                                                 ys: Column<T>,
@@ -78,3 +82,10 @@ export declare function findPolylineNearestToEachPoint<T extends FloatingPoint>(
   polylinePointsY: Column<T>,
   memoryResource
   ?: MemoryResource): {table: Table, names: ['point_index', 'polyline_index', 'distance']};
+
+export declare function lonLatToCartesian<T extends FloatingPoint>(
+  origin_lon: number,
+  origin_lat: number,
+  lats: Series,
+  lons: Series,
+  memoryResource?: MemoryResource): {x: Series, y: Series};

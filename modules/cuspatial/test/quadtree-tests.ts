@@ -76,7 +76,6 @@ describe('Quadtree', () => {
     });
 
     const polygonAndPointIdxs = quadtree.pointInPolygon(testPolygons());
-
     expect(polygonAndPointIdxs.get('polygon_index').data.toArray())
       .toEqualTypedArray(
         new Uint32Array([3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3]));

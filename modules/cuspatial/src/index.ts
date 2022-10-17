@@ -14,3 +14,4 @@
 
 export * from './geometry';
 export * from './quadtree';
+export * from './spatial';
