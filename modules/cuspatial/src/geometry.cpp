@@ -26,8 +26,6 @@
 
 #include <nv_node/utilities/args.hpp>
 
-#include <iostream>
-
 namespace nv {
 
 Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args) {
