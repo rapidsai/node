@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 import {Math, runtime} from './addon';
 import {BigIntArray, MemoryData, TypedArray, TypedArrayConstructor} from './interfaces';
-import {DeviceMemory, IpcHandle, Memory} from './memory';
+import {DeviceMemory, IpcHandle, ManagedMemory, Memory, PinnedMemory} from './memory';
 import {
   clampRange,
   isArrayBufferLike,
@@ -319,10 +319,15 @@ export abstract class MemoryView<T extends TypedArray|BigIntArray = any> impleme
    * @summary Create an IpcHandle for the underlying CUDA device memory.
    */
   public getIpcHandle() {
-    if (!(this.buffer instanceof DeviceMemory)) {
-      throw new Error(`${this[Symbol.toStringTag]}'s buffer must be an instance of DeviceMemory`);
+    if (this.buffer instanceof PinnedMemory) {
+      throw new Error(
+        `${this[Symbol.toStringTag]}'s buffer must not be an instance of PinnedMemory`);
     }
-    return new IpcHandle(this.buffer, this.byteOffset);
+    if (this.buffer instanceof ManagedMemory) {
+      throw new Error(
+        `${this[Symbol.toStringTag]}'s buffer must not be an instance of ManagedMemory`);
+    }
+    return new IpcHandle(<any>this.buffer, this.byteOffset);
   }
 }
 
