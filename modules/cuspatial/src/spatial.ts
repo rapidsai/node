@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@ import {
   FloatingPoint,
   Series,
 } from '@rapidsai/cudf';
+import {makePoints} from '@rapidsai/cuspatial';
+import {Points} from '@rapidsai/cuspatial/geometry';
 
 import {
   lonLatToCartesian,
 } from './addon';
-import {
-  SeriesPair,
-} from './node_cuspatial';
 
 export function convertLonLatToCartesian<T extends FloatingPoint>(
-  centerX: number, centerY: number, lonPoints: Column<T>, latPoints: Column<T>): SeriesPair<T> {
+  centerX: number, centerY: number, lonPoints: Column<T>, latPoints: Column<T>): Points<T> {
   const result = lonLatToCartesian(centerX, centerY, lonPoints, latPoints);
   const x      = Series.new(result.x);
   const y      = Series.new(result.y);
-  return {x: x, y: y};
+  return makePoints(x, y);
 }

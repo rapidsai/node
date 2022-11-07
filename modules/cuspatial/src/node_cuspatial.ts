@@ -18,10 +18,6 @@ import {MemoryResource} from '@rapidsai/rmm';
 /** @ignore */
 export declare const _cpp_exports: any;
 
-export type SeriesPair<T extends FloatingPoint> = {
-  x: Series<T>; y: Series<T>;
-}
-
 export declare function createQuadtree<T extends FloatingPoint>(xs: Column<T>,
                                                                 ys: Column<T>,
                                                                 xMin: number,
@@ -83,9 +79,8 @@ export declare function findPolylineNearestToEachPoint<T extends FloatingPoint>(
   memoryResource
   ?: MemoryResource): {table: Table, names: ['point_index', 'polyline_index', 'distance']};
 
-export declare function lonLatToCartesian<T extends FloatingPoint>(
-  origin_lon: number,
-  origin_lat: number,
-  lats: Series,
-  lons: Series,
-  memoryResource?: MemoryResource): {x: Series, y: Series};
+export declare function lonLatToCartesian(origin_lon: number,
+                                          origin_lat: number,
+                                          lats: Series,
+                                          lons: Series,
+                                          memoryResource?: MemoryResource): {x: Series, y: Series};
