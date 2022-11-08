@@ -17,6 +17,10 @@ const mat4                    = require('gl-mat4');
 const {getCurrentWorldBounds} = require('./matrices');
 
 const props = {
+  // Define world coords
+  // Define screen coords
+  // Compute screen to world matrix
+  // Compute world to screen matrix
   zoomLevel: 0,
   angle: 0,
   screenWidth: document.documentElement.clientHeight,
@@ -28,20 +32,14 @@ const props = {
 window.addEventListener('wheel', (event) => {
   const zoom      = event.deltaY > 0 ? 1 : -1;
   props.zoomLevel = props.zoomLevel + zoom;
-  console.log(getCurrentWorldBounds(props));
 });
 
-window.addEventListener('mousedown', (event) => {
-  props.isHeld = true;
-  console.log(event);
-  console.log(props);
-});
+window.addEventListener('mousedown', (event) => { props.isHeld = true; });
 window.addEventListener('mouseup', (event) => { props.isHeld = false; });
 window.addEventListener('mousemove', (event) => {
   if (props.isHeld) {
     props.centerX = props.centerX + event.movementX;
     props.centerY = props.centerY + event.movementY;
-    console.log(getCurrentWorldBounds(props));
   }
 });
 

@@ -12,14 +12,14 @@ const getLookAtZ = (props) => { return 35 * Math.pow(1.2, props.zoomLevel); }
  */
 export const worldCoords =
   [
-    -131.7,
-    46.71,  // top right
-    -59.2,
-    48,  // top left
-    -67.8,
-    18.9,  // bottom left
-    -121.32,
-    17.6  // bottom right
+    -135,
+    49,  // top right
+    -60,
+    49,  // top left
+    -60,
+    17.5,  // bottom left
+    -135,
+    17.5,  // bottom right
   ]
 
   export const getProjection = (space1, space2) => {
@@ -61,8 +61,8 @@ export const getPointsViewMatrix = (props) => {
     mat4.multiply([], A, [props.centerX, 0, 0, 0, 0, props.centerY, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   const result = mat4.lookAt(
     [],
-    [-60, 17, 10],
-    [-60, 17, 0],
+    [-52, 21, 10],
+    [-52, 21, 0],
     [0, -1, 0],
   )
   const translation = mat4.translate([], result, [-newCenter[0], -newCenter[5], 0]);
@@ -145,7 +145,9 @@ export const getCurrentWorldBounds = (props) => {
     0,
     0,
   ])
-  const LonLatEye = mat4.multiply([], A, eyeLonLat);
+  const invert    = mat4.invert([], glmatrix.mat4.add([], A, mat4.identity([])));
+  const LonLatEye = mat4.multiply([], invert, eyeLonLat);
   console.log(LonLatEye);
   const orthoScale = getCurrentOrthoScale(props);
+  return orthoScale;
 }

@@ -8,22 +8,10 @@ const {worldCoords, getBackgroundProjectionMatrix, getBackgroundViewMatrix} = re
 
 export default (props) => {
   var cubePosition = [
-    //[-0.5, +0.5, 0.1], [+0.5, +0.5, 0.1], [+0.5, -0.5, 0.1], [-0.5, -0.5, 0.1] // positive z
-    // face.
-    //[-131.7, 46.71, 0.9],  // top right
-    //[-59.2, 48, 0.9],      // top left
-    //[-67.8, 18.9, 0.9],    // bottom left
-    //[-121.32, 17.6, 0.9]   // bottom right
     [worldCoords[0], worldCoords[1], 1],
     [worldCoords[2], worldCoords[3], 1],
     [worldCoords[4], worldCoords[5], 1],
     [worldCoords[6], worldCoords[7], 1]
-    /*
-    [-131.7, 48.71, 0.9],
-    [-59.2, 48, 0.9],
-    [-67.8, 18.9, 0.9],
-    [-121.32, 17.6, 0.9]
-    */
   ];
 
   var cubeUv = [
