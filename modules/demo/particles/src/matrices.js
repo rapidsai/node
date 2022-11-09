@@ -7,105 +7,40 @@ const glmatrix = require('gl-matrix');
 
 const getLookAtZ = (props) => { return 35 * Math.pow(1.2, props.zoomLevel); }
 
-/*
- * LonLat coordinates of the extents of the background image.
- */
-export const worldCoords =
-  [
-    -135,
-    49,  // top right
-    -60,
-    49,  // top left
-    -60,
-    17.5,  // bottom left
-    -135,
-    17.5,  // bottom right
-  ]
+export const getProjection = (space1, space2) => {
+  const w        = space1;
+  const s        = space2;
+  const wst      = mat4.multiply([], w, mat4.transpose([], s));
+  const sst      = mat4.multiply([], s, mat4.transpose([], s));
+  const identity = glmatrix.mat4.multiplyScalar([], mat4.identity([]), 0.00001);
+  const sstInv   = mat4.invert([], glmatrix.mat4.add([], sst, identity));
+  const A        = mat4.multiply([], wst, sstInv);
+  return A;
+};
 
-  export const getProjection = (space1, space2) => {
-    const w      = space1;
-    const s      = space2;
-    const wst    = mat4.multiply([], w, mat4.transpose([], s));
-    const sst    = mat4.multiply([], s, mat4.transpose([], s));
-    const sstInv = mat4.invert([], glmatrix.mat4.add([], sst, mat4.identity([])));
-    const A      = mat4.multiply([], wst, sstInv);
-    return A;
-  };
+export const getPointsWorldProjection =
+  (props) => {
+    const screenLookAt = [props.centerX, props.centerY, 1, 1];
+    const A            = getProjection(props.w(), props.s());
+    const lookAtWorld  = mat4.multiply([], A, screenLookAt);
+    const lookAtFinal  = mat4.lookAt(
+      [], [lookAtWorld[0], lookAtWorld[1], 10], [lookAtWorld[0], lookAtWorld[1], 0], [0, -1, 0]);
+    return lookAtFinal;
+  }
 
 export const getPointsViewMatrix = (props) => {
-  const t = 0;  // 0.015 * (props.angle);
-
-  // s = screen coords
-  // w = world coords
-  // A = the projection from s to w
-  // As = w = Ass^t(ss^t)^-1 = ws^t(ss^t)^-1
-  const A = getProjection([...worldCoords, 0, 0, 0, 0, 0, 0, 0, 0], [
-    props.screenWidth,
-    props.screenHeight,
-    0,
-    0,
-    0,
-    props.screenHeight,
-    props.screenWidth,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ]);
-  const newCenter =
-    mat4.multiply([], A, [props.centerX, 0, 0, 0, 0, props.centerY, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-  const result = mat4.lookAt(
-    [],
-    [-52, 21, 10],
-    [-52, 21, 0],
-    [0, -1, 0],
-  )
-  const translation = mat4.translate([], result, [-newCenter[0], -newCenter[5], 0]);
-  const rotation    = mat4.rotate([], translation, t, [t, t, 1]);
-  return rotation;
+  const projection = getPointsWorldProjection(props);
+  return projection;
 };
 
 export const getBackgroundViewMatrix = (props) => {
-  const t = 0;  // 0.015 * (props.angle);
-  // const result = mat4.lookAt([], [100.5, -38.5, getLookAtZ(props)], [100.5, -38.5, 0], [0, 1,
-  // 0]);
-  const A = getProjection([...worldCoords, 0, 0, 0, 0, 0, 0, 0, 0], [
-    props.screenWidth,
-    props.screenHeight,
-    0,
-    0,
-    0,
-    props.screenHeight,
-    props.screenWidth,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ]);
-  const newCenter =
-    mat4.multiply([], A, [props.centerX, 0, 0, 0, 0, props.centerY, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-  const result = mat4.lookAt(
-    [],
-    [133, -12.5, 10],
-    [133, -12.5, 0],
-    [0, 1, 0],
-  );
-  const translation = mat4.translate([], result, [-newCenter[0], newCenter[5], 0]);
-  const rotation    = mat4.rotate([], translation, t, [t, t, 1]);
-  return rotation;
+  const projection = getPointsWorldProjection(props);
+  projection[12]   = -projection[12] - 185;
+  projection[13]   = projection[13] - 5;
+  return projection;
 };
 
-export const getCurrentOrthoScale = (props) => { return 35 * Math.pow(1.2, props.zoomLevel);}
+export const getCurrentOrthoScale = (props) => { return 0 + 35 * Math.pow(1.2, props.zoomLevel);}
 
 export const getPointsProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
@@ -118,36 +53,15 @@ export const getBackgroundProjectionMatrix = (props) => {
 };
 
 export const getCurrentWorldBounds = (props) => {
-  const A = getProjection(
-    [...worldCoords, 0, 0, 0, 0, 0, 0, 0, 0],
-    [
-      props.screenWidth,
-      props.screenHeight,
-      0,
-      0,
-      0,
-      props.screenHeight,
-      props.screenWidth,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-  );
-  const eyeLonLat = mat4.multiply([], A, [
+  const A          = getProjection(props.w(), props.s());
+  const eyeLonLat  = mat4.multiply([], A, [
     props.centerX,
     props.centerY,
     0,
     0,
   ])
-  const invert    = mat4.invert([], glmatrix.mat4.add([], A, mat4.identity([])));
-  const LonLatEye = mat4.multiply([], invert, eyeLonLat);
-  console.log(LonLatEye);
+  const invert     = mat4.invert([], glmatrix.mat4.add([], A, mat4.identity([])));
+  const LonLatEye  = mat4.multiply([], invert, eyeLonLat);
   const orthoScale = getCurrentOrthoScale(props);
   return orthoScale;
 }

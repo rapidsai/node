@@ -8,20 +8,19 @@ const {getBackgroundProjectionMatrix, getBackgroundViewMatrix} = require('./matr
 
 export default (props) => {
   var cubePosition = [
-    [-props.w()[0], props.w()[1], 1],
-    [-props.w()[2], props.w()[3], 1],
-    [-props.w()[4], props.w()[5], 1],
-    [-props.w()[6], props.w()[7], 1]
+    [props.w()[0], props.w()[1], 1],
+    [props.w()[4], props.w()[5], 1],
+    [props.w()[8], props.w()[9], 1],
+    [props.w()[12], props.w()[13], 1]
   ];
   console.log(props.w())
 
   var cubeUv = [
-    [1.0, 1.0],  // positive z face.
-    [0.0, 1.0],
-    [0.0, 0.0],
     [1.0, 0.0],
+    [0.0, 0.0],
+    [0.0, 1.0],
+    [1.0, 1.0],  // positive z face.
   ];
-
   const cubeElements = [
     [0, 1, 2],
     [0, 3, 2]  // positive z face.

@@ -12,36 +12,52 @@ import background from './background';
 import points from './points';
 
 const {tableFromIPC}  = require('apache-arrow');
-const regl            = require('regl')();
 const mat4            = require('gl-mat4');
 const {getProjection} = require('./matrices');
 
+// homogeneous coordinates for projection matrix
 const worldCoords = [
   -135,
   49,  // top right
+  0,
+  1,
   -60,
   49,  // top left
+  0,
+  1,
   -60,
-  17.5,  // bottom left
+  25,  // bottom left
+  0,
+  1,
   -135,
-  17.5,  // bottom right
+  25,  // bottom right
+  0,
+  1
 ];
 const screenCoords = [
+  document.documentElement.clientWidth,
+  document.documentElement.clientHeight,
+  0,
+  1,
+  0,
+  document.documentElement.clientHeight,
+  0,
+  1,
   0,
   0,
+  0,
+  1,
   document.documentElement.clientWidth,
   0,
   0,
-  document.documentElement.clientHeight,
-  document.documentElement.clientWidth,
-  document.documentElement.clientHeight,
+  1
 ];
 
 const props = {
   // Define world coords
-  w: () => [...worldCoords, 0, 0, 0, 0, 0, 0, 0, 0],
+  w: () => [...worldCoords],
   // Define screen coords
-  s: () => [...screenCoords, 0, 0, 0, 0, 0, 0, 0, 0],
+  s: () => [...screenCoords],
   zoomLevel: 0,
   angle: 0,
   screenWidth: document.documentElement.clientHeight,
@@ -53,15 +69,15 @@ const props = {
 window.addEventListener('wheel', (event) => {
   const zoom      = event.deltaY > 0 ? 1 : -1;
   props.zoomLevel = props.zoomLevel + zoom;
-  console.log(event);
 });
 
 window.addEventListener('mousedown', (event) => { props.isHeld = true; });
 window.addEventListener('mouseup', (event) => { props.isHeld = false; });
 window.addEventListener('mousemove', (event) => {
   if (props.isHeld) {
-    props.centerX = props.centerX + event.movementX;
-    props.centerY = props.centerY + event.movementY;
+    console.log(event);
+    props.centerX = props.centerX + event.movementX / 2.0;
+    props.centerY = props.centerY + event.movementY / 2.0;
   }
 });
 
