@@ -2,23 +2,24 @@
  * Copyright (c) 2022 NVIDIA Corporation
  */
 
-const regl                                                                  = require('regl')();
-const mat4                                                                  = require('gl-mat4');
-const {worldCoords, getBackgroundProjectionMatrix, getBackgroundViewMatrix} = require('./matrices');
+const regl                                                     = require('regl')();
+const mat4                                                     = require('gl-mat4');
+const {getBackgroundProjectionMatrix, getBackgroundViewMatrix} = require('./matrices');
 
 export default (props) => {
   var cubePosition = [
-    [worldCoords[0], worldCoords[1], 1],
-    [worldCoords[2], worldCoords[3], 1],
-    [worldCoords[4], worldCoords[5], 1],
-    [worldCoords[6], worldCoords[7], 1]
+    [-props.w()[0], props.w()[1], 1],
+    [-props.w()[2], props.w()[3], 1],
+    [-props.w()[4], props.w()[5], 1],
+    [-props.w()[6], props.w()[7], 1]
   ];
+  console.log(props.w())
 
   var cubeUv = [
-    [1.0, 0.0],
-    [0.0, 0.0],
-    [0.0, 1.0],
     [1.0, 1.0],  // positive z face.
+    [0.0, 1.0],
+    [0.0, 0.0],
+    [1.0, 0.0],
   ];
 
   const cubeElements = [
@@ -41,7 +42,7 @@ varying vec2 vUv;
 uniform mat4 projection, view;
 void main() {
   vUv = uv;
-  vec3 pos = -position;
+  vec3 pos = position;
   gl_Position = projection * view * vec4(pos, 1);
 }`,
     attributes: {position: cubePosition, uv: cubeUv},

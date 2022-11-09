@@ -11,16 +11,37 @@ import App from './App';
 import background from './background';
 import points from './points';
 
-const {tableFromIPC}          = require('apache-arrow');
-const regl                    = require('regl')();
-const mat4                    = require('gl-mat4');
-const {getCurrentWorldBounds} = require('./matrices');
+const {tableFromIPC}  = require('apache-arrow');
+const regl            = require('regl')();
+const mat4            = require('gl-mat4');
+const {getProjection} = require('./matrices');
+
+const worldCoords = [
+  -135,
+  49,  // top right
+  -60,
+  49,  // top left
+  -60,
+  17.5,  // bottom left
+  -135,
+  17.5,  // bottom right
+];
+const screenCoords = [
+  0,
+  0,
+  document.documentElement.clientWidth,
+  0,
+  0,
+  document.documentElement.clientHeight,
+  document.documentElement.clientWidth,
+  document.documentElement.clientHeight,
+];
 
 const props = {
   // Define world coords
+  w: () => [...worldCoords, 0, 0, 0, 0, 0, 0, 0, 0],
   // Define screen coords
-  // Compute screen to world matrix
-  // Compute world to screen matrix
+  s: () => [...screenCoords, 0, 0, 0, 0, 0, 0, 0, 0],
   zoomLevel: 0,
   angle: 0,
   screenWidth: document.documentElement.clientHeight,
@@ -32,6 +53,7 @@ const props = {
 window.addEventListener('wheel', (event) => {
   const zoom      = event.deltaY > 0 ? 1 : -1;
   props.zoomLevel = props.zoomLevel + zoom;
+  console.log(event);
 });
 
 window.addEventListener('mousedown', (event) => { props.isHeld = true; });
