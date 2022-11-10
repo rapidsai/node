@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {Utf8String, Int32, Uint32, Float32, DataFrame, Series, Float64} = require('@rapidsai/cudf');
-const {RecordBatchStreamWriter, Field, Vector, List}                   = require('apache-arrow');
-const Path                                                             = require('path');
-const {promisify}                                                      = require('util');
-const Fs                                                               = require('fs');
-const Stat                                                             = promisify(Fs.stat);
-const fastify     = require('fastify')({logger: {level: 'debug'}});
-const fastifyCors = require('@fastify/cors');
+const {Int32, Float32, DataFrame, Series} = require('@rapidsai/cudf');
+const {RecordBatchStreamWriter}           = require('apache-arrow');
+const fastify                             = require('fastify')({logger: {level: 'debug'}});
+const fastifyCors                         = require('@fastify/cors');
 
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
@@ -58,8 +54,23 @@ module.exports = async function(fastify, opts) {
       await reply.code(404).send(result);
     } else {
       try {
-        const x = table.get('Longitude');
-        const y = table.get('Latitude');
+        let x = undefined;
+        let y = undefined;
+        if (request.params.xmin != undefined && request.params.xmax != undefined &&
+            request.params.ymin != undefined && request.params.ymax != undefined) {
+          const x_unfiltered = table.get('Longitude');
+          const x_gt         = x_unfiltered._col.gt(parseFloat(request.params.xmin));
+          const x_lt         = x_unfiltered._col.lt(parseFloat(request.params.xmax));
+          const y_unfiltered = table.get('Latitude');
+          const y_gt         = y_unfiltered._col.gt(parseFloat(request.params.ymin));
+          const y_lt         = y_unfiltered._col.lt(parseFloat(request.params.ymax));
+          const x_y          = x_lt.bitwiseAnd(x_gt).bitwiseAnd(y_lt).bitwiseAnd(y_gt);
+          x                  = x_unfiltered.filter(Series.new(x_y));
+          y                  = y_unfiltered.filter(Series.new(x_y));
+        } else {
+          x = table.get('Longitude');
+          y = table.get('Latitude');
+        }
         // const state = table.get('State');
         // const zip   = table.get('Zip_Code')
         // Produce r,g,b from state
@@ -118,10 +129,10 @@ module.exports = async function(fastify, opts) {
     schema: {
       querystring: {
         table: {type: 'string'},
-        xmin: {type: 'string'},
-        xmax: {type: 'string'},
-        ymin: {type: 'string'},
-        ymax: {type: 'string'}
+        xmin: {type: 'number'},
+        xmax: {type: 'number'},
+        ymin: {type: 'number'},
+        ymax: {type: 'number'}
       }
     },
     handler: handler
