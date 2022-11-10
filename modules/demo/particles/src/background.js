@@ -13,7 +13,6 @@ export default (props) => {
     [props.w()[8], props.w()[9], 1],
     [props.w()[12], props.w()[13], 1]
   ];
-  console.log(props.w())
 
   var cubeUv = [
     [1.0, 0.0],

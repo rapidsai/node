@@ -18,38 +18,62 @@ export const getProjection = (space1, space2) => {
   return A;
 };
 
-export const getPointsWorldProjection =
-  (props) => {
-    const screenLookAt = [props.centerX, props.centerY, 1, 1];
-    const A            = getProjection(props.w(), props.s());
-    const lookAtWorld  = mat4.multiply([], A, screenLookAt);
-    const lookAtFinal  = mat4.lookAt(
-      [], [lookAtWorld[0], lookAtWorld[1], 10], [lookAtWorld[0], lookAtWorld[1], 0], [0, -1, 0]);
-    return lookAtFinal;
-  }
+export const getScreenToWorldCoords = (props) => {
+  const A            = getProjection(props.w(), props.s());
+  const orthoScale   = getCoordinatesOrthoScale(props);
+  const screenBounds = [
+    props.centerX + props.screenWidth / 2.0 * orthoScale,
+    props.centerY + props.screenWidth / 2.0 * orthoScale,
+    0,
+    1,  // top right
+    props.centerX - props.screenWidth / 2.0 * orthoScale,
+    props.centerY + props.screenWidth / 2.0 * orthoScale,
+    0,
+    1,  // top left
+    props.centerX - props.screenWidth / 2.0 * orthoScale,
+    props.centerY - props.screenWidth / 2.0 * orthoScale,
+    0,
+    1,  // bottom left
+    props.centerX + props.screenWidth / 2.0 * orthoScale,
+    props.centerY - props.screenWidth / 2.0 * orthoScale,
+    0,
+    1,  // bottom right
+  ];
+  const worldBounds = mat4.multiply([], A, screenBounds);
+  return worldBounds;
+};
 
 export const getPointsViewMatrix = (props) => {
-  const projection = getPointsWorldProjection(props);
-  return projection;
+  const screenLookAt = [props.centerX, props.centerY, 0, 1];
+  const A            = getProjection(props.w(), props.s());
+  const lookAtWorld  = mat4.multiply([], A, screenLookAt);
+  const lookAtFinal  = mat4.lookAt(
+    [], [lookAtWorld[0], lookAtWorld[1], 10], [lookAtWorld[0], lookAtWorld[1], 0], [0, -1, 0]);
+  return lookAtFinal;
 };
 
 export const getBackgroundViewMatrix = (props) => {
-  const projection = getPointsWorldProjection(props);
-  projection[12]   = -projection[12] - 185;
-  projection[13]   = projection[13] - 5;
-  return projection;
+  const screenLookAt = [-props.centerX, props.centerY, 1, 1];
+  const A            = getProjection(props.w(), props.s());
+  const lookAtWorld  = mat4.multiply([], A, screenLookAt);
+  const lookAtFinal  = mat4.lookAt(
+    [], [lookAtWorld[0], lookAtWorld[1], 10], [lookAtWorld[0], lookAtWorld[1], 0], [0, -1, 0]);
+  const scaled     = mat4.scale([], lookAtFinal, [1.0, 1.3, 1]);
+  const translated = mat4.translate([], scaled, [64, -5, 0]);
+  return translated;
 };
 
-export const getCurrentOrthoScale = (props) => { return 0 + 35 * Math.pow(1.2, props.zoomLevel);}
+export const getCurrentOrthoScale = (props) => { return 0 + 15 * Math.pow(1.2, props.zoomLevel);};
+export const getCoordinatesOrthoScale = (props) => { return Math.pow(1.2, props.zoomLevel);}
 
 export const getPointsProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
-  return mat4.ortho([], orthoScale, -orthoScale, orthoScale / 6.0, -orthoScale, 1, 1000);
+  return mat4.ortho([], orthoScale * 2.0, -orthoScale * 2.0, orthoScale, -orthoScale, 1, 1000);
 };
 
 export const getBackgroundProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
-  return mat4.ortho([], -orthoScale, orthoScale, orthoScale / 6.0, -orthoScale, 1, 1000);
+  return mat4.ortho([], -orthoScale * 2.0, orthoScale * 2.0, orthoScale, -orthoScale, 1, 1000);
 };
 
 export const getCurrentWorldBounds = (props) => {
