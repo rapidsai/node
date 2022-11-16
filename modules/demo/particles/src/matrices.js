@@ -5,8 +5,6 @@
 const mat4     = require('gl-mat4');
 const glmatrix = require('gl-matrix');
 
-const getLookAtZ = (props) => { return 35 * Math.pow(1.2, props.zoomLevel); }
-
 export const getProjection = (space1, space2) => {
   const w        = space1;
   const s        = space2;
@@ -63,7 +61,7 @@ export const getBackgroundViewMatrix = (props) => {
   return translated;
 };
 
-export const getCurrentOrthoScale = (props) => { return 0 + 15 * Math.pow(1.2, props.zoomLevel);};
+export const getCurrentOrthoScale = (props) => { return Math.pow(1.2, props.zoomLevel);};
 export const getCoordinatesOrthoScale = (props) => { return Math.pow(1.2, props.zoomLevel);}
 
 export const getPointsProjectionMatrix = (props) => {

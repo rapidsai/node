@@ -29,20 +29,20 @@ const {getScreenToWorldCoords} = require('./matrices');
     systems.
   */
   const worldCoords = [
-    -134.8,
+    -137.3,
     49.2,  // top right
     0,
     1,
-    -61,
+    -61.6,
     49.2,  // top left
     0,
     1,
-    -61,
-    25,  // bottom left
+    -61.6,
+    25.2,  // bottom left
     0,
     1,
-    -134.8,
-    25,  // bottom right
+    -137.3,
+    25.2,  // bottom right
     0,
     1
   ];
@@ -75,26 +75,33 @@ const {getScreenToWorldCoords} = require('./matrices');
     w: () => [...worldCoords],
     // Define screen coords
     s: () => [...screenCoords],
-    zoomLevel: 0,
+    zoomLevel: 15,
     angle: 0,
     screenWidth: document.documentElement.clientHeight,
     screenHeight: document.documentElement.clientWidth,
     centerX: document.documentElement.clientWidth / 2.0,
     centerY: document.documentElement.clientHeight / 2.0,
+    currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
+    fetching: false
   };
 
   /*
    Mouse events.
    */
   window.addEventListener('wheel', (event) => {
-    props.centerX        = props.centerX + event.movementX;
-    props.centerY        = props.centerY + event.movementY;
-    props.screenWidth    = document.documentElement.clientWidth;
-    props.screenHeight   = document.documentElement.clientHeight;
-    const zoom           = event.deltaY > 0 ? 1 : -1;
-    props.zoomLevel      = props.zoomLevel + zoom;
-    const newWorldCoords = getScreenToWorldCoords(props);
-    fetchPoints(csvPath, props);
+    props.centerX                 = props.centerX + event.movementX;
+    props.centerY                 = props.centerY + event.movementY;
+    props.screenWidth             = document.documentElement.clientWidth;
+    props.screenHeight            = document.documentElement.clientHeight;
+    const zoom                    = event.deltaY > 0 ? -1 : 1;
+    props.zoomLevel               = props.zoomLevel + zoom;
+    const newWorldCoords          = getScreenToWorldCoords(props);
+    props.currentWorldCoords.xmin = newWorldCoords[0];
+    props.currentWorldCoords.xmax = newWorldCoords[8];
+    props.currentWorldCoords.ymin = newWorldCoords[9];
+    props.currentWorldCoords.ymax = newWorldCoords[1];
+    console.log(props);
+    // fetchPoints(csvPath, props);
   });
   window.addEventListener('mousedown', (event) => { props.isHeld = true; });
   window.addEventListener('mouseup', (event) => { props.isHeld = false; });
@@ -105,7 +112,12 @@ const {getScreenToWorldCoords} = require('./matrices');
       props.screenWidth    = document.documentElement.clientWidth;
       props.screenHeight   = document.documentElement.clientHeight;
       const newWorldCoords = getScreenToWorldCoords(props);
-      fetchPoints(csvPath, props, newWorldCoords);
+      console.log(newWorldCoords);
+      props.currentWorldCoords.xmin = newWorldCoords[0];
+      props.currentWorldCoords.xmax = newWorldCoords[8];
+      props.currentWorldCoords.ymin = newWorldCoords[9];
+      props.currentWorldCoords.ymax = newWorldCoords[1];
+      // fetchPoints(csvPath, props, newWorldCoords);
     }
   });
 
@@ -125,8 +137,10 @@ const {getScreenToWorldCoords} = require('./matrices');
       'Content-Type': 'application/json',
       'Access-Control-Allow-Headers': 'Content-Type'
     },
-    // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '"NAD_Shuffled_1000000.csv"',
+    // body: '"NAD_30m.csv"',
+    body: '"NAD_State_ZIP_LonLat.csv"',
+    // body: '"shuffled.csv"',
+    // body: '"NAD_Shuffled_100000.csv"',
   };
   const FETCH_POINTS_URL     = '/particles/get_shader_column';
   const FETCH_POINTS_OPTIONS = {
@@ -136,16 +150,39 @@ const {getScreenToWorldCoords} = require('./matrices');
 
   const fetchPoints =
     async (csvPath, props) => {
-    const remotePoints =
-      await fetch(SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvPath, FETCH_POINTS_OPTIONS);
-    const arrowTable = await tableFromIPC(remotePoints);
-    hostPoints       = arrowTable.getChild('gpu_buffer').toArray();
-    points({hostPoints, props});
+    if (props.fetching === true) return;
+    let fetch_path = SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvPath;
+    if (props.currentWorldCoords.xmin !== undefined &&
+        props.currentWorldCoords.xmax !== undefined &&
+        props.currentWorldCoords.ymin !== undefined &&
+        props.currentWorldCoords.ymax !== undefined) {
+      const path_tail = '/' + props.currentWorldCoords.xmin + '/' + props.currentWorldCoords.xmax +
+                        '/' + props.currentWorldCoords.ymin + '/' + props.currentWorldCoords.ymax;
+      fetch_path = fetch_path + path_tail;
+    }
+    props.fetching = true;
+    console.log('fetching');
+    const remotePoints = await fetch(fetch_path, FETCH_POINTS_OPTIONS);
+    console.log('fetched');
+    props.fetching = false;
+    console.log(remotePoints.ok);
+    if (remotePoints.ok) {
+      const arrowTable = await tableFromIPC(remotePoints);
+      console.log('made table');
+      const hostPoints = arrowTable.getChild('gpu_buffer').toArray();
+      console.log('got points');
+      console.log('Fetched ' + hostPoints.length / 7 + ' points.');
+      points({hostPoints, props});
+    } else {
+      console.log('Unable to fetch');
+      console.log(remotePoints);
+    }
   }
 
   var csvPath = undefined;
 
-  var hostPoints = undefined;
+  var hostPoints   = undefined;
+  var renderPoints = undefined;
   try {
     const readCsvResultPromise = await fetch(SERVER + ':' + PORT + READ_CSV_URL, READ_CSV_OPTIONS);
     const readCsvResult        = await readCsvResultPromise.json()

@@ -13,7 +13,7 @@ const numGenerator = {
   * [Symbol.iterator]() {
       let i = 0;
       while (i < NUM_POINTS * 4) {
-        yield [Math.random() * 100 - 20.0,
+        yield [Math.random() * 200 - 20.0,
                Math.random() * 100 - 20.0,
                1.0,
                1.0,
@@ -26,20 +26,21 @@ const numGenerator = {
     }
 };
 
-// let hostPoints                       = [...numGenerator];
+let generatedHostPoints              = [...numGenerator];
 export default ({hostPoints, props}) => {
+  hostPoints          = hostPoints;
   const pointBuffer   = regl.buffer(hostPoints);
   const drawParticles = regl({
     vert: `
 precision mediump float;
-attribute vec4 freq;
+attribute vec4 pos;
 attribute vec3 color;
 uniform float scale;
 uniform float time;
 uniform mat4 view, projection;
 varying vec3 fragColor;
 void main() {
-  vec3 position = freq.xyz;
+  vec3 position = pos.xyz;
   gl_PointSize = scale;
   gl_Position = projection * view * vec4(position, 1);
   fragColor = color;
@@ -54,12 +55,12 @@ void main() {
   gl_FragColor = vec4(fragColor, 0.5);
 }`,
     attributes: {
-      freq: {buffer: pointBuffer, stride: VERT_SIZE, offset: 0},
+      pos: {buffer: pointBuffer, stride: VERT_SIZE, offset: 0},
       color: {buffer: pointBuffer, stride: VERT_SIZE, offset: 16}
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
-      scale: ({tick}, props) => { return Math.max(1, 28 - (25 + Math.min(props.zoomLevel, 13))); },
+      scale: ({tick}, props) => { return Math.max(1.5, -props.zoomLevel); },
       projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
