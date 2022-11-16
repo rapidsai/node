@@ -47,7 +47,6 @@ module.exports = async function(fastify, opts) {
   const handler = async (request, reply) => {
     let message = 'Error';
     let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-    console.log(result);
     const table = await fastify.getDataframe(request.params.table);
     if (table == undefined) {
       result.message = 'Table not found';
@@ -59,11 +58,11 @@ module.exports = async function(fastify, opts) {
         if (request.params.xmin != undefined && request.params.xmax != undefined &&
             request.params.ymin != undefined && request.params.ymax != undefined) {
           const x_unfiltered = table.get('Longitude');
-          const x_gt         = x_unfiltered._col.gt(parseFloat(request.params.xmin));
-          const x_lt         = x_unfiltered._col.lt(parseFloat(request.params.xmax));
+          const x_gt         = x_unfiltered._col.gt(parseInt(request.params.xmin));
+          const x_lt         = x_unfiltered._col.lt(parseInt(request.params.xmax));
           const y_unfiltered = table.get('Latitude');
-          const y_gt         = y_unfiltered._col.gt(parseFloat(request.params.ymin));
-          const y_lt         = y_unfiltered._col.lt(parseFloat(request.params.ymax));
+          const y_gt         = y_unfiltered._col.gt(parseInt(request.params.ymin));
+          const y_lt         = y_unfiltered._col.lt(parseInt(request.params.ymax));
           const x_y          = x_lt.bitwiseAnd(x_gt).bitwiseAnd(y_lt).bitwiseAnd(y_gt);
           x                  = x_unfiltered.filter(Series.new(x_y));
           y                  = y_unfiltered.filter(Series.new(x_y));
@@ -107,6 +106,9 @@ module.exports = async function(fastify, opts) {
         const result = new DataFrame({'gpu_buffer': tiled});
         const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
         await reply.code(200).send(writer.toNodeStream());
+        tiled.dispose();
+        result.dispose();
+        writer.close();
       } catch (e) {
         result.message = e.message;
         if (e.message.search('Unknown column name') != -1) {
