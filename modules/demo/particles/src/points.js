@@ -6,9 +6,10 @@ const regl                                             = require('regl')();
 const mat4                                             = require('gl-mat4');
 const {getPointsViewMatrix, getPointsProjectionMatrix} = require('./matrices');
 
-const NUM_POINTS = 400;
-const VERT_SIZE  = 4 * (2)
-
+/*
+ A random points generator for testing.
+ */
+const NUM_POINTS   = 400;
 const numGenerator = {
   * [Symbol.iterator]() {
       let i = 0;
@@ -25,10 +26,20 @@ const numGenerator = {
       }
     }
 };
+let generatedHostPoints = [...numGenerator];
 
-let generatedHostPoints              = [...numGenerator];
+/*
+ The points function that renders points into the same world
+ view as the background image.
+ */
+/*
+ A constant that defines the stride of the input buffer for rendering.
+ */
+const VERT_SIZE                      = 4 * (2)
 export default ({hostPoints, props}) => {
-  hostPoints          = hostPoints;
+  /*
+   Make a regl buffer from the input points array.
+   */
   const pointBuffer   = regl.buffer(hostPoints);
   const drawParticles = regl({
     vert: `
@@ -67,6 +78,9 @@ void main() {
   })
 
   const tick = regl.frame(() => {
+    /*
+     Draw the points.
+     */
     regl.clear({depth: 1, color: [0, 0, 0, 0]});
     drawParticles(props);
   });

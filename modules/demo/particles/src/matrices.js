@@ -5,6 +5,10 @@
 const mat4     = require('gl-mat4');
 const glmatrix = require('gl-matrix');
 
+/*
+ A utility function that computes A for Ax = b where
+ x and b are known.
+ */
 export const getProjection = (space1, space2) => {
   const w        = space1;
   const s        = space2;
@@ -16,9 +20,13 @@ export const getProjection = (space1, space2) => {
   return A;
 };
 
+/*
+ Given world and screen bounds and the current zoom level,
+ compute new world bounds from the screen bounds.
+ */
 export const getScreenToWorldCoords = (props) => {
   const A            = getProjection(props.w(), props.s());
-  const orthoScale   = getCoordinatesOrthoScale(props);
+  const orthoScale   = getCurrentOrthoScale(props);
   const screenBounds = [
     props.centerX + props.screenWidth / 2.0 * orthoScale,
     props.centerY + props.screenWidth / 2.0 * orthoScale,
@@ -41,6 +49,10 @@ export const getScreenToWorldCoords = (props) => {
   return worldBounds;
 };
 
+/*
+ The points view matrix. Centers the points based on the current screen
+ center, which needs viewport adjustments. TODO.
+ */
 export const getPointsViewMatrix = (props) => {
   const screenLookAt = [props.centerX, props.centerY, 0, 1];
   const A            = getProjection(props.w(), props.s());
@@ -50,6 +62,10 @@ export const getPointsViewMatrix = (props) => {
   return lookAtFinal;
 };
 
+/*
+ The background view matrix. The same as the points view matrix, with some rescaling.
+ Needs a better viewport correspondence for click and drag events.
+ */
 export const getBackgroundViewMatrix = (props) => {
   const screenLookAt = [-props.centerX, props.centerY, 1, 1];
   const A            = getProjection(props.w(), props.s());
@@ -61,29 +77,26 @@ export const getBackgroundViewMatrix = (props) => {
   return translated;
 };
 
+/*
+ A function that computes a zoom level based on a zoomLevel that ranges from 0 to n.
+ TODO: Currently the range of the zoomLevel can be negative. This should be corrected.
+ */
 export const getCurrentOrthoScale = (props) => { return Math.pow(1.2, props.zoomLevel);};
-export const getCoordinatesOrthoScale = (props) => { return Math.pow(1.2, props.zoomLevel);}
 
+/*
+ The orthographic projection matrix for points. Various from the background only
+ in axis direction. By inverting the y axis it flips the points to respect the negative
+ orientation of Latitude in the northern hemisphere.
+ */
 export const getPointsProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
   return mat4.ortho([], orthoScale * 2.0, -orthoScale * 2.0, orthoScale, -orthoScale, 1, 1000);
 };
 
+/*
+ The background projection matrix flips the x axis.
+ */
 export const getBackgroundProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
   return mat4.ortho([], -orthoScale * 2.0, orthoScale * 2.0, orthoScale, -orthoScale, 1, 1000);
 };
-
-export const getCurrentWorldBounds = (props) => {
-  const A          = getProjection(props.w(), props.s());
-  const eyeLonLat  = mat4.multiply([], A, [
-    props.centerX,
-    props.centerY,
-    0,
-    0,
-  ])
-  const invert     = mat4.invert([], glmatrix.mat4.add([], A, mat4.identity([])));
-  const LonLatEye  = mat4.multiply([], invert, eyeLonLat);
-  const orthoScale = getCurrentOrthoScale(props);
-  return orthoScale;
-}
