@@ -12,7 +12,7 @@
   "description": "A fastify-based web server that provides browser-access to GPU resources.",
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
-    "start": "fastify start --ignore-watch -l info -P -p 3010 -w app.js",
+    "start": "fastify start --ignore-watch -l info -P -p 3010 app.js",
     "dev": "fastify start --ignore-watch -w -l info -P -p 3010 app.js"
   },
   "keywords": [

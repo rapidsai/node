@@ -57,9 +57,11 @@ module.exports = async function(fastify, opts) {
       let message = 'Error';
       let result  = {'params': request.body, success: false, message: message};
       try {
-        const path        = Path.join(filePath(), request.body);
-        const stats       = await Stat(path);
-        const message     = 'File is available';
+        const path             = Path.join(filePath(), request.body);
+        const stats            = await Stat(path);
+        const message          = 'File is available';
+        const currentDataFrame = await fastify.getDataframe(request.body);
+        if (currentDataFrame !== undefined) { currentDataFrame.dispose(); }
         const cacheObject = await fastify.readCSV({
           header: 0,
           sourceType: 'files',

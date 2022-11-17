@@ -47,7 +47,6 @@ module.exports = async function(fastify, opts) {
   const handler = async (request, reply) => {
     let message = 'Error';
     let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-    console.log(result);
     const table = await fastify.getDataframe(request.params.table);
     if (table == undefined) {
       result.message = 'Table not found';
@@ -59,11 +58,11 @@ module.exports = async function(fastify, opts) {
         if (request.params.xmin != undefined && request.params.xmax != undefined &&
             request.params.ymin != undefined && request.params.ymax != undefined) {
           const x_unfiltered = table.get('Longitude');
-          const x_gt         = x_unfiltered._col.gt(parseFloat(request.params.xmin));
-          const x_lt         = x_unfiltered._col.lt(parseFloat(request.params.xmax));
+          const x_gt         = x_unfiltered._col.gt(parseInt(request.params.xmin));
+          const x_lt         = x_unfiltered._col.lt(parseInt(request.params.xmax));
           const y_unfiltered = table.get('Latitude');
-          const y_gt         = y_unfiltered._col.gt(parseFloat(request.params.ymin));
-          const y_lt         = y_unfiltered._col.lt(parseFloat(request.params.ymax));
+          const y_gt         = y_unfiltered._col.gt(parseInt(request.params.ymin));
+          const y_lt         = y_unfiltered._col.lt(parseInt(request.params.ymax));
           const x_y          = x_lt.bitwiseAnd(x_gt).bitwiseAnd(y_lt).bitwiseAnd(y_gt);
           x                  = x_unfiltered.filter(Series.new(x_y));
           y                  = y_unfiltered.filter(Series.new(x_y));
@@ -90,12 +89,13 @@ module.exports = async function(fastify, opts) {
         const b = Series.sequence({type: new Int32, init: 255.0, size: x.length}).fill(0);
 
         // Map x, y, r, g, b to offsets for client display
-        let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (7 * x.length)});
-        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: x.length}).mul(7);
+        let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (2 * x.length)});
+        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: x.length}).mul(2);
         tiled           = tiled.scatter(x, base_offset.cast(new Int32));
         x.dispose();
         tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
         y.dispose();
+        /*
         tiled = tiled.scatter(1.0, base_offset.add(2).cast(new Int32));
         tiled = tiled.scatter(1.0, base_offset.add(3).cast(new Int32));
         tiled = tiled.scatter(r, base_offset.add(4).cast(new Int32));
@@ -104,9 +104,13 @@ module.exports = async function(fastify, opts) {
         g.dispose();
         tiled = tiled.scatter(b, base_offset.add(6).cast(new Int32));
         b.dispose();
+        */
         const result = new DataFrame({'gpu_buffer': tiled});
         const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
         await reply.code(200).send(writer.toNodeStream());
+        tiled.dispose();
+        result.dispose();
+        writer.close();
       } catch (e) {
         result.message = e.message;
         if (e.message.search('Unknown column name') != -1) {
