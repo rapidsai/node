@@ -61,7 +61,12 @@ module.exports = async function(fastify, opts) {
         const stats            = await Stat(path);
         const message          = 'File is available';
         const currentDataFrame = await fastify.getDataframe(request.body);
-        if (currentDataFrame !== undefined) { currentDataFrame.dispose(); }
+        if (currentDataFrame !== undefined) {
+          console.log('Found existing dataframe.');
+          console.log(request.body);
+          console.log(currentDataFrame);
+          currentDataFrame.dispose();
+        }
         const cacheObject = await fastify.readCSV({
           header: 0,
           sourceType: 'files',
