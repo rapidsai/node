@@ -89,12 +89,13 @@ module.exports = async function(fastify, opts) {
         const b = Series.sequence({type: new Int32, init: 255.0, size: x.length}).fill(0);
 
         // Map x, y, r, g, b to offsets for client display
-        let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (7 * x.length)});
-        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: x.length}).mul(7);
+        let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (2 * x.length)});
+        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: x.length}).mul(2);
         tiled           = tiled.scatter(x, base_offset.cast(new Int32));
         x.dispose();
         tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
         y.dispose();
+        /*
         tiled = tiled.scatter(1.0, base_offset.add(2).cast(new Int32));
         tiled = tiled.scatter(1.0, base_offset.add(3).cast(new Int32));
         tiled = tiled.scatter(r, base_offset.add(4).cast(new Int32));
@@ -103,6 +104,7 @@ module.exports = async function(fastify, opts) {
         g.dispose();
         tiled = tiled.scatter(b, base_offset.add(6).cast(new Int32));
         b.dispose();
+        */
         const result = new DataFrame({'gpu_buffer': tiled});
         const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
         await reply.code(200).send(writer.toNodeStream());
