@@ -138,8 +138,8 @@ const {getScreenToWorldCoords} = require('./matrices');
       'Access-Control-Allow-Headers': 'Content-Type'
     },
     // body: '"NAD_30m.csv"',
-    body: '"NAD_State_ZIP_LonLat.csv"',
-    // body: '"shuffled.csv"',
+    // body: '"NAD_State_ZIP_LonLat.csv"',
+    body: '"shuffled.csv"',
     // body: '"NAD_Shuffled_100000.csv"',
   };
   const FETCH_POINTS_URL     = '/particles/get_shader_column';
@@ -171,7 +171,7 @@ const {getScreenToWorldCoords} = require('./matrices');
       console.log('made table');
       const hostPoints = arrowTable.getChild('gpu_buffer').toArray();
       console.log('got points');
-      console.log('Fetched ' + hostPoints.length / 7 + ' points.');
+      console.log('Fetched ' + hostPoints.length / 2 + ' points.');
       points({hostPoints, props});
     } else {
       console.log('Unable to fetch');

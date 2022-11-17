@@ -7,7 +7,7 @@ const mat4                                             = require('gl-mat4');
 const {getPointsViewMatrix, getPointsProjectionMatrix} = require('./matrices');
 
 const NUM_POINTS = 400;
-const VERT_SIZE  = 4 * (4 + 3)
+const VERT_SIZE  = 4 * (2)
 
 const numGenerator = {
   * [Symbol.iterator]() {
@@ -33,17 +33,16 @@ export default ({hostPoints, props}) => {
   const drawParticles = regl({
     vert: `
 precision mediump float;
-attribute vec4 pos;
-attribute vec3 color;
+attribute vec2 pos;
 uniform float scale;
 uniform float time;
 uniform mat4 view, projection;
 varying vec3 fragColor;
 void main() {
-  vec3 position = pos.xyz;
+  vec2 position = pos.xy;
   gl_PointSize = scale;
-  gl_Position = projection * view * vec4(position, 1);
-  fragColor = color;
+  gl_Position = projection * view * vec4(position, 1, 1);
+  fragColor = vec3(0, 0, 0);
 }`,
     frag: `
 precision lowp float;
@@ -56,7 +55,6 @@ void main() {
 }`,
     attributes: {
       pos: {buffer: pointBuffer, stride: VERT_SIZE, offset: 0},
-      color: {buffer: pointBuffer, stride: VERT_SIZE, offset: 16}
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
