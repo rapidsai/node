@@ -2,8 +2,6 @@
  * Copyright (c) 2022 NVIDIA Corporation
  */
 
-// import drawCube from "./drawBackground"
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -46,6 +44,13 @@ const {getScreenToWorldCoords} = require('./matrices');
     0,
     1
   ];
+  /*
+   Screen coords matching the axes of the above worldCoords. They are used to
+   compute the world view to screen projection matrix.
+
+   These are inadequate for aligning the mouse movements correctly with the world movement, but they
+   provide enough information to create a viewPort alignment. TODO
+   */
   const screenCoords = [
     document.documentElement.clientWidth,
     document.documentElement.clientHeight,
@@ -89,23 +94,44 @@ const {getScreenToWorldCoords} = require('./matrices');
    Mouse events.
    */
   window.addEventListener('wheel', (event) => {
-    props.centerX                 = props.centerX + event.movementX;
-    props.centerY                 = props.centerY + event.movementY;
-    props.screenWidth             = document.documentElement.clientWidth;
-    props.screenHeight            = document.documentElement.clientHeight;
-    const zoom                    = event.deltaY > 0 ? -1 : 1;
-    props.zoomLevel               = props.zoomLevel + zoom;
+    /*
+    Scroll/zoom event, update props to re-render the world.
+    */
+    props.centerX      = props.centerX + event.movementX;
+    props.centerY      = props.centerY + event.movementY;
+    props.screenWidth  = document.documentElement.clientWidth;
+    props.screenHeight = document.documentElement.clientHeight;
+    const zoom         = event.deltaY > 0 ? -1 : 1;
+    props.zoomLevel    = props.zoomLevel + zoom;
+    /*
+     newWorldCoords defines the bounding in world-coordinates of the current
+     view. This is used to update the points using server based viewport culling.
+     */
     const newWorldCoords          = getScreenToWorldCoords(props);
     props.currentWorldCoords.xmin = newWorldCoords[0];
     props.currentWorldCoords.xmax = newWorldCoords[8];
     props.currentWorldCoords.ymin = newWorldCoords[9];
     props.currentWorldCoords.ymax = newWorldCoords[1];
-    console.log(props);
     // fetchPoints(csvPath, props);
   });
-  window.addEventListener('mousedown', (event) => { props.isHeld = true; });
-  window.addEventListener('mouseup', (event) => { props.isHeld = false; });
+  window.addEventListener('mousedown', (event) => {
+    /*
+     isHeld prop to track dragging events.
+    */
+    props.isHeld = true;
+  });
+  window.addEventListener('mouseup', (event) => {
+    /*
+     Disable dragging when released.
+    */
+    props.isHeld = false;
+  });
   window.addEventListener('mousemove', (event) => {
+    /*
+     Update the current "center" of the viewport in order to change
+     projection of the points and background. Needs to be updated
+     to better track the difference between the screen and the viewport. TODO
+     */
     if (props.isHeld) {
       props.centerX        = props.centerX + event.movementX;
       props.centerY        = props.centerY + event.movementY;
@@ -122,11 +148,8 @@ const {getScreenToWorldCoords} = require('./matrices');
   });
 
   /*
-   Deprecated interval rotated points when I was working on a better
-   coordinate system understanding of them.
+   Client config
    */
-  setInterval(() => {props.angle = (props.angle + 1)}, 16);
-
   const SERVER           = 'http://localhost';
   const PORT             = '3010';
   const READ_CSV_URL     = '/gpu/DataFrame/readCSV';
@@ -137,6 +160,10 @@ const {getScreenToWorldCoords} = require('./matrices');
       'Content-Type': 'application/json',
       'Access-Control-Allow-Headers': 'Content-Type'
     },
+    /*
+     Different data files to choose from for client. This would
+     be great to have a widget or text field for entry. TODO
+     */
     // body: '"NAD_30m.csv"',
     // body: '"NAD_State_ZIP_LonLat.csv"',
     body: '"shuffled.csv"',
@@ -150,7 +177,25 @@ const {getScreenToWorldCoords} = require('./matrices');
 
   const fetchPoints =
     async (csvPath, props) => {
+    /*
+     fetchPoints uses props.currentWorldCoords to request new display points as
+     the viewport is changed.
+
+     This is not important now because: On my machine there are ample resources
+     to display all 67m points without viewport culling.
+
+     However, the goal of the app is to provide realtime point budget updates, so
+     this needs to be factored into an effective module for viewport culling, as well
+     as realtime point streaming based on framerate limitations.
+     */
+    /*
+     Do nothing if fetching is already happening
+     */
     if (props.fetching === true) return;
+    /*
+     Fetch path either fetches all points, or takes four additional path parameters
+     for xmin, xmas, ymin, and ymax.
+     */
     let fetch_path = SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvPath;
     if (props.currentWorldCoords.xmin !== undefined &&
         props.currentWorldCoords.xmax !== undefined &&
@@ -165,13 +210,18 @@ const {getScreenToWorldCoords} = require('./matrices');
     const remotePoints = await fetch(fetch_path, FETCH_POINTS_OPTIONS);
     console.log('fetched');
     props.fetching = false;
+    /*
+     if remotePoints.ok is false, something went wrong in the fetch. Don't try
+     to serialize the points from arrow, just print the error message.
+     */
     console.log(remotePoints.ok);
     if (remotePoints.ok) {
       const arrowTable = await tableFromIPC(remotePoints);
-      console.log('made table');
       const hostPoints = arrowTable.getChild('gpu_buffer').toArray();
-      console.log('got points');
       console.log('Fetched ' + hostPoints.length / 2 + ' points.');
+      /*
+       Render the points
+       */
       points({hostPoints, props});
     } else {
       console.log('Unable to fetch');
@@ -179,10 +229,12 @@ const {getScreenToWorldCoords} = require('./matrices');
     }
   }
 
-  var csvPath = undefined;
+  /*
+   Send the initial request to load the csv file on the server.
 
-  var hostPoints   = undefined;
-  var renderPoints = undefined;
+   Then render the points that were loaded on the server, then render the background.
+   */
+  var csvPath = undefined;
   try {
     const readCsvResultPromise = await fetch(SERVER + ':' + PORT + READ_CSV_URL, READ_CSV_OPTIONS);
     const readCsvResult        = await readCsvResultPromise.json()
@@ -192,4 +244,7 @@ const {getScreenToWorldCoords} = require('./matrices');
   } catch (e) { console.log(e); }
 })();
 
+/*
+ Placeholder for working React functionality. The app currently bypasses all React.
+ */
 ReactDOM.render(React.createElement(App), document.getElementById('root'));
