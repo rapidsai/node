@@ -25,7 +25,7 @@ describe('Spatial', () => {
   test(`convertLonLatToCartesian`, () => {
     const seriesX = Series.new([-120.0, -120.0]);
     const seriesY = Series.new([48.0, 49.0]);
-    const result  = convertLonLatToCartesian(1.0, 1.0, seriesX._col, seriesY._col);
+    const result  = convertLonLatToCartesian(1.0, 1.0, seriesX, seriesY);
 
     expect(result.getChild('y').toArray())
       .toMatchObject({'0': -5222.222222222223, '1': -5333.333333333334});
