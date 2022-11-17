@@ -25,8 +25,8 @@ import {
 } from './addon';
 
 export function convertLonLatToCartesian<T extends FloatingPoint>(
-  centerX: number, centerY: number, lonPoints: Column<T>, latPoints: Column<T>): Points<T> {
-  const result = lonLatToCartesian(centerX, centerY, lonPoints, latPoints);
+  centerX: number, centerY: number, lonPoints: Series<T>, latPoints: Series<T>): Points<T> {
+  const result = lonLatToCartesian(centerX, centerY, lonPoints._col, latPoints._col);
   const x      = Series.new(result.x);
   const y      = Series.new(result.y);
   return makePoints(x, y);
