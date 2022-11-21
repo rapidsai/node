@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, FloatingPoint, Int32, Series, Table, Uint32} from '@rapidsai/cudf';
+import {Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
 import {MemoryResource} from '@rapidsai/rmm';
 
 /** @ignore */
@@ -79,8 +79,9 @@ export declare function findPolylineNearestToEachPoint<T extends FloatingPoint>(
   memoryResource
   ?: MemoryResource): {table: Table, names: ['point_index', 'polyline_index', 'distance']};
 
-export declare function lonLatToCartesian<T extends FloatingPoint>(origin_lon: number,
-                                          origin_lat: number,
-                                          lats: Column<T>,
-                                          lons: Column<T>,
-                                          memoryResource?: MemoryResource): {x: Column<T>, y: Column<T>};
+export declare function lonLatToCartesian<T extends FloatingPoint>(
+  origin_lon: number,
+  origin_lat: number,
+  lats: Column<T>,
+  lons: Column<T>,
+  memoryResource?: MemoryResource): {x: Column<T>, y: Column<T>};

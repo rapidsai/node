@@ -18,16 +18,16 @@ import {
   Series,
 } from '@rapidsai/cudf';
 import {makePoints} from '@rapidsai/cuspatial';
-import {Points} from '@rapidsai/cuspatial/geometry';
 
 import {
   lonLatToCartesian,
 } from './addon';
 
 export function convertLonLatToCartesian<T extends FloatingPoint>(
-  centerX: number, centerY: number, lonPoints: Series<T>, latPoints: Series<T>): Points<T> {
-  const result = lonLatToCartesian(centerX, centerY, lonPoints._col, latPoints._col);
-  const x      = Series.new(result.x);
-  const y      = Series.new(result.y);
+  centerX: number, centerY: number, lonPoints: Series<T>, latPoints: Series<T>) {
+  const result =
+    lonLatToCartesian(centerX, centerY, lonPoints._col as Column<T>, latPoints._col as Column<T>);
+  const x = Series.new(result.x);
+  const y = Series.new(result.y);
   return makePoints(x, y);
 }
