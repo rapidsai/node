@@ -78,3 +78,10 @@ export declare function findPolylineNearestToEachPoint<T extends FloatingPoint>(
   polylinePointsY: Column<T>,
   memoryResource
   ?: MemoryResource): {table: Table, names: ['point_index', 'polyline_index', 'distance']};
+
+export declare function lonLatToCartesian<T extends FloatingPoint>(
+  origin_lon: number,
+  origin_lat: number,
+  lats: Column<T>,
+  lons: Column<T>,
+  memoryResource?: MemoryResource): {x: Column<T>, y: Column<T>};

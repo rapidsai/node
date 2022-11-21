@@ -34,4 +34,11 @@ Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args);
  */
 Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args);
 
+/**
+ * @brief Convert lon/lat coordinate columns into cartesian coordinates.
+ *
+ * @param args CallbackArgs JavaScript arguments list.
+ */
+Napi::Value lonlat_to_cartesian(CallbackArgs const& args);
+
 }  // namespace nv
