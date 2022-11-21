@@ -14,13 +14,14 @@
 
 const {Bool8, Utf8String, Int32, Int64, DataFrame, Series, Float32, Float64} =
   require('@rapidsai/cudf');
+const Path = require('path');
 
 let timeout  = -1;
 let datasets = {};
 
 function clearCachedGPUData() {
   for (const key in datasets) {
-    datasets[key].dispose();
+    const dataset = datasets[key];
     datasets[key] = null;
   }
 };
@@ -66,12 +67,13 @@ function json_aoa_to_dataframe(str, dtypes) {
   return result;
 }
 
+let _publicPath = Path.join(__dirname, '../../public');
+
 module.exports = {
   async setDataframe(name, dataframe) {
     if (timeout) { clearTimeout(timeout); }
     timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
     if (datasets === null) {
-      for (key in Object.datasets.keys()) { datasets.key.destroy(); }
       datasets = {};
     }
     datasets[name] = dataframe;
@@ -86,6 +88,9 @@ module.exports = {
     clearTimeout(timeout);
     datasets = null;
   },
+
+  _setPathForTesting(path) { _publicPath = path; },
+  publicPath() { return _publicPath; },
 
   async readLargeGraphDemo(path) {
     console.log('readLargeGraphDemo');

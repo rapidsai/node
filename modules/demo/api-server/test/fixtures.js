@@ -163,9 +163,19 @@ const json_bad_map = {
     }`
 };
 
+const csv_base = {
+  'csv_base.csv':
+    `Index,Name,Int,Float
+     0,"bob",1,1.0
+     1,"george",2,2.0
+     2,"sam",3,3.0
+    `
+};
+
 module.exports = {
   json_good: json_good,
   json_large: json_large,
   json_out_of_order: json_out_of_order,
   json_bad_map: json_bad_map,
+  csv_base: csv_base
 };

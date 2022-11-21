@@ -34,9 +34,7 @@ module.exports = async function(fastify, opts) {
   fastify.decorate('readGraphology', gpu_cache.readGraphology);
   fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo);
   fastify.decorate('clearDataFrames', gpu_cache.clearDataframes);
-  fastify.get('/', async function(request, reply) {
-    return root_schema['graphology'];
-  });
+  fastify.get('/', async function(request, reply) { return root_schema['graphology']; });
 
   fastify.route({
     method: 'POST',
