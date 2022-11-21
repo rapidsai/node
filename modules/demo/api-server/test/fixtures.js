@@ -168,8 +168,18 @@ const csv_base = {
     `Index,Name,Int,Float
      0,"bob",1,1.0
      1,"george",2,2.0
-     2,"sam",3,3.0
-    `
+     2,"sam",3,3.0`
+};
+
+const csv_particles = {
+  'csv_particles.csv':
+    `Index,Longitude,Latitude
+    0, -105, 40
+    1, -106, 41
+    2, -107, 42
+    3, -108, 43
+    4, -109, 44
+    5, -110, 45`
 };
 
 module.exports = {
@@ -177,5 +187,6 @@ module.exports = {
   json_large: json_large,
   json_out_of_order: json_out_of_order,
   json_bad_map: json_bad_map,
-  csv_base: csv_base
+  csv_base: csv_base,
+  csv_particles: csv_particles
 };

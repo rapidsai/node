@@ -79,7 +79,7 @@ module.exports = {
     datasets[name] = dataframe;
   },
 
-  async getDataframe(name) { return datasets[name]; },
+  async getDataframe(name) { return datasets != null ? datasets[name] : undefined; },
 
   async listDataframes() { return datasets != null ? Object.keys(datasets) : []; },
 

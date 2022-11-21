@@ -46,7 +46,7 @@ module.exports = async function(fastify, opts) {
 
   const handler = async (request, reply) => {
     let message = 'Error';
-    let result  = {'params': JSON.stringify(request.params), success: false, message: message};
+    let result  = {'params': request.params, success: false, message: message};
     const table = await fastify.getDataframe(request.params.table);
     if (table == undefined) {
       result.message = 'Table not found';
