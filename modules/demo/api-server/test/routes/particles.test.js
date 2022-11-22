@@ -62,4 +62,17 @@ test('get_shader_column/:table/:xmin/:xmax/:ymin/:ymax', async (t) => {
   t.same(got, expected);
 });
 
-test('get_shader_column/:table/:npoints', async (t) => {});
+test('get_shader_column/:table/:npoints', async (t) => {
+  const dir   = t.testdir(csv_particles);
+  const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
+  const app   = await build(t);
+  gpu_cache._setPathForTesting(rpath);
+  const load = await app.inject(
+    {method: 'POST', url: '/gpu/DataFrame/readCSV', body: {filename: 'csv_particles.csv'}});
+  const res =
+    await app.inject({method: 'GET', url: '/particles/get_shader_column/csv_particles.csv/1'});
+  const release  = await app.inject({method: 'POST', url: '/graphology/release'});
+  const expected = 2;
+  const got      = tableFromIPC(res.rawPayload).getChild('gpu_buffer').toArray();
+  t.equal(expected, got.length);
+});
