@@ -117,14 +117,22 @@ module.exports = async function(fastify, opts) {
   });
   fastify.route({
     method: 'GET',
-    url: '/get_shader_column/:table/:npoints',
-    schema: {querystring: {table: {type: 'string'}, npoints: {type: 'number'}}},
-    handler: handler
-  });
-  fastify.route({
-    method: 'GET',
     url: '/get_shader_column/:table',
     schema: {querystring: {table: {type: 'string'}}},
     handler: handler
   });
-};
+  fastify.route({
+    method: 'POST',
+    url: '/quadtree/create/:table',
+    schema: {querystring: {table: {type: 'string'}}},
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {'params': request.params, success: false, message: message};
+      const table = await fastify.getDataframe(request.params.table);
+      if (table == undefined) {
+        result.message = 'Table not found';
+        await reply.code(404).send(result);
+      }
+    }
+  });
+}

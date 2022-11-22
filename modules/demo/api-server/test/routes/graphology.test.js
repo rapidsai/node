@@ -22,7 +22,7 @@ const {json_large, json_good, json_out_of_order, json_bad_map, csv_base} =
   require('../fixtures.js');
 const gpu_cache = require('../../util/gpu_cache');
 
-test('graphology root returns api description', {only: true}, async t => {
+test('graphology root returns api description', async t => {
   const app = await build(t);
   const res = await app.inject({url: '/graphology'})
   t.same(JSON.parse(res.payload), {
