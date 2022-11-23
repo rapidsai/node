@@ -25,8 +25,8 @@ const root_schema = require('../../util/schema.js');
 module.exports = async function(fastify, opts) {
   fastify.register(fastifyCors, {origin: '*'});
   fastify.register(arrowPlugin);
-  fastify.decorate('setDataframe', gpu_cache.setDataframe);
-  fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('cacheObject', gpu_cache.cacheObject);
+  fastify.decorate('getData', gpu_cache.getData);
   fastify.decorate('readCSV', gpu_cache.readCSV);
 
   const get_schema = {
@@ -52,21 +52,27 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
-      const table = await fastify.getDataframe(request.params.table);
+      const table = await fastify.getData(request.params.table);
+      if (request.body.xAxisName === undefined || request.body.yAxisName === undefined) {
+        result.message = 'xAxisName or yAxisName undefined, specify them in POST body.';
+        result.code    = 400;
+        await reply.code(result.code).send(result);
+        return;
+      }
       if (table == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
       } else {
         const [xMin, xMax, yMin, yMax] = [
-          parseFloat(table.get('x').min()),
-          parseFloat(table.get('x').max()),
-          parseFloat(table.get('y').min()),
-          parseFloat(table.get('y').max()),
+          parseFloat(table.get(request.body.xAxisName).min()),
+          parseFloat(table.get(request.body.xAxisName).max()),
+          parseFloat(table.get(request.body.yAxisName).min()),
+          parseFloat(table.get(request.body.yAxisName).max()),
         ];
         try {
           const quadtree    = cuspatial.Quadtree.new({
-            x: table.get('x'),
-            y: table.get('y'),
+            x: table.get(request.body.xAxisName),
+            y: table.get(request.body.yAxisName),
             xMin,
             xMax,
             yMin,
@@ -75,7 +81,7 @@ module.exports = async function(fastify, opts) {
             maxDepth: 15,
             minSize: 1e5
           });
-          const saved       = await fastify.setDataframe(request.params.table);
+          const saved       = await fastify.cacheObject(request.params.table);
           result.message    = 'Quadtree created';
           result.success    = true;
           result.statusCode = 200;
@@ -86,6 +92,35 @@ module.exports = async function(fastify, opts) {
           result.statusCode = 500;
           await reply.code(result.statusCode).send(result);
         }
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'POST',
+    url: '/set_polygons_quadtree',
+    schema: {
+      querystring:
+        {polygon_offset: {type: 'array'}, ring_offset: {type: 'array'}, points: {type: 'array'}}
+    },
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {'params': request.params, success: false, message: message};
+      try {
+        const polygon_offset = Series.new(request.body.polygon_offset);
+        const ring_offset    = Series.new(request.body.ring_offset);
+        const points         = Series.new(request.body.points);
+        fastify.cacheObject(request.body.name, {polygon_offset, ring_offset, points});
+        result.message    = 'Set polygon ' + request.body.name;
+        result.success    = true;
+        result.statusCode = 200;
+        result.params     = request.body;
+        await reply.code(result.statusCode).send(result);
+      } catch (e) {
+        result.message    = e;
+        result.success    = false;
+        result.statusCode = 500;
+        await reply.code(result.statusCode).send(result);
       }
     }
   });

@@ -28,8 +28,8 @@ const root_schema = require('../../util/schema.js');
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
   fastify.register(fastifyCors, {origin: 'http://localhost:3001'});
-  fastify.decorate('setDataframe', gpu_cache.setDataframe);
-  fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('cacheObject', gpu_cache.cacheObject);
+  fastify.decorate('getData', gpu_cache.getData);
   fastify.decorate('listDataframes', gpu_cache.listDataframes);
   fastify.decorate('readGraphology', gpu_cache.readGraphology);
   fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo);
@@ -76,9 +76,9 @@ module.exports = async function(fastify, opts) {
           result.success = true;
           try {
             const graphology = await fastify.readLargeGraphDemo(path);
-            await fastify.setDataframe('nodes', graphology['nodes']);
-            await fastify.setDataframe('edges', graphology['edges']);
-            await fastify.setDataframe('options', graphology['options']);
+            await fastify.cacheObject('nodes', graphology['nodes']);
+            await fastify.cacheObject('edges', graphology['edges']);
+            await fastify.cacheObject('options', graphology['options']);
             result.message = 'File read onto GPU.';
           } catch (e) {
             result.success    = false;
@@ -135,10 +135,10 @@ module.exports = async function(fastify, opts) {
           result.success = true;
           try {
             const graphology = await fastify.readGraphology(path);
-            await fastify.setDataframe('nodes', graphology['nodes']);
-            await fastify.setDataframe('edges', graphology['edges']);
-            await fastify.setDataframe('clusters', graphology['clusters']);
-            await fastify.setDataframe('tags', graphology['tags']);
+            await fastify.cacheObject('nodes', graphology['nodes']);
+            await fastify.cacheObject('edges', graphology['edges']);
+            await fastify.cacheObject('clusters', graphology['clusters']);
+            await fastify.cacheObject('tags', graphology['tags']);
             result.message = 'File read onto GPU.';
           } catch (e) {
             result.success    = false;
@@ -173,7 +173,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = await fastify.getDataframe(request.params.table);
+      const table = await fastify.getData(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
@@ -208,7 +208,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = await fastify.getDataframe(request.params.table);
+      const table = await fastify.getData(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
@@ -225,7 +225,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = await fastify.getDataframe('nodes');
+      const df    = await fastify.getData('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
@@ -250,7 +250,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = await fastify.getDataframe('nodes');
+      const df    = await fastify.getData('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
@@ -290,9 +290,9 @@ module.exports = async function(fastify, opts) {
       let message = 'Error';
       let result  = {success: false, message: message};
       /** @type DataFrame<{x: Float32, y: Float32}> */
-      const df = await fastify.getDataframe('nodes');
+      const df = await fastify.getData('nodes');
       /** @type DataFrame<{x: Int32, y: Int32}> */
-      const edges = await fastify.getDataframe('edges');
+      const edges = await fastify.getData('edges');
       if (df == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);

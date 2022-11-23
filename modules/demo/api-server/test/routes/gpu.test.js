@@ -30,9 +30,6 @@ test('read_csv', async (t) => {
   const res = await app.inject(
     {method: 'POST', url: '/gpu/DataFrame/readCSV', body: {filename: 'csv_base.csv'}});
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
-  t.equal(res.statusCode, 200);
-  console.log(res.statusCode);
-  console.log(res.payload);
   t.same(JSON.parse(res.payload), {
     success: true,
     message: 'CSV file in GPU memory.',

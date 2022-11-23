@@ -24,8 +24,8 @@ const root_schema = require('../../util/schema.js');
 module.exports = async function(fastify, opts) {
   fastify.register(fastifyCors, {origin: '*'});
   fastify.register(arrowPlugin);
-  fastify.decorate('setDataframe', gpu_cache.setDataframe);
-  fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('cacheObject', gpu_cache.cacheObject);
+  fastify.decorate('getData', gpu_cache.getData);
   fastify.decorate('readCSV', gpu_cache.readCSV);
 
   const get_schema = {
@@ -55,7 +55,7 @@ module.exports = async function(fastify, opts) {
   const handler = async (request, reply) => {
     let message = 'Error';
     let result  = {'params': request.params, success: false, message: message};
-    const table = await fastify.getDataframe(request.params.table);
+    const table = await fastify.getData(request.params.table);
     if (table == undefined) {
       result.message = 'Table not found';
       await reply.code(404).send(result);
@@ -128,7 +128,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
-      const table = await fastify.getDataframe(request.params.table);
+      const table = await fastify.getData(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);

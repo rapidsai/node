@@ -40,7 +40,7 @@ function json_key_attributes_to_dataframe(str) {
   });
   const result = new DataFrame(arr);
   return result;
-}
+};
 
 function json_aos_to_dataframe(str, columns, dtypes) {
   let arr = {};
@@ -52,7 +52,7 @@ function json_aos_to_dataframe(str, columns, dtypes) {
   });
   const result = new DataFrame(arr);
   return result;
-}
+};
 
 function json_aoa_to_dataframe(str, dtypes) {
   let arr            = {};
@@ -65,79 +65,81 @@ function json_aoa_to_dataframe(str, dtypes) {
   });
   const result = new DataFrame(arr);
   return result;
-}
+};
 
 let _publicPath = Path.join(__dirname, '../../public');
 
-module.exports = {
-  async setDataframe(name, dataframe) {
-    if (timeout) { clearTimeout(timeout); }
-    timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
-    if (datasets === null) {
-      datasets = {};
-    }
-    datasets[name] = dataframe;
-  },
+const cacheObject = async (name, data) => {
+  if (timeout) { clearTimeout(timeout); }
+  timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
+  if (datasets === null) {
+    datasets = {};
+  }
+  datasets[name] = data;
+};
 
-  async getDataframe(name) { return datasets != null ? datasets[name] : undefined; },
+module.exports = {
+  async cacheObject(name, data) { cacheObject(name, data); },
+
+  async getData(name) { return datasets != null ? datasets[name] : undefined; },
 
   async listDataframes() { return datasets != null ? Object.keys(datasets) : []; },
 
   async clearDataframes() {
     clearCachedGPUData();
     clearTimeout(timeout);
-    datasets = null;
+    datasets   = null;
   },
 
-  _setPathForTesting(path) { _publicPath = path; },
+  _setPathForTesting(path) { _publicPath= path; },
   publicPath() { return _publicPath; },
 
   async readLargeGraphDemo(path) {
     console.log('readLargeGraphDemo');
-    const dataset = Series.readText(path, '');
-    let split     = dataset.split('"options":');
+    const dataset= Series.readText(path, '');
+    let split  = dataset.split('"options":');
     if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: options not found.'; };
-    const toptions = split.gather([1], false);
-    let rest       = split.gather([0], false);
-    split          = rest.split('"edges":');
+    const toptions= split.gather([1], false);
+    let rest   = split.gather([0], false);
+    split      = rest.split('"edges":');
     if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: edges not found.'; };
-    const tedges = split.gather([1], false);
-    rest         = split.gather([0], false);
-    split        = rest.split('"nodes":');
+    const tedges= split.gather([1], false);
+    rest       = split.gather([0], false);
+    split      = rest.split('"nodes":');
     if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: nodes not found.'; };
-    const tnodes = split.gather([1], false);
-    const nodes  = json_key_attributes_to_dataframe(tnodes);
-    const edges  = json_aos_to_dataframe(
+    const tnodes= split.gather([1], false);
+    const nodes= json_key_attributes_to_dataframe(tnodes);
+    const edges= json_aos_to_dataframe(
       tedges, ['key', 'source', 'target'], [new Utf8String, new Int64, new Int64]);
-    let optionsArr               = {};
-    optionsArr['type']           = Series.new(toptions.getJSONObject('.type'));
-    optionsArr['multi']          = Series.new(toptions.getJSONObject('.multi'));
-    optionsArr['allowSelfLoops'] = Series.new(toptions.getJSONObject('.allowSelfLoops'));
-    const options                = new DataFrame(optionsArr);
+    let optionsArr= {};
+    optionsArr['type']= Series.new(toptions.getJSONObject('.type'));
+    optionsArr['multi']= Series.new(toptions.getJSONObject('.multi'));
+    optionsArr['allowSelfLoops']= Series.new(toptions.getJSONObject('.allowSelfLoops'));
+    const options= new DataFrame(optionsArr);
     return {nodes: nodes, edges: edges, options: options};
   },
 
   async readGraphology(path) {
     console.log('readGraphology');
-    const dataset = Series.readText(path, '');
+    const dataset= Series.readText(path, '');
     if (dataset.length == 0) { throw 'File does not exist or is empty.' }
-    let split = dataset.split('"tags":');
+    let split  = dataset.split('"tags":');
     if (split.length <= 1) { throw 'Bad graphology format: tags not found.'; }
-    const ttags = split.gather([1], false);
-    let rest    = split.gather([0], false);
-    split       = rest.split('"clusters":');
+    const ttags= split.gather([1], false);
+    let rest   = split.gather([0], false);
+    split      = rest.split('"clusters":');
     if (split.length <= 1) { throw 'Bad graphology format: clusters not found.'; }
-    const tclusters = split.gather([1], false);
-    rest            = split.gather([0], false);
-    split           = rest.split('"edges":');
+    const tclusters= split.gather([1], false);
+    rest       = split.gather([0], false);
+    split      = rest.split('"edges":');
     if (split.length <= 1) { throw 'Bad graphology format: edges not found.'; }
-    const tedges = split.gather([1], false);
-    rest         = split.gather([0], false);
-    split        = rest.split('"nodes":');
+    const tedges= split.gather([1], false);
+    rest       = split.gather([0], false);
+    split      = rest.split('"nodes":');
     if (split.length <= 1) { throw 'Bad graphology format: nodes not found.'; }
-    const tnodes = split.gather([1], false);
-    const tags   = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
-    const clusters = json_aos_to_dataframe(
+    const tnodes= split.gather([1], false);
+    const tags = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
+    const clusters= json_aos_to_dataframe(
       tclusters, ['key', 'color', 'clusterLabel'], [new Int64, new Utf8String, new Utf8String]);
     const nodes =
       json_aos_to_dataframe(tnodes, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score'], [
@@ -150,12 +152,12 @@ module.exports = {
         new Float64,
         new Int32
       ]);
-    const edges = json_aoa_to_dataframe(tedges, [new Utf8String, new Utf8String]);
+    const edges= json_aoa_to_dataframe(tedges, [new Utf8String, new Utf8String]);
     return {nodes: nodes, edges: edges, tags: tags, clusters: clusters};
   },
 
   async readCSV(options) {
-    const result = await DataFrame.readCSV(options);
+    const result= await DataFrame.readCSV(options);
     return result;
   }
 }

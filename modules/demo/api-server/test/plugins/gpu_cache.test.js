@@ -20,9 +20,9 @@ const Support  = require('../../plugins/support')
 const fixtures = require('../fixtures.js');
 const gpuCache = require('../../util/gpu_cache.js');
 
-test('set/getDataframe', async t => {
-  await gpuCache.setDataframe('bob', 5);
-  const result = await gpuCache.getDataframe('bob');
+test('set/getData', async t => {
+  await gpuCache.cacheObject('bob', 5);
+  const result = await gpuCache.getData('bob');
   await gpuCache.clearDataframes();
   t.equal(result, 5);
 });
@@ -53,16 +53,16 @@ test('readCSV', {only: true}, async t => {
 });
 
 test('listDataframes', async t => {
-  await gpuCache.setDataframe('bob', 5);
-  await gpuCache.setDataframe('george', 6);
+  await gpuCache.cacheObject('bob', 5);
+  await gpuCache.cacheObject('george', 6);
   const result = await gpuCache.listDataframes();
   await gpuCache.clearDataframes();
   t.same(result, ['bob', 'george']);
 });
 
 test('clearDataframes', async t => {
-  await gpuCache.setDataframe('bob', 5);
-  await gpuCache.setDataframe('george', 6);
+  await gpuCache.cacheObject('bob', 5);
+  await gpuCache.cacheObject('george', 6);
   await gpuCache.clearDataframes();
   const result = await gpuCache.listDataframes();
   t.same(result, []);
