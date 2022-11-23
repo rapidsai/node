@@ -107,9 +107,9 @@ module.exports = async function(fastify, opts) {
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
       try {
-        const polygon_offset = Series.new(request.body.polygon_offset);
-        const ring_offset    = Series.new(request.body.ring_offset);
-        const points         = Series.new(request.body.points);
+        const polygon_offset = Series.new(new Int32Array(request.body.polygon_offset));
+        const ring_offset    = Series.new(new Int32Array(request.body.ring_offset));
+        const points         = Series.new(new Float32Array(request.body.points));
         fastify.cacheObject(request.body.name, {polygon_offset, ring_offset, points});
         result.message    = 'Set polygon ' + request.body.name;
         result.success    = true;
