@@ -82,6 +82,7 @@ module.exports = {
   async cacheObject(name, data) { cacheObject(name, data); },
 
   async getData(name) { return datasets != null ? datasets[name] : undefined; },
+  getDataSync(name) { return datasets != null ? datasets[name] : undefined; },
 
   async listDataframes() { return datasets != null ? Object.keys(datasets) : []; },
 
