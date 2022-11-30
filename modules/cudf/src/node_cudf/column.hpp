@@ -717,11 +717,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::scalar const& value,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  // column/filling/repeat.cpp
-  Column::wrapper_t repeat(
-    cudf::size_type repeats,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
-
   // column/replace.cpp
   Column::wrapper_t replace_nulls(
     cudf::column_view const& replacement,
