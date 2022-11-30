@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,14 +54,16 @@ export class IpcHandle extends CUDAIpcHandle {
 
   /**
    * @summary An object describing the exported {@link DeviceMemory} and CUDA IPC handle.
-   * @returns An object with the device ordinal, byte offset (if applicable) into the
-   *   exported {@link DeviceMemory}, and the 64-bit IPC handle (as a JavaScript Array of octets).
+   * @returns An object with the device ordinal, the 64-bit IPC handle (as a JavaScript Array of
+   *   octets), byte offset (if applicable) into the exported {@link DeviceMemory}, byte length of
+   *   the IPC segment.
    */
   public toJSON() {
     return {
       device: this.device,
-      byteOffset: this.byteOffset,
       handle: [...this.handle],
+      byteOffset: this.byteOffset,
+      byteLength: this.buffer.byteLength - this.byteOffset,
     };
   }
 }

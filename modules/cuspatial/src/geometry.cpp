@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
+#include <cuspatial/coordinate_transform.hpp>
 #include <cuspatial/error.hpp>
 #include <cuspatial/polygon_bounding_box.hpp>
 #include <cuspatial/polyline_bounding_box.hpp>
@@ -70,6 +71,23 @@ Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args) {
   names.Set(3u, "y_max");
   output.Set("names", names);
   output.Set("table", Table::New(args.Env(), std::move(result)));
+  return output;
+}
+
+Napi::Value lonlat_to_cartesian(CallbackArgs const& args) {
+  double origin_lon                   = args[0];
+  double origin_lat                   = args[1];
+  Column::wrapper_t lons_column       = args[2];
+  Column::wrapper_t lats_column       = args[3];
+  rmm::mr::device_memory_resource* mr = args[4];
+  auto result                         = [&]() {
+    try {
+      return cuspatial::lonlat_to_cartesian(origin_lon, origin_lat, *lons_column, *lats_column, mr);
+    } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
+  }();
+  auto output = Napi::Object::New(args.Env());
+  output.Set("x", Column::New(args.Env(), std::move(result.first)));
+  output.Set("y", Column::New(args.Env(), std::move(result.second)));
   return output;
 }
 

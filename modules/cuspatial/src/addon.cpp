@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,19 +21,20 @@ struct rapidsai_cuspatial : public nv::EnvLocalAddon, public Napi::Addon<rapidsa
   rapidsai_cuspatial(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(
       exports,
-      {
-        InstanceMethod("init", &rapidsai_cuspatial::InitAddon),
-        InstanceValue("_cpp_exports", _cpp_exports.Value()),
-        InstanceMethod<&rapidsai_cuspatial::create_quadtree>("createQuadtree"),
-        InstanceMethod<&rapidsai_cuspatial::quadtree_bounding_box_intersections>(
-          "findQuadtreeAndBoundingBoxIntersections"),
-        InstanceMethod<&rapidsai_cuspatial::find_points_in_polygons>("findPointsInPolygons"),
-        InstanceMethod<&rapidsai_cuspatial::find_polyline_nearest_to_each_point>(
-          "findPolylineNearestToEachPoint"),
-        InstanceMethod<&rapidsai_cuspatial::compute_polygon_bounding_boxes>(
-          "computePolygonBoundingBoxes"),
-        InstanceMethod<&rapidsai_cuspatial::compute_polyline_bounding_boxes>(
-          "computePolylineBoundingBoxes"),
+      {InstanceMethod("init", &rapidsai_cuspatial::InitAddon),
+       InstanceValue("_cpp_exports", _cpp_exports.Value()),
+       InstanceMethod<&rapidsai_cuspatial::create_quadtree>("createQuadtree"),
+       InstanceMethod<&rapidsai_cuspatial::quadtree_bounding_box_intersections>(
+         "findQuadtreeAndBoundingBoxIntersections"),
+       InstanceMethod<&rapidsai_cuspatial::find_points_in_polygons>("findPointsInPolygons"),
+       InstanceMethod<&rapidsai_cuspatial::find_polyline_nearest_to_each_point>(
+         "findPolylineNearestToEachPoint"),
+       InstanceMethod<&rapidsai_cuspatial::compute_polygon_bounding_boxes>(
+         "computePolygonBoundingBoxes"),
+       InstanceMethod<&rapidsai_cuspatial::compute_polyline_bounding_boxes>(
+         "computePolylineBoundingBoxes"),
+       InstanceMethod<&rapidsai_cuspatial::lonlat_to_cartesian>("lonLatToCartesian")
+
       });
   }
 
@@ -53,6 +54,9 @@ struct rapidsai_cuspatial : public nv::EnvLocalAddon, public Napi::Addon<rapidsa
   }
   Napi::Value compute_polyline_bounding_boxes(Napi::CallbackInfo const& info) {
     return nv::compute_polyline_bounding_boxes(info);
+  }
+  Napi::Value lonlat_to_cartesian(Napi::CallbackInfo const& info) {
+    return nv::lonlat_to_cartesian(info);
   }
 };
 

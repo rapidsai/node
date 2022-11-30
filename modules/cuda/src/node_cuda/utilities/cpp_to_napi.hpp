@@ -99,3 +99,12 @@ inline Napi::Value CPPToNapi::operator()(cudaDeviceProp const& props) const {
 }
 
 }  // namespace nv
+
+namespace Napi {
+
+template <>
+inline Value Value::From(napi_env env, CUDARTAPI::cudaMemoryType const& type) {
+  return Value::From(env, static_cast<uint8_t>(type));
+}
+
+}  // namespace Napi
