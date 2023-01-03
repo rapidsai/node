@@ -94,8 +94,7 @@
     "modules/demo/client-server",
     "modules/demo/api-server",
     "modules/demo/viz-app",
-    "modules/demo/sql/*",
-    "modules/external/attractor-viz-node-rapids/*"
+    "modules/demo/sql/*"
   ],
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "5.30.0",

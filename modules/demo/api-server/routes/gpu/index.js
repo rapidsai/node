@@ -28,9 +28,10 @@ const root_schema = require('../../util/schema.js');
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
   fastify.register(fastifyCors, {origin: '*'});
-  fastify.decorate('setDataframe', gpu_cache.setDataframe);
-  fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('cacheObject', gpu_cache.cacheObject);
+  fastify.decorate('getData', gpu_cache.getData);
   fastify.decorate('readCSV', gpu_cache.readCSV);
+  fastify.decorate('publicPath', gpu_cache.publicPath);
 
   const get_schema = {
     logLevel: 'debug',
@@ -45,8 +46,6 @@ module.exports = async function(fastify, opts) {
     }
   };
 
-  const filePath = () => Path.join(__dirname, '../../public');
-
   fastify.get('/', {...get_schema, handler: () => root_schema['gpu']});
 
   fastify.route({
@@ -57,20 +56,26 @@ module.exports = async function(fastify, opts) {
       let message = 'Error';
       let result  = {'params': request.body, success: false, message: message};
       try {
-        const path             = Path.join(filePath(), request.body);
+        const path             = Path.join(fastify.publicPath(), request.body.filename);
         const stats            = await Stat(path);
         const message          = 'File is available';
-        const currentDataFrame = await fastify.getDataframe(request.body);
-        if (currentDataFrame !== undefined) { currentDataFrame.dispose(); }
+        const currentDataFrame = await fastify.getData(request.body.filename);
+        if (currentDataFrame !== undefined) {
+          console.log('Found existing dataframe.');
+          console.log(request.body);
+          console.log(currentDataFrame);
+          currentDataFrame.dispose();
+        }
         const cacheObject = await fastify.readCSV({
           header: 0,
           sourceType: 'files',
           sources: [path],
         });
-        const name        = request.body.replace('/\//g', '_');
-        await fastify.setDataframe(name, cacheObject);
-        result.success = true;
-        result.message = 'CSV file in GPU memory';
+        const name        = request.body.filename;  // request.body.replace('/\//g', '_');
+        await fastify.cacheObject(name, cacheObject);
+        result.success    = true;
+        result.message    = 'CSV file in GPU memory.';
+        result.statusCode = 200;
         await reply.code(200).send(result);
       } catch (e) {
         result.message = e.message;
@@ -90,7 +95,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = await fastify.getDataframe(request.params.table);
+      const table = await fastify.getData(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         await reply.code(404).send(result);

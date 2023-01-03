@@ -24,8 +24,8 @@ const root_schema = require('../../util/schema.js');
 module.exports = async function(fastify, opts) {
   fastify.register(fastifyCors, {origin: '*'});
   fastify.register(arrowPlugin);
-  fastify.decorate('setDataframe', gpu_cache.setDataframe);
-  fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('cacheObject', gpu_cache.cacheObject);
+  fastify.decorate('getData', gpu_cache.getData);
   fastify.decorate('readCSV', gpu_cache.readCSV);
 
   const get_schema = {
@@ -44,10 +44,18 @@ module.exports = async function(fastify, opts) {
   fastify.get('/', {...get_schema, handler: () => root_schema['particles']});
   fastify.post('/', {...get_schema, handler: () => root_schema['particles']});
 
+  const filterPoints =
+    (column, min, max) => {
+      const gt   = column._col.gt(parseInt(min));
+      const lt   = column._col.lt(parseInt(max));
+      const mask = gt.bitwiseAnd(lt);
+      return column.filter(Series.new(mask));
+    }
+
   const handler = async (request, reply) => {
     let message = 'Error';
-    let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-    const table = await fastify.getDataframe(request.params.table);
+    let result  = {'params': request.params, success: false, message: message};
+    const table = await fastify.getData(request.params.table);
     if (table == undefined) {
       result.message = 'Table not found';
       await reply.code(404).send(result);
@@ -57,36 +65,12 @@ module.exports = async function(fastify, opts) {
         let y = undefined;
         if (request.params.xmin != undefined && request.params.xmax != undefined &&
             request.params.ymin != undefined && request.params.ymax != undefined) {
-          const x_unfiltered = table.get('Longitude');
-          const x_gt         = x_unfiltered._col.gt(parseInt(request.params.xmin));
-          const x_lt         = x_unfiltered._col.lt(parseInt(request.params.xmax));
-          const y_unfiltered = table.get('Latitude');
-          const y_gt         = y_unfiltered._col.gt(parseInt(request.params.ymin));
-          const y_lt         = y_unfiltered._col.lt(parseInt(request.params.ymax));
-          const x_y          = x_lt.bitwiseAnd(x_gt).bitwiseAnd(y_lt).bitwiseAnd(y_gt);
-          x                  = x_unfiltered.filter(Series.new(x_y));
-          y                  = y_unfiltered.filter(Series.new(x_y));
+          x = filterPoints(table.get('Longitude'), request.params.xmin, request.params.xmax);
+          y = filterPoints(table.get('Latitude'), request.params.ymin, request.params.ymax);
         } else {
           x = table.get('Longitude');
           y = table.get('Latitude');
         }
-        // const state = table.get('State');
-        // const zip   = table.get('Zip_Code')
-        // Produce r,g,b from state
-        const color_map = [
-          {'r': 0, 'g': 0, 'b': 0},
-          {'r': 255, 'g': 0, 'b': 0},
-          {'r': 0, 'g': 255, 'b': 0},
-          {'r': 255, 'g': 255, 'b': 0},
-          {'r': 0, 'g': 0, 'b': 255},
-          {'r': 255, 'g': 0, 'b': 255},
-          {'r': 0, 'g': 255, 'b': 255},
-          {'r': 255, 'g': 255, 'b': 255}
-        ];
-        // TODO: convert state to color by state index
-        const r = Series.sequence({type: new Int32, init: 255.0, size: x.length}).fill(0);
-        const g = Series.sequence({type: new Int32, init: 255.0, size: x.length}).fill(0);
-        const b = Series.sequence({type: new Int32, init: 255.0, size: x.length}).fill(0);
 
         // Map x, y, r, g, b to offsets for client display
         let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (2 * x.length)});
@@ -95,16 +79,6 @@ module.exports = async function(fastify, opts) {
         x.dispose();
         tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
         y.dispose();
-        /*
-        tiled = tiled.scatter(1.0, base_offset.add(2).cast(new Int32));
-        tiled = tiled.scatter(1.0, base_offset.add(3).cast(new Int32));
-        tiled = tiled.scatter(r, base_offset.add(4).cast(new Int32));
-        r.dispose();
-        tiled = tiled.scatter(g, base_offset.add(5).cast(new Int32));
-        g.dispose();
-        tiled = tiled.scatter(b, base_offset.add(6).cast(new Int32));
-        b.dispose();
-        */
         const result = new DataFrame({'gpu_buffer': tiled});
         const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
         await reply.code(200).send(writer.toNodeStream());
@@ -147,4 +121,18 @@ module.exports = async function(fastify, opts) {
     schema: {querystring: {table: {type: 'string'}}},
     handler: handler
   });
-};
+  fastify.route({
+    method: 'POST',
+    url: '/quadtree/create/:table',
+    schema: {querystring: {table: {type: 'string'}}},
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {'params': request.params, success: false, message: message};
+      const table = await fastify.getData(request.params.table);
+      if (table == undefined) {
+        result.message = 'Table not found';
+        await reply.code(404).send(result);
+      }
+    }
+  });
+}
