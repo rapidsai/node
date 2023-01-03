@@ -67,7 +67,7 @@ function json_aoa_to_dataframe(str, dtypes) {
   return result;
 };
 
-let _publicPath = Path.join(__dirname, '../../public');
+let _publicPath = Path.join(__dirname, '../public');
 
 const cacheObject = async (name, data) => {
   if (timeout) { clearTimeout(timeout); }
