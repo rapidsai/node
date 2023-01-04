@@ -119,7 +119,7 @@ test('read_json incorrect format', async (t) => {
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_bad.txt';
   const app   = await build(t);
   const res   = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   const payload = JSON.parse(res.payload);
   t.equal(payload.message, 'Bad graphology format: nodes not found.');
   t.equal(payload.success, false);
@@ -134,7 +134,7 @@ test('read_json file good', async (t) => {
   */
   const app = await build(t);
   const res = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   const payload = JSON.parse(res.payload);
   console.log(payload);
   t.equal(payload.message, 'File read onto GPU.');
@@ -146,8 +146,8 @@ test('list_tables', async (t) => {
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
   const app   = await build(t);
   const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const res   = await app.inject({method: 'GET', url: '/graphology/list_tables'});
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const res   = await app.inject({method: 'GET', url: '/gpu/list_tables'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   const payload = JSON.parse(res.payload);
   t.ok(payload.includes('nodes'));
 });
@@ -164,7 +164,7 @@ test('get_table', async (t) => {
   });
   t.same(res.statusCode, 200);
   const table   = tableFromIPC(res.rawPayload);
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   t.same(table.schema.names, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score']);
   t.equal(table.numRows, 2);
   t.equal(table.numCols, 8);
@@ -182,7 +182,7 @@ test('get_column', async (t) => {
   });
   t.same(res.statusCode, 200);
   const table   = tableFromIPC(res.rawPayload);
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   t.same(table.schema.names, ['score']);
   t.equal(table.numRows, 2);
   t.equal(table.numCols, 1);
@@ -209,7 +209,7 @@ test('nodes', async (t) => {
            2,
            -5.515159729197043e+28
          ]))
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
 });
 
 test('nodes/bounds', async (t) => {
@@ -229,7 +229,7 @@ test('nodes/bounds', async (t) => {
       'ymax': 4.134339332580566,
     }
   });
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
 });
 
 test('nodes then nodes/bounds', async (t) => {
@@ -264,7 +264,7 @@ test('nodes then nodes/bounds', async (t) => {
       'ymax': 4.134339332580566,
     }
   });
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
 });
 
 test('edges', async (t) => {
@@ -277,7 +277,7 @@ test('edges', async (t) => {
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
   t.equal(res.statusCode, 200);
   const table   = tableFromIPC(res.rawPayload);
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   t.ok(table.getChild('edges'));
   t.same(table.getChild('edges').toArray(), new Float32Array([
            0.9705526828765869,
@@ -304,7 +304,7 @@ test('edges and nodes do not begin with 0', async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   t.equal(res.statusCode, 200);
   const table = tableFromIPC(res.rawPayload);
   t.ok(table.getChild('edges'));
@@ -332,7 +332,7 @@ test('edge keys do not match node keys', async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
   const res = await app.inject(
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   t.equal(res.statusCode, 422);
   t.same(JSON.parse(res.payload),
          {success: false, message: 'Edge sources do not match node keys', statusCode: 422});

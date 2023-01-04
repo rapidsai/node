@@ -37,3 +37,27 @@ test('read_csv', async (t) => {
     params: {filename: 'csv_base.csv'}
   });
 });
+
+test('list_tables', async (t) => {
+  const dir   = t.testdir(csv_base);
+  const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
+  const app   = await build(t);
+  gpu_cache._setPathForTesting(rpath);
+  const res = await app.inject(
+    {method: 'POST', url: '/gpu/DataFrame/readCSV', body: {filename: 'csv_base.csv'}});
+  const tables  = await app.inject({method: 'GET', url: '/gpu/list_tables'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
+  t.same(JSON.parse(tables.payload), ['csv_base.csv']);
+});
+
+test('release', async (t) => {
+  const dir   = t.testdir(csv_base);
+  const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
+  const app   = await build(t);
+  gpu_cache._setPathForTesting(rpath);
+  const res = await app.inject(
+    {method: 'POST', url: '/gpu/DataFrame/readCSV', body: {filename: 'csv_base.csv'}});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
+  const tables  = await app.inject({method: 'GET', url: '/gpu/list_tables'});
+  t.same(JSON.parse(tables.payload), []);
+});

@@ -33,7 +33,7 @@ test('quadtree/create/:table', async (t) => {
     url: '/quadtree/create/csv_quadtree.csv',
     body: {xAxisName: 'x', yAxisName: 'y'}
   });
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   const result  = JSON.parse(res.payload);
   t.same(result, {
     statusCode: 200,
@@ -56,7 +56,7 @@ test('quadtree/set_polygons', async (t) => {
     body:
       {name: 'test', polygon_offset: [0, 1], ring_offset: [0, 4], points: [0, 0, 1, 1, 2, 2, 3, 3]}
   });
-  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release = await app.inject({method: 'POST', url: '/gpu/release'});
   const result  = JSON.parse(res.payload);
   t.same(result, {
     statusCode: 200,
@@ -95,7 +95,7 @@ test('quadtree/get_points', {only: true}, async (t) => {
     method: 'GET',
     url: 'quadtree/get_points/' + quadtree_name + '/' + polygons_name,
   })
-  const release       = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release       = await app.inject({method: 'POST', url: '/gpu/release'});
   const table         = tableFromIPC(res.rawPayload);
   const got           = table.getChild('points_in_polygon').toArray();
   const expected      = [1, -1, -1, 1, 0, 0];
