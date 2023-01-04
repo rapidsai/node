@@ -53,6 +53,18 @@ module.exports = async function(fastify, opts) {
     }
 
   const handler = async (request, reply) => {
+    /**
+     * /particles/get_shader_column/:table/:xmin/:xmax/:ymin/:ymax returns a bounds-limited
+     * set of interleaved longitude/latitude pairs as an Arrow Table containing a single column.
+     * The column is a Float32Array of length 2 * N, where N is the number of points.
+     * :table is the name of the table to query.
+     * (optional) :xmin, :xmax, :ymin, :ymax are the bounds to limit the query to.
+     * If no bounds are provided, the entire table is returned.
+     *
+     * The returned Arrow Table is a single column of Float32 values, where the first
+     * two values are the first point's longitude and latitude, the next two values are
+     * the second point's longitude and latitude, and so on.
+     */
     let message = 'Error';
     let result  = {'params': request.params, success: false, message: message};
     const table = await fastify.getData(request.params.table);
@@ -120,19 +132,5 @@ module.exports = async function(fastify, opts) {
     url: '/get_shader_column/:table',
     schema: {querystring: {table: {type: 'string'}}},
     handler: handler
-  });
-  fastify.route({
-    method: 'POST',
-    url: '/quadtree/create/:table',
-    schema: {querystring: {table: {type: 'string'}}},
-    handler: async (request, reply) => {
-      let message = 'Error';
-      let result  = {'params': request.params, success: false, message: message};
-      const table = await fastify.getData(request.params.table);
-      if (table == undefined) {
-        result.message = 'Table not found';
-        await reply.code(404).send(result);
-      }
-    }
   });
 }

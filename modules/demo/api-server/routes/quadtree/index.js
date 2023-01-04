@@ -51,6 +51,36 @@ module.exports = async function(fastify, opts) {
     url: '/create/:table',
     schema: {querystring: {table: {type: 'string'}}},
     handler: async (request, reply) => {
+      /**
+       * @api {post} /quadtree/create/:table Create Quadtree
+       * @apiName CreateQuadtree
+       * @apiGroup Quadtree
+       * @apiDescription Create a quadtree from a table
+       * @apiParam {String} table Table name
+       * @apiParam {String} xAxisName Column name for x-axis
+       * @apiParam {String} yAxisName Column name for y-axis
+       * @apiParamExample {json} Request-Example:
+       * {
+       *   "xAxisName": "x",
+       *   "yAxisName": "y"
+       * }
+       * @apiSuccessExample {json} Success-Response:
+       * {
+       *   "params": {
+       *     "table": "test"
+       *   },
+       *   "success": true,
+       *   "message": "Quadtree created"
+       * }
+       * @apiErrorExample {json} Error-Response:
+       * {
+       *   "params": {
+       *     "table": "test"
+       *   },
+       *   "success": false,
+       *   "message": "Error"
+       * }
+       */
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
       const table = await fastify.getData(request.params.table);
@@ -111,6 +141,45 @@ module.exports = async function(fastify, opts) {
       }
     },
     handler: async (request, reply) => {
+      /**
+       * @api {post} /quadtree/set_polygons_quadtree Set Polygons Quadtree
+       * @apiName SetPolygonsQuadtree
+       * @apiGroup Quadtree
+       * @apiDescription Set polygons for quadtree
+       * @apiParam {String} name Name of quadtree
+       * @apiParam {Array} polygon_offset Array of polygon offsets
+       * @apiParam {Array} ring_offset Array of ring offsets
+       * @apiParam {Array} points Array of points
+       * @apiParamExample {json} Request-Example:
+       * {
+       *   "name": "test_quadtree",
+       *   "polygon_offset": [0, 4, 8],
+       *   "ring_offset": [0, 4, 8, 12],
+       *   "points": [0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1]
+       * }
+       * @apiSuccessExample {json} Success-Response:
+       * {
+       *   "params": {
+       *     "name": "test_quadtree",
+       *     "polygon_offset": [0, 4, 8],
+       *     "ring_offset": [0, 4, 8, 12],
+       *     "points": [0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1]
+       *   },
+       *   "success": true,
+       *   "message": "Set polygon test_quadtree"
+       * }
+       * @apiErrorExample {json} Error-Response:
+       * {
+       *   "params": {
+       *     "name": "test_quadtree",
+       *     "polygon_offset": [0, 4, 8],
+       *     "ring_offset": [0, 4, 8, 12],
+       *     "points": [0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1]
+       *   },
+       *   "success": false,
+       *   "message": "Error"
+       * }
+       */
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
       try {
@@ -138,6 +207,38 @@ module.exports = async function(fastify, opts) {
     url: '/get_points/:quadtree/:polygon',
     schema: {querystring: {quadtree: {type: 'string'}, polygon: {type: 'string'}}},
     handler: async (request, reply) => {
+      /**
+       * @api {get} /quadtree/get_points/:quadtree/:polygon Get Points
+       * @apiName GetPoints
+       * @apiGroup Quadtree
+       * @apiDescription This API returns uses the quadtree to return only the points that are in
+       * the polygon.
+       * @apiParam {String} quadtree Name of quadtree created with /quadtree/create/:table
+       * @apiParam {String} polygon Name of polygon created with /quadtree/set_polygons_quadtree
+       * @apiParamExample {json} Request-Example:
+       * {
+       *   "quadtree": "test_quadtree",
+       *   "polygon": "test_polygon"
+       * }
+       * @apiSuccessExample {json} Success-Response:
+       * {
+       *   "params": {
+       *     "quadtree": "test_quadtree",
+       *     "polygon": "test_polygon"
+       *   },
+       *   "success": true,
+       *   "message": "Get points from test_quadtree"
+       * }
+       * @apiErrorExample {json} Error-Response:
+       * {
+       *   "params": {
+       *     "quadtree": "test_quadtree",
+       *     "polygon": "test_polygon"
+       *   },
+       *   "success": false,
+       *   "message": "Error"
+       * }
+       */
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
       try {
