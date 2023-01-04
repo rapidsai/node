@@ -162,21 +162,6 @@ module.exports = async function(fastify, opts) {
 
   fastify.route({
     method: 'GET',
-    url: '/list_tables',
-    handler: async (request, reply) => {
-      /**
-       * /graphology/list_tables returns a list of DataFrames stored in
-       * the GPU cache.
-       */
-      let message = 'Error';
-      let result  = {success: false, message: message};
-      const list  = await fastify.listDataframes();
-      return list;
-    }
-  });
-
-  fastify.route({
-    method: 'GET',
     url: '/get_column/:table/:column',
     schema: {querystring: {table: {type: 'string'}, 'column': {type: 'string'}}},
     handler: async (request, reply) => {
@@ -396,22 +381,6 @@ module.exports = async function(fastify, opts) {
           await reply.code(result.statusCode).send(result);
         }
       }
-    }
-  });
-
-  fastify.route({
-    method: 'POST',
-    url: '/release',
-    handler: async (request, reply) => {
-      /**
-       * /graphology/release clears the dataframes from memory.
-       * This is useful for testing, but should not be used in production.
-       * In production, the dataframes should be cached in memory and reused.
-       * This solution allows unit tests to pass without timing out, as the
-       * cached GPU objects are not cleared between tests.
-       */
-      await fastify.clearDataFrames();
-      await reply.code(200).send({message: 'OK'})
     }
   });
 }

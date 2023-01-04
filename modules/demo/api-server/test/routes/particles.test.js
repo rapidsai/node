@@ -43,7 +43,7 @@ test('get_shader_column/:table', async (t) => {
     await app.inject({method: 'GET', url: '/particles/get_shader_column/csv_particles.csv'});
   const expected = [-105, 40, -106, 41, -107, 42, -108, 43, -109, 44, -110, 45];
   const got      = tableFromIPC(res.rawPayload).getChild('gpu_buffer').toArray();
-  const release  = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release  = await app.inject({method: 'POST', url: '/gpu/release'});
   t.same(got, expected);
 });
 
@@ -58,6 +58,6 @@ test('get_shader_column/:table/:xmin/:xmax/:ymin/:ymax', async (t) => {
     {method: 'GET', url: '/particles/get_shader_column/csv_particles.csv/-109/-106/41/44'});
   const expected = [-107, 42, -108, 43];
   const got      = tableFromIPC(res.rawPayload).getChild('gpu_buffer').toArray();
-  const release  = await app.inject({method: 'POST', url: '/graphology/release'});
+  const release  = await app.inject({method: 'POST', url: '/gpu/release'});
   t.same(got, expected);
 });
