@@ -136,7 +136,6 @@ test('read_json file good', async (t) => {
   const res = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
   const payload = JSON.parse(res.payload);
-  console.log(payload);
   t.equal(payload.message, 'File read onto GPU.');
   t.equal(payload.success, true);
 });
