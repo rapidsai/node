@@ -128,7 +128,8 @@ test('read_json incorrect format', async (t) => {
 test('read_json file good', async (t) => {
   const dir   = t.testdir(json_good);
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
-  /*
+  /* This comment is left for working out mocking with tap in fastify
+       see: https://github.com/tapjs/node-tap/issues/846
   const build = t.mock('../../routes/graphology/index.js',
                        {'../../util/gpu_cache.js': {publicPath: () => rpath}});
   */
