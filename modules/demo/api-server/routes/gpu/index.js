@@ -71,7 +71,7 @@ module.exports = async function(fastify, opts) {
           sourceType: 'files',
           sources: [path],
         });
-        const name        = request.body.filename;  // request.body.replace('/\//g', '_');
+        const name        = request.body.filename;
         await fastify.cacheObject(name, cacheObject);
         result.success    = true;
         result.message    = 'CSV file in GPU memory.';
