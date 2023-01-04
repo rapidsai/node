@@ -109,6 +109,11 @@ module.exports = async function(fastify, opts) {
       }
     },
     handler: async (request, reply) => {
+      /**
+       * /graphology/read_json reads a graphology formatted json file from
+       * public storage, storing it in the `nodes`, `edges`, `clusters`, and
+       * `tags` DataFrames.
+       */
       const query = request.query;
       let result  = {
         'params': JSON.stringify(query),
@@ -159,6 +164,10 @@ module.exports = async function(fastify, opts) {
     method: 'GET',
     url: '/list_tables',
     handler: async (request, reply) => {
+      /**
+       * /graphology/list_tables returns a list of DataFrames stored in
+       * the GPU cache.
+       */
       let message = 'Error';
       let result  = {success: false, message: message};
       const list  = await fastify.listDataframes();
@@ -171,6 +180,10 @@ module.exports = async function(fastify, opts) {
     url: '/get_column/:table/:column',
     schema: {querystring: {table: {type: 'string'}, 'column': {type: 'string'}}},
     handler: async (request, reply) => {
+      /**
+       * /graphology/get_column/:table/:column returns a column of a DataFrame
+       * in the GPU cache as an Arrow Table.
+       */
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
       const table = await fastify.getData(request.params.table);
@@ -206,6 +219,10 @@ module.exports = async function(fastify, opts) {
     url: '/get_table/:table',
     schema: {querystring: {table: {type: 'string'}}},
     handler: async (request, reply) => {
+      /**
+       * /graphology/get_table/:table returns a DataFrame from the GPU cache
+       * as an Arrow Table.
+       */
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
       const table = await fastify.getData(request.params.table);
@@ -223,6 +240,10 @@ module.exports = async function(fastify, opts) {
     method: 'GET',
     url: '/nodes/bounds',
     handler: async (request, reply) => {
+      /**
+       * /graphology/nodes/bounds returns the min/max of the x and y columns
+       * of the `nodes` DataFrame.
+       */
       let message = 'Error';
       let result  = {success: false, message: message};
       const df    = await fastify.getData('nodes');
@@ -248,6 +269,10 @@ module.exports = async function(fastify, opts) {
     method: 'GET',
     url: '/nodes',
     handler: async (request, reply) => {
+      /**
+       * /graphology/nodes returns the `nodes` DataFrame, tiled into a single column
+       * with offset x,y,scale,color values.
+       */
       let message = 'Error';
       let result  = {success: false, message: message};
       const df    = await fastify.getData('nodes');
@@ -287,6 +312,10 @@ module.exports = async function(fastify, opts) {
     method: 'GET',
     url: '/edges',
     handler: async (request, reply) => {
+      /**
+       * /graphology/edges returns the edges table, tiled into a single column
+       * of x,y,size,color offset values.
+       */
       let message = 'Error';
       let result  = {success: false, message: message};
       /** @type DataFrame<{x: Float32, y: Float32}> */
@@ -374,6 +403,13 @@ module.exports = async function(fastify, opts) {
     method: 'POST',
     url: '/release',
     handler: async (request, reply) => {
+      /**
+       * /graphology/release clears the dataframes from memory.
+       * This is useful for testing, but should not be used in production.
+       * In production, the dataframes should be cached in memory and reused.
+       * This solution allows unit tests to pass without timing out, as the
+       * cached GPU objects are not cleared between tests.
+       */
       await fastify.clearDataFrames();
       await reply.code(200).send({message: 'OK'})
     }
