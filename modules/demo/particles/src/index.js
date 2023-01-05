@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 
 import App from './App';
 import background from './background';
-import points from './points';
+const {drawParticles} = require('./points');
 
 const {tableFromIPC}           = require('apache-arrow');
 const mat4                     = require('gl-mat4');
@@ -232,7 +232,7 @@ const {getScreenToWorldCoords} = require('./matrices');
         i           = (i + batchSize) % hostPoints.length;
         const batch = hostPoints.slice(i, i + batchSize);
         await sleep(16);
-        points({hostPoints: batch, props});
+        drawParticles({hostPoints: batch, props});
       }
       // points({hostPoints, props});
     } else {

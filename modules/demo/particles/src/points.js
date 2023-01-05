@@ -35,13 +35,9 @@ let generatedHostPoints = [...numGenerator];
 /*
  A constant that defines the stride of the input buffer for rendering.
  */
-const VERT_SIZE                      = 4 * (2)
-export default ({hostPoints, props}) => {
-  /*
-   Make a regl buffer from the input points array.
-   */
-  const pointBuffer   = regl.buffer(hostPoints);
-  const drawParticles = regl({
+const VERT_SIZE            = 4 * (2)
+export const drawParticles = ({hostPoints, props}) => {
+  return regl({
     vert: `
 precision mediump float;
 attribute vec2 pos;
@@ -65,7 +61,7 @@ void main() {
   gl_FragColor = vec4(fragColor, 0.5);
 }`,
     attributes: {
-      pos: {buffer: pointBuffer, stride: VERT_SIZE, offset: 0},
+      pos: {buffer: regl.buffer(hostPoints), stride: VERT_SIZE, offset: 0},
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
@@ -75,13 +71,5 @@ void main() {
     },
     count: hostPoints.length / VERT_SIZE,
     primitive: 'points'
-  })
-
-  drawParticles(props);
-  /*
-  const tick = regl.frame(() => {
-  regl.clear({depth: 1, color: [0, 0, 0, 0]});
-  drawParticles(props);
-  });
-  */
+  })(props)
 }
