@@ -166,7 +166,7 @@ const {getScreenToWorldCoords} = require('./matrices');
      */
     // body: '"NAD_30m.csv"',
     // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '"shuffled.csv"',
+    body: '{"filename": "shuffled.csv"}',
     // body: '"NAD_Shuffled_100000.csv"',
   };
   const FETCH_POINTS_URL     = '/particles/get_shader_column';
@@ -238,7 +238,7 @@ const {getScreenToWorldCoords} = require('./matrices');
   try {
     const readCsvResultPromise = await fetch(SERVER + ':' + PORT + READ_CSV_URL, READ_CSV_OPTIONS);
     const readCsvResult        = await readCsvResultPromise.json()
-    csvPath                    = readCsvResult.params;
+    csvPath                    = readCsvResult.params.filename;
     fetchPoints(csvPath, props);
     background(props);
   } catch (e) { console.log(e); }
