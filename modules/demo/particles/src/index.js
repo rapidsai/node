@@ -222,7 +222,19 @@ const {getScreenToWorldCoords} = require('./matrices');
       /*
        Render the points
        */
-      points({hostPoints, props});
+      // Try rendering in batches
+      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+      const batchSize = 1000000;
+      /* Loop over the same batches of points endlessly */
+      let i = 0;
+      while (true) {
+        i           = (i + batchSize) % hostPoints.length;
+        const batch = hostPoints.slice(i, i + batchSize);
+        await sleep(16);
+        points({hostPoints: batch, props});
+      }
+      // points({hostPoints, props});
     } else {
       console.log('Unable to fetch');
       console.log(remotePoints);

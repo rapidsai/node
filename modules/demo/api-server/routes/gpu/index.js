@@ -62,7 +62,7 @@ module.exports = async function(fastify, opts) {
         const stats            = await Stat(path);
         const message          = 'File is available';
         const currentDataFrame = await fastify.getData(request.body.filename);
-        if (currentDataFrame !== undefined) {
+        if (currentDataFrame !== undefined && currentDataFrame !== null) {
           console.log('Found existing dataframe.');
           console.log(request.body);
           console.log(currentDataFrame);

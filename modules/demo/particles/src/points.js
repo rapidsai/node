@@ -77,11 +77,11 @@ void main() {
     primitive: 'points'
   })
 
+  drawParticles(props);
+  /*
   const tick = regl.frame(() => {
-    /*
-     Draw the points.
-     */
-    regl.clear({depth: 1, color: [0, 0, 0, 0]});
-    drawParticles(props);
+  regl.clear({depth: 1, color: [0, 0, 0, 0]});
+  drawParticles(props);
   });
+  */
 }
