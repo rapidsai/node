@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {Int32, Float32, DataFrame, Series} = require('@rapidsai/cudf');
-const {RecordBatchStreamWriter}           = require('apache-arrow');
-const fastify                             = require('fastify')({logger: {level: 'debug'}});
-const fastifyCors                         = require('@fastify/cors');
-const cuspatial                           = require('@rapidsai/cuspatial');
+const {Float64, Float32, DataFrame, Series} = require('@rapidsai/cudf');
+const {RecordBatchStreamWriter}             = require('apache-arrow');
+const fastify                               = require('fastify')({logger: {level: 'debug'}});
+const fastifyCors                           = require('@fastify/cors');
+const cuspatial                             = require('@rapidsai/cuspatial');
 
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
@@ -94,24 +94,12 @@ module.exports = async function(fastify, opts) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
       } else {
-        const [xMin, xMax, yMin, yMax] = [
-          parseFloat(table.get(request.body.xAxisName).min()),
-          parseFloat(table.get(request.body.xAxisName).max()),
-          parseFloat(table.get(request.body.yAxisName).min()),
-          parseFloat(table.get(request.body.yAxisName).max()),
-        ];
+        xCol                           = table.get(request.body.xAxisName).cast(new Float64);
+        yCol                           = table.get(request.body.yAxisName).cast(new Float64);
+        const [xMin, xMax, yMin, yMax] = [xCol.min(), xCol.max(), yCol.min(), yCol.max()];
         try {
-          const quadtree          = cuspatial.Quadtree.new({
-            x: table.get(request.body.xAxisName),
-            y: table.get(request.body.yAxisName),
-            xMin,
-            xMax,
-            yMin,
-            yMax,
-            scale: 0,
-            maxDepth: 15,
-            minSize: 1e5
-          });
+          const quadtree = cuspatial.Quadtree.new(
+            {x: xCol, y: yCol, xMin, xMax, yMin, yMax, scale: 0, maxDepth: 15, minSize: 1e5});
           const quadtree_name     = request.params.table + '_quadtree';
           request.params.quadtree = quadtree_name
           const saved             = await fastify.cacheObject(quadtree_name, quadtree);
@@ -131,7 +119,7 @@ module.exports = async function(fastify, opts) {
 
   fastify.route({
     method: 'POST',
-    url: '/set_polygons_quadtree',
+    url: '/set_polygons',
     schema: {
       querystring: {
         name: {type: 'string'},
@@ -253,13 +241,14 @@ module.exports = async function(fastify, opts) {
         const polyPointPairs = quadtree.pointInPolygon(polygons);
         const resultPoints   = quadtree.points.gather(polyPointPairs.get('point_index'));
         const numPoints      = resultPoints.get('x').length
-        let result_col       = Series.sequence({size: numPoints * 2, step: 0, init: 0});
-        result_col           = result_col.scatter(resultPoints.get('x'),
+        let result_col =
+          Series.sequence({size: numPoints * 2, type: new Float32, step: 0, init: 0});
+        result_col   = result_col.scatter(resultPoints.get('x'),
                                         Series.sequence({size: numPoints, step: 2, init: 0}));
-        result_col           = result_col.scatter(resultPoints.get('y'),
+        result_col   = result_col.scatter(resultPoints.get('y'),
                                         Series.sequence({size: numPoints, step: 2, init: 1}));
-        result               = new DataFrame({'points_in_polygon': result_col})
-        const writer         = RecordBatchStreamWriter.writeAll(result.toArrow());
+        result       = new DataFrame({'points_in_polygon': result_col})
+        const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
         writer.close();
         await reply.code(200).send(writer.toNodeStream());
       } catch (e) {
