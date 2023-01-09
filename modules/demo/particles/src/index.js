@@ -112,7 +112,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     props.currentWorldCoords.xmax = newWorldCoords[8];
     props.currentWorldCoords.ymin = newWorldCoords[9];
     props.currentWorldCoords.ymax = newWorldCoords[1];
-    // fetchPoints(csvPath, props);
+    // fetchPoints(csvName, props);
   });
   window.addEventListener('mousedown', (event) => {
     /*
@@ -143,7 +143,7 @@ const {getScreenToWorldCoords} = require('./matrices');
       props.currentWorldCoords.xmax = newWorldCoords[8];
       props.currentWorldCoords.ymin = newWorldCoords[9];
       props.currentWorldCoords.ymax = newWorldCoords[1];
-      // fetchPoints(csvPath, props, newWorldCoords);
+      // fetchPoints(csvName, props, newWorldCoords);
     }
   });
 
@@ -166,17 +166,86 @@ const {getScreenToWorldCoords} = require('./matrices');
      */
     // body: '"NAD_30m.csv"',
     // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '{"filename": "shuffled.csv"}',
-    // body: '"NAD_Shuffled_100000.csv"',
+    body: '{"filename": "cartesian_10m.csv"}',
+    // body: '{"filename": "NAD_Shuffled_100000.csv"}',
   };
-  const FETCH_POINTS_URL     = '/particles/get_shader_column';
-  const FETCH_POINTS_OPTIONS = {
-    method: 'GET',
-    headers: {'access-control-allow-origin': '*', 'access-control-allow-headers': 'Content-Type'},
+
+  const createQuadtree = async (csvName, props) => {
+    /*
+      createQuadtree creates a quadtree from the points in props.points.
+      This is used to determine which points are in the current viewport
+      and which are not. This is used to determine which points to render
+      and which to discard.
+      */
+    const CREATE_QUADTREE_URL     = '/quadtree/create/';
+    const CREATE_QUADTREE_OPTIONS = {
+      method: 'POST',
+      headers: {
+        'access-control-allow-origin': '*',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: JSON.stringify({xAxisName: 'Longitude', yAxisName: 'Latitude'})
+    };
+    const result =
+      await fetch(SERVER + ':' + PORT + CREATE_QUADTREE_URL + csvName, CREATE_QUADTREE_OPTIONS)
+    const resultJson = await result.json()
+    return resultJson.params.quadtree;
+  };
+
+  const setPolygon = async (which, props) => {
+    /*
+      setPolygon is used to set the polygon for each of the four test quadrants
+      */
+    const quadrants = [
+      [-100, 40, -127, 40, -127, 49, -100, 49, -100, 40],
+      [-100, 40, -100, 49, -63, 49, -63, 40, -100, 40],
+      [-100, 40, -63, 40, -63, 25, -100, 25, -100, 40],
+      [-100, 40, -100, 25, -127, 25, -127, 40, -100, 40],
+      [-127, 25, -127, 49, -63, 49, -63, 25, -127, 25],
+      [-1000, 1000, 1000, -1000, 1000, 1000, -1000, 1000, -1000, 1000],
+    ];
+    const SET_POLYGONS_URL     = '/quadtree/set_polygons';
+    const SET_POLYGONS_OPTIONS = {
+      method: 'POST',
+      headers: {
+        'access-control-allow-origin': '*',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: JSON.stringify(
+        {name: 'test_quads', polygon_offset: [0, 1], ring_offset: [0, 5], points: quadrants[which]})
+    };
+    console.log(SET_POLYGONS_OPTIONS.body);
+    const result     = await fetch(SERVER + ':' + PORT + SET_POLYGONS_URL, SET_POLYGONS_OPTIONS)
+    const resultJson = await result.json();
+    return resultJson.params.name;
+  };
+
+  const fetchQuadrants = async (csvName, polygonName, props) => {
+    /*
+      fetchQuadrants is used to fetch the points along each of the four test
+      quadrants. This is used to test the performance of the quadtree.
+      */
+    const FETCH_QUADRANTS_URL     = '/quadtree/get_points/' + csvName + '/' + polygonName;
+    const FETCH_QUADRANTS_OPTIONS = {
+      method: 'GET',
+      headers: {'access-control-allow-origin': '*'},
+    };
+    const remotePoints =
+      await fetch(SERVER + ':' + PORT + FETCH_QUADRANTS_URL, FETCH_QUADRANTS_OPTIONS)
+    const arrowTable = await tableFromIPC(remotePoints);
+    const hostPoints = arrowTable.getChildAt(0).toArray();
+    return hostPoints;
   };
 
   const fetchPoints =
-    async (csvPath, props) => {
+    async (csvName, props) => {
+    const FETCH_POINTS_URL     = '/particles/get_shader_column';
+    const FETCH_POINTS_OPTIONS = {
+      method: 'GET',
+      headers: {'access-control-allow-origin': '*', 'access-control-allow-headers': 'Content-Type'},
+    };
     /*
      fetchPoints uses props.currentWorldCoords to request new display points as
      the viewport is changed.
@@ -196,7 +265,7 @@ const {getScreenToWorldCoords} = require('./matrices');
      Fetch path either fetches all points, or takes four additional path parameters
      for xmin, xmas, ymin, and ymax.
      */
-    let fetch_path = SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvPath;
+    let fetch_path = SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvName;
     if (props.currentWorldCoords.xmin !== undefined &&
         props.currentWorldCoords.xmax !== undefined &&
         props.currentWorldCoords.ymin !== undefined &&
@@ -225,20 +294,33 @@ const {getScreenToWorldCoords} = require('./matrices');
       // Try rendering in batches
       function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-      const batchSize = 1000000;
+      console.log(hostPoints.length);
       /* Loop over the same batches of points endlessly */
+      drawParticles({hostPoints: hostPoints, props});
+      /*
+      const batchSize = 1000000;
       let i = 0;
       while (true) {
         i           = (i + batchSize) % hostPoints.length;
         const batch = hostPoints.slice(i, i + batchSize);
-        await sleep(16);
+        await sleep(1000);
         drawParticles({hostPoints: batch, props});
       }
-      // points({hostPoints, props});
+      */
     } else {
       console.log('Unable to fetch');
       console.log(remotePoints);
     }
+  }
+
+  const fetchQuadtree =
+    async (csvName, props) => {
+    const quadtreeName = await createQuadtree(csvName, props);
+    const which        = 2;
+    const polygonName  = await setPolygon(which, props);
+    const hostPoints   = await fetchQuadrants(quadtreeName, polygonName, props);
+    console.log(hostPoints.length);
+    drawParticles({hostPoints: hostPoints, props});
   }
 
   /*
@@ -246,13 +328,14 @@ const {getScreenToWorldCoords} = require('./matrices');
 
    Then render the points that were loaded on the server, then render the background.
    */
-  var csvPath = undefined;
+  var csvName = undefined;
   try {
     const readCsvResultPromise = await fetch(SERVER + ':' + PORT + READ_CSV_URL, READ_CSV_OPTIONS);
     const readCsvResult        = await readCsvResultPromise.json()
-    csvPath                    = readCsvResult.params.filename;
-    fetchPoints(csvPath, props);
+    csvName                    = readCsvResult.params.filename;
     background(props);
+    // fetchQuadtree(csvName, props);
+    fetchPoints(csvName, props);
   } catch (e) { console.log(e); }
 })();
 

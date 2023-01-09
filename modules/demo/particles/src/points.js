@@ -37,7 +37,7 @@ let generatedHostPoints = [...numGenerator];
  */
 const VERT_SIZE            = 4 * (2)
 export const drawParticles = ({hostPoints, props}) => {
-  return regl({
+  const re = regl({
     vert: `
 precision mediump float;
 attribute vec2 pos;
@@ -71,5 +71,6 @@ void main() {
     },
     count: hostPoints.length / VERT_SIZE,
     primitive: 'points'
-  })(props)
+  });
+  return re(props);
 }
