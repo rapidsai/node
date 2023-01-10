@@ -37,6 +37,8 @@ let generatedHostPoints = [...numGenerator];
  */
 const VERT_SIZE            = 4 * (2)
 export const drawParticles = ({hostPoints, props}) => {
+  const buffer = regl.buffer({usage: 'dynamic', length: hostPoints.length * 4});
+  buffer.subdata(hostPoints);
   const re = regl({
     vert: `
 precision mediump float;
@@ -61,7 +63,7 @@ void main() {
   gl_FragColor = vec4(fragColor, 0.5);
 }`,
     attributes: {
-      pos: {buffer: regl.buffer(hostPoints), stride: VERT_SIZE, offset: 0},
+      pos: {buffer: regl.buffer(hostPoints), stride: 8, offset: 0},
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
@@ -69,8 +71,9 @@ void main() {
       projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
-    count: hostPoints.length / VERT_SIZE,
+    count: hostPoints.length,
     primitive: 'points'
   });
+  console.log(hostPoints);
   return re(props);
 }

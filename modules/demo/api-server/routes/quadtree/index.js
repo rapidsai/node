@@ -94,8 +94,12 @@ module.exports = async function(fastify, opts) {
         result.message = 'Table not found';
         await reply.code(404).send(result);
       } else {
-        xCol                           = table.get(request.body.xAxisName).cast(new Float64);
-        yCol                           = table.get(request.body.yAxisName).cast(new Float64);
+        xCol = table.get(request.body.xAxisName).cast(new Float64);
+        yCol = table.get(request.body.yAxisName).cast(new Float64);
+        /*
+        xCol                           = Series.new([-105, -105, -106, -106]);
+        yCol                           = Series.new([40, 41, 41, 40]);
+        */
         const [xMin, xMax, yMin, yMax] = [xCol.min(), xCol.max(), yCol.min(), yCol.max()];
         try {
           const quadtree = cuspatial.Quadtree.new(

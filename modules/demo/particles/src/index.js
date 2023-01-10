@@ -166,7 +166,7 @@ const {getScreenToWorldCoords} = require('./matrices');
      */
     // body: '"NAD_30m.csv"',
     // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '{"filename": "cartesian_10m.csv"}',
+    body: '{"filename": "shuffled.csv"}',
     // body: '{"filename": "NAD_Shuffled_100000.csv"}',
   };
 
@@ -198,18 +198,18 @@ const {getScreenToWorldCoords} = require('./matrices');
       setPolygon is used to set the polygon for each of the four test quadrants
       */
     const quadrants = [
-      [-100, 40, -127, 40, -127, 49, -100, 49, -100, 40],
-      [-100, 40, -100, 49, -63, 49, -63, 40, -100, 40],
-      [-100, 40, -63, 40, -63, 25, -100, 25, -100, 40],
-      [-100, 40, -100, 25, -127, 25, -127, 40, -100, 40],
+      [-105, 40, -127, 40, -127, 49, -105, 49, -105, 40],
+      [-105, 40, -105, 49, -63, 49, -63, 40, -105, 40],
+      [-105, 40, -63, 40, -63, 25, -105, 25, -105, 40],
+      [-105, 40, -105, 25, -127, 25, -127, 40, -105, 40],
       [-127, 25, -127, 49, -63, 49, -63, 25, -127, 25],
-      [-1000, 1000, 1000, -1000, 1000, 1000, -1000, 1000, -1000, 1000],
+      [-1000, -1000, -1000, 1000, 1000, 1000, 1000, -1000, -1000, -1000],
     ];
     const SET_POLYGONS_URL     = '/quadtree/set_polygons';
     const SET_POLYGONS_OPTIONS = {
       method: 'POST',
       headers: {
-        'access-control-allow-origin': '*',
+        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
         'Access-Control-Allow-Headers': 'Content-Type'
       },
@@ -316,11 +316,15 @@ const {getScreenToWorldCoords} = require('./matrices');
   const fetchQuadtree =
     async (csvName, props) => {
     const quadtreeName = await createQuadtree(csvName, props);
-    const which        = 2;
-    const polygonName  = await setPolygon(which, props);
-    const hostPoints   = await fetchQuadrants(quadtreeName, polygonName, props);
-    console.log(hostPoints.length);
-    drawParticles({hostPoints: hostPoints, props});
+    for (let i = 0; i < 400; i++) {
+      const which       = i % 6;
+      const polygonName = await setPolygon(which, props);
+      const hostPoints  = await fetchQuadrants(quadtreeName, polygonName, props);
+      console.log(hostPoints.length);
+      drawParticles({hostPoints: hostPoints, props});
+      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+      await sleep(1000);
+    }
   }
 
   /*
@@ -334,8 +338,8 @@ const {getScreenToWorldCoords} = require('./matrices');
     const readCsvResult        = await readCsvResultPromise.json()
     csvName                    = readCsvResult.params.filename;
     background(props);
-    // fetchQuadtree(csvName, props);
-    fetchPoints(csvName, props);
+    fetchQuadtree(csvName, props);
+    // fetchPoints(csvName, props);
   } catch (e) { console.log(e); }
 })();
 
