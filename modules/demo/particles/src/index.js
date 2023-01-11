@@ -297,7 +297,8 @@ const {getScreenToWorldCoords} = require('./matrices');
 
       console.log(hostPoints.length);
       /* Loop over the same batches of points endlessly */
-      drawParticles({hostPoints: hostPoints, props});
+      const points = await drawParticles({hostPoints: hostPoints, props});
+      points(props);
       /*
       const batchSize = 1000000;
       let i = 0;
@@ -352,7 +353,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     const readCsvResult        = await readCsvResultPromise.json()
     csvName                    = readCsvResult.params.filename;
     background(props);
-    const engine = particlesEngine(props);
+    // const engine = particlesEngine(props);
     // fetchQuadtreeWithEngine(csvName, engine, props);
     // fetchQuadtree(csvName, props);
     fetchPoints(csvName, props);

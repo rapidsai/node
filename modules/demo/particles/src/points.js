@@ -36,11 +36,11 @@ let generatedHostPoints = [...numGenerator];
  A constant that defines the stride of the input buffer for rendering.
  */
 export const drawParticles =
-  ({hostPoints, props}) => {
-    const buffer = regl.buffer({usage: 'dynamic', length: hostPoints.length * 4});
-    buffer.subdata(hostPoints);
-    const re = regl({
-      vert: `
+  async ({hostPoints, props}) => {
+  const buffer = regl.buffer({usage: 'dynamic', length: hostPoints.length * 4});
+  buffer.subdata(hostPoints);
+  const re = regl({
+    vert: `
 precision mediump float;
 attribute vec2 pos;
 uniform float scale;
@@ -53,7 +53,7 @@ void main() {
   gl_Position = projection * view * vec4(position, 1, 1);
   fragColor = vec3(0, 0, 0);
 }`,
-      frag: `
+    frag: `
 precision lowp float;
 varying vec3 fragColor;
 void main() {
@@ -62,26 +62,25 @@ void main() {
   }
   gl_FragColor = vec4(fragColor, 0.5);
 }`,
-      attributes: {
-        pos: {buffer: regl.buffer(hostPoints), stride: 8, offset: 0},
-      },
-      uniforms: {
-        view: ({tick}, props)  => getPointsViewMatrix(props),
-        scale: ({tick}, props) => { return Math.max(1.5, -props.zoomLevel); },
-        projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
-        time: ({tick})                                => tick * 0.001
-      },
-      count: hostPoints.length,
-      primitive: 'points'
-    });
-    console.log(hostPoints);
-    return re(props);
-  }
+    attributes: {
+      pos: {buffer: regl.buffer(hostPoints), stride: 8, offset: 0},
+    },
+    uniforms: {
+      view: ({tick}, props)  => getPointsViewMatrix(props),
+      scale: ({tick}, props) => { return Math.max(1.5, -props.zoomLevel); },
+      projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
+      time: ({tick})                                => tick * 0.001
+    },
+    count: hostPoints.length,
+    primitive: 'points'
+  });
+  return re;
+}
 
-export const drawBuffer =
-  (buffer, props) => {
-    const re = regl({
-      vert: `
+const drawBuffer =
+  async (buffer, props) => {
+  const re = regl({
+    vert: `
 precision mediump float;
 attribute vec2 pos;
 uniform float scale;
@@ -94,7 +93,7 @@ void main() {
   gl_Position = projection * view * vec4(position, 1, 1);
   fragColor = vec3(0, 0, 0);
 }`,
-      frag: `
+    frag: `
 precision lowp float;
 varying vec3 fragColor;
 void main() {
@@ -103,32 +102,32 @@ void main() {
   }
   gl_FragColor = vec4(fragColor, 0.5);
 }`,
-      attributes: {
-        pos: {buffer: buffer, stride: 8, offset: 0},
-      },
-      uniforms: {
-        view: ({tick}, props)  => getPointsViewMatrix(props),
-        scale: ({tick}, props) => { return Math.max(1.5, -props.zoomLevel); },
-        projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
-        time: ({tick})                                => tick * 0.001
-      },
-      count: 4,
-      primitive: 'points'
-    });
-    return re;
-  }
+    attributes: {
+      pos: {buffer: buffer, stride: 8, offset: 0},
+    },
+    uniforms: {
+      view: ({tick}, props)  => getPointsViewMatrix(props),
+      scale: ({tick}, props) => { return Math.max(1.5, -props.zoomLevel); },
+      projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
+      time: ({tick})                                => tick * 0.001
+    },
+    count: 4,
+    primitive: 'points'
+  });
+  return re;
+}
 
-export const particlesEngine = (props) => {
+export const particlesEngine = async (props) => {
   const buffer = regl.buffer({usage: 'dynamic', length: props.pointBudget * 8});
   let assigned = 0;
   buffer.subdata([-105, 40, -106, 40, -106, 41, -105, 41], 0);
-  const particles = drawBuffer(buffer, props);
+  const particles = await drawBuffer(buffer, props);
   const tick      = regl.frame(() => {
     regl.clear({depth: 1, color: [0, 0, 0, 0]});
     particles(props);
   });
 
-  const subdata = (hostPoints, range) => {
+  const subdata = async (hostPoints, range) => {
     buffer.subdata(hostPoints, range);
     assigned = assigned + hostPoints.length;
   };
