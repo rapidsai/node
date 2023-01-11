@@ -89,6 +89,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
     fetching: false,
     pointBudget: 250000,
+    displayPointCount: 0,
   };
 
   /*
@@ -315,6 +316,28 @@ const {getScreenToWorldCoords} = require('./matrices');
     }
   }
 
+  const fetchPointsWithEngine = async (csvName, engine, props) => {
+    const FETCH_POINTS_URL     = '/particles/get_shader_column';
+    const FETCH_POINTS_OPTIONS = {
+      method: 'GET',
+      headers: {'access-control-allow-origin': '*', 'access-control-allow-headers': 'Content-Type'},
+    };
+    let fetch_path     = SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvName;
+    const remotePoints = await fetch(fetch_path, FETCH_POINTS_OPTIONS);
+    if (remotePoints.ok) {
+      const arrowTable = await tableFromIPC(remotePoints);
+      const hostPoints = arrowTable.getChild('gpu_buffer').toArray();
+      console.log('Fetched ' + hostPoints.length / 2 + ' points.');
+      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+      console.log(engine);
+      console.log(hostPoints);
+      await engine.subdata(hostPoints);
+    } else {
+      console.log('Unable to fetch');
+      console.log(remotePoints);
+    }
+  };
+
   const fetchQuadtree =
     async (csvName, props) => {
     const quadtreeName = await createQuadtree(csvName, props);
@@ -333,10 +356,11 @@ const {getScreenToWorldCoords} = require('./matrices');
     async (csvName, engine, props) => {
     const quadtreeName = await createQuadtree(csvName, props);
     for (let i = 0; i < 400; i++) {
-      const which       = i % 6;
-      const polygonName = await setPolygon(which, props);
-      const hostPoints  = await fetchQuadrants(quadtreeName, polygonName, props);
-      engine.subdata(hostPoints, 0, props);
+      const which             = i % 6;
+      const polygonName       = await setPolygon(which, props);
+      const hostPoints        = await fetchQuadrants(quadtreeName, polygonName, props);
+      props.displayPointCount = hostPoints.length;
+      engine.subdata(hostPoints);
       function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
       await sleep(1000);
     }
@@ -353,10 +377,11 @@ const {getScreenToWorldCoords} = require('./matrices');
     const readCsvResult        = await readCsvResultPromise.json()
     csvName                    = readCsvResult.params.filename;
     background(props);
-    // const engine = particlesEngine(props);
-    // fetchQuadtreeWithEngine(csvName, engine, props);
+    const engine = await particlesEngine(props);
+    // fetchPointsWithEngine(csvName, engine, props);
+    fetchQuadtreeWithEngine(csvName, engine, props);
     // fetchQuadtree(csvName, props);
-    fetchPoints(csvName, props);
+    // fetchPoints(csvName, props);
   } catch (e) { console.log(e); }
 })();
 
