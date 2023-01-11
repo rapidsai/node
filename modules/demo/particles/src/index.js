@@ -168,7 +168,7 @@ const {getScreenToWorldCoords} = require('./matrices');
      */
     // body: '"NAD_30m.csv"',
     // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '{"filename": "cartesian_250k.csv"}',
+    body: '{"filename": "shuffled.csv"}',
     // body: '{"filename": "NAD_Shuffled_100000.csv"}',
   };
 
@@ -346,23 +346,24 @@ const {getScreenToWorldCoords} = require('./matrices');
       const polygonName = await setPolygon(which, props);
       const hostPoints  = await fetchQuadrants(quadtreeName, polygonName, props);
       console.log(hostPoints.length);
-      drawParticles({hostPoints: hostPoints, props});
-      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-      await sleep(1000);
+      const points = await drawParticles({hostPoints: hostPoints, props});
+      points(props);
+      // function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+      // await sleep(1000);
     }
   }
 
   const fetchQuadtreeWithEngine =
     async (csvName, engine, props) => {
     const quadtreeName = await createQuadtree(csvName, props);
-    for (let i = 0; i < 400; i++) {
-      const which             = i % 6;
+    let i              = 0;
+    while (true) {
+      const which = i % 6;
+      i++;
       const polygonName       = await setPolygon(which, props);
       const hostPoints        = await fetchQuadrants(quadtreeName, polygonName, props);
       props.displayPointCount = hostPoints.length;
       engine.subdata(hostPoints);
-      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-      await sleep(1000);
     }
   }
 

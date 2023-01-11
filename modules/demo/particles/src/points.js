@@ -119,11 +119,9 @@ void main() {
 
 export const particlesEngine = async (props) => {
   const buffer = regl.buffer({usage: 'stream', type: 'float', length: props.pointBudget * 8});
-
-  const tick = regl.frame(async () => {
+  const tick   = regl.frame(async () => {
     regl.clear({depth: 1, color: [0, 0, 0, 0]});
     const particles = await drawBuffer(buffer, props);
-    console.log(props.displayPointCount);
     particles(props);
   });
 
