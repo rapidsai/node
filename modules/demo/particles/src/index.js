@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 
 import App from './App';
 import background from './background';
-const {drawParticles} = require('./points');
+const {drawParticles, particlesEngine} = require('./points');
 
 const {tableFromIPC}           = require('apache-arrow');
 const mat4                     = require('gl-mat4');
@@ -87,7 +87,8 @@ const {getScreenToWorldCoords} = require('./matrices');
     centerX: document.documentElement.clientWidth / 2.0,
     centerY: document.documentElement.clientHeight / 2.0,
     currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
-    fetching: false
+    fetching: false,
+    pointBudget: 250000,
   };
 
   /*
@@ -166,7 +167,7 @@ const {getScreenToWorldCoords} = require('./matrices');
      */
     // body: '"NAD_30m.csv"',
     // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '{"filename": "shuffled.csv"}',
+    body: '{"filename": "cartesian_250k.csv"}',
     // body: '{"filename": "NAD_Shuffled_100000.csv"}',
   };
 
@@ -327,6 +328,19 @@ const {getScreenToWorldCoords} = require('./matrices');
     }
   }
 
+  const fetchQuadtreeWithEngine =
+    async (csvName, engine, props) => {
+    const quadtreeName = await createQuadtree(csvName, props);
+    for (let i = 0; i < 400; i++) {
+      const which       = i % 6;
+      const polygonName = await setPolygon(which, props);
+      const hostPoints  = await fetchQuadrants(quadtreeName, polygonName, props);
+      engine.subdata(hostPoints, 0, props);
+      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+      await sleep(1000);
+    }
+  }
+
   /*
    Send the initial request to load the csv file on the server.
 
@@ -338,7 +352,9 @@ const {getScreenToWorldCoords} = require('./matrices');
     const readCsvResult        = await readCsvResultPromise.json()
     csvName                    = readCsvResult.params.filename;
     background(props);
-    fetchQuadtree(csvName, props);
+    const engine = particlesEngine(props);
+    fetchQuadtreeWithEngine(csvName, engine, props);
+    // fetchQuadtree(csvName, props);
     // fetchPoints(csvName, props);
   } catch (e) { console.log(e); }
 })();
