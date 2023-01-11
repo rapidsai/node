@@ -353,9 +353,9 @@ const {getScreenToWorldCoords} = require('./matrices');
     csvName                    = readCsvResult.params.filename;
     background(props);
     const engine = particlesEngine(props);
-    fetchQuadtreeWithEngine(csvName, engine, props);
+    // fetchQuadtreeWithEngine(csvName, engine, props);
     // fetchQuadtree(csvName, props);
-    // fetchPoints(csvName, props);
+    fetchPoints(csvName, props);
   } catch (e) { console.log(e); }
 })();
 

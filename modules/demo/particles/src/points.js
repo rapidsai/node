@@ -80,7 +80,7 @@ void main() {
 
 export const drawBuffer =
   (buffer, props) => {
-    const re   = regl({
+    const re = regl({
       vert: `
 precision mediump float;
 attribute vec2 pos;
@@ -90,7 +90,7 @@ uniform mat4 view, projection;
 varying vec3 fragColor;
 void main() {
   vec2 position = pos.xy;
-  gl_PointSize = scale;
+  gl_PointSize = scale * 10.0;
   gl_Position = projection * view * vec4(position, 1, 1);
   fragColor = vec3(0, 0, 0);
 }`,
@@ -112,18 +112,21 @@ void main() {
         projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
         time: ({tick})                                => tick * 0.001
       },
-      count: buffer.length / 4,
+      count: 4,
       primitive: 'points'
     });
-    const tick = re.frame(() => { re(props); });
     return re;
   }
 
 export const particlesEngine = (props) => {
-  const buffer    = regl.buffer({usage: 'dynamic', length: props.pointBudget * 8});
-  let assigned    = 0;
+  const buffer = regl.buffer({usage: 'dynamic', length: props.pointBudget * 8});
+  let assigned = 0;
+  buffer.subdata([-105, 40, -106, 40, -106, 41, -105, 41], 0);
   const particles = drawBuffer(buffer, props);
-  particles(props);
+  const tick      = regl.frame(() => {
+    regl.clear({depth: 1, color: [0, 0, 0, 0]});
+    particles(props);
+  });
 
   const subdata = (hostPoints, range) => {
     buffer.subdata(hostPoints, range);
