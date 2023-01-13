@@ -259,4 +259,64 @@ module.exports = async function(fastify, opts) {
       }
     }
   });
+
+  fastify.route({
+    method: 'GET',
+    url: '/:quadtree/:polygon/count',
+    schema: {querystring: {quadtree: {type: 'string'}, polygon: {type: 'string'}}},
+    handler: async (request, reply) => {
+      /**
+       * @api {get} /quadtree/:quadtree/:polygon/count Count Points
+       * @apiName CountPoints
+       * @apiGroup Quadtree
+       * @apiDescription This API returns uses the quadtree to return only the points that are in
+       * the polygon.
+       * @apiParam {String} quadtree Name of quadtree created with /quadtree/create/:table
+       * @apiParam {String} polygon Name of polygon created with /quadtree/set_polygons_quadtree
+       * @apiParamExample {json} Request-Example:
+       * {
+       *   "quadtree": "test_quadtree",
+       *   "polygon": "test_polygon"
+       * }
+       * @apiSuccessExample {json} Success-Response:
+       * {
+       *   "count": 100
+       * }
+       * @apiErrorExample {json} Error-Response:
+       * {
+       *   "params": {
+       *     "quadtree": "test_quadtree",
+       *     "polygon": "test_polygon"
+       *   },
+       *   "success": false,
+       *   "message": "Error"
+       * }
+       */
+      let message = 'Error';
+      let result  = {'params': request.params, success: false, message: message};
+      try {
+        const quadtree = await fastify.getData(request.params.quadtree);
+        const {polygon_offset, ring_offset, points} = await fastify.getData(request.params.polygon);
+        const data                                  = await fastify.listDataframes();
+        const pts                                   = cuspatial.makePoints(
+          points.gather(Series.sequence({size: points.length, step: 2, init: 0})),
+          points.gather(Series.sequence({size: points.length, step: 2, init: 1})));
+        const polylines = cuspatial.makePolylines(pts, ring_offset);
+        const polygons  = cuspatial.makePolygons(polylines, polygon_offset);
+        // TODO: This is a good place to put the polygons object into the cache,
+        // and check for it before creating it. Is it worth benchmarking?
+        const polyPointPairs = quadtree.pointInPolygon(polygons);
+        result.count         = polyPointPairs.get('point_index').length;
+        result.message       = 'Counted points in polygon';
+        result.success       = true;
+        result.statusCode    = 200;
+        await reply.code(200).send(result);
+      } catch (e) {
+        result.message    = e;
+        result.success    = false;
+        result.statusCode = 500;
+        await reply.code(result.statusCode).send(result);
+      }
+    }
+  });
 }

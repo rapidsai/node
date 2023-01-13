@@ -99,6 +99,52 @@ const schema = {
         return: 'Returns an Arrow stream of lon/lat values as a Table containing a single column.'
       }
     }
+  },
+  quadtree: {
+    description: 'The API responsible for making quadtree API server requests.',
+    schema: {
+      'create/:table': {
+        method: 'POST',
+        params: {':table': 'The name of the CSV file previously loaded with `DataFrame/readCSV`'},
+        result: 'Create a quadtree from the table specified by :table.',
+        return: {
+          '200': 'Quadtree created successfully.',
+          '404': 'Table not found.',
+          '500': 'Quadtree creation failed.'
+        }
+      },
+      'set_polygons': {
+        method: 'POST',
+        params: {
+          'name': 'The name of the polygon set.',
+          'points': 'A list of points that define the polygons.',
+          'polygon_offset': 'The GeoArrow offset defining the polygons in the points list.',
+          'ring_offset':
+            'The GeoArrow offset defining the rings of the polygons in the points list.',
+        },
+        result: 'Create a polygon set from the points specified.',
+        return: {'200': 'Polygon set created successfully.', '500': 'Polygon set creation failed.'}
+      },
+      'get_points/:quadtree/:polygon': {
+        method: 'GET',
+        params: {
+          ':quadtree': 'The name of the quadtree previously created with `quadtree/create`',
+          ':polygon': 'The name of the polygon set previously created with `quadtree/set_polygons`'
+        },
+        result: 'Returns the points that are contained within the polygons specified by :polygon.',
+        return: 'Returns an Arrow stream of points that are contained within the polygons.'
+      },
+      ':quadtree/:polygon/count': {
+        method: 'GET',
+        params: {
+          ':quadtree': 'The name of the quadtree previously created with `quadtree/create`',
+          ':polygon': 'The name of the polygon set previously created with `quadtree/set_polygons`'
+        },
+        result:
+          'Returns the number of points that are contained within the polygons specified by :polygon.',
+        return: {count: 'The number of points that are contained within the polygons.'}
+      }
+    }
   }
 };
 

@@ -67,7 +67,7 @@ test('quadtree/set_polygons', async (t) => {
   })
 });
 
-test('quadtree/get_points_int', {only: true}, async (t) => {
+test('quadtree/get_points_float', async (t) => {
   const dir   = t.testdir(csv_quadtree);
   const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
   const app   = await build(t);
@@ -102,7 +102,7 @@ test('quadtree/get_points_int', {only: true}, async (t) => {
   t.same(expected, got);
 });
 
-test('quadtree/get_points_int', {only: true}, async (t) => {
+test('quadtree/get_points_int', async (t) => {
   const dir   = t.testdir(csv_quadtree);
   const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
   const app   = await build(t);
@@ -135,4 +135,43 @@ test('quadtree/get_points_int', {only: true}, async (t) => {
   const got           = table.getChild('points_in_polygon').toArray();
   const expected      = [1, -1, -1, 1, 0, 0];
   t.same(expected, got);
+});
+
+test('quadtree/:quadtree/:polygon/count', async (t) => {
+  const dir   = t.testdir(csv_quadtree);
+  const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
+  const app   = await build(t);
+  gpu_cache._setPathForTesting(rpath);
+  const load = await app.inject(
+    {method: 'POST', url: '/gpu/DataFrame/readCSV', body: {filename: 'csv_quadtree.csv'}});
+  const create        = await app.inject({
+    method: 'POST',
+    url: '/quadtree/create/csv_quadtree.csv',
+    body: {xAxisName: 'x', yAxisName: 'y'}
+  });
+  const quadtree_name = JSON.parse(create.payload).params.quadtree;
+  const set_poly      = await app.inject({
+    method: 'POST',
+    url: '/quadtree/set_polygons',
+    body: {
+      name: 'test',
+      polygon_offset: [0, 1],
+      ring_offset: [0, 4],
+      points: [-2, -2, -2, 2, 2, 2, 2, -2]
+    }
+  });
+  const polygons_name = JSON.parse(set_poly.payload).params.name;
+  const res           = await app.inject({
+    method: 'GET',
+    url: 'quadtree/' + quadtree_name + '/' + polygons_name + '/count',
+  })
+  const release       = await app.inject({method: 'POST', url: '/gpu/release'});
+  const result        = JSON.parse(res.payload);
+  t.same(result, {
+    statusCode: 200,
+    message: 'Counted points in polygon',
+    params: {quadtree: quadtree_name, polygon: polygons_name},
+    count: 3,
+    success: true
+  })
 });
