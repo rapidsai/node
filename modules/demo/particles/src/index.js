@@ -197,18 +197,20 @@ const {getScreenToWorldCoords} = require('./matrices');
 
   function separateCircle(radius) {
     const polygons = [];
+    const centerX  = -105;
+    const centerY  = 39.73;
     for (let i = 0; i < 144; i++) {
       const angle1 = (i * 2.5) / 45 * Math.PI;
       const angle2 = (i * 2.5 + 2.5) / 45 * Math.PI;
       const points = [
-        -105,
-        40,
-        radius * Math.cos(angle1) - 105,
-        radius * Math.sin(angle1) + 40,
-        radius * Math.cos(angle2) - 105,
-        radius * Math.sin(angle2) + 40,
-        -105,
-        40
+        centerX,
+        centerY,
+        radius * Math.cos(angle1) + centerX,
+        radius * Math.sin(angle1) + centerY,
+        radius * Math.cos(angle2) + centerX,
+        radius * Math.sin(angle2) + centerY,
+        centerX,
+        centerY
       ];
       polygons.push(points);
     }
