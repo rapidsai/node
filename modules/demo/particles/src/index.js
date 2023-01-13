@@ -7,7 +7,8 @@ import ReactDOM from 'react-dom';
 
 import App from './App';
 import background from './background';
-const {drawParticles, particlesEngine} = require('./points');
+const {drawParticles, particlesEngine}                         = require('./points');
+const {getQuadtreePoints, setPolygon, readCsv, createQuadtree} = require('./requests');
 
 const {tableFromIPC}           = require('apache-arrow');
 const mat4                     = require('gl-mat4');
@@ -149,52 +150,6 @@ const {getScreenToWorldCoords} = require('./matrices');
     }
   });
 
-  /*
-   Client config
-   */
-  const SERVER           = 'http://localhost';
-  const PORT             = '3010';
-  const READ_CSV_URL     = '/gpu/DataFrame/readCSV';
-  const READ_CSV_OPTIONS = {
-    method: 'POST',
-    headers: {
-      'access-control-allow-origin': '*',
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    },
-    /*
-     Different data files to choose from for client. This would
-     be great to have a widget or text field for entry. TODO
-     */
-    // body: '"NAD_30m.csv"',
-    // body: '"NAD_State_ZIP_LonLat.csv"',
-    body: '{"filename": "shuffled.csv"}',
-    // body: '{"filename": "NAD_Shuffled_100000.csv"}',
-  };
-
-  const createQuadtree = async (csvName, props) => {
-    /*
-      createQuadtree creates a quadtree from the points in props.points.
-      This is used to determine which points are in the current viewport
-      and which are not. This is used to determine which points to render
-      and which to discard.
-      */
-    const CREATE_QUADTREE_URL     = '/quadtree/create/';
-    const CREATE_QUADTREE_OPTIONS = {
-      method: 'POST',
-      headers: {
-        'access-control-allow-origin': '*',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
-      body: JSON.stringify({xAxisName: 'Longitude', yAxisName: 'Latitude'})
-    };
-    const result =
-      await fetch(SERVER + ':' + PORT + CREATE_QUADTREE_URL + csvName, CREATE_QUADTREE_OPTIONS)
-    const resultJson = await result.json()
-    return resultJson.params.quadtree;
-  };
-
   function separateCircle(radius) {
     const polygons = [];
     const centerX  = -105;
@@ -217,108 +172,34 @@ const {getScreenToWorldCoords} = require('./matrices');
     return polygons;
   }
 
-  const makeQuads = async (rect, depth, props) => {
-    if (depth < 3) {
-      let newQuads = [];
-      for (let i = 0; i < 4; i++) {
-        const newQuad = await makeQuads(rect, depth + 1, props);
-        newQuads      = newQuads.concat(newQuad);
-      }
-      return newQuads;
-    } else {
-      const newQuads = [
-        [rect[0], rect[1], (rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2],
-        [(rect[0] + rect[2]) / 2, rect[1], rect[2], (rect[1] + rect[3]) / 2],
-        [rect[0], (rect[1] + rect[3]) / 2, (rect[0] + rect[2]) / 2, rect[3]],
-        [(rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2, rect[2], rect[3]]
-      ];
-      return newQuads;
-    }
-  };
-
-  const setPolygon = async (which, props) => {
-    /*
-      setPolygon is used to set the polygon for each of the four test quadrants
-      */
-    const quadrants = [
-      [-105, 40, -127, 40, -127, 49, -105, 49, -105, 40],
-      [-105, 40, -105, 49, -63, 49, -63, 40, -105, 40],
-      [-105, 40, -63, 40, -63, 25, -105, 25, -105, 40],
-      [-105, 40, -105, 25, -127, 25, -127, 40, -105, 40],
-      [-127, 25, -127, 49, -63, 49, -63, 25, -127, 25],
-      [-1000, -1000, -1000, 1000, 1000, 1000, 1000, -1000, -1000, -1000],
-    ];
-    const circleSlices         = separateCircle(40);
-    const SET_POLYGONS_URL     = '/quadtree/set_polygons';
-    const SET_POLYGONS_OPTIONS = {
-      method: 'POST',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
-      body: JSON.stringify({
-        name: 'test_quads',
-        polygon_offset: [0, 1],
-        ring_offset: [0, circleSlices[which].length],
-        points: circleSlices[which]
-      })
-    };
-    console.log(SET_POLYGONS_OPTIONS.body);
-    const result     = await fetch(SERVER + ':' + PORT + SET_POLYGONS_URL, SET_POLYGONS_OPTIONS)
-    const resultJson = await result.json();
-    return resultJson.params.name;
-  };
-
-  const fetchQuadrants = async (csvName, polygonName, props) => {
-    /*
-      fetchQuadrants is used to fetch the points along each of the four test
-      quadrants. This is used to test the performance of the quadtree.
-      */
-    const FETCH_QUADRANTS_URL     = '/quadtree/get_points/' + csvName + '/' + polygonName;
-    const FETCH_QUADRANTS_OPTIONS = {
-      method: 'GET',
-      headers: {'access-control-allow-origin': '*'},
-    };
-    const remotePoints =
-      await fetch(SERVER + ':' + PORT + FETCH_QUADRANTS_URL, FETCH_QUADRANTS_OPTIONS)
-    const arrowTable = await tableFromIPC(remotePoints);
-    const hostPoints = arrowTable.getChildAt(0).toArray();
-    return hostPoints;
-  };
+  /*const quadrants = [
+    [-105, 40, -127, 40, -127, 49, -105, 49, -105, 40],
+    [-105, 40, -105, 49, -63, 49, -63, 40, -105, 40],
+    [-105, 40, -63, 40, -63, 25, -105, 25, -105, 40],
+    [-105, 40, -105, 25, -127, 25, -127, 40, -105, 40],
+    [-127, 25, -127, 49, -63, 49, -63, 25, -127, 25],
+    [-1000, -1000, -1000, 1000, 1000, 1000, 1000, -1000, -1000, -1000],
+  ];
+  const circleSlices         = separateCircle(40);
+  */
 
   const fetchPoints = async (csvName, engine, props) => {
-    const FETCH_POINTS_URL     = '/particles/get_shader_column';
-    const FETCH_POINTS_OPTIONS = {
-      method: 'GET',
-      headers: {'access-control-allow-origin': '*', 'access-control-allow-headers': 'Content-Type'},
-    };
-    let fetch_path     = SERVER + ':' + PORT + FETCH_POINTS_URL + '/' + csvName;
-    const remotePoints = await fetch(fetch_path, FETCH_POINTS_OPTIONS);
-    if (remotePoints.ok) {
-      const arrowTable = await tableFromIPC(remotePoints);
-      const hostPoints = arrowTable.getChild('gpu_buffer').toArray();
-      function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-      engine.subdata(hostPoints, props);
-    } else {
-      console.log('Unable to fetch');
-      console.log(remotePoints);
-    }
+    const hostPoints = await fetchPoints(csvName);
+    engine.subdata(hostPoints, props);
   };
 
-  const fetchQuadtree =
-    async (csvName, engine, props) => {
-    const quadtreeName = await createQuadtree(csvName, props);
+  const fetchQuadtree = async (csvName, engine, props) => {
+    const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
     let i              = 0;
+    const polygons     = separateCircle(40);
     while (true) {
       const which = i % 36;
       i++;
-      const polygonName = await setPolygon(which, props);
-      const hostPoints  = await fetchQuadrants(quadtreeName, polygonName, props);
+      const polygonName = await setPolygon('p1', polygons[which]);
+      const hostPoints  = await getQuadtreePoints(quadtreeName, polygonName);
       engine.subdata(hostPoints, props);
     }
-  }
-
+  };
   /*
    Send the initial request to load the csv file on the server.
 
@@ -326,11 +207,9 @@ const {getScreenToWorldCoords} = require('./matrices');
    */
   var csvName = undefined;
   try {
-    const readCsvResultPromise = await fetch(SERVER + ':' + PORT + READ_CSV_URL, READ_CSV_OPTIONS);
-    const readCsvResult        = await readCsvResultPromise.json()
-    csvName                    = readCsvResult.params.filename;
     background(props);
-    const engine = await particlesEngine(props);
+    const csvName = await readCsv('shuffled.csv');
+    const engine  = await particlesEngine(props);
     // fetchPoints(csvName, engine, props);
     fetchQuadtree(csvName, engine, props);
   } catch (e) { console.log(e); }
