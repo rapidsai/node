@@ -175,3 +175,37 @@ test('quadtree/:quadtree/:polygon/count', async (t) => {
     success: true
   })
 });
+
+test('quadtree/:quadtree/:polygon/:n', {only: true}, async (t) => {
+  const dir   = t.testdir(csv_quadtree);
+  const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
+  const app   = await build(t);
+  gpu_cache._setPathForTesting(rpath);
+  const load = await app.inject(
+    {method: 'POST', url: '/gpu/DataFrame/readCSV', body: {filename: 'csv_quadtree.csv'}});
+  const create        = await app.inject({
+    method: 'POST',
+    url: '/quadtree/create/csv_quadtree.csv',
+    body: {xAxisName: 'x', yAxisName: 'y'}
+  });
+  const quadtree_name = JSON.parse(create.payload).params.quadtree;
+  const set_poly      = await app.inject({
+    method: 'POST',
+    url: '/quadtree/set_polygons',
+    body: {
+      name: 'test',
+      polygon_offset: [0, 1],
+      ring_offset: [0, 4],
+      points: [-2, -2, -2, 2, 2, 2, 2, -2]
+    }
+  });
+  const polygons_name = JSON.parse(set_poly.payload).params.name;
+  const res           = await app.inject({
+    method: 'GET',
+    url: 'quadtree/get_points/' + quadtree_name + '/' + polygons_name + '/2',
+  })
+  const release       = await app.inject({method: 'POST', url: '/gpu/release'});
+  const table         = tableFromIPC(res.rawPayload);
+  const got           = table.getChild('points_in_polygon').toArray();
+  const expected      = [1.0, -1.0, -1.0, 1.0];
+});

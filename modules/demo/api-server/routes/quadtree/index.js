@@ -192,6 +192,79 @@ module.exports = async function(fastify, opts) {
 
   fastify.route({
     method: 'GET',
+    url: '/get_points/:quadtree/:polygon/:n',
+    schema:
+      {querystring: {quadtree: {type: 'string'}, polygon: {type: 'string'}, n: {type: 'number'}}},
+    handler: async (request, reply) => {
+      /**
+       * @api {get} /quadtree/get_points/:quadtree/:polygon Get Points
+       * @apiName GetPoints
+       * @apiGroup Quadtree
+       * @apiDescription This API returns uses the quadtree to return only the points that are in
+       * the polygon. This API only returns the first n points.
+       * @apiParam {String} quadtree Name of quadtree created with /quadtree/create/:table
+       * @apiParam {String} polygon Name of polygon created with /quadtree/set_polygons_quadtree
+       * @apiParam {Number} n Number of points to return
+       * @apiParamExample {json} Request-Example:
+       * {
+       *   "quadtree": "test_quadtree",
+       *   "polygon": "test_polygon"
+       *   "n": 100
+       * }
+       * @apiSuccessExample {json} Success-Response:
+       * {
+       *   "params": {
+       *     "quadtree": "test_quadtree",
+       *     "polygon": "test_polygon"
+       *   },
+       *   "success": true,
+       *   "message": "Get points from test_quadtree"
+       * }
+       * @apiErrorExample {json} Error-Response:
+       * {
+       *   "params": {
+       *     "quadtree": "test_quadtree",
+       *     "polygon": "test_polygon"
+       *   },
+       *   "success": false,
+       *   "message": "Error"
+       * }
+       */
+      let message = 'Error';
+      let result  = {'params': request.params, success: false, message: message};
+      try {
+        const quadtree = await fastify.getData(request.params.quadtree);
+        const {polygon_offset, ring_offset, points} = await fastify.getData(request.params.polygon);
+        const data                                  = await fastify.listDataframes();
+        const pts                                   = cuspatial.makePoints(
+          points.gather(Series.sequence({size: points.length, step: 2, init: 0})),
+          points.gather(Series.sequence({size: points.length, step: 2, init: 1})));
+        const polylines      = cuspatial.makePolylines(pts, ring_offset);
+        const polygons       = cuspatial.makePolygons(polylines, polygon_offset);
+        const polyPointPairs = quadtree.pointInPolygon(polygons);
+        const resultPoints   = quadtree.points.gather(polyPointPairs.get('point_index'));
+        const numPoints      = parseInt(request.params.n);
+        let result_col =
+          Series.sequence({size: numPoints * 2, type: new Float32, step: 0, init: 0});
+        result_col   = result_col.scatter(resultPoints.get('x'),
+                                        Series.sequence({size: numPoints, step: 2, init: 0}));
+        result_col   = result_col.scatter(resultPoints.get('y'),
+                                        Series.sequence({size: numPoints, step: 2, init: 1}));
+        result       = new DataFrame({'points_in_polygon': result_col})
+        const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
+        writer.close();
+        await reply.code(200).send(writer.toNodeStream());
+      } catch (e) {
+        result.message    = JSON.stringify(e);
+        result.success    = false;
+        result.statusCode = 500;
+        await reply.code(result.statusCode).send(result);
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
     url: '/get_points/:quadtree/:polygon',
     schema: {querystring: {quadtree: {type: 'string'}, polygon: {type: 'string'}}},
     handler: async (request, reply) => {
@@ -252,7 +325,7 @@ module.exports = async function(fastify, opts) {
         writer.close();
         await reply.code(200).send(writer.toNodeStream());
       } catch (e) {
-        result.message    = e;
+        result.message    = JSON.stringify(e);
         result.success    = false;
         result.statusCode = 500;
         await reply.code(result.statusCode).send(result);
