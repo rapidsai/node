@@ -74,6 +74,7 @@ export const createQuadtree = async (csvName, axisNames) => {
 };
 
 export const setPolygon = async (name, polygonPoints) => {
+  /* setPolygon sets the polygon to be used for the quadtree. */
   const result = await fetch(config.SERVER + ':' + config.PORT + config.set_polygon.SET_POLYGON_URL,
                              config.set_polygon.setPolygonOptions(name, polygonPoints));
   const resultJson = await result.json();
@@ -81,29 +82,17 @@ export const setPolygon = async (name, polygonPoints) => {
 };
 
 export const getQuadtreePoints =
+  /* getQuadtreePoints gets the points from the quadtree. */
   async (quadtreeName, polygonName) => {
-  const remotePoints =
-    await fetch(config.SERVER + ':' + config.PORT + config.get_points.GET_POINTS_URL + '/' +
-                  quadtreeName + '/' + polygonName,
-                config.get_points.GET_POINTS_OPTIONS);
-  if (remotePoints.ok) {
-    const arrowTable = await tableFromIPC(remotePoints);
-    return arrowTable.getChildAt(0).toArray();
-  } else {
-    console.log('Unable to fetch');
-    console.log(remotePoints);
+    const remotePoints =
+      await fetch(config.SERVER + ':' + config.PORT + config.get_points.GET_POINTS_URL + '/' +
+                    quadtreeName + '/' + polygonName,
+                  config.get_points.GET_POINTS_OPTIONS);
+    if (remotePoints.ok) {
+      const arrowTable = await tableFromIPC(remotePoints);
+      return arrowTable.getChildAt(0).toArray();
+    } else {
+      console.log('Unable to fetch');
+      console.log(remotePoints);
+    }
   }
-}
-
-export const fetchPoints = async (csvName) => {
-  let remotePoints =
-    await fetch(config.SERVER + ':' + config.PORT + config.FETCH_POINTS_URL + '/' + csvName,
-                config.FETCH_POINTS_OPTIONS);
-  if (remotePoints.ok) {
-    const arrowTable = await tableFromIPC(remotePoints);
-    return arrowTable.getChild('gpu_buffer').toArray();
-  } else {
-    console.log('Unable to fetch');
-    console.log(remotePoints);
-  }
-};

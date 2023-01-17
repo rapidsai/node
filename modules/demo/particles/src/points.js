@@ -60,6 +60,7 @@ export const particlesEngine = async (props) => {
   const subdata = async (hostPoints, props) => {
     props.displayPointCount = hostPoints.length;
     buffer(hostPoints);
+    // buffer.subdata(hostPoints);
   };
 
   return {subdata: subdata};
