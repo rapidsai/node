@@ -83,11 +83,14 @@ export const setPolygon = async (name, polygonPoints) => {
 
 export const getQuadtreePoints =
   /* getQuadtreePoints gets the points from the quadtree. */
-  async (quadtreeName, polygonName) => {
-    const remotePoints =
-      await fetch(config.SERVER + ':' + config.PORT + config.get_points.GET_POINTS_URL + '/' +
-                    quadtreeName + '/' + polygonName,
-                  config.get_points.GET_POINTS_OPTIONS);
+  async (quadtreeName, polygonName, n) => {
+    let path = config.SERVER + ':' + config.PORT + config.get_points.GET_POINTS_URL + '/' +
+               quadtreeName + '/' + polygonName;
+    path += n != undefined ? '/' + n : '';
+    const start        = Date.now();
+    const remotePoints = await fetch(path, config.get_points.GET_POINTS_OPTIONS);
+    const end          = Date.now();
+    console.log('Time to fetch: ' + (end - start));
     if (remotePoints.ok) {
       const arrowTable = await tableFromIPC(remotePoints);
       return arrowTable.getChildAt(0).toArray();

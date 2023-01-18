@@ -9,6 +9,7 @@ import App from './App';
 import background from './background';
 const {drawParticles, particlesEngine}                         = require('./points');
 const {getQuadtreePoints, setPolygon, readCsv, createQuadtree} = require('./requests');
+const {computeTiming}                                          = require('./computeTiming');
 
 const {tableFromIPC}           = require('apache-arrow');
 const mat4                     = require('gl-mat4');
@@ -89,8 +90,8 @@ const {getScreenToWorldCoords} = require('./matrices');
     centerY: document.documentElement.clientHeight / 2.0,
     currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
     fetching: false,
-    pointBudget: 250000,
-    displayPointCount: 0,
+    pointBudget: 60000000,
+    pointOffset: 0
   };
 
   /*
@@ -192,12 +193,16 @@ const {getScreenToWorldCoords} = require('./matrices');
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
     let i              = 0;
     const polygons     = separateCircle(40);
-    while (true) {
+    while (props.pointOffset < props.pointBudget) {
       const which = i % 36;
       i++;
       const polygonName = await setPolygon('p1', polygons[which]);
-      const hostPoints  = await getQuadtreePoints(quadtreeName, polygonName);
+      const hostPoints  = await getQuadtreePoints(quadtreeName, polygonName, 1500000);
       engine.subdata(hostPoints, props);
+      props.pointOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
+      const sleep =
+        (milliseconds) => { return new Promise(resolve => setTimeout(resolve, milliseconds)) };
+      // await sleep(1000);
     }
   };
   /*
@@ -211,6 +216,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     const csvName = await readCsv('shuffled.csv');
     const engine  = await particlesEngine(props);
     // fetchPoints(csvName, engine, props);
+    computeTiming();
     fetchQuadtree(csvName, engine, props);
   } catch (e) { console.log(e); }
 })();

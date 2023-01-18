@@ -43,14 +43,14 @@ void main() {
       projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
-    count: props.displayPointCount,
+    count: props.pointBudget,
     primitive: 'points'
   });
   return re;
 }
 
 export const particlesEngine = async (props) => {
-  const buffer = regl.buffer({usage: 'stream', type: 'float', length: props.pointBudget * 8});
+  const buffer = regl.buffer({usage: 'dynamic', type: 'float', length: props.pointBudget * 4});
   const tick   = regl.frame(async () => {
     regl.clear({depth: 1, color: [0, 0, 0, 0]});
     const particles = await drawBuffer(buffer, props);
@@ -58,9 +58,10 @@ export const particlesEngine = async (props) => {
   });
 
   const subdata = async (hostPoints, props) => {
-    props.displayPointCount = hostPoints.length;
-    buffer(hostPoints);
-    // buffer.subdata(hostPoints);
+    // buffer(hostPoints);
+    console.log(props.pointOffset);
+    console.log(hostPoints.length);
+    buffer.subdata(hostPoints, props.pointOffset * 4);
   };
 
   return {subdata: subdata};
