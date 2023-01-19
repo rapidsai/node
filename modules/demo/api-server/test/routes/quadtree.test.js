@@ -96,6 +96,7 @@ test('quadtree/get_points_float', async (t) => {
     url: 'quadtree/get_points/' + quadtree_name + '/' + polygons_name,
   })
   const release       = await app.inject({method: 'POST', url: '/gpu/release'});
+  const table         = tableFromIPC(res.rawPayload);
   const got           = table.getChild('points_in_polygon').toArray();
   const expected      = [1.0, -1.0, -1.0, 1.0, 0.0, 0.0];
   t.same(expected, got);
