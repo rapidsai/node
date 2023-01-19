@@ -14,16 +14,16 @@ const config = {
   SERVER: 'http://localhost',
   PORT: '3010',
   read_csv: {
-    READ_CSV_URL: '/gpu/DataFrame/readCSV',
-    readCsvOptions: (filename) => {
+    URL: '/gpu/DataFrame/readCSV',
+    options: (filename) => {
       return {
         method: 'POST', headers: JSON_CORS_HEADERS, body: JSON.stringify({filename: filename})
       }
     }
   },
   create_quadtree: {
-    CREATE_QUADTREE_URL: '/quadtree/create/',
-    createQuadtreeOptions: (xAxisName, yAxisName) => {
+    URL: '/quadtree/create/',
+    options: (xAxisName, yAxisName) => {
       return {
         method: 'POST', headers: JSON_CORS_HEADERS,
           body: JSON.stringify({xAxisName: xAxisName, yAxisName: yAxisName})
@@ -31,8 +31,8 @@ const config = {
     },
   },
   set_polygon: {
-    SET_POLYGON_URL: '/quadtree/set_polygons',
-    setPolygonOptions: (name, polygonPoints) => {
+    URL: '/quadtree/set_polygons',
+    options: (name, polygonPoints) => {
       return {
         method: 'POST', headers: JSON_CORS_HEADERS, body: JSON.stringify({
           name: name,
@@ -43,18 +43,17 @@ const config = {
       }
     },
   },
-  get_points: {
-    GET_POINTS_URL: '/quadtree/get_points',
-    GET_POINTS_OPTIONS: {method: 'GET', headers: JSON_CORS_HEADERS}
-  }
+  get_points: {URL: '/quadtree/get_points', OPTIONS: {method: 'GET', headers: JSON_CORS_HEADERS}},
+  count: {URL: '/quadtree', OPTIONS: {method: 'GET', headers: JSON_CORS_HEADERS}},
+  release: {URL: '/gpu/release', OPTIONS: {method: 'POST'}},
 }
 
 export const readCsv = async (filename) => {
   /*
     readCsv reads the csv file to the server.
     */
-  const result     = await fetch(config.SERVER + ':' + config.PORT + config.read_csv.READ_CSV_URL,
-                             config.read_csv.readCsvOptions(filename));
+  const result     = await fetch(config.SERVER + ':' + config.PORT + config.read_csv.URL,
+                             config.read_csv.options(filename));
   const resultJson = await result.json();
   return resultJson.params.filename;
 };
@@ -66,17 +65,17 @@ export const createQuadtree = async (csvName, axisNames) => {
     and which are not. This is used to determine which points to render
     and which to discard.
     */
-  const result = await fetch(
-    config.SERVER + ':' + config.PORT + config.create_quadtree.CREATE_QUADTREE_URL + csvName,
-    config.create_quadtree.createQuadtreeOptions(axisNames.x, axisNames.y));
+  const result =
+    await fetch(config.SERVER + ':' + config.PORT + config.create_quadtree.URL + csvName,
+                config.create_quadtree.options(axisNames.x, axisNames.y));
   const resultJson = await result.json()
   return resultJson.params.quadtree;
 };
 
 export const setPolygon = async (name, polygonPoints) => {
   /* setPolygon sets the polygon to be used for the quadtree. */
-  const result = await fetch(config.SERVER + ':' + config.PORT + config.set_polygon.SET_POLYGON_URL,
-                             config.set_polygon.setPolygonOptions(name, polygonPoints));
+  const result     = await fetch(config.SERVER + ':' + config.PORT + config.set_polygon.URL,
+                             config.set_polygon.options(name, polygonPoints));
   const resultJson = await result.json();
   return resultJson.params.name;
 };
@@ -84,11 +83,11 @@ export const setPolygon = async (name, polygonPoints) => {
 export const getQuadtreePoints =
   /* getQuadtreePoints gets the points from the quadtree. */
   async (quadtreeName, polygonName, n) => {
-    let path = config.SERVER + ':' + config.PORT + config.get_points.GET_POINTS_URL + '/' +
-               quadtreeName + '/' + polygonName;
-    path += n != undefined ? '/' + n : '';
+    let path = config.SERVER + ':' + config.PORT + config.get_points.URL + '/' + quadtreeName +
+               '/' + polygonName;
+    path += n !== undefined ? '/' + n + '/next' : '';
     const start        = Date.now();
-    const remotePoints = await fetch(path, config.get_points.GET_POINTS_OPTIONS);
+    const remotePoints = await fetch(path, config.get_points.OPTIONS);
     const end          = Date.now();
     console.log('Time to fetch: ' + (end - start));
     if (remotePoints.ok) {
@@ -99,3 +98,19 @@ export const getQuadtreePoints =
       console.log(remotePoints);
     }
   }
+
+export const getQuadtreePointCount =
+  /* getQuadtreePoints gets the points from the quadtree. */
+  async (quadtreeName, polygonName, n) => {
+    let path = config.SERVER + ':' + config.PORT + config.count.URL + '/' + quadtreeName + '/' +
+               polygonName + '/count';
+    const countResult = await fetch(path, config.get_points.OPTIONS);
+    return countResult;
+  }
+
+export const release = async (quadtreeName) => {
+  /* release resets the remote server. */
+  const result =
+    await fetch(config.SERVER + ':' + config.PORT + config.release.URL, config.release.OPTIONS);
+  return result;
+}

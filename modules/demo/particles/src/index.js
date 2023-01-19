@@ -7,9 +7,10 @@ import ReactDOM from 'react-dom';
 
 import App from './App';
 import background from './background';
-const {drawParticles, particlesEngine}                         = require('./points');
-const {getQuadtreePoints, setPolygon, readCsv, createQuadtree} = require('./requests');
-const {computeTiming}                                          = require('./computeTiming');
+const {drawParticles, particlesEngine} = require('./points');
+const {getQuadtreePoints, getQuadtreePointCount, setPolygon, readCsv, createQuadtree, release} =
+  require('./requests');
+const {computeTiming} = require('./computeTiming');
 
 const {tableFromIPC}           = require('apache-arrow');
 const mat4                     = require('gl-mat4');
@@ -90,8 +91,16 @@ const {getScreenToWorldCoords} = require('./matrices');
     centerY: document.documentElement.clientHeight / 2.0,
     currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
     fetching: false,
-    pointBudget: 60000000,
-    pointOffset: 0
+    pointBudget: 62000000,
+    pointOffset: 0,
+    polyOffset: {},
+    polySize: {},
+    quads: {
+      id: null,
+      totalPoints: null,
+      displayedPoints: null,
+      pointOffsets: null,
+    }
   };
 
   /*
@@ -173,33 +182,67 @@ const {getScreenToWorldCoords} = require('./matrices');
     return polygons;
   }
 
-  /*const quadrants = [
+  const quadrants = [
     [-105, 40, -127, 40, -127, 49, -105, 49, -105, 40],
     [-105, 40, -105, 49, -63, 49, -63, 40, -105, 40],
     [-105, 40, -63, 40, -63, 25, -105, 25, -105, 40],
     [-105, 40, -105, 25, -127, 25, -127, 40, -105, 40],
-    [-127, 25, -127, 49, -63, 49, -63, 25, -127, 25],
-    [-1000, -1000, -1000, 1000, 1000, 1000, 1000, -1000, -1000, -1000],
+    //[-1000, -1000, -1000, 1000, 1000, 1000, 1000, -1000, -1000, -1000],
   ];
-  const circleSlices         = separateCircle(40);
-  */
+
+  const estimatedInitialViewport = [-127, 25, -127, 49, -63, 49, -63, 25, -127, 25];
+  const quadPair                 = [-127, 25, -63, 49];
+
+  const makeQuadrants =
+    (rectangle, list, depth = 3) => {
+      const x1 = rectangle[0];
+      const y1 = rectangle[1];
+      const x2 = rectangle[2];
+      const y2 = rectangle[3];
+      const mx = (x1 + x2) / 2;
+      const my = (y1 + y2) / 2;
+      if (depth < 1) {
+        list.unshift([x1, y1, x2, y1, x2, y2, x1, y2, x1, y1]);
+        return;
+      }
+      makeQuadrants([x1, y1, mx, my], list, depth - 1);
+      makeQuadrants([mx, y1, x2, my], list, depth - 1);
+      makeQuadrants([x1, my, mx, y2], list, depth - 1);
+      makeQuadrants([mx, my, x2, y2], list, depth - 1);
+    }
 
   const fetchPoints = async (csvName, engine, props) => {
     const hostPoints = await fetchPoints(csvName);
     engine.subdata(hostPoints, props);
   };
 
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j              = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
   const fetchQuadtree = async (csvName, engine, props) => {
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
-    let i              = 0;
-    const polygons     = separateCircle(40);
-    while (props.pointOffset < props.pointBudget) {
-      const which = i % 36;
+    // const polygons     = separateCircle(40);
+    let polygons = [];
+    makeQuadrants(quadPair, polygons, 3);
+    shuffleArray(polygons);
+    // polygons = quadrants;
+    let i = 0;
+    while (i < 10000) {
+      const which = i % polygons.length;
       i++;
+      const pointData = props.polyOffset[polygons[which]];
+      console.log(pointData);
+      // If pointData is the same as its offset, then don't reload any data.
+      if (pointData && pointData[0] == pointData[1]) { continue; }
       const polygonName = await setPolygon('p1', polygons[which]);
       const hostPoints  = await getQuadtreePoints(quadtreeName, polygonName, 1500000);
       engine.subdata(hostPoints, props);
-      props.pointOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
+      const newOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
+      props.polyOffset[polygons[which]] = [props.pointOffset, newOffset];
+      props.pointOffset                 = newOffset;
       const sleep =
         (milliseconds) => { return new Promise(resolve => setTimeout(resolve, milliseconds)) };
       // await sleep(1000);
@@ -212,11 +255,12 @@ const {getScreenToWorldCoords} = require('./matrices');
    */
   var csvName = undefined;
   try {
+    await release();
     background(props);
     const csvName = await readCsv('shuffled.csv');
     const engine  = await particlesEngine(props);
     // fetchPoints(csvName, engine, props);
-    computeTiming();
+    // computeTiming();
     fetchQuadtree(csvName, engine, props);
   } catch (e) { console.log(e); }
 })();
