@@ -81,7 +81,8 @@ export const getBackgroundViewMatrix = (props) => {
  A function that computes a zoom level based on a zoomLevel that ranges from 0 to n.
  TODO: Currently the range of the zoomLevel can be negative. This should be corrected.
  */
-export const getCurrentOrthoScale = (props) => { return Math.pow(1.2, props.zoomLevel);};
+export const getCurrentOrthoScale =
+  (props) => { return 1 / props.zoomLevel};  // Math.pow(1.4, props.zoomLevel);};
 
 /*
  The orthographic projection matrix for points. Various from the background only
@@ -90,7 +91,8 @@ export const getCurrentOrthoScale = (props) => { return Math.pow(1.2, props.zoom
  */
 export const getPointsProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
-  return mat4.ortho([], orthoScale * 2.0, -orthoScale * 2.0, orthoScale, -orthoScale, 1, 1000);
+  return mat4.ortho(
+    [], orthoScale * 20.0, -orthoScale * 20.0, orthoScale * 10, -orthoScale * 10, 1, 1000);
 };
 
 /*
@@ -98,5 +100,6 @@ export const getPointsProjectionMatrix = (props) => {
  */
 export const getBackgroundProjectionMatrix = (props) => {
   const orthoScale = getCurrentOrthoScale(props);
-  return mat4.ortho([], -orthoScale * 2.0, orthoScale * 2.0, orthoScale, -orthoScale, 1, 1000);
+  return mat4.ortho(
+    [], -orthoScale * 20.0, orthoScale * 20.0, orthoScale * 10, -orthoScale * 10, 1, 1000);
 };

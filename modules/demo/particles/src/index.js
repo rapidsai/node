@@ -12,9 +12,9 @@ const {getQuadtreePoints, getQuadtreePointCount, setPolygon, readCsv, createQuad
   require('./requests');
 const {computeTiming} = require('./computeTiming');
 
-const {tableFromIPC}           = require('apache-arrow');
-const mat4                     = require('gl-mat4');
-const {getScreenToWorldCoords} = require('./matrices');
+const {tableFromIPC}                                 = require('apache-arrow');
+const mat4                                           = require('gl-mat4');
+const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
 
 (async () => {
   /*
@@ -83,7 +83,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     w: () => [...worldCoords],
     // Define screen coords
     s: () => [...screenCoords],
-    zoomLevel: 15,
+    zoomLevel: 1,
     angle: 0,
     screenWidth: document.documentElement.clientHeight,
     screenHeight: document.documentElement.clientWidth,
@@ -115,7 +115,8 @@ const {getScreenToWorldCoords} = require('./matrices');
     props.screenWidth  = document.documentElement.clientWidth;
     props.screenHeight = document.documentElement.clientHeight;
     const zoom         = event.deltaY > 0 ? -1 : 1;
-    props.zoomLevel    = props.zoomLevel + zoom;
+    // props.zoomLevel    = props.zoomLevel + zoom;
+    props.zoomLevel = event.deltaY > 0 ? props.zoomLevel / 1.2 : props.zoomLevel * 1.2;
     /*
      newWorldCoords defines the bounding in world-coordinates of the current
      view. This is used to update the points using server based viewport culling.
@@ -126,6 +127,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     props.currentWorldCoords.ymin = newWorldCoords[9];
     props.currentWorldCoords.ymax = newWorldCoords[1];
     // fetchPoints(csvName, props);
+    console.log(props.zoomLevel);
   });
   window.addEventListener('mousedown', (event) => {
     /*
@@ -146,10 +148,14 @@ const {getScreenToWorldCoords} = require('./matrices');
      to better track the difference between the screen and the viewport. TODO
      */
     if (props.isHeld) {
-      props.centerX        = props.centerX + event.movementX;
-      props.centerY        = props.centerY + event.movementY;
-      props.screenWidth    = document.documentElement.clientWidth;
-      props.screenHeight   = document.documentElement.clientHeight;
+      const moveX   = event.movementX * getCurrentOrthoScale(props);
+      const moveY   = event.movementY * getCurrentOrthoScale(props);
+      props.centerX = props.centerX + moveX;
+      props.centerY = props.centerY + moveY;
+      console.log(moveX);
+      console.log(moveY);
+      console.log(getCurrentOrthoScale(props));
+      console.log(props.zoomLevel);
       const newWorldCoords = getScreenToWorldCoords(props);
       console.log(newWorldCoords);
       props.currentWorldCoords.xmin = newWorldCoords[0];
@@ -230,7 +236,7 @@ const {getScreenToWorldCoords} = require('./matrices');
     shuffleArray(polygons);
     // polygons = quadrants;
     let i = 0;
-    while (i < 10000) {
+    while (i < 65) {
       const which = i % polygons.length;
       i++;
       const pointData = props.polyOffset[polygons[which]];
