@@ -148,14 +148,10 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
      to better track the difference between the screen and the viewport. TODO
      */
     if (props.isHeld) {
-      const moveX   = event.movementX * getCurrentOrthoScale(props);
-      const moveY   = event.movementY * getCurrentOrthoScale(props);
-      props.centerX = props.centerX + moveX;
-      props.centerY = props.centerY + moveY;
-      console.log(moveX);
-      console.log(moveY);
-      console.log(getCurrentOrthoScale(props));
-      console.log(props.zoomLevel);
+      const moveX          = event.movementX * getCurrentOrthoScale(props) * 0.55;
+      const moveY          = event.movementY * getCurrentOrthoScale(props) * 0.85;
+      props.centerX        = props.centerX + moveX;
+      props.centerY        = props.centerY + moveY;
       const newWorldCoords = getScreenToWorldCoords(props);
       console.log(newWorldCoords);
       props.currentWorldCoords.xmin = newWorldCoords[0];
