@@ -96,10 +96,9 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     polyOffset: {},
     polySize: {},
     quads: {
-      id: null,
       totalPoints: null,
-      displayedPoints: null,
-      pointOffsets: null,
+      displayedPoints: 0,
+      pointOffsets: [],
     }
   };
 
@@ -224,30 +223,38 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
       [array[i], array[j]] = [array[j], array[i]];
     }
   }
+  async function getPolygonSizes(quadtreeName, polygons, props) {
+    const sizes = {};
+    for (let i = 0; i < polygons.length; i++) {
+      const polygonName        = await setPolygon(polygons[i], polygons[i]);
+      const res                = await getQuadtreePointCount(quadtreeName, polygonName);
+      const size               = res.count;
+      props.quads[polygons[i]] = {totalPoints: size, pointOffsets: []};
+    }
+  }
   const fetchQuadtree = async (csvName, engine, props) => {
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
     // const polygons     = separateCircle(40);
     let polygons = [];
     makeQuadrants(quadPair, polygons, 3);
     shuffleArray(polygons);
-    // polygons = quadrants;
+    await getPolygonSizes(quadtreeName, polygons, props);
     let i = 0;
-    while (i < 65) {
+    while (i < polygons.length) {
       const which = i % polygons.length;
-      i++;
-      const pointData = props.polyOffset[polygons[which]];
-      console.log(pointData);
-      // If pointData is the same as its offset, then don't reload any data.
-      if (pointData && pointData[0] == pointData[1]) { continue; }
-      const polygonName = await setPolygon('p1', polygons[which]);
-      const hostPoints  = await getQuadtreePoints(quadtreeName, polygonName, 1500000);
+      if (props.quads[polygons[which]].totalPoints == props.quads[polygons[which]].loadedPoints) {
+        continue;
+      }
+      const hostPoints = await getQuadtreePoints(quadtreeName, polygons[which], 1500000);
       engine.subdata(hostPoints, props);
       const newOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
-      props.polyOffset[polygons[which]] = [props.pointOffset, newOffset];
-      props.pointOffset                 = newOffset;
+      props.quads[polygons[which]].loadedPoints = newOffset;
+      props.quads[polygons[which]].pointOffsets.push([props.pointOffset, newOffset]);
+      props.pointOffset = newOffset;
       const sleep =
         (milliseconds) => { return new Promise(resolve => setTimeout(resolve, milliseconds)) };
       // await sleep(1000);
+      i++;
     }
   };
   /*
@@ -259,7 +266,7 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
   try {
     await release();
     background(props);
-    const csvName = await readCsv('shuffled.csv');
+    const csvName = await readCsv('cartesian_10m.csv');
     const engine  = await particlesEngine(props);
     // fetchPoints(csvName, engine, props);
     // computeTiming();
