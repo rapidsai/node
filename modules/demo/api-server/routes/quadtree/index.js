@@ -239,7 +239,7 @@ module.exports = async function(fastify, opts) {
       try {
         const quadtree = await fastify.getData(request.params.quadtree);
         const {polygon_offset, ring_offset, points} = await fastify.getData(request.params.polygon);
-        const polygons_and_served                   = await fastify.getData(points.toArray());
+        const polygons_and_served                   = await fastify.getData(points);
         let polygons = polygons_and_served ? polygons_and_served.polygons : undefined;
         let served   = polygons_and_served ? polygons_and_served.served : 0;
         if (polygons === undefined) {
@@ -270,7 +270,7 @@ module.exports = async function(fastify, opts) {
         writer.close();
         await reply.code(200).send(writer.toNodeStream());
       } catch (e) {
-        result.message    = JSON.stringify(e);
+        result.message    = e.toString();
         result.success    = false;
         result.statusCode = 500;
         await reply.code(result.statusCode).send(result);
