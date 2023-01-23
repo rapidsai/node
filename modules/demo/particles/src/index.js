@@ -92,9 +92,8 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
     fetching: false,
     pointBudget: 62000000,
+    pointsPerRequest: 100000,
     pointOffset: 0,
-    polyOffset: {},
-    polySize: {},
     quads: {
       totalPoints: null,
       displayedPoints: 0,
@@ -229,32 +228,38 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
       const polygonName        = await setPolygon(polygons[i], polygons[i]);
       const res                = await getQuadtreePointCount(quadtreeName, polygonName);
       const size               = res.count;
-      props.quads[polygons[i]] = {totalPoints: size, pointOffsets: []};
+      props.quads[polygons[i]] = {totalPoints: size, pointOffsets: [], loadedPoints: 0};
     }
   }
   const fetchQuadtree = async (csvName, engine, props) => {
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
     // const polygons     = separateCircle(40);
     let polygons = [];
-    makeQuadrants(quadPair, polygons, 3);
+    makeQuadrants(quadPair, polygons, 1);
     shuffleArray(polygons);
     await getPolygonSizes(quadtreeName, polygons, props);
-    let i = 0;
-    while (i < polygons.length) {
-      const which = i % polygons.length;
-      if (props.quads[polygons[which]].totalPoints == props.quads[polygons[which]].loadedPoints) {
+    let which  = 0;
+    let filled = 0;
+    while (props.pointOffset < props.pointBudget && filled < polygons.length) {
+      console.log(filled);
+      console.log(polygons.length);
+      console.log(props.quads[polygons[which]].totalPoints);
+      console.log(props.quads[polygons[which]].loadedPoints);
+      if (props.quads[polygons[which]].totalPoints <= props.quads[polygons[which]].loadedPoints) {
+        filled++;
         continue;
       }
-      const hostPoints = await getQuadtreePoints(quadtreeName, polygons[which], 1500000);
+      const hostPoints =
+        await getQuadtreePoints(quadtreeName, polygons[which], props.pointsPerRequest);
       engine.subdata(hostPoints, props);
       const newOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
-      props.quads[polygons[which]].loadedPoints = newOffset;
+      props.quads[polygons[which]].loadedPoints += hostPoints.length / 2;
       props.quads[polygons[which]].pointOffsets.push([props.pointOffset, newOffset]);
       props.pointOffset = newOffset;
       const sleep =
         (milliseconds) => { return new Promise(resolve => setTimeout(resolve, milliseconds)) };
       // await sleep(1000);
-      i++;
+      which = (which + 1) % polygons.length;
     }
   };
   /*

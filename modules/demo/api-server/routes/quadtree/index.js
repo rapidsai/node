@@ -228,6 +228,24 @@ module.exports = async function(fastify, opts) {
     }
   });
 
+  // host permutation
+  const permute = (sequence) => {
+    for (let i = 0; i < sequence.length; ++i) {
+      let j                      = parseInt(Math.random() * (i + 1));
+      [sequence[i], sequence[j]] = [sequence[j], sequence[i]]
+    }
+    return sequence
+  };
+  // host range
+  const range = (n) => { return [...Array(n + 1).keys()]; };
+
+  // get_points:
+  // - get polygon from cache
+  // - get points permutation list from cache
+  // - get points from quadtree
+  // - slice points by permutation list
+  // - return points
+
   fastify.route({
     method: 'GET',
     url: '/get_points/:quadtree/:polygon/:n/next',
@@ -237,18 +255,26 @@ module.exports = async function(fastify, opts) {
       let message = 'Error';
       let result  = {'params': request.params, success: false, message: message};
       try {
-        const quadtree = await fastify.getData(request.params.quadtree);
-        const {polygon_offset, ring_offset, points} = await fastify.getData(request.params.polygon);
-        const polygons_and_served                   = await fastify.getData(points);
-        let polygons = polygons_and_served ? polygons_and_served.polygons : undefined;
-        let served   = polygons_and_served ? polygons_and_served.served : 0;
+        const quadtree       = await fastify.getData(request.params.quadtree);
+        const cached_polygon = await fastify.getData(request.params.polygon);
+        const polygon_offset = cached_polygon.polygon_offset;
+        const ring_offset    = cached_polygon.ring_offset;
+        const points         = cached_polygon.points;
+        let polygons         = cached_polygon.polygons;
+        const served         = cached_polygon.served ? cached_polygon.served : 0;
         if (polygons === undefined) {
           const pts = cuspatial.makePoints(
             points.gather(Series.sequence({size: points.length, step: 2, init: 0})),
             points.gather(Series.sequence({size: points.length, step: 2, init: 1})));
           const polylines = cuspatial.makePolylines(pts, ring_offset);
           polygons        = cuspatial.makePolygons(polylines, polygon_offset);
-          await fastify.cacheObject(points.toArray(), {polygons: polygons, served: 0});
+          await fastify.cacheObject(points.toArray(), {
+            polygon_offset: polygon_offset,
+            ring_offset: ring_offset,
+            points: points,
+            polygons: polygons,
+            served: 0
+          });
         }
         const polyPointPairs = quadtree.pointInPolygon(polygons);
         const resultPoints   = quadtree.points.gather(polyPointPairs.get('point_index'));
@@ -263,92 +289,19 @@ module.exports = async function(fastify, opts) {
         result_col = result_col.scatter(
           resultPoints.get('y').gather(Series.sequence({size: numPoints, step: 1, init: served})),
           Series.sequence({size: numPoints, step: 2, init: served + 1}));
-        await fastify.cacheObject(points.toArray(),
-                                  {polygons: polygons, served: served + numPoints});
+        await fastify.cacheObject(points.toArray(), {
+          polygon_offset: polygon_offset,
+          ring_offset: ring_offset,
+          points: points,
+          polygons: polygons,
+          served: served + numPoints
+        });
         result       = new DataFrame({'points_in_polygon': result_col})
         const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
         writer.close();
         await reply.code(200).send(writer.toNodeStream());
       } catch (e) {
         result.message    = e.toString();
-        result.success    = false;
-        result.statusCode = 500;
-        await reply.code(result.statusCode).send(result);
-      }
-    }
-  });
-
-  fastify.route({
-    method: 'GET',
-    url: '/get_points/:quadtree/:polygon/:n',
-    schema:
-      {querystring: {quadtree: {type: 'string'}, polygon: {type: 'string'}, n: {type: 'number'}}},
-    handler: async (request, reply) => {
-      /**
-       * @api {get} /quadtree/get_points/:quadtree/:polygon Get Points
-       * @apiName GetPoints
-       * @apiGroup Quadtree
-       * @apiDescription This API returns uses the quadtree to return only the points that are in
-       * the polygon. This API only returns the first n points.
-       * @apiParam {String} quadtree Name of quadtree created with /quadtree/create/:table
-       * @apiParam {String} polygon Name of polygon created with /quadtree/set_polygons_quadtree
-       * @apiParam {Number} n Number of points to return
-       * @apiParamExample {json} Request-Example:
-       * {
-       *   "quadtree": "test_quadtree",
-       *   "polygon": "test_polygon"
-       *   "n": 100
-       * }
-       * @apiSuccessExample {json} Success-Response:
-       * {
-       *   "params": {
-       *     "quadtree": "test_quadtree",
-       *     "polygon": "test_polygon"
-       *   },
-       *   "success": true,
-       *   "message": "Get points from test_quadtree"
-       * }
-       * @apiErrorExample {json} Error-Response:
-       * {
-       *   "params": {
-       *     "quadtree": "test_quadtree",
-       *     "polygon": "test_polygon"
-       *   },
-       *   "success": false,
-       *   "message": "Error"
-       * }
-       */
-      let message = 'Error';
-      let result  = {'params': request.params, success: false, message: message};
-      try {
-        const quadtree = await fastify.getData(request.params.quadtree);
-        const {polygon_offset, ring_offset, points} = await fastify.getData(request.params.polygon);
-        const polygons_and_served                   = await fastify.getData(points.toArray());
-        let polygons = polygons_and_served ? polygons_and_served.polygons : undefined;
-        let served   = polygons_and_served ? polygons_and_served.served : 0;
-        if (polygons === undefined) {
-          const pts = cuspatial.makePoints(
-            points.gather(Series.sequence({size: points.length, step: 2, init: 0})),
-            points.gather(Series.sequence({size: points.length, step: 2, init: 1})));
-          const polylines = cuspatial.makePolylines(pts, ring_offset);
-          polygons        = cuspatial.makePolygons(polylines, polygon_offset);
-          await fastify.cacheObject(points.toArray(), {polygons: polygons, served: 0});
-        }
-        const polyPointPairs = quadtree.pointInPolygon(polygons);
-        const resultPoints   = quadtree.points.gather(polyPointPairs.get('point_index'));
-        const numPoints      = Math.min(parseInt(request.params.n), resultPoints.get('x').length);
-        let result_col =
-          Series.sequence({size: numPoints * 2, type: new Float32, step: 0, init: 0});
-        result_col   = result_col.scatter(resultPoints.get('x'),
-                                        Series.sequence({size: numPoints, step: 2, init: 0}));
-        result_col   = result_col.scatter(resultPoints.get('y'),
-                                        Series.sequence({size: numPoints, step: 2, init: 1}));
-        result       = new DataFrame({'points_in_polygon': result_col})
-        const writer = RecordBatchStreamWriter.writeAll(result.toArrow());
-        writer.close();
-        await reply.code(200).send(writer.toNodeStream());
-      } catch (e) {
-        result.message    = JSON.stringify(e);
         result.success    = false;
         result.statusCode = 500;
         await reply.code(result.statusCode).send(result);
@@ -365,7 +318,7 @@ module.exports = async function(fastify, opts) {
        * @api {get} /quadtree/get_points/:quadtree/:polygon Get Points
        * @apiName GetPoints
        * @apiGroup Quadtree
-       * @apiDescription This API returns uses the quadtree to return only the points that are in
+       * @apiDescription This API returns uses the quadtree to return all of the points that are in
        * the polygon.
        * @apiParam {String} quadtree Name of quadtree created with /quadtree/create/:table
        * @apiParam {String} polygon Name of polygon created with /quadtree/set_polygons_quadtree
