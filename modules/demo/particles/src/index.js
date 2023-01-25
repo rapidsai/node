@@ -91,14 +91,15 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     centerY: document.documentElement.clientHeight / 2.0,
     currentWorldCoords: {xmin: undefined, xmax: undefined, ymin: undefined, ymax: undefined},
     fetching: false,
-    pointBudget: 62000000,
-    pointsPerRequest: 100000,
+    pointBudget: 180000000,
+    pointsPerRequest: 1000000,
     pointOffset: 0,
     quads: {
-      totalPoints: null,
+      totalPoints: undefined,
       displayedPoints: 0,
       pointOffsets: [],
-    }
+    },
+    done: {},
   };
 
   /*
@@ -235,25 +236,27 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
     // const polygons     = separateCircle(40);
     let polygons = [];
-    makeQuadrants(quadPair, polygons, 1);
+    makeQuadrants(quadPair, polygons, 3);
     shuffleArray(polygons);
     await getPolygonSizes(quadtreeName, polygons, props);
-    let which  = 0;
-    let filled = 0;
-    while (props.pointOffset < props.pointBudget && filled < polygons.length) {
-      console.log(filled);
-      console.log(polygons.length);
-      console.log(props.quads[polygons[which]].totalPoints);
-      console.log(props.quads[polygons[which]].loadedPoints);
+    let which = 0;
+    while (props.pointOffset < props.pointBudget && polygons.length > 0) {
+      console.log(props.quads[polygons[which]]);
       if (props.quads[polygons[which]].totalPoints <= props.quads[polygons[which]].loadedPoints) {
-        filled++;
+        props.done[polygons[which]] = props.quads[polygons[which]];
+        delete props.quads[polygons[which]];
+        polygons.splice(which, 1);
+        which = which % polygons.length;
         continue;
       }
       const hostPoints =
         await getQuadtreePoints(quadtreeName, polygons[which], props.pointsPerRequest);
       engine.subdata(hostPoints, props);
       const newOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
-      props.quads[polygons[which]].loadedPoints += hostPoints.length / 2;
+      if (props.quads[polygons[which]].loadedPoints === undefined) {
+        props.quads[polygons[which]].loadedPoints = 0;
+      }
+      props.quads[polygons[which]].loadedPoints += hostPoints.length / 2
       props.quads[polygons[which]].pointOffsets.push([props.pointOffset, newOffset]);
       props.pointOffset = newOffset;
       const sleep =
@@ -271,10 +274,8 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
   try {
     await release();
     background(props);
-    const csvName = await readCsv('cartesian_10m.csv');
+    const csvName = await readCsv('NAD_45m.csv');
     const engine  = await particlesEngine(props);
-    // fetchPoints(csvName, engine, props);
-    // computeTiming();
     fetchQuadtree(csvName, engine, props);
   } catch (e) { console.log(e); }
 })();

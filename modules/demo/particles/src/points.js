@@ -39,11 +39,11 @@ void main() {
     },
     uniforms: {
       view: ({tick}, props)  => getPointsViewMatrix(props),
-      scale: ({tick}, props) => { return Math.max(1.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
+      scale: ({tick}, props) => { return Math.max(0.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
       projection: ({viewportWidth, viewportHeight}) => getPointsProjectionMatrix(props),
       time: ({tick})                                => tick * 0.001
     },
-    count: props.pointBudget,
+    count: props.pointOffset,
     primitive: 'points'
   });
   return re;
@@ -59,8 +59,6 @@ export const particlesEngine = async (props) => {
 
   const subdata = async (hostPoints, props) => {
     // buffer(hostPoints);
-    console.log(props.pointOffset);
-    console.log(hostPoints.length);
     buffer.subdata(hostPoints, props.pointOffset * 4);
   };
 
