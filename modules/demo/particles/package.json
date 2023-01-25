@@ -16,6 +16,9 @@
     "resl": "1.0.3",
     "web-vitals": "2.1.4"
   },
+  "devDependencies": {
+    "eslint-config-react-app": "7.0.1"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

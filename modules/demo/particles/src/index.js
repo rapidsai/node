@@ -83,7 +83,7 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     w: () => [...worldCoords],
     // Define screen coords
     s: () => [...screenCoords],
-    zoomLevel: 1,
+    zoomLevel: 2.0,
     angle: 0,
     screenWidth: document.documentElement.clientHeight,
     screenHeight: document.documentElement.clientWidth,
@@ -125,7 +125,6 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     props.currentWorldCoords.xmax = newWorldCoords[8];
     props.currentWorldCoords.ymin = newWorldCoords[9];
     props.currentWorldCoords.ymax = newWorldCoords[1];
-    // fetchPoints(csvName, props);
     console.log(props.zoomLevel);
   });
   window.addEventListener('mousedown', (event) => {
@@ -157,31 +156,8 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
       props.currentWorldCoords.xmax = newWorldCoords[8];
       props.currentWorldCoords.ymin = newWorldCoords[9];
       props.currentWorldCoords.ymax = newWorldCoords[1];
-      // fetchPoints(csvName, props, newWorldCoords);
     }
   });
-
-  function separateCircle(radius) {
-    const polygons = [];
-    const centerX  = -105;
-    const centerY  = 39.73;
-    for (let i = 0; i < 144; i++) {
-      const angle1 = (i * 2.5) / 45 * Math.PI;
-      const angle2 = (i * 2.5 + 2.5) / 45 * Math.PI;
-      const points = [
-        centerX,
-        centerY,
-        radius * Math.cos(angle1) + centerX,
-        radius * Math.sin(angle1) + centerY,
-        radius * Math.cos(angle2) + centerX,
-        radius * Math.sin(angle2) + centerY,
-        centerX,
-        centerY
-      ];
-      polygons.push(points);
-    }
-    return polygons;
-  }
 
   const quadrants = [
     [-105, 40, -127, 40, -127, 49, -105, 49, -105, 40],
@@ -212,17 +188,12 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
       makeQuadrants([mx, my, x2, y2], list, depth - 1);
     }
 
-  const fetchPoints = async (csvName, engine, props) => {
-    const hostPoints = await fetchPoints(csvName);
-    engine.subdata(hostPoints, props);
-  };
-
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j              = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
-  }
+  };
   async function getPolygonSizes(quadtreeName, polygons, props) {
     const sizes = {};
     for (let i = 0; i < polygons.length; i++) {
@@ -234,8 +205,7 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
   }
   const fetchQuadtree = async (csvName, engine, props) => {
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
-    // const polygons     = separateCircle(40);
-    let polygons = [];
+    let polygons       = [];
     makeQuadrants(quadPair, polygons, 3);
     shuffleArray(polygons);
     await getPolygonSizes(quadtreeName, polygons, props);
@@ -274,7 +244,7 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
   try {
     await release();
     background(props);
-    const csvName = await readCsv('NAD_45m.csv');
+    const csvName = await readCsv('NAD_r11.txt');
     const engine  = await particlesEngine(props);
     fetchQuadtree(csvName, engine, props);
   } catch (e) { console.log(e); }

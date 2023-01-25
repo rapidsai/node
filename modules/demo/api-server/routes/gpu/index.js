@@ -72,6 +72,7 @@ module.exports = async function(fastify, opts) {
           header: 0,
           sourceType: 'files',
           sources: [path],
+          columnsToReturn: ['Longitude', 'Latitude']
         });
         const name        = request.body.filename;
         await fastify.cacheObject(name, cacheObject);
