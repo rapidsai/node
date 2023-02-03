@@ -22,7 +22,7 @@
     "rapidsai-install-native-module": "bin/rapidsai_install_native_module.js"
   },
   "scripts": {
-    "postinstall": "npx nvidia-cmake-js install",
+    "postinstall": "nvidia-cmake-js install",
     "clean": "rimraf build compile_commands.json",
     "build": "yarn tsc:build && yarn cpp:build",
     "build:debug": "yarn tsc:build && yarn cpp:build:debug",

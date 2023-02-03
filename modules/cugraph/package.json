@@ -18,7 +18,7 @@
     "url": "git+https://github.com/rapidsai/node.git"
   },
   "scripts": {
-    "install": "npx rapidsai-install-native-module",
+    "install": "rapidsai-install-native-module",
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
     "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
