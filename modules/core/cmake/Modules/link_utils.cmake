@@ -30,7 +30,7 @@ function(_statically_link_cuda_toolkit_libs target)
     foreach(_lib IN ITEMS blas cublas cublasLt cudart cufft cufftw cupti curand
                           cusolver cusolver_lapack cusolver_metis cusparse lapack nppc
                           nppial nppicc nppicom nppidei nppif nppig nppim nppist nppisu
-                          nppitc npps nvgraph)
+                          nppitc npps nvgraph nvrtc nvrtc_builtins)
       set(_suf "_static")
       if(_lib STREQUAL "cufft")
         set(_suf "_static_nocallback")
