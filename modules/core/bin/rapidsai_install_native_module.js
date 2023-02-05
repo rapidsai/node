@@ -16,11 +16,12 @@
 
 const {
   npm_package_name: pkg_name,
-  npm_package_version: pkg_ver,
+  npm_package_version: npm_pkg_ver,
+  RAPIDSAI_DOWNLOAD_VERSION: pkg_ver = npm_pkg_ver,
 } = process.env;
 
 if (process.env.RAPIDSAI_SKIP_DOWNLOAD === '1') {
-  console.log(`${pkg_name}: Not downloading native module because RAPIDSAI_SKIP_DOWNLOAD=1`);
+  console.info(`${pkg_name}: Not downloading native module because RAPIDSAI_SKIP_DOWNLOAD=1`);
   return;
 }
 
@@ -48,7 +49,19 @@ const stream = require('stream/promises');
 const getOS  = require('util').promisify(require('getos'));
 
 const extraFiles = process.argv.slice(2);
-const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', 'Release');
+const binary_dir = Path.join((() => {
+                               try {
+                                 return Path.dirname(require.resolve(pkg_name));
+                               } catch (e) {
+                                 const cwd = Path.dirname(Path.join(process.cwd(), 'package.json'));
+                                 if (cwd.endsWith(Path.join(...pkg_name.split('/')))) {
+                                   return cwd;
+                                 }
+                                 throw e;
+                               }
+                             })(),
+                             'build',
+                             'Release');
 
 (async () => {
   const distro   = typeof process.env.RAPIDSAI_LINUX_DISTRO !== 'undefined'
@@ -87,22 +100,22 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
                      ? process.env.RAPIDSAI_GPU_ARCHITECTURE
                      : getArchFromComputeCapabilities();
   const cuda_ver = `cuda${
-    (() => {
-      try {
-        if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
-          return process.env.RAPIDSAI_CUDA_VERSION;
-        }
-        if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
-          return process.env.CUDA_VERSION_MAJOR;
-        }
-        if (typeof process.env.CUDA_VERSION !== 'undefined') {
-          return process.env.CUDA_VERSION.split('.')[0];
-        }
-        return getCudaDriverVersion()[0];
-      } catch { /**/
-      }
-      return '';
-    })() ||
+    Math.min(11, +(() => {
+               try {
+                 if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
+                   return process.env.RAPIDSAI_CUDA_VERSION;
+                 }
+                 if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
+                   return process.env.CUDA_VERSION_MAJOR;
+                 }
+                 if (typeof process.env.CUDA_VERSION !== 'undefined') {
+                   return process.env.CUDA_VERSION.split('.')[0];
+                 }
+                 return getCudaDriverVersion()[0];
+               } catch { /**/
+               }
+               return '';
+             })()) ||
     '11'}`;
   const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');
   const MOD_NAME = [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `sm${gpu_arch}` : ``]
