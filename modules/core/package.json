@@ -22,7 +22,6 @@
     "rapidsai-merge-compile-commands": "bin/rapidsai_merge_compile_commands.js"
   },
   "scripts": {
-    "postinstall": "cmake-js install || true",
     "clean": "rimraf build compile_commands.json",
     "build": "yarn tsc:build && yarn cpp:build",
     "build:debug": "yarn tsc:build && yarn cpp:build:debug",
