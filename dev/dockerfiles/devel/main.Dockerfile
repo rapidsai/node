@@ -320,6 +320,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 ENV NO_UPDATE_NOTIFIER=1
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
+ENV npm_config_nodedir=/usr/local
 ENV NODE_PATH=/usr/local/lib/node_modules
 ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
 
