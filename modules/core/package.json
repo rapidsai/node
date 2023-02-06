@@ -22,7 +22,7 @@
     "rapidsai-merge-compile-commands": "bin/rapidsai_merge_compile_commands.js"
   },
   "scripts": {
-    "postinstall": "cross-env npm_config_nodedir=$(pwd) cmake-js install || true",
+    "postinstall": "cmake-js install || true",
     "clean": "rimraf build compile_commands.json",
     "build": "yarn tsc:build && yarn cpp:build",
     "build:debug": "yarn tsc:build && yarn cpp:build:debug",
