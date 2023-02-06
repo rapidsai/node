@@ -100,22 +100,25 @@ const binary_dir = Path.join((() => {
                      ? process.env.RAPIDSAI_GPU_ARCHITECTURE
                      : getArchFromComputeCapabilities();
   const cuda_ver = `cuda${
-    Math.min(11, +(() => {
-               try {
-                 if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
-                   return process.env.RAPIDSAI_CUDA_VERSION;
-                 }
-                 if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
-                   return process.env.CUDA_VERSION_MAJOR;
-                 }
-                 if (typeof process.env.CUDA_VERSION !== 'undefined') {
-                   return process.env.CUDA_VERSION.split('.')[0];
-                 }
-                 return getCudaDriverVersion()[0];
-               } catch { /**/
-               }
-               return '';
-             })()) ||
+    Math.max(11,
+             Math.min(11,
+                      +(() => {
+                        try {
+                          if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
+                            return process.env.RAPIDSAI_CUDA_VERSION;
+                          }
+                          if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
+                            return process.env.CUDA_VERSION_MAJOR;
+                          }
+                          if (typeof process.env.CUDA_VERSION !== 'undefined') {
+                            return process.env.CUDA_VERSION.split('.')[0];
+                          }
+                          return getCudaDriverVersion()[0];
+                        } catch { /**/
+                        }
+                        return '';
+                      })() ||
+                        11)) ||
     '11'}`;
   const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');
   const MOD_NAME = [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `sm${gpu_arch}` : ``]
