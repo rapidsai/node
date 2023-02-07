@@ -76,24 +76,38 @@
         ]
     },
     "settings": {
-        // Fix to make "<ctrl>+<shift>+<B>" tasks list launch instantly
-        "typescript.tsc.autoDetect": "off",
-        "terminal.integrated.inheritEnv": true,
-        "terminal.integrated.enableFileLinks": true,
-        "C_Cpp.formatting": "Disabled",
-        "C_Cpp.autocomplete": "Disabled",
-        "C_Cpp.errorSquiggles": "Disabled",
-        "C_Cpp.intelliSenseEngine": "Disabled",
-        "C_Cpp.configurationWarnings": "Disabled",
+        "C_Cpp.formatting": "disabled",
+        "C_Cpp.autocomplete": "disabled",
+        "C_Cpp.errorSquiggles": "disabled",
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "C_Cpp.configurationWarnings": "disabled",
         "C_Cpp.autoAddFileAssociations": false,
         "C_Cpp.vcpkg.enabled": false,
+        "clangd.path": "/usr/bin/clangd",
+        "clangd.arguments": [
+            "--log=info",
+            "--pch-storage=disk",
+            "--cross-file-rename",
+            "--completion-parse=auto",
+            "--fallback-style=Google",
+            "--compile-commands-dir=",
+            "--background-index=true",
+            "--all-scopes-completion",
+            "--header-insertion=never",
+            "--completion-style=detailed",
+            "--header-insertion-decorators"
+        ],
+        // Configure the xaver.clang-format plugin
+        "clang-format.fallbackStyle": "Google",
+        "clang-format.executable": "clang-format-12",
+        "clang-format.language.typescript.enable": true,
         "debug.terminal.clearBeforeReusing": true,
         // Configure ESLint plugin
         "eslint.debug": true,
         "eslint.nodeEnv": "production",
         "eslint.lintTask.enable": true,
         // "eslint.trace.server": "verbose",
-        "eslint.run": "onType",
+        "eslint.run": "onSave",
         "eslint.probe": [
             // "javascript",
             // "javascriptreact",
@@ -120,10 +134,60 @@
         "eslint.options": {
             "configFile": ".eslintrc.js"
         },
-        // Configure the xaver.clang-format plugin
-        "clang-format.fallbackStyle": "Google",
-        "clang-format.executable": "clang-format-12",
-        "clang-format.language.typescript.enable": true,
+        "git.ignoreLimitWarning": true,
+        "markdownlint.config": {
+            "default": true,
+            "MD033": false
+        },
+        "files.trimFinalNewlines": true,
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "files.associations": {
+            ".creds": "dotenv",
+            "*.cu": "cuda-cpp",
+            "*.cuh": "cuda-cpp",
+            "*.glsl.js": "glsl",
+            "*.glsl.ts": "glsl"
+        },
+        "files.exclude": {
+            "**/.git": true,
+            "**/.DS_Store": true,
+        },
+        "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/build/**": true,
+            "**/.next/**": true,
+            "**/.cache/**": true,
+            "**/.cmake-js/**": true,
+            "**/node_modules/**": true
+        },
+        "search.exclude": {
+            "**/napi.h": false,
+            "**/napi-inl.h": false,
+            "**/napi-inl.deprecated.h": false,
+            "**/node_api.h": false,
+            "**/build/**": true,
+            "**/.next/**": true,
+            "**/.cache/**": true,
+            "**/.cmake-js/**": true,
+            "**/node_modules/**": true
+        },
+        "terminal.integrated.cwd": "${workspaceFolder:node-rapids}",
+        "terminal.integrated.enableFileLinks": "on",
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "bash",
+                "icon": "terminal-bash",
+                "args": [
+                    "-li"
+                ]
+            }
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        // Fix to make "<ctrl>+<shift>+<B>" tasks list launch instantly
+        "typescript.tsc.autoDetect": "off",
+        "typescript.tsdk": "node-rapids/node_modules/typescript/lib",
         // Set the formatters and formatting options for each language
         "[c]": {
             "editor.tabSize": 2,
@@ -179,60 +243,6 @@
             "editor.formatOnSaveMode": "file",
             "editor.defaultFormatter": "vscode.typescript-language-features"
         },
-        "clangd.path": "/usr/bin/clangd",
-        "clangd.arguments": [
-            "--log=info",
-            "--pch-storage=disk",
-            "--cross-file-rename",
-            "--completion-parse=auto",
-            "--fallback-style=Google",
-            "--compile-commands-dir=",
-            "--background-index=true",
-            "--all-scopes-completion",
-            "--header-insertion=never",
-            "--completion-style=detailed",
-            "--header-insertion-decorators"
-        ],
-        "git.ignoreLimitWarning": true,
-        "markdownlint.config": {
-            "default": true,
-            "MD033": false
-        },
-        "files.trimFinalNewlines": true,
-        "files.insertFinalNewline": true,
-        "files.trimTrailingWhitespace": true,
-        "files.associations": {
-            ".creds": "dotenv",
-            "*.cu": "cuda-cpp",
-            "*.cuh": "cuda-cpp",
-            "*.glsl.js": "glsl",
-            "*.glsl.ts": "glsl"
-        },
-        "files.exclude": {
-            "**/.git": true,
-            "**/.DS_Store": true,
-        },
-        "files.watcherExclude": {
-            "**/.git/objects/**": true,
-            "**/.git/subtree-cache/**": true,
-            "**/build/**": true,
-            "**/.next/**": true,
-            "**/.cache/**": true,
-            "**/.cmake-js/**": true,
-            "**/node_modules/**": true
-        },
-        "search.exclude": {
-            "**/napi.h": false,
-            "**/napi-inl.h": false,
-            "**/napi-inl.deprecated.h": false,
-            "**/node_api.h": false,
-            "**/build/**": true,
-            "**/.next/**": true,
-            "**/.cache/**": true,
-            "**/.cmake-js/**": true,
-            "**/node_modules/**": true
-        },
-        "typescript.tsdk": "node-rapids/node_modules/typescript/lib"
     },
     "tasks": {
         "version": "2.0.0",
