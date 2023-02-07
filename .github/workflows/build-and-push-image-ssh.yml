@@ -112,9 +112,11 @@ jobs:
         with:
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |
+            .npmrc
+            yarn.lock
+            lerna.json
             ${{ inputs.file }}
             ${{ inputs.files-to-diff }}
-            lerna.json
             .github/workflows/merge.pr.yml
             .github/workflows/build-and-push-image-ssh.yml
             .github/actions/build-and-publish-image-ssh/action.yml
