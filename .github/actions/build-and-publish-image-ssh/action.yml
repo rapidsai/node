@@ -114,7 +114,7 @@ runs:
       shell: bash
       run: |
         cp -ar "$HOME"/.{ssh,gitconfig} "$(realpath -m "${{ inputs.context }}")/dev/";
-        sed -i "s@$HOME@/root@g" "$(realpath -m "${{ inputs.context }}")/dev/.ssh/config";
+        sed -i "s@$HOME@/opt/rapids@g" "$(realpath -m "${{ inputs.context }}")/dev/.ssh/config";
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
