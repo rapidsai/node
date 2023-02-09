@@ -37,7 +37,7 @@ ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
 ARG GCC_VERSION=9
-ARG CMAKE_VERSION=3.24.1
+ARG CMAKE_VERSION=3.26.0-rc1
 ARG SCCACHE_VERSION=0.2.15
 ARG LINUX_VERSION=ubuntu20.04
 
@@ -77,8 +77,6 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
     gfortran \
     ninja-build \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
-    cmake=${CMAKE_VERSION}-0kitware1${LINUX_VERSION}.1 \
-    cmake-data=${CMAKE_VERSION}-0kitware1${LINUX_VERSION}.1 \
     curl libssl-dev libcurl4-openssl-dev xz-utils zlib1g-dev liblz4-dev \
     # From opengl/glvnd:devel
     pkg-config \
@@ -88,6 +86,16 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  && chmod 0644 /usr/share/glvnd/egl_vendor.d/10_nvidia.json \
  && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
  && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
+ \
+ # Install cmake
+ && wget --no-hsts -q -O /tmp/cmake_${CMAKE_VERSION}.sh \
+    https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -p).sh \
+ && bash /tmp/cmake_${CMAKE_VERSION}.sh --skip-license --exclude-subdir --prefix=/usr \
+ # Fix FindCUDAToolkit.cmake finding the nvrtc_builtins_static library
+ # TODO: Remove this once https://gitlab.kitware.com/cmake/cmake/-/merge_requests/8162 is released
+ && sed -i \
+    's/nvrtc_builtins_static DEPS cuda_driver/nvrtc_builtins_static ALT nvrtc-builtins_static DEPS cuda_driver/g' \
+    /usr/share/cmake-3.26/Modules/FindCUDAToolkit.cmake \
  \
  # Install sccache
  && curl -SsL "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
@@ -312,6 +320,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 ENV NO_UPDATE_NOTIFIER=1
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
+ENV npm_config_nodedir=/usr/local
 ENV NODE_PATH=/usr/local/lib/node_modules
 ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
 

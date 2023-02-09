@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 const {
   npm_package_name: pkg_name,
-  npm_package_version: pkg_ver,
+  npm_package_version: npm_pkg_ver,
+  RAPIDSAI_DOWNLOAD_VERSION: pkg_ver = npm_pkg_ver,
 } = process.env;
 
 if (process.env.RAPIDSAI_SKIP_DOWNLOAD === '1') {
-  console.log(`${pkg_name}: Not downloading native module because RAPIDSAI_SKIP_DOWNLOAD=1`);
+  console.info(`${pkg_name}: Not downloading native module because RAPIDSAI_SKIP_DOWNLOAD=1`);
   return;
 }
 
@@ -48,7 +49,19 @@ const stream = require('stream/promises');
 const getOS  = require('util').promisify(require('getos'));
 
 const extraFiles = process.argv.slice(2);
-const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', 'Release');
+const binary_dir = Path.join((() => {
+                               try {
+                                 return Path.dirname(require.resolve(pkg_name));
+                               } catch (e) {
+                                 const cwd = Path.dirname(Path.join(process.cwd(), 'package.json'));
+                                 if (cwd.endsWith(Path.join(...pkg_name.split('/')))) {
+                                   return cwd;
+                                 }
+                                 throw e;
+                               }
+                             })(),
+                             'build',
+                             'Release');
 
 (async () => {
   const distro   = typeof process.env.RAPIDSAI_LINUX_DISTRO !== 'undefined'
@@ -68,7 +81,7 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
                          `${pkg_name}:` +
                          `Detected unsupported Linux distro "${dist} ${release}".\n` +
                          `Currently only Debian 11+ and Ubuntu 20.04+ are supported.\n` +
-                         `If you think you've encountered this message in error, set\n` +
+                         `If you believe you've encountered this message in error, set\n` +
                          `the \`RAPIDSAI_LINUX_DISTRO\` environment variable to one of\n` +
                          `the distributions listed in https://github.com/rapidsai/node/releases\n` +
                          `and reinstall ${pkg_name}`);
@@ -86,24 +99,37 @@ const binary_dir = Path.join(Path.dirname(require.resolve(pkg_name)), 'build', '
   const gpu_arch = typeof process.env.RAPIDSAI_GPU_ARCHITECTURE !== 'undefined'
                      ? process.env.RAPIDSAI_GPU_ARCHITECTURE
                      : getArchFromComputeCapabilities();
-  const cuda_ver = `cuda${
-    (() => {
-      try {
-        if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
-          return process.env.RAPIDSAI_CUDA_VERSION;
-        }
-        if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
-          return process.env.CUDA_VERSION_MAJOR;
-        }
-        if (typeof process.env.CUDA_VERSION !== 'undefined') {
-          return process.env.CUDA_VERSION.split('.')[0];
-        }
-        return getCudaDriverVersion()[0];
-      } catch { /**/
+  const cuda_ver = `cuda${(() => {
+    let cuda_major_ver = 11, rest = [];
+    try {
+      if (typeof process.env.RAPIDSAI_CUDA_VERSION !== 'undefined') {
+        cuda_major_ver = +process.env.RAPIDSAI_CUDA_VERSION;
+      } else if (typeof process.env.CUDA_VERSION_MAJOR !== 'undefined') {
+        cuda_major_ver = +process.env.CUDA_VERSION_MAJOR;
+      } else if (typeof process.env.CUDA_VERSION !== 'undefined') {
+        [cuda_major_ver, ...rest] = process.env.CUDA_VERSION.split('.').map((x) => +x);
+      } else {
+        [cuda_major_ver, ...rest] = getCudaDriverVersion().map((x) => +x);
       }
-      return '';
-    })() ||
-    '11'}`;
+    } catch { /**/
+    }
+    if (cuda_major_ver < 11) {
+      throw new Error(`${pkg_name}:` +
+                      `The detected CUDA driver only supports CUDA toolkit "v${
+                          [cuda_major_ver, ...rest].join('.')}".\n` +
+                      `Please update to a CUDA driver that supports at least CUDA 11.6.2.\n` +
+                      `An archive of all CUDA driver and toolkit releases can be found at:\n` +
+                      `  https://developer.nvidia.com/cuda-toolkit-archive\n\n` +
+                      `The driver version that aligns with a CUDA toolkit can be found in\n` +
+                      `the CUDA toolkit release notes.\n\n` +
+                      `If you believe you've encountered this message in error, set\n` +
+                      `the \`RAPIDSAI_CUDA_VERSION\` environment variable to one of\n` +
+                      `the CUDA versions listed in the release artifacts here:\n` +
+                      `  https://github.com/rapidsai/node/releases/v${pkg_ver}\n` +
+                      `and reinstall ${pkg_name}`);
+    }
+    return Math.min(11, cuda_major_ver || 11);
+  })()}`;
   const PKG_NAME = pkg_name.replace('@', '').replace('/', '_');
   const MOD_NAME = [PKG_NAME, pkg_ver, cuda_ver, distro, cpu_arch, gpu_arch ? `sm${gpu_arch}` : ``]
                      .filter(Boolean)
