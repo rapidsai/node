@@ -37,7 +37,7 @@ ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
 ARG GCC_VERSION=9
-ARG CMAKE_VERSION=3.26.0-rc1
+ARG CMAKE_VERSION=3.26.0-rc2
 ARG SCCACHE_VERSION=0.2.15
 ARG LINUX_VERSION=ubuntu20.04
 
@@ -91,11 +91,6 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  && wget --no-hsts -q -O /tmp/cmake_${CMAKE_VERSION}.sh \
     https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -p).sh \
  && bash /tmp/cmake_${CMAKE_VERSION}.sh --skip-license --exclude-subdir --prefix=/usr \
- # Fix FindCUDAToolkit.cmake finding the nvrtc_builtins_static library
- # TODO: Remove this once https://gitlab.kitware.com/cmake/cmake/-/merge_requests/8162 is released
- && sed -i \
-    's/nvrtc_builtins_static DEPS cuda_driver/nvrtc_builtins_static ALT nvrtc-builtins_static DEPS cuda_driver/g' \
-    /usr/share/cmake-3.26/Modules/FindCUDAToolkit.cmake \
  \
  # Install sccache
  && curl -SsL "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
