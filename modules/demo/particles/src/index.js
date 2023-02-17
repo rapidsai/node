@@ -122,9 +122,9 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
      */
     const newWorldCoords          = getScreenToWorldCoords(props);
     props.currentWorldCoords.xmin = newWorldCoords[0];
+    props.currentWorldCoords.ymin = newWorldCoords[1];
     props.currentWorldCoords.xmax = newWorldCoords[8];
-    props.currentWorldCoords.ymin = newWorldCoords[9];
-    props.currentWorldCoords.ymax = newWorldCoords[1];
+    props.currentWorldCoords.ymax = newWorldCoords[9];
     console.log(props.zoomLevel);
   });
   window.addEventListener('mousedown', (event) => {
@@ -146,16 +146,19 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
      to better track the difference between the screen and the viewport. TODO
      */
     if (props.isHeld) {
-      const moveX          = event.movementX * getCurrentOrthoScale(props) * 0.55;
-      const moveY          = event.movementY * getCurrentOrthoScale(props) * 0.85;
-      props.centerX        = props.centerX + moveX;
-      props.centerY        = props.centerY + moveY;
-      const newWorldCoords = getScreenToWorldCoords(props);
-      console.log(newWorldCoords);
+      const moveX                   = event.movementX * getCurrentOrthoScale(props) * 0.55;
+      const moveY                   = event.movementY * getCurrentOrthoScale(props) * 0.85;
+      props.centerX                 = props.centerX + moveX;
+      props.centerY                 = props.centerY + moveY;
+      const newWorldCoords          = getScreenToWorldCoords(props);
       props.currentWorldCoords.xmin = newWorldCoords[0];
+      props.currentWorldCoords.ymin = newWorldCoords[1];
       props.currentWorldCoords.xmax = newWorldCoords[8];
-      props.currentWorldCoords.ymin = newWorldCoords[9];
-      props.currentWorldCoords.ymax = newWorldCoords[1];
+      props.currentWorldCoords.ymax = newWorldCoords[9];
+      console.log(props.currentWorldCoords.ymin,
+                  props.currentWorldCoords.xmin,
+                  props.currentWorldCoords.ymax,
+                  props.currentWorldCoords.xmax)
     }
   });
 
