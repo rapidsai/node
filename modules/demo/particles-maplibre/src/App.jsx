@@ -1,3 +1,17 @@
+// Copyright (c) 2023, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import './App.css';
 
 import React, { useEffect, useState } from 'react';
@@ -46,6 +60,8 @@ const worldCoords = [
  These are inadequate for aligning the mouse movements correctly with the world movement, but they
  provide enough information to create a viewPort alignment. TODO
  */
+// TODO: Change dynamically to the clientWidth and clientHeight
+// that are available when the component is mounted.
 const screenCoords = [
   document.documentElement.clientWidth,
   document.documentElement.clientHeight,
@@ -92,7 +108,14 @@ const initialState = {
     pointOffsets: [],
   },
   done: {},
-  mapTransform: {},
+  mapTransform: {
+    mercatorMatrix: [
+      1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0
+    ]
+  },
 };
 
 function App() {
@@ -100,6 +123,11 @@ function App() {
 
   const updateTransformHandler = (event) => {
     dispatch({ type: 'UPDATE_TRANSFORM', event: event });
+  }
+  const mapReadyHandler = (event) => {
+    dispatch({
+      type: 'MAP_READY', event: event
+    });
   }
 
   // subscribe event
@@ -135,8 +163,8 @@ function App() {
     <div className='App'>
       <Title />
       <div className='map-box'>
-        <Map props={state} updateTransform={updateTransformHandler} />
-        <Particles props={state} />
+        <Map props={state} updateTransform={updateTransformHandler} mapReady={mapReadyHandler} />
+        {state.mapReady ? <Particles props={state} /> : null}
       </div>
       <Controls />
     </div>

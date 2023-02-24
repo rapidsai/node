@@ -14,6 +14,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import regl from 'regl';
+import mat4 from 'gl-mat4';
 const { getPointsViewMatrix, getPointsProjectionMatrix } = require('./matrices');
 
 function Particles({ props }) {
@@ -27,6 +28,13 @@ function Particles({ props }) {
         alpha: true,
       }
     });
+    const merX = (x) => {
+      return (180 + x) / 360;
+    }
+    const merY = (y) => {
+      return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + y * Math.PI / 360)))) / 360;
+    }
+    //const buffer = [merX(-100), merY(37), merX(-101), merY(37), merX(-102), merY(37), merX(-103), merY(37), merX(-104), merY(37)];
     const buffer = [-100, 37, -101, 37, -102, 37, -103, 37, -104, 37];
     const drawBuffer = reglInstance({
       vert: `
@@ -64,9 +72,19 @@ function Particles({ props }) {
       count: 5, //props.pointOffset,
       primitive: 'points'
     });
-
+    /*
+        let printI = 0;
+        reglInstance.frame(() => {
+          printI++;
+          if (printI % 100 === 0) {
+            console.log('props', props.mapTransform.mercatorMatrix);
+            console.log('view', getPointsViewMatrix(props));
+            console.log('projection', getPointsProjectionMatrix(props));
+          }
+          drawBuffer(props);
+        });
+    */
     drawBuffer(props);
-
     return () => reglInstance.destroy();
   }, [props]);
   return <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />;
