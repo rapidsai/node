@@ -14,30 +14,14 @@
 
 import React, { useEffect, useRef } from 'react';
 import regl from 'regl';
-import mat4 from 'gl-mat4';
+import { release, readCsv } from './requests';
+import { fetchQuadtree } from './points';
 const { getPointsViewMatrix, getPointsProjectionMatrix } = require('./matrices');
 
-function Particles({ props }) {
-  const canvasRef = useRef(null);
 
-  useEffect(() => {
-    const reglInstance = regl({
-      canvas: canvasRef.current,
-      attributes: {
-        antialias: false,
-        alpha: true,
-      }
-    });
-    const merX = (x) => {
-      return (180 + x) / 360;
-    }
-    const merY = (y) => {
-      return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + y * Math.PI / 360)))) / 360;
-    }
-    //const buffer = [merX(-100), merY(37), merX(-101), merY(37), merX(-102), merY(37), merX(-103), merY(37), merX(-104), merY(37)];
-    const buffer = [-100, 37, -101, 37, -102, 37, -103, 37, -104, 37];
-    const drawBuffer = reglInstance({
-      vert: `
+const drawBufferObj = (buffer, props) => {
+  return {
+    vert: `
         precision mediump float;
         attribute vec2 pos;
         uniform float scale;
@@ -50,7 +34,7 @@ function Particles({ props }) {
           gl_Position = projection * view * vec4(position, 1, 1);
           fragColor = vec3(0, 0, 0);
         }`,
-      frag: `
+    frag: `
         precision lowp float;
         varying vec3 fragColor;
         void main() {
@@ -59,19 +43,36 @@ function Particles({ props }) {
           }
           gl_FragColor = vec4(fragColor, 0.5);
         }`,
+    attributes: {
+      pos: { buffer: buffer, stride: 8, offset: 0 },
+    },
+    uniforms: {
+      view: ({ tick }, props) => getPointsViewMatrix(props),
+      scale:
+        ({ tick }, props) => { return 20 * Math.max(0.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
+      projection: ({ viewportWidth, viewportHeight }) => getPointsProjectionMatrix(props),
+      time: ({ tick }) => tick * 0.001
+    },
+    count: 5, //props.pointOffset,
+    primitive: 'points'
+  }
+}
+
+let useEffectCount = 0;
+function Particles({ props }) {
+  const canvasRef = useRef(null);
+  let draw = null;
+
+  useEffect(() => {
+    const reglInstance = regl({
+      canvas: canvasRef.current,
       attributes: {
-        pos: { buffer: buffer, stride: 8, offset: 0 },
-      },
-      uniforms: {
-        view: ({ tick }, props) => getPointsViewMatrix(props),
-        scale:
-          ({ tick }, props) => { return 20 * Math.max(0.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
-        projection: ({ viewportWidth, viewportHeight }) => getPointsProjectionMatrix(props),
-        time: ({ tick }) => tick * 0.001
-      },
-      count: 5, //props.pointOffset,
-      primitive: 'points'
+        antialias: false,
+        alpha: true,
+      }
     });
+    const buffer = [-100, 37, -101, 37, -102, 37, -103, 37, -104, 37];
+    const drawBuffer = reglInstance(drawBufferObj(buffer, props));
     /*
         let printI = 0;
         reglInstance.frame(() => {
@@ -84,9 +85,38 @@ function Particles({ props }) {
           drawBuffer(props);
         });
     */
-    drawBuffer(props);
+    draw = async () => {
+      const result = await drawBuffer(props);
+      return result;
+    };
+    draw();
+    const particlesEngine = async (props) => {
+      const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget * 4 });
+      const tick = reglInstance.frame(async () => {
+        reglInstance.clear({ depth: 1, color: [0, 0, 0, 0] });
+        const particles = await draw(buffer, props);
+      });
+
+      const subdata = async (hostPoints, props) => {
+        // buffer(hostPoints);
+        buffer.subdata(hostPoints, props.pointOffset * 4);
+      };
+
+      return { subdata: subdata };
+    }
+    const readPoints = async (inputCsv) => {
+      await release();
+      const engine = await particlesEngine(props);
+      const csvName = await readCsv(inputCsv);
+      fetchQuadtree(csvName, engine, props);
+    }
+    readPoints('shuffled.csv')
+    useEffectCount++;
+    console.log('useEffectCount', useEffectCount);
     return () => reglInstance.destroy();
-  }, [props]);
+  }, []);
+
+
   return <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />;
 }
 

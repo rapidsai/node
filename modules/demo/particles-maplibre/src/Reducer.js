@@ -12,11 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {getCurrentOrthoScale, getScreenToWorldCoords} from './matrices';
+
 const reducer =
   (state, action) => {
     switch (action.type) {
       case 'MOUSE_MOVE':
-        return { ...state, mouseX: action.event.screenX, mouseY: action.event.screenY, }
+        let centerX            = state.centerX;
+        let centerY            = state.centerY;
+        let currentWorldCoords = state.currentWorldCoords;
+        if (state.isHeld) {
+          const moveX          = action.event.movementX * getCurrentOrthoScale(state) * 0.55;
+          const moveY          = action.event.movementY * getCurrentOrthoScale(state) * 0.85;
+          centerX              = state.centerX + moveX;
+          centerY              = state.centerY + moveY;
+          const newWorldCoords = getScreenToWorldCoords(state);
+          currentWorldCoords   = {
+            xmin: newWorldCoords[0],
+            ymin: newWorldCoords[1],
+            xmax: newWorldCoords[8],
+            ymax: newWorldCoords[9],
+          }
+        }
+        return {
+          ...state, centerX: centerX, centerY: centerY, currentWorldCoords: currentWorldCoords
+        }
       case 'MOUSE_CLICK':
         console.log('click');
         console.log(state);

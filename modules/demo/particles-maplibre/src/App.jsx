@@ -164,7 +164,9 @@ function App() {
       <Title />
       <div className='map-box'>
         <Map props={state} updateTransform={updateTransformHandler} mapReady={mapReadyHandler} />
-        {state.mapReady ? <Particles props={state} /> : null}
+        <ErrorBoundary>
+          {state.mapReady ? <Particles props={state} /> : null}
+        </ErrorBoundary>
       </div>
       <Controls />
     </div>
