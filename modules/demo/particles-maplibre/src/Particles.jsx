@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, createContext, useState } from 'react';
 import regl from 'regl';
 import { release, readCsv } from './requests';
 import { fetchQuadtree } from './points';
 const { getPointsViewMatrix, getPointsProjectionMatrix } = require('./matrices');
 
+let testBuffer = [
+  [-100, 37, -101, 37, -102, 37, -103, 37, -104, 37],
+  [-100, 37, -100, 36, -100, 35, -100, 34, -100, 37],
+  [-100, 37, -99, 37, -98, 37, -97, 37, -96, 37],
+  [-100, 37, -100, 38, -100, 39, -100, 40, -100, 41],
+];
 
 const drawBufferObj = (buffer, props) => {
   return {
@@ -58,66 +64,47 @@ const drawBufferObj = (buffer, props) => {
   }
 }
 
-let useEffectCount = 0;
+const ParticlesContext = createContext();
+
+let useEffectNum = 0;
+
 function Particles({ props }) {
   const canvasRef = useRef(null);
-  let draw = null;
+  const [reglState, setReglState] = useState({ reglInstance: null, buffer: null });
 
   useEffect(() => {
+    // Create the initial regl instanc and the maximum size buffer for point storage.
     const reglInstance = regl({
       canvas: canvasRef.current,
-      attributes: {
-        antialias: false,
-        alpha: true,
-      }
     });
-    const buffer = [-100, 37, -101, 37, -102, 37, -103, 37, -104, 37];
-    const drawBuffer = reglInstance(drawBufferObj(buffer, props));
-    /*
-        let printI = 0;
-        reglInstance.frame(() => {
-          printI++;
-          if (printI % 100 === 0) {
-            console.log('props', props.mapTransform.mercatorMatrix);
-            console.log('view', getPointsViewMatrix(props));
-            console.log('projection', getPointsProjectionMatrix(props));
-          }
-          drawBuffer(props);
-        });
-    */
-    draw = async () => {
-      const result = await drawBuffer(props);
-      return result;
-    };
-    draw();
-    const particlesEngine = async (props) => {
-      const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget * 4 });
-      const tick = reglInstance.frame(async () => {
-        reglInstance.clear({ depth: 1, color: [0, 0, 0, 0] });
-        const particles = await draw(buffer, props);
-      });
-
-      const subdata = async (hostPoints, props) => {
-        // buffer(hostPoints);
-        buffer.subdata(hostPoints, props.pointOffset * 4);
-      };
-
-      return { subdata: subdata };
+    const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: 200000000 });
+    setReglState({ reglInstance, buffer });
+    return () => {
+      reglInstance.destroy();
     }
-    const readPoints = async (inputCsv) => {
-      await release();
-      const engine = await particlesEngine(props);
-      const csvName = await readCsv(inputCsv);
-      fetchQuadtree(csvName, engine, props);
-    }
-    readPoints('shuffled.csv')
-    useEffectCount++;
-    console.log('useEffectCount', useEffectCount);
-    return () => reglInstance.destroy();
   }, []);
 
+  useEffect(() => {
+    // initial rendering
+    const { reglInstance, buffer } = reglState;
+    useEffectNum += 1;
+    if (buffer) {
+      reglState.buffer.subdata(testBuffer[useEffectNum % 4], 0);
+      const drawBuffer = reglInstance(drawBufferObj(buffer, props));
+      drawBuffer(props);
 
-  return <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />;
+      const readPoints = async (inputCsv) => {
+        // load the csv
+        // set the polygon
+        // read the points
+      }
+      readPoints('shuffled.csv');
+    }
+  }, [props]);
+
+  return <ParticlesContext.Provider value={{ reglState, setReglState }}>
+    <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />;
+  </ParticlesContext.Provider>
 }
 
 export default Particles;

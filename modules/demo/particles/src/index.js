@@ -207,14 +207,21 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
     }
   }
   const fetchQuadtree = async (csvName, engine, props) => {
+    // API to create quadtree from CSV file
     const quadtreeName = await createQuadtree(csvName, {x: 'Longitude', y: 'Latitude'});
+
+    // Subdivide the intial viewport quadPair into many quadrants of depth 3
+    // and shuffle it
     let polygons       = [];
     makeQuadrants(quadPair, polygons, 3);
     shuffleArray(polygons);
     await getPolygonSizes(quadtreeName, polygons, props);
+
+    // Iterate over the polygons and fetch points from the server
     let which = 0;
     while (props.pointOffset < props.pointBudget && polygons.length > 0) {
       console.log(props.quads[polygons[which]]);
+      // if the polygon has been fully loaded, remove it from the list
       if (props.quads[polygons[which]].totalPoints <= props.quads[polygons[which]].loadedPoints) {
         props.done[polygons[which]] = props.quads[polygons[which]];
         delete props.quads[polygons[which]];
@@ -222,9 +229,14 @@ const {getScreenToWorldCoords, getCurrentOrthoScale} = require('./matrices');
         which = which % polygons.length;
         continue;
       }
+
+      // Fetch points from the server
       const hostPoints =
         await getQuadtreePoints(quadtreeName, polygons[which], props.pointsPerRequest);
+      // Add the points to the engine
       engine.subdata(hostPoints, props);
+
+      // Update the point offset and loaded points
       const newOffset = (props.pointOffset % props.pointBudget) + hostPoints.length;
       if (props.quads[polygons[which]].loadedPoints === undefined) {
         props.quads[polygons[which]].loadedPoints = 0;

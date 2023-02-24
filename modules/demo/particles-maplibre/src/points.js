@@ -30,7 +30,7 @@ import {
   setPolygon
 } from './requests';
 
-const quadPair = [[-127, 25, -63, 49]];
+const quadPair = [[-127, 25, -127, 49, -63, 49, -63, 25, -127, 25]];
 
 const makeQuadrants = (rectangle, list, depth = 3) => {
   const x1 = rectangle[0];
@@ -82,22 +82,9 @@ export const fetchQuadtree = async (csvName, engine, props) => {
 
   // Subdivide the intial viewport quadPair into many quadrants of depth 3
   // and shuffle it
-  quads[quadPair] = {};
-  let polygons    = quads;
-
-  await getPolygonSizes(quadtreeName, polygons, props);
-
-  // Iterate over the polygons and fetch points from the server
-  let which = 0;
-  while (props.pointOffset < props.pointBudget && polygons.length > 0) {
-    if (quadIsFull(polygons[which])) {
-      polygons.splice(which, 1);
-      which = which % polygons.length;
-      continue;
-    }
-    const hostPoints = await points(quadtreeName, polygons[which], props);
-    await updateQuad(polygons[which], hostPoints, props);
-  }
+  const polygonName = await getPolygonSizes(quadtreeName, quadPair, props);
+  const hostPoints  = await points(quadtreeName, quadPair, props);
+  engine.subdata(hostPoints, props);
 };
 
 const points = async (quadtreeName, quadrant, props) => {
