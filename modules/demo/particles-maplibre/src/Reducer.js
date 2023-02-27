@@ -58,7 +58,8 @@ const reducer =
         return { ...state, map: action.event }
       case 'MAP_READY':
         console.log('map ready');
-        return { ...state, mapReady: true }
+        console.log(action.event);
+        return { ...state, mapReady: true, map: action.event.target }
       default: throw new Error('chalupa batman');
     }
   }

@@ -26,6 +26,7 @@ let testBuffer = [
 
 const drawBufferObj = (buffer, props) => {
   //const world = [props.map.transform._center.lng, props.map.transform._center.lat, 0, 1];
+  /*
   const world = [-105, 40, 0, 1];
   const mercator = [
     (180.0 + world[0]) / 360.0,
@@ -37,6 +38,8 @@ const drawBufferObj = (buffer, props) => {
   console.log([labelPlane[0] / labelPlane[3], labelPlane[1] / labelPlane[3]]);
   console.log(labelPlane);
   console.log(props.map.transform.labelPlaneMatrix);
+  */
+  console.log(props.map.transform.width);
   return {
     vert: `
         precision mediump float;
@@ -53,7 +56,6 @@ const drawBufferObj = (buffer, props) => {
           position.y = (180.0 - (180.0 / PI * log(tan(PI * 0.25 + position.y * (PI / 360.0))))) / 360.0;
           vec4 screen = view * projection * vec4(position, 0, 1);
           gl_Position = screenToClip * screen;
-          //gl_Position = vec4(1, 1, 0, 1);
           fragColor = vec3(0, 0, 0);
         }`,
     frag: `
@@ -69,9 +71,14 @@ const drawBufferObj = (buffer, props) => {
       pos: { buffer: buffer, stride: 8, offset: 0 },
     },
     uniforms: {
-      screenToClip: (props) => getProjection(
+      screenToClip: () => getProjection(
         [-1, -1, 0, 1, -1, 1, 0, 1, 1, -1, 0, 1, 1, 1, 0, 1],
-        [0, 600, 0, 1, 0, 0, 0, 1, 722, 600, 0, 1, 722, 0, 0, 1],
+        [
+          0, props.map.transform.height, 0, 1,
+          0, 0, 0, 1,
+          props.map.transform.width, props.map.transform.height, 0, 1,
+          props.map.transform.width, 0, 0, 1
+        ],
       ),
       view: ({ tick }, props) => props.map.transform.labelPlaneMatrix,
       scale:

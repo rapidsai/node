@@ -32,6 +32,7 @@ function Map({updateTransform, mapReady}) {
       updateTransform(e.target);
       mapReady(e);
     });
+    map.on('resize', function(e) { updateTransform(e.target); });
 
     return () => map.remove();
   }, []);
