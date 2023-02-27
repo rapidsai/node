@@ -27,16 +27,10 @@ function Map({updateTransform, mapReady}) {
       dragPan: true,
       scrollZoom: true
     });
-    map.on('move', function(e) { updateTransform(e.target.transform); });
+    map.on('move', function(e) { updateTransform(e.target); });
     map.on('load', function(e) {
-      updateTransform(e.target.transform);
-      console.log(e.target.transform.pixelMatrix)
+      updateTransform(e.target);
       mapReady(e);
-      console.log(map.project([-100, 37]));
-      console.log(map.project([-101, 37]));
-      console.log(map.project([-102, 37]));
-      console.log(map.project([-103, 37]));
-      console.log(map.project([-104, 37]));
     });
 
     return () => map.remove();

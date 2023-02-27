@@ -55,7 +55,7 @@ const reducer =
       case 'UPDATE_TRANSFORM':
         console.log('update transform...');
         console.log(action.event);
-        return { ...state, mapTransform: action.event }
+        return { ...state, map: action.event }
       case 'MAP_READY':
         console.log('map ready');
         return { ...state, mapReady: true }

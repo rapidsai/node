@@ -108,13 +108,15 @@ const initialState = {
     pointOffsets: [],
   },
   done: {},
-  mapTransform: {
-    mercatorMatrix: [
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 1.0
-    ]
+  map: {
+    transform: {
+      mercatorMatrix: [
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+      ]
+    }
   },
 };
 
