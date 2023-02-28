@@ -28,7 +28,7 @@ function Points({ props, buffer }) {
   useEffect(() => {
     // read CSV
     const preloadAllPoints = async () => {
-      const csv = await readCsv('shuffled.csv');
+      const csv = await readCsv('NAD_r11.txt');
       const quadtreeName = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
       const polygon = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
       const quadtreePointCount = await getQuadtreePointCount(quadtreeName, polygon);

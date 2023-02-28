@@ -32,7 +32,7 @@ const initialState = {
   zoomLevel: 2.0,
   angle: 0,
   fetching: false,
-  pointBudget: 250000000,
+  pointBudget: 600000000,
   pointsPerRequest: 1000000,
   pointOffset: 0,
   quads: {

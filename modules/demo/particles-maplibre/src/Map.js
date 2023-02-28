@@ -21,9 +21,11 @@ function Map({updateTransform, mapReady}) {
   useEffect(() => {
     var map = new maplibregl.Map({
       container: 'map',
-      style: 'https://demotiles.maplibre.org/style.json',  // stylesheet location
-      center: [-105, 40],                                  // starting position [lng, lat]
-      zoom: 5,                                             // starting zoom
+      style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',  // stylesheet
+                                                                              // location
+      tileLayer: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      center: [-105, 40],  // starting position [lng, lat]
+      zoom: 5,             // starting zoom
       dragPan: true,
       scrollZoom: true
     });

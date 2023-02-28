@@ -83,7 +83,7 @@ const drawBufferObj = (buffer, props) => {
       ),
       view: ({ tick }, props) => props.map.transform.labelPlaneMatrix,
       scale:
-        ({ tick }, props) => { return Math.max(0.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
+        ({ tick }, props) => { return Math.max(0.5, Math.pow(props.zoomLevel, 1 / 5)); },
       projection: ({ viewportWidth, viewportHeight }) => props.map.transform.mercatorMatrix,
       time: ({ tick }) => tick * 0.001
     },
@@ -122,7 +122,7 @@ function Particles({ props }) {
   }, [props]);
 
   return <ParticlesContext.Provider value={{ reglState, setReglState }}>
-    <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />
+    <canvas ref={canvasRef} className='foreground-canvas' width="2000" height="2000" />
     {buffer ? <Points props={props} buffer={buffer} /> : null}
   </ParticlesContext.Provider>
 }
