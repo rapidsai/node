@@ -16,11 +16,10 @@ import './App.css';
 
 import React, { useEffect, useState } from 'react';
 
-import Controls from './Controls.js';
+import Controls from './Controls/Controls.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import Map from './Map.js';
 import Particles from './Particles.jsx';
-import Points from './Points.jsx';
 import reducer from './Reducer';
 import Title from './Title.js';
 
@@ -99,7 +98,7 @@ function App() {
           {state.mapReady ? <Particles props={state} /> : null}
         </ErrorBoundary>
       </div>
-      <Controls />
+      <Controls props={state} />
     </div>
   );
 }
