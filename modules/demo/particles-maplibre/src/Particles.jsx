@@ -14,8 +14,8 @@
 
 import React, { useEffect, useRef, createContext, useState } from 'react';
 import regl from 'regl';
-import mat4 from 'gl-mat4';
-const { getProjection, getPointsViewMatrix, getPointsProjectionMatrix } = require('./matrices');
+import Points from './Points.jsx';
+const { getProjection } = require('./matrices');
 
 let testBuffer = [
   [-100, 37, -101, 37, -102, 37, -103, 37, -104, 37],
@@ -40,6 +40,7 @@ const drawBufferObj = (buffer, props) => {
   console.log(props.map.transform.labelPlaneMatrix);
   */
   console.log(props.map.transform.width);
+  console.log(props.pointOffset);
   return {
     vert: `
         precision mediump float;
@@ -82,29 +83,29 @@ const drawBufferObj = (buffer, props) => {
       ),
       view: ({ tick }, props) => props.map.transform.labelPlaneMatrix,
       scale:
-        ({ tick }, props) => { return 20 * Math.max(0.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
+        ({ tick }, props) => { return Math.max(0.5, Math.pow(props.zoomLevel, 1 / 2.6)); },
       projection: ({ viewportWidth, viewportHeight }) => props.map.transform.mercatorMatrix,
       time: ({ tick }) => tick * 0.001
     },
-    count: 5, //props.pointOffset,
+    count: props.pointOffset,
     primitive: 'points'
   }
 }
 
 const ParticlesContext = createContext();
 
-let useEffectNum = 0;
-
 function Particles({ props }) {
   const canvasRef = useRef(null);
   const [reglState, setReglState] = useState({ reglInstance: null, buffer: null });
+  const { reglInstance, buffer } = reglState;
 
   useEffect(() => {
     // Create the initial regl instanc and the maximum size buffer for point storage.
+    console.log('Empty particles useEffect');
     const reglInstance = regl({
       canvas: canvasRef.current,
     });
-    const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: 200000000 });
+    const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
     setReglState({ reglInstance, buffer });
     return () => {
       reglInstance.destroy();
@@ -113,24 +114,16 @@ function Particles({ props }) {
 
   useEffect(() => {
     // initial rendering
-    const { reglInstance, buffer } = reglState;
-    useEffectNum += 1;
     if (buffer) {
-      reglState.buffer.subdata(testBuffer[useEffectNum % 4], 0);
+      buffer.subdata(testBuffer, 0);
       const drawBuffer = reglInstance(drawBufferObj(buffer, props));
       drawBuffer(props);
-
-      const readPoints = async (inputCsv) => {
-        // load the csv
-        // set the polygon
-        // read the points
-      }
-      readPoints('shuffled.csv');
     }
   }, [props]);
 
   return <ParticlesContext.Provider value={{ reglState, setReglState }}>
-    <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />;
+    <canvas ref={canvasRef} className='foreground-canvas' width="900" height="900" />
+    {buffer ? <Points props={props} buffer={buffer} /> : null}
   </ParticlesContext.Provider>
 }
 

@@ -20,6 +20,7 @@ import Controls from './Controls.js';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import Map from './Map.js';
 import Particles from './Particles.jsx';
+import Points from './Points.jsx';
 import reducer from './Reducer';
 import Title from './Title.js';
 
@@ -32,7 +33,7 @@ const initialState = {
   zoomLevel: 2.0,
   angle: 0,
   fetching: false,
-  pointBudget: 180000000,
+  pointBudget: 250000000,
   pointsPerRequest: 1000000,
   pointOffset: 0,
   quads: {

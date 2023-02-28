@@ -105,7 +105,7 @@ export const getQuadtreePointCount =
     let path = config.SERVER + ':' + config.PORT + config.count.URL + '/' + quadtreeName + '/' +
                polygonName + '/count';
     const countResult = await fetch(path, config.count.OPTIONS);
-    return countResult.json();
+    return await countResult.json();
   }
 
 export const release = async (quadtreeName) => {
