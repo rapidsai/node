@@ -84,7 +84,7 @@ target_compile_definitions(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
                PUBLIC ${CMAKE_JS_LIB}
-                      CUDA::nvrtc
+                      CUDA::nvrtc_static
                       CUDA::cudart_static
                       CUDA::nppig_static
                       CUDA::nppicc_static

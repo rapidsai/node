@@ -27,7 +27,7 @@
     "react-dom": "17.0.2"
   },
   "files": [
-    "app.js",
+    "app.jsx",
     "data.js",
     "util.js",
     "color.js",

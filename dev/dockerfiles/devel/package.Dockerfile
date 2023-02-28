@@ -31,20 +31,19 @@ COPY --chown=rapids:rapids yarn.lock     yarn.lock
 COPY --chown=rapids:rapids scripts       scripts
 COPY --chown=rapids:rapids modules       modules
 
-USER root
-
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
 
-RUN --mount=type=ssh,required=true \
-    --mount=type=secret,id=sccache_credentials \
-    --mount=type=bind,source=dev/.ssh,target=/root/.ssh,rw \
-    --mount=type=bind,source=dev/.gitconfig,target=/etc/gitconfig \
+RUN --mount=type=ssh,uid=1000,gid=1000,required=true \
+    --mount=type=secret,id=sccache_credentials,uid=1000,gid=1000 \
+    --mount=type=bind,source=dev/.ssh,target=/opt/rapids/.ssh,rw \
+    --mount=type=bind,source=dev/.gitconfig,target=/opt/rapids/.gitconfig \
+    sudo chown -R $(id -u):$(id -g) /opt/rapids; \
     if [ -f /run/secrets/sccache_credentials ]; then \
         export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \
     fi; \
     # Add GitHub's public keys to known_hosts
-    if [ ! -f /root/.ssh/known_hosts ]; then \
-        curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /root/.ssh/known_hosts; \
+    if [ ! -f /opt/rapids/.ssh/known_hosts ]; then \
+        curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /opt/rapids/.ssh/known_hosts; \
     fi; \
     echo -e "build context:\n$(find .)" \
  && bash -c 'echo -e "\

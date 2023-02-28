@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,6 +67,19 @@ Napi::Value cudaMemGetInfoNapi(CallbackArgs const& args) {
   NODE_CUDA_TRY(CUDARTAPI::cudaMemGetInfo(&free, &total), args.Env());
   return CPPToNapi(args)(std::vector<size_t>{free, total},
                          std::vector<std::string>{"free", "total"});
+}
+
+Napi::Value cudaPointerGetAttributesNapi(CallbackArgs const& args) {
+  auto env   = args.Env();
+  void* dptr = args[0];
+  CUDARTAPI::cudaPointerAttributes attrs{};
+  NODE_CUDA_TRY(CUDARTAPI::cudaPointerGetAttributes(&attrs, dptr), env);
+  auto obj = Napi::Object::New(env);
+  obj.Set("type", attrs.type);
+  obj.Set("device", attrs.device);
+  obj.Set("hptr", reinterpret_cast<uint64_t>(attrs.hostPointer));
+  obj.Set("dptr", reinterpret_cast<uint64_t>(attrs.devicePointer));
+  return obj;
 }
 
 // CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attribute,
@@ -140,6 +153,7 @@ Napi::Object initModule(Napi::Env const& env,
   EXPORT_FUNC(env, runtime, "cudaMemset", cudaMemsetNapi);
   EXPORT_FUNC(env, runtime, "cudaMemcpy", cudaMemcpyNapi);
   EXPORT_FUNC(env, runtime, "cudaMemGetInfo", cudaMemGetInfoNapi);
+  EXPORT_FUNC(env, runtime, "cudaPointerGetAttributes", cudaPointerGetAttributesNapi);
   EXPORT_FUNC(env, driver, "cuPointerGetAttribute", cuPointerGetAttributeNapi);
 
   auto PointerAttributes = Napi::Object::New(env);
