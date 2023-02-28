@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cudf",
-  "version": "22.8.2",
+  "version": "22.8.3",
   "description": "cuDF - NVIDIA RAPIDS GPU DataFrame Library",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -54,8 +54,8 @@
     "dev:cpack:enabled": "echo $npm_package_name"
   },
   "dependencies": {
-    "@rapidsai/cuda": "~22.8.2",
-    "@rapidsai/rmm": "~22.8.2",
+    "@rapidsai/cuda": "~22.8.3",
+    "@rapidsai/rmm": "~22.8.3",
     "apache-arrow": "^9.0.0"
   },
   "devDependencies": {
