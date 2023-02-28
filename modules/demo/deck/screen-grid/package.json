@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-screengrid",
-  "version": "22.8.2",
+  "version": "22.8.3",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -16,7 +16,7 @@
     "@deck.gl/aggregation-layers": "8.8.10",
     "@deck.gl/react": "8.8.10",
     "@luma.gl/core": "8.5.16",
-    "@rapidsai/jsdom": "~22.8.2",
+    "@rapidsai/jsdom": "~22.8.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-map-gl": "7.0.19"

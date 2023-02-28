@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "node-rapids",
-  "version": "22.8.2",
+  "version": "22.8.3",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
