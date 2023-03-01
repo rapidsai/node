@@ -16,11 +16,8 @@ import React, { useEffect, useRef, createContext, useState } from 'react';
 import regl from 'regl';
 import { State, ParticleState } from './types';
 import { readCsv, release, createQuadtree, setPolygon, getQuadtreePointCount, getQuadtreePoints } from './requests.js';
-import reducer from "./Reducer";
 import { mapPropsStream, createEventHandler } from 'recompose';
 import * as ix from './ix';
-import { EntryPointStrategy } from 'typedoc';
-import { RegExpLiteral } from '@typescript-eslint/types/dist/generated/ast-spec';
 const { getProjection } = require('./matrices');
 
 let testBuffer = new Float32Array([
@@ -96,9 +93,6 @@ const drawBufferObj = (buffer: regl.Buffer, props: State) => {
   }
 };
 
-interface Regl {
-  regl: any;
-};
 interface ParticlesContextType {
   reglState: { reglInstance: regl.Regl | null; buffer: regl.Buffer | null };
   setReglState: React.Dispatch<React.SetStateAction<{ reglInstance: regl.Regl | null; buffer: regl.Buffer | null }>>;
@@ -180,7 +174,7 @@ function Particles({ props, loading, updatePointOffset }) {
     return () => {
       reglInstance.destroy();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // initial rendering
@@ -188,7 +182,7 @@ function Particles({ props, loading, updatePointOffset }) {
       const drawBuffer = reglInstance(drawBufferObj(buffer, props) as regl.InitializationOptions);
       drawBuffer(props);
     }
-  }, [props]);
+  }, [props]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <ParticlesContext.Provider value={{ reglState, setReglState }}>
     <canvas ref={canvasRef} className='foreground-canvas' width="2000" height="2000" />
