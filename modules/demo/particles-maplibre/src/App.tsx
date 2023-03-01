@@ -51,6 +51,9 @@ function App(): JSX.Element {
   const mapReadyHandler = (event: unknown) => {
     dispatch({ type: 'MAP_READY', event: event });
   };
+  const loadingHandler = (event: unknown) => {
+    setSpinning(true);
+  }
   const updatePointOffsetHandler = (event: unknown) => {
     dispatch({ type: 'UPDATE_POINTOFFSET', event: event });
     setSpinning(false);
@@ -87,7 +90,7 @@ function App(): JSX.Element {
         {spinning && <Spinner />}
         <Map updateTransform={updateTransformHandler} mapReady={mapReadyHandler} />
         <ErrorBoundary>
-          {state.mapReady ? <Particles props={state} updatePointOffset={updatePointOffsetHandler} /> : null}
+          {state.mapReady ? <Particles props={state} loading={loadingHandler} updatePointOffset={updatePointOffsetHandler} /> : null}
         </ErrorBoundary>
       </div>
       <Controls props={state} />

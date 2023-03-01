@@ -19,6 +19,8 @@ import { readCsv, release, createQuadtree, setPolygon, getQuadtreePointCount, ge
 import reducer from "./Reducer";
 import { mapPropsStream, createEventHandler } from 'recompose';
 import * as ix from './ix';
+import { EntryPointStrategy } from 'typedoc';
+import { RegExpLiteral } from '@typescript-eslint/types/dist/generated/ast-spec';
 const { getProjection } = require('./matrices');
 
 let testBuffer = new Float32Array([
@@ -28,7 +30,7 @@ let testBuffer = new Float32Array([
   [-100, 37, -100, 38, -100, 39, -100, 40, -100, 41],
 ].flatMap((x) => x));
 
-const drawBufferObj = (buffer: Buffer, props: State) => {
+const drawBufferObj = (buffer: regl.Buffer, props: State) => {
   //const world = [props.map.transform._center.lng, props.map.transform._center.lat, 0, 1];
   /*
   const world = [-105, 40, 0, 1];
@@ -71,7 +73,7 @@ const drawBufferObj = (buffer: Buffer, props: State) => {
           gl_FragColor = vec4(fragColor, 0.5);
         }`,
     attributes: {
-      pos: { buffer: buffer, stride: 8, offset: 0 },
+      pos: { buffer: buffer as regl.Buffer, stride: 8, offset: 0 },
     },
     uniforms: {
       screenToClip: () => getProjection(
@@ -92,16 +94,15 @@ const drawBufferObj = (buffer: Buffer, props: State) => {
     count: props.pointOffset,
     primitive: 'points'
   }
-}
+};
 
 interface Regl {
   regl: any;
-}
+};
 interface ParticlesContextType {
-  reglState: { reglInstance: Regl | null; buffer: Buffer | null };
-  setReglState: React.Dispatch<React.SetStateAction<{ reglInstance: Regl | null; buffer: Buffer | null }>>;
-}
-
+  reglState: { reglInstance: regl.Regl | null; buffer: regl.Buffer | null };
+  setReglState: React.Dispatch<React.SetStateAction<{ reglInstance: regl.Regl | null; buffer: regl.Buffer | null }>>;
+};
 const ParticlesContext = createContext<ParticlesContextType>({
   reglState: { reglInstance: null, buffer: null },
   setReglState: () => null
@@ -142,9 +143,15 @@ const withParticlesProps = mapPropsStream(props$ => {
 });
 const Particles = withParticlesProps(
 */
-function Particles({ props, updatePointOffset }) {
+
+interface ReglState {
+  reglInstance: regl.Regl | null;
+  buffer: regl.Buffer | null;
+}
+
+function Particles({ props, loading, updatePointOffset }) {
   const canvasRef = useRef(null);
-  const [reglState, setReglState] = useState({ reglInstance: null, buffer: null });
+  const [reglState, setReglState] = useState<ReglState>({ reglInstance: null, buffer: null });
   const { reglInstance, buffer } = reglState;
 
   useEffect(() => {
@@ -155,6 +162,7 @@ function Particles({ props, updatePointOffset }) {
     });
     const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
     const getPoints = async () => {
+      loading();
       const csv = await readCsv(props.sourceName);
       const quadtreeName: string = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
       const polygon: string = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
@@ -176,8 +184,8 @@ function Particles({ props, updatePointOffset }) {
 
   useEffect(() => {
     // initial rendering
-    if (buffer) {
-      const drawBuffer = reglInstance(drawBufferObj(buffer, props));
+    if (buffer && reglInstance) {
+      const drawBuffer = reglInstance(drawBufferObj(buffer, props) as regl.InitializationOptions);
       drawBuffer(props);
     }
   }, [props]);

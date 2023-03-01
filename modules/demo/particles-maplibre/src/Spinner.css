@@ -27,6 +27,8 @@ limitations under the License.
     width: 20px;
     height: 20px;
     animation: spin 1s linear infinite;
+    margin: 0px;
+    padding: 0px;
 }
 
 @keyframes spin {
