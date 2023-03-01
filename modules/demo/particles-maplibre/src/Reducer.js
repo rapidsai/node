@@ -12,34 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const reducer =
-  (state, action) => {
-    switch (action.type) {
-      case 'MOUSE_CLICK':
-        console.log('click');
-        console.log(state);
-        return { ...state, isHeld: true }
-      case 'MOUSE_RELEASE':
-        console.log('unclick');
-        return { ...state, isHeld: false }
-      case 'SCROLL':
-        console.log('scroll');
-        const zoom   = action.event.deltaY > 0 ? -1 : 1;
-        const result = action.event.deltaY > 0 ? state.zoomLevel / 1.2 : state.zoomLevel * 1.2;
-        return { ...state, zoomLevel: result }
-      case 'ROTATE':
-        const angle = state.angle;
-        return { ...state, angle: angle + 1 % 360 }
-      case 'UPDATE_TRANSFORM':
-        console.log('update transform...');
-        console.log(action.event);
-        return { ...state, map: action.event }
-      case 'MAP_READY':
-        console.log('map ready');
-        console.log(action.event);
-        return { ...state, mapReady: true, map: action.event.target }
-      default: throw new Error('chalupa batman');
-    }
+type State = {
+  isHeld: boolean;
+  zoomLevel: number;
+  angle: number;
+  mapReady: boolean;
+  map: any; // Replace `any` with the appropriate type
+};
+
+type Action =
+  | { type: 'MOUSE_CLICK' }
+  | { type: 'MOUSE_RELEASE' }
+  | { type: 'SCROLL', event: WheelEvent }
+  | { type: 'ROTATE' }
+  | { type: 'UPDATE_TRANSFORM', event: any } // Replace `any` with the appropriate type
+  | { type: 'MAP_READY', event: any }; // Replace `any` with the appropriate type
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'MOUSE_CLICK':
+      console.log('click');
+      console.log(state);
+      return { ...state, isHeld: true };
+    case 'MOUSE_RELEASE':
+      console.log('unclick');
+      return { ...state, isHeld: false };
+    case 'SCROLL':
+      console.log('scroll');
+      const zoom = action.event.deltaY > 0 ? -1 : 1;
+      const result = action.event.deltaY > 0 ? state.zoomLevel / 1.2 : state.zoomLevel * 1.2;
+      return { ...state, zoomLevel: result };
+    case 'ROTATE':
+      const angle = state.angle;
+      return { ...state, angle: (angle + 1) % 360 };
+    case 'UPDATE_TRANSFORM':
+      console.log('update transform...');
+      console.log(action.event);
+      return { ...state, map: action.event };
+    case 'MAP_READY':
+      console.log('map ready');
+      console.log(action.event);
+      return { ...state, mapReady: true, map: action.event.target };
+    default:
+      throw new Error('chalupa batman');
   }
+};
 
 export default reducer;
