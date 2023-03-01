@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "allowJs": true,
+    "module": "es2020",
+    "target": "es2020",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "ES2020",
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+    "jsx": "react"
+  },
+  "include": ["src/**/*.ts"]
+}
