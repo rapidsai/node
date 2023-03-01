@@ -13,13 +13,14 @@
 // limitations under the License.
 
 import './App.css';
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import Controls from './Controls/Controls';
 import ErrorBoundary from './ErrorBoundary';
 import Map from './Map';
 import Particles from './Particles';
 import reducer from './Reducer';
 import Title from './Title';
+import Spinner from './Spinner';
 import { ParticleState, State } from './types'
 
 const initialState: State = {
@@ -42,6 +43,7 @@ const initialState: State = {
 
 function App(): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [spinning, setSpinning] = useState(true);
 
   const updateTransformHandler = (event: unknown) => {
     dispatch({ type: 'UPDATE_TRANSFORM', event: event });
@@ -51,6 +53,7 @@ function App(): JSX.Element {
   };
   const updatePointOffsetHandler = (event: unknown) => {
     dispatch({ type: 'UPDATE_POINTOFFSET', event: event });
+    setSpinning(false);
   };
 
   // subscribe event
@@ -81,6 +84,7 @@ function App(): JSX.Element {
     <div className="App">
       <Title />
       <div className="map-box">
+        {spinning && <Spinner />}
         <Map updateTransform={updateTransformHandler} mapReady={mapReadyHandler} />
         <ErrorBoundary>
           {state.mapReady ? <Particles props={state} updatePointOffset={updatePointOffsetHandler} /> : null}

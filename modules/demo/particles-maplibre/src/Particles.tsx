@@ -109,7 +109,6 @@ const ParticlesContext = createContext<ParticlesContextType>({
 /*
 const withParticlesProps = mapPropsStream(props$ => {
   const props_ = ix.ai.from<State>(props$ as any);
-
   const quadtreeUpdates = props_.pipe(
     ix.ai.ops.distinctUntilChanged({
       comparer(x, y) {
