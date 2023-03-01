@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-mesh-layer-example",
-  "version": "22.8.3",
+  "version": "22.10.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -19,7 +19,7 @@
     "@deck.gl/react": "8.8.10",
     "@loaders.gl/core": "3.2.9",
     "@loaders.gl/obj": "3.2.9",
-    "@rapidsai/jsdom": "~22.8.3",
+    "@rapidsai/jsdom": "~22.10.0",
     "mjolnir.js": "2.7.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"

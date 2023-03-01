@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-highway",
-  "version": "22.8.3",
+  "version": "22.10.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -16,7 +16,7 @@
     "@deck.gl/core": "8.8.10",
     "@deck.gl/layers": "8.8.10",
     "@deck.gl/react": "8.8.10",
-    "@rapidsai/jsdom": "~22.8.3",
+    "@rapidsai/jsdom": "~22.10.0",
     "d3-request": "1.0.6",
     "d3-scale": "2.2.2",
     "mjolnir.js": "2.7.1",

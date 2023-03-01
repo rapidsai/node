@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2022, NVIDIA CORPORATION.
+# Copyright (c) 2022-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 include_guard(GLOBAL)
 
 function(_get_rapidsai_module_version pkg out_var_)
-  set(ver_ "22.08.00")
+  set(ver_ "22.10.00")
   if(DEFINED ${pkg}_VERSION)
     set(ver_ "${${pkg}_VERSION}")
   elseif(DEFINED RAPIDS_VERSION)

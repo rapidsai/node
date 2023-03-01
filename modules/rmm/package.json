@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/rmm",
-  "version": "22.8.3",
+  "version": "22.10.0",
   "description": "RMM - NVIDIA RAPIDS Memory Manager",
   "main": "index.js",
   "types": "build/js",
@@ -54,7 +54,7 @@
     "dev:cpack:enabled": "echo $npm_package_name"
   },
   "dependencies": {
-    "@rapidsai/cuda": "~22.8.3"
+    "@rapidsai/cuda": "~22.10.0"
   },
   "files": [
     "LICENSE",

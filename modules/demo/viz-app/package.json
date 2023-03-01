@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/demo-viz-app",
-  "version": "22.8.3",
+  "version": "22.10.0",
   "private": true,
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -22,7 +22,7 @@
     "@fortawesome/fontawesome-svg-core": "1.2.35",
     "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",
-    "@rapidsai/cudf": "~22.8.3",
+    "@rapidsai/cudf": "~22.10.0",
     "apache-arrow": "^9.0.0",
     "bootstrap": "4.6.0",
     "d3": "6.6.2",
