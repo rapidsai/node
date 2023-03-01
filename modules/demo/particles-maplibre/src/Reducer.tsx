@@ -18,6 +18,7 @@ type State = {
   angle: number;
   mapReady: boolean;
   map: any; // Replace `any` with the appropriate type
+  pointOffset: number;
 };
 
 type Action =
@@ -26,7 +27,8 @@ type Action =
   | { type: 'SCROLL', event: WheelEvent }
   | { type: 'ROTATE' }
   | { type: 'UPDATE_TRANSFORM', event: any } // Replace `any` with the appropriate type
-  | { type: 'MAP_READY', event: any }; // Replace `any` with the appropriate type
+  | { type: 'MAP_READY', event: any } // Replace `any` with the appropriate type
+  | { type: 'UPDATE_POINTOFFSET', event: any }; // Replace `any` with the appropriate type
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -53,6 +55,10 @@ const reducer = (state: State, action: Action): State => {
       console.log('map ready');
       console.log(action.event);
       return { ...state, mapReady: true, map: action.event.target };
+    case 'UPDATE_POINTOFFSET':
+      console.log('point offset updated');
+      console.log(action.event);
+      return { ...state, mapReady: true, pointOffset: action.event };
     default:
       throw new Error('chalupa batman');
   }

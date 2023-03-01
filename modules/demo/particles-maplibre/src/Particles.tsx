@@ -16,6 +16,7 @@ import React, { useEffect, useRef, createContext, useState } from 'react';
 import regl from 'regl';
 import { State, ParticleState } from './types';
 import { readCsv, release, createQuadtree, setPolygon, getQuadtreePointCount, getQuadtreePoints } from './requests.js';
+import reducer from "./Reducer";
 import { mapPropsStream, createEventHandler } from 'recompose';
 import * as ix from './ix';
 const { getProjection } = require('./matrices');
@@ -142,50 +143,49 @@ const withParticlesProps = mapPropsStream(props$ => {
 });
 const Particles = withParticlesProps(
 */
-const Particles =
-  (props: ParticleState) => {
-    const canvasRef = useRef(null);
-    const [reglState, setReglState] = useState({ reglInstance: null, buffer: null });
-    const { reglInstance, buffer } = reglState;
+function Particles({ props, updatePointOffset }) {
+  const canvasRef = useRef(null);
+  const [reglState, setReglState] = useState({ reglInstance: null, buffer: null });
+  const { reglInstance, buffer } = reglState;
 
-    useEffect(() => {
-      // Create the initial regl instanc and the maximum size buffer for point storage.
-      console.log('Empty particles useEffect');
-      const reglInstance = regl({
-        canvas: canvasRef.current as any,
-      });
-      const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
-      const getPoints = async () => {
-        const csv = await readCsv(props.sourceName);
-        const quadtreeName: string = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
-        const polygon: string = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
-        const quadtreePointCount: { count: number } = await getQuadtreePointCount(quadtreeName, polygon);
-        console.log('quadtreePointCount', quadtreePointCount);
-        console.log(quadtreePointCount);
-        const points = await getQuadtreePoints(quadtreeName, polygon, quadtreePointCount.count);
-        console.log(points);
-        console.log(buffer);
-        buffer.subdata(points, 0);
-      }
-      getPoints();
-      setReglState({ reglInstance, buffer });
-      return () => {
-        reglInstance.destroy();
-      }
-    }, []);
+  useEffect(() => {
+    // Create the initial regl instanc and the maximum size buffer for point storage.
+    console.log('Empty particles useEffect');
+    const reglInstance = regl({
+      canvas: canvasRef.current as any,
+    });
+    const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
+    const getPoints = async () => {
+      const csv = await readCsv(props.sourceName);
+      const quadtreeName: string = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
+      const polygon: string = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
+      const quadtreePointCount: { count: number } = await getQuadtreePointCount(quadtreeName, polygon);
+      console.log('quadtreePointCount', quadtreePointCount);
+      console.log(quadtreePointCount);
+      const points = await getQuadtreePoints(quadtreeName, polygon, quadtreePointCount.count);
+      console.log(points);
+      console.log(buffer);
+      buffer.subdata(points, 0);
+      updatePointOffset(quadtreePointCount.count);
+    }
+    getPoints();
+    setReglState({ reglInstance, buffer });
+    return () => {
+      reglInstance.destroy();
+    }
+  }, []);
 
-    useEffect(() => {
-      // initial rendering
-      if (buffer) {
-        //buffer.subdata(testBuffer, 0);
-        const drawBuffer = reglInstance(drawBufferObj(buffer, props));
-        drawBuffer(props);
-      }
-    }, [props]);
+  useEffect(() => {
+    // initial rendering
+    if (buffer) {
+      const drawBuffer = reglInstance(drawBufferObj(buffer, props));
+      drawBuffer(props);
+    }
+  }, [props]);
 
-    return <ParticlesContext.Provider value={{ reglState, setReglState }}>
-      <canvas ref={canvasRef} className='foreground-canvas' width="2000" height="2000" />
-    </ParticlesContext.Provider>
-  }
+  return <ParticlesContext.Provider value={{ reglState, setReglState }}>
+    <canvas ref={canvasRef} className='foreground-canvas' width="2000" height="2000" />
+  </ParticlesContext.Provider>
+}
 
 export default Particles;

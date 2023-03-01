@@ -49,6 +49,9 @@ function App(): JSX.Element {
   const mapReadyHandler = (event: unknown) => {
     dispatch({ type: 'MAP_READY', event: event });
   };
+  const updatePointOffsetHandler = (event: unknown) => {
+    dispatch({ type: 'UPDATE_POINTOFFSET', event: event });
+  };
 
   // subscribe event
   useEffect(() => {
@@ -80,7 +83,7 @@ function App(): JSX.Element {
       <div className="map-box">
         <Map updateTransform={updateTransformHandler} mapReady={mapReadyHandler} />
         <ErrorBoundary>
-          {state.mapReady ? <Particles {...state as ParticleState} /> : null}
+          {state.mapReady ? <Particles props={state} updatePointOffset={updatePointOffsetHandler} /> : null}
         </ErrorBoundary>
       </div>
       <Controls props={state} />
