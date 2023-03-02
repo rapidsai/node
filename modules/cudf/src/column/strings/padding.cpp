@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 namespace nv {
 
 Column::wrapper_t Column::pad(cudf::size_type width,
-                              cudf::strings::pad_side pad_side,
+                              cudf::strings::side_type pad_side,
                               std::string const& fill_char,
                               rmm::mr::device_memory_resource* mr) const {
   try {
@@ -47,11 +47,11 @@ Napi::Value Column::pad(Napi::CallbackInfo const& info) {
   const std::string pad_size_string = args[1];
   const auto pad_side               = [&pad_size_string, &info]() {
     if (pad_size_string == "left") {
-      return cudf::strings::pad_side::LEFT;
+      return cudf::strings::side_type::LEFT;
     } else if (pad_size_string == "right") {
-      return cudf::strings::pad_side::RIGHT;
+      return cudf::strings::side_type::RIGHT;
     } else if (pad_size_string == "both") {
-      return cudf::strings::pad_side::BOTH;
+      return cudf::strings::side_type::BOTH;
     } else {
       NODE_CUDF_THROW("Invalid pad side " + pad_size_string, info.Env());
     }

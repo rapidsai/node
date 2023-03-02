@@ -1,7 +1,7 @@
 {
   "packages": {
     "nvcomp": {
-      "version": "2.3",
+      "version": "2.4.1",
       "git_url": "https://github.com/NVIDIA/nvcomp.git",
       "git_tag": "v2.2.0",
       "proprietary_binary": {
@@ -9,9 +9,9 @@
       }
     },
     "Thrust": {
-      "version": "1.15.0.0",
+      "version": "1.17.2.0",
       "git_url": "https://github.com/NVIDIA/thrust.git",
-      "git_tag": "${version}",
+      "git_tag": "1.17.2",
       "always_download": "NO"
     }
   }

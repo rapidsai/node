@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ function(find_and_configure_rmm)
 
     _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(rmm rmm)
-    _set_package_dir_if_exists(spdlog spdlog)
 
     if(NOT TARGET rmm::rmm)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)

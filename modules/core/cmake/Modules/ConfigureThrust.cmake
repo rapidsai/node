@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ function(find_and_configure_thrust VERSION)
     if(NOT Thrust_FOUND)
       _get_update_disconnected_state(Thrust ${VERSION} UPDATE_DISCONNECTED)
       CPMAddPackage(NAME         Thrust
-          VERSION                ${VERSION}
+          VERSION                "${VERSION}.0"
           # EXCLUDE_FROM_ALL       TRUE
           GIT_REPOSITORY         https://github.com/NVIDIA/thrust.git
           GIT_TAG                ${VERSION}
@@ -31,7 +31,7 @@ function(find_and_configure_thrust VERSION)
           PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/thrust.patch || true
       )
     endif()
-    set(CPM_THRUST_CURRENT_VERSION ${VERSION} CACHE STRING "version of thrust we checked out" FORCE)
+    set(CPM_THRUST_CURRENT_VERSION "${VERSION}.0" CACHE STRING "version of thrust we checked out" FORCE)
 endfunction()
 
-find_and_configure_thrust(1.15.0)
+find_and_configure_thrust(1.17.2)

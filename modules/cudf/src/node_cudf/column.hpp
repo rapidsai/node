@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -797,7 +797,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/strings/padding.cpp
   Column::wrapper_t pad(
     cudf::size_type width,
-    cudf::strings::pad_side pad_side,
+    cudf::strings::side_type pad_side,
     std::string const& fill_char,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 

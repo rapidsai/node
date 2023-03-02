@@ -101,7 +101,7 @@
     "@typescript-eslint/parser": "5.30.0",
     "bufferutil": "4.0.6",
     "utf-8-validate": "5.0.9",
-    "cmake-js": "trxcllnt/cmake-js#fea/node-rapids",
+    "cmake-js": "7.2.1",
     "cross-env": "7.0.3",
     "dotenv": "8.2.0",
     "eslint": "8.18.0",

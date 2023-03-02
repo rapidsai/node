@@ -1,5 +1,5 @@
 # =============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -341,8 +341,9 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
         FINAL_CODE_BLOCK parquet_code_string
       )
 
-      set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR_prev}")
     endif()
+
+    set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR_prev}")
   endif()
   # We generate the arrow-config and arrowcuda-config files when we built arrow locally, so always
   # do `find_dependency`
@@ -387,7 +388,7 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
 
 endfunction()
 
-set(CUDF_VERSION_Arrow 8.0.0)
+set(CUDF_VERSION_Arrow 9.0.0)
 
 find_and_configure_arrow(
   ${CUDF_VERSION_Arrow}
