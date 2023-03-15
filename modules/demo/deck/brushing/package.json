@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-brushing",
-  "version": "22.10.0",
+  "version": "22.12.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -16,7 +16,7 @@
     "@deck.gl/core": "8.8.10",
     "@deck.gl/extensions": "8.8.10",
     "@deck.gl/react": "8.8.10",
-    "@rapidsai/jsdom": "~22.10.0",
+    "@rapidsai/jsdom": "~22.12.0",
     "d3-scale": "2.2.2",
     "gl-matrix": "3.4.3",
     "mjolnir.js": "2.7.1",

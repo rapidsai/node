@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cuml",
-  "version": "22.10.0",
+  "version": "22.12.0",
   "description": "cuML - NVIDIA RAPIDS Machine Learning Library",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -36,9 +36,9 @@
     "postcpp:compile": "npx rapidsai-merge-compile-commands",
     "cpp:compile:debug": "npx cmake-js compile -g -D -O build/Debug",
     "postcpp:compile:debug": "npx rapidsai-merge-compile-commands",
-    "cpp:configure": "npx cmake-js configure -g -O build/Release",
+    "cpp:configure": "npx cmake-js configure -g -O build/Release --",
     "postcpp:configure": "npx rapidsai-merge-compile-commands",
-    "cpp:configure:debug": "npx cmake-js configure -g -D -O build/Debug",
+    "cpp:configure:debug": "npx cmake-js configure -g -D -O build/Debug --",
     "postcpp:configure:debug": "npx rapidsai-merge-compile-commands",
     "cpp:rebuild": "npx cmake-js rebuild -g -O build/Release",
     "postcpp:rebuild": "npx rapidsai-merge-compile-commands",
@@ -54,7 +54,7 @@
     "dev:cpack:enabled": "echo $npm_package_name"
   },
   "dependencies": {
-    "@rapidsai/cudf": "~22.10.0"
+    "@rapidsai/cudf": "~22.12.0"
   },
   "files": [
     "LICENSE",

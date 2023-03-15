@@ -16,7 +16,7 @@
 include_guard(GLOBAL)
 
 function(_get_rapidsai_module_version pkg out_var_)
-  set(ver_ "22.10.00")
+  set(ver_ "22.12.00")
   if(DEFINED ${pkg}_VERSION)
     set(ver_ "${${pkg}_VERSION}")
   elseif(DEFINED RAPIDS_VERSION)
