@@ -75,7 +75,7 @@ jobs:
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs openssh-client
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
