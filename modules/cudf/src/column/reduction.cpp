@@ -75,7 +75,7 @@ Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::reduce_aggregation> const
                                  cudf::data_type const& output_dtype,
                                  rmm::mr::device_memory_resource* mr) const {
   try {
-    return Scalar::New(Env(), cudf::reduce(*this, agg, output_dtype, mr));
+    return Scalar::New(Env(), cudf::reduce(*this, *agg, output_dtype, mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -84,7 +84,7 @@ Column::wrapper_t Column::scan(std::unique_ptr<cudf::scan_aggregation> const& ag
                                cudf::null_policy null_handling,
                                rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::scan(*this, agg, inclusive, null_handling, mr));
+    return Column::New(Env(), cudf::scan(*this, *agg, inclusive, null_handling, mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 

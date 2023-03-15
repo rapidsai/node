@@ -92,3 +92,6 @@ if(DISABLE_DEPRECATION_WARNINGS)
     list(APPEND NODE_RAPIDS_CMAKE_CXX_FLAGS -Wno-deprecated-declarations)
     list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Xcompiler=-Wno-deprecated-declarations)
 endif(DISABLE_DEPRECATION_WARNINGS)
+
+# Enable -fPIC for all libs
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)

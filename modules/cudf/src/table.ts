@@ -189,13 +189,10 @@ export interface Table {
    * @param source A column of values to be scattered in to this Series
    * @param indices A column of integral indices that indicate the rows in the this Series to be
    *   replaced by `value`.
-   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
-   *   of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   scatterScalar<T extends Scalar[]>(source: T,
                                     indices: Column<IndexType>,
-                                    check_bounds?: boolean,
                                     memoryResource?: MemoryResource): Table;
 
   /**
@@ -204,14 +201,9 @@ export interface Table {
    * @param value A value to be scattered in to this Series
    * @param indices A column of integral indices that indicate the rows in the this Series to be
    *   replaced by `value`.
-   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
-   *   of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
-  scatterTable(source: Table,
-               indices: Column<IndexType>,
-               check_bounds?: boolean,
-               memoryResource?: MemoryResource): Table;
+  scatterTable(source: Table, indices: Column<IndexType>, memoryResource?: MemoryResource): Table;
 
   /**
    * Get the Column at a specified index

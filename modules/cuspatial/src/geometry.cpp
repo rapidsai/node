@@ -21,8 +21,8 @@
 
 #include <cuspatial/coordinate_transform.hpp>
 #include <cuspatial/error.hpp>
+#include <cuspatial/linestring_bounding_box.hpp>
 #include <cuspatial/polygon_bounding_box.hpp>
-#include <cuspatial/polyline_bounding_box.hpp>
 
 #include <nv_node/utilities/args.hpp>
 
@@ -37,7 +37,7 @@ Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args) {
   auto result                         = [&]() {
     try {
       return cuspatial::polygon_bounding_boxes(
-        *poly_offsets, *ring_offsets, *point_x, *point_y, mr);
+        *poly_offsets, *ring_offsets, *point_x, *point_y, 0.0, mr);
     } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());
@@ -59,7 +59,7 @@ Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args) {
   rmm::mr::device_memory_resource* mr = args[4];
   auto result                         = [&]() {
     try {
-      return cuspatial::polyline_bounding_boxes(
+      return cuspatial::linestring_bounding_boxes(
         *poly_offsets, *point_x, *point_y, expansion_radius, mr);
     } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();

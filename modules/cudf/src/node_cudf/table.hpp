@@ -144,13 +144,11 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Table::wrapper_t scatter(
     std::vector<std::reference_wrapper<const cudf::scalar>> const& source,
     Column const& indices,
-    bool check_bounds                   = false,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   Table::wrapper_t scatter(
     Table const& source,
     Column const& indices,
-    bool check_bounds                   = false,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // table/join.cpp

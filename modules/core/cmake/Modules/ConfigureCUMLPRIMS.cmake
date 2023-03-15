@@ -27,6 +27,8 @@ function(find_and_configure_cumlprims_mg)
 
     _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
 
+    find_package(OpenMP REQUIRED)
+
     if(NOT TARGET cumlprims_mg::cumlprims_mg)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cumlprims_mg ${VERSION} UPDATE_DISCONNECTED)

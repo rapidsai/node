@@ -69,7 +69,7 @@ cudf::io::csv_writer_options make_writer_options(Napi::Object const& options,
   };
 
   return std::move(cudf::io::csv_writer_options::builder(sink, table)
-                     .metadata(metadata)
+                     .names(metadata->column_names)
                      .na_rep(str_opt("nullValue", "N/A"))
                      .include_header(bool_opt("includeHeader", true))
                      .rows_per_chunk(long_opt("rowsPerChunk", 8))
