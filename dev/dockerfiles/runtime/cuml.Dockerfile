@@ -30,6 +30,24 @@ FROM ${FROM_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
+USER root
+
+# Install dependencies
+RUN export DEBIAN_FRONTEND=noninteractive \
+ && apt update \
+ && apt install -y --no-install-recommends \
+    # cuML dependencies
+    libblas3 liblapack3 libgomp1 libgfortran5 libquadmath0 \
+ # Clean up
+ && apt autoremove -y && apt clean \
+ && rm -rf \
+    /tmp/* \
+    /var/tmp/* \
+    /var/lib/apt/lists/* \
+    /var/cache/apt/archives/*
+
+USER node
+
 WORKDIR /home/node
 
 COPY --from=devel --chown=node:node /home/node/node_modules node_modules
