@@ -44,8 +44,8 @@ function(find_and_configure_cuml)
             GIT_SHALLOW            TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR          cpp
-            OPTIONS                "SINGLEGPU ON"
-                                   "WITH_UCX OFF"
+            OPTIONS                "WITH_UCX ON"
+                                   "SINGLEGPU OFF"
                                    "CUDA_STATIC_RUNTIME ON"
                                    "BUILD_TESTS OFF"
                                    "BUILD_BENCHMARKS OFF"
@@ -55,8 +55,8 @@ function(find_and_configure_cuml)
                                    "BUILD_SHARED_LIBS OFF"
                                    "BUILD_CUML_MG_TESTS OFF"
                                    "BUILD_CUML_MG_BENCH OFF"
-                                   "BUILD_CUML_STD_COMMS OFF"
-                                   "BUILD_CUML_MPI_COMMS OFF"
+                                   "BUILD_CUML_STD_COMMS ON"
+                                   "BUILD_CUML_MPI_COMMS ON"
                                    "BUILD_CUML_TESTS OFF"
                                    "BUILD_CUML_BENCH OFF"
                                    "BUILD_PRIMS_TESTS OFF"
@@ -67,8 +67,12 @@ function(find_and_configure_cuml)
                                    "RAFT_USE_FAISS_STATIC ON"
                                    "CUML_USE_FAISS_STATIC ON"
                                    "CUML_USE_TREELITE_STATIC ON"
+                                   "CUML_EXPORT_TREELITE_LINKAGE ON"
+                                   "CUML_USE_CUMLPRIMS_MG_STATIC ON"
+            PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/../patches/cuml.patch || true
         )
     endif()
+
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
 

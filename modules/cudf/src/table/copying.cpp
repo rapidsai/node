@@ -33,19 +33,17 @@ Table::wrapper_t Table::gather(Column const& gather_map,
 Table::wrapper_t Table::scatter(
   std::vector<std::reference_wrapper<const cudf::scalar>> const& source,
   Column const& indices,
-  bool check_bounds,
   rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::scatter(source, indices, *this, check_bounds, mr));
+    return Table::New(Env(), cudf::scatter(source, indices, *this, mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Table::wrapper_t Table::scatter(Table const& source,
                                 Column const& indices,
-                                bool check_bounds,
                                 rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::scatter(source, indices, *this, check_bounds, mr));
+    return Table::New(Env(), cudf::scatter(source, indices, *this, mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -109,9 +107,8 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
     throw Napi::Error::New(info.Env(), "scatter_scalar indices argument expects a Column");
   }
   auto& indices                       = *Column::Unwrap(args[1]);
-  bool check_bounds                   = args[2];
-  rmm::mr::device_memory_resource* mr = args[3];
-  return scatter(source, indices, check_bounds, mr)->Value();
+  rmm::mr::device_memory_resource* mr = args[2];
+  return scatter(source, indices, mr)->Value();
 }
 
 Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
@@ -133,9 +130,8 @@ Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
   }
   auto& indices = *Column::Unwrap(args[1]);
 
-  bool check_bounds                   = args[2];
-  rmm::mr::device_memory_resource* mr = args[3];
-  return scatter(source, indices, check_bounds, mr)->Value();
+  rmm::mr::device_memory_resource* mr = args[2];
+  return scatter(source, indices, mr)->Value();
 }
 
 }  // namespace nv

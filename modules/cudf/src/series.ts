@@ -1112,8 +1112,6 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value A column of values to be scattered in to this Series
    * @param indices A column of integral indices that indicate the rows in the this Series to be
    *   replaced by `value`.
-   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if
-   *   any of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
@@ -1130,7 +1128,6 @@ export class AbstractSeries<T extends DataType = any> {
    */
   scatter(value: T['scalarType'],
           indices: Series<IndexType>|number[],
-          check_bounds?: boolean,
           memoryResource?: MemoryResource): Series<T>;
   /**
    * Scatters a column of values into this Series according to provided indices.
@@ -1138,8 +1135,6 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value A value to be scattered in to this Series
    * @param indices A column of integral indices that indicate the rows in the this Series to be
    *   replaced by `value`.
-   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if
-   *   any of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
@@ -1154,25 +1149,20 @@ export class AbstractSeries<T extends DataType = any> {
    * a.scatter(b, indices_out_of_bounds, true) // throws index out of bounds error
    * ```
    */
-  scatter(values: Series<T>,
-          indices: Series<IndexType>|number[],
-          check_bounds?: boolean,
-          memoryResource?: MemoryResource): Series<T>;
+  scatter(values: Series<T>, indices: Series<IndexType>|number[], memoryResource?: MemoryResource):
+    Series<T>;
 
   scatter(source: Series<T>|T['scalarType'],
           indices: Series<IndexType>|number[],
-          check_bounds = false,
           memoryResource?: MemoryResource): Series<T> {
     const dst = new Table({columns: [this._col]});
     const map = Array.isArray(indices) ? Series.new(indices).cast(new Uint32) : indices;
     if (source instanceof Series) {
       const src = new Table({columns: [source.cast(this.type)._col]});
-      return this.__construct(
-        dst.scatterTable(src, map._col, check_bounds, memoryResource).getColumnByIndex(0));
+      return this.__construct(dst.scatterTable(src, map._col, memoryResource).getColumnByIndex(0));
     }
     const src = [new Scalar({type: this.type, value: source})];
-    return this.__construct(
-      dst.scatterScalar(src, map._col, check_bounds, memoryResource).getColumnByIndex(0));
+    return this.__construct(dst.scatterScalar(src, map._col, memoryResource).getColumnByIndex(0));
   }
 
   /**

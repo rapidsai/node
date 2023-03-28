@@ -20,6 +20,7 @@ function(find_and_configure_raft)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureRMM.cmake)
+    # include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureOpenBLAS.cmake)
 
     _get_rapidsai_module_version(raft VERSION)
 
@@ -29,6 +30,7 @@ function(find_and_configure_raft)
     _set_thrust_dir_if_exists()
     _set_package_dir_if_exists(rmm rmm)
     _set_package_dir_if_exists(raft raft)
+    # _set_package_dir_if_exists(BLAS blas)
     _set_package_dir_if_exists(faiss faiss)
 
     if(NOT TARGET raft::raft)
@@ -44,6 +46,7 @@ function(find_and_configure_raft)
             FIND_PACKAGE_ARGUMENTS "COMPONENTS distance nn"
             ${UPDATE_DISCONNECTED}
             OPTIONS                "BUILD_TESTS OFF"
+                                   # "BLA_VENDOR OpenBLAS"
                                    "BUILD_SHARED_LIBS OFF"
                                    "CUDA_STATIC_RUNTIME ON"
                                    "RAFT_USE_FAISS_STATIC ON"

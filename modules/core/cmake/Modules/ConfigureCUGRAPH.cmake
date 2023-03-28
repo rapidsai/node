@@ -49,6 +49,7 @@ function(find_and_configure_cugraph)
                                    "BUILD_SHARED_LIBS OFF"
                                    "CUDA_STATIC_RUNTIME ON"
                                    "BUILD_CUGRAPH_MG_TESTS OFF"
+            PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/../patches/cugraph.patch || true
         )
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph

@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/core",
-  "version": "22.8.3",
+  "version": "22.12.0",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",
   "types": "build/js",
@@ -56,7 +56,7 @@
   "dependencies": {
     "@types/node": "^15.0.0",
     "bindings": "^1.5.0",
-    "cmake-js": "trxcllnt/cmake-js#fea/node-rapids",
+    "cmake-js": "7.2.1",
     "cross-env": "7.0.3",
     "getos": "3.2.1",
     "tslib": "^2.3.0"

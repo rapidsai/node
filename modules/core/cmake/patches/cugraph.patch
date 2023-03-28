@@ -1,0 +1,23 @@
+diff --git a/cpp/cmake/thirdparty/get_nccl.cmake b/cpp/cmake/thirdparty/get_nccl.cmake
+index 118ae37..2b04d1f 100644
+--- a/cpp/cmake/thirdparty/get_nccl.cmake
++++ b/cpp/cmake/thirdparty/get_nccl.cmake
+@@ -23,16 +23,13 @@ function(find_and_configure_nccl)
+     rapids_find_generate_module(NCCL
+         HEADER_NAMES  nccl.h
+         LIBRARY_NAMES nccl
++        BUILD_EXPORT_SET cugraph-exports
+     )
+ 
+     # Currently NCCL has no CMake build-system so we require
+     # it built and installed on the machine already
+-    rapids_find_package(NCCL REQUIRED)
++    rapids_find_package(NCCL REQUIRED BUILD_EXPORT_SET cugraph-exports)
+ 
+ endfunction()
+ 
+ find_and_configure_nccl()
+-
+-
+-
+-

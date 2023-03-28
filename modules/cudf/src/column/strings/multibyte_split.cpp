@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,69 @@
 
 #include <cudf/io/text/data_chunk_source_factories.hpp>
 #include <cudf/io/text/multibyte_split.hpp>
+#include <cudf/utilities/span.hpp>
 
 namespace nv {
 
 namespace {
+
+class device_span_data_chunk : public cudf::io::text::device_data_chunk {
+ public:
+  device_span_data_chunk(cudf::device_span<char const> data) : _data(data) {}
+
+  [[nodiscard]] char const* data() const override { return _data.data(); }
+  [[nodiscard]] std::size_t size() const override { return _data.size(); }
+  operator cudf::device_span<char const>() const override { return _data; }
+
+ private:
+  cudf::device_span<char const> _data;
+};
+
+/**
+ * @brief A reader which produces view of device memory which represent a subset of the input device
+ * span.
+ */
+class device_span_data_chunk_reader : public cudf::io::text::data_chunk_reader {
+ public:
+  device_span_data_chunk_reader(cudf::device_span<char const> data) : _data(data) {}
+
+  void skip_bytes(std::size_t read_size) override {
+    _position += std::min(read_size, _data.size() - _position);
+  }
+
+  std::unique_ptr<cudf::io::text::device_data_chunk> get_next_chunk(
+    std::size_t read_size, rmm::cuda_stream_view stream) override {
+    // limit the read size to the number of bytes remaining in the device_span.
+    read_size = std::min(read_size, _data.size() - _position);
+
+    // create a view over the device span
+    auto chunk_span = _data.subspan(_position, read_size);
+
+    // increment position
+    _position += read_size;
+
+    // return the view over device memory so it can be processed.
+    return std::make_unique<device_span_data_chunk>(chunk_span);
+  }
+
+ private:
+  cudf::device_span<char const> _data;
+  uint64_t _position = 0;
+};
+
+/**
+ * @brief A device span data source which creates an istream_data_chunk_reader.
+ */
+class device_span_data_chunk_source : public cudf::io::text::data_chunk_source {
+ public:
+  device_span_data_chunk_source(cudf::device_span<char const> data) : _data(data) {}
+  [[nodiscard]] std::unique_ptr<cudf::io::text::data_chunk_reader> create_reader() const override {
+    return std::make_unique<device_span_data_chunk_reader>(_data);
+  }
+
+ private:
+  cudf::device_span<char const> _data;
+};
 
 Column::wrapper_t split_string_column(Napi::CallbackInfo const& info,
                                       cudf::mutable_column_view const& col,
@@ -30,7 +89,7 @@ Column::wrapper_t split_string_column(Napi::CallbackInfo const& info,
   /* TODO: This only splits a string column. How to generalize */
   // Check type
   auto span = cudf::device_span<char const>(col.child(1).data<char const>(), col.child(1).size());
-  auto datasource = cudf::io::text::device_span_data_chunk_source(span);
+  auto datasource = device_span_data_chunk_source(span);
   return Column::New(info.Env(),
                      cudf::io::text::multibyte_split(datasource, delimiter, std::nullopt, mr));
 }

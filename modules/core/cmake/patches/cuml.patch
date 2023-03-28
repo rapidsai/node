@@ -1,0 +1,31 @@
+diff --git a/cpp/cmake/thirdparty/get_nccl.cmake b/cpp/cmake/thirdparty/get_nccl.cmake
+index a80eefab..a69ae4ca 100644
+--- a/cpp/cmake/thirdparty/get_nccl.cmake
++++ b/cpp/cmake/thirdparty/get_nccl.cmake
+@@ -16,23 +16,20 @@
+ 
+ function(find_and_configure_nccl)
+ 
+-    if(TARGET nccl::nccl)
++    if(TARGET NCCL::NCCL)
+         return()
+     endif()
+ 
+     rapids_find_generate_module(NCCL
+         HEADER_NAMES  nccl.h
+         LIBRARY_NAMES nccl
++        BUILD_EXPORT_SET cuml-exports
+     )
+ 
+     # Currently NCCL has no CMake build-system so we require
+     # it built and installed on the machine already
+-    rapids_find_package(NCCL REQUIRED)
++    rapids_find_package(NCCL REQUIRED BUILD_EXPORT_SET cuml-exports)
+ 
+ endfunction()
+ 
+ find_and_configure_nccl()
+-
+-
+-
+-

@@ -128,15 +128,15 @@ Napi::Value find_polyline_nearest_to_each_point(CallbackArgs const& args) {
   rmm::mr::device_memory_resource* mr = args[8];
   auto result                         = [&]() {
     try {
-      return cuspatial::quadtree_point_to_nearest_polyline(*intersections,
-                                                           *quadtree,
-                                                           *point_indices,
-                                                           *x,
-                                                           *y,
-                                                           *polyline_offsets,
-                                                           *polyline_points_x,
-                                                           *polyline_points_y,
-                                                           mr);
+      return cuspatial::quadtree_point_to_nearest_linestring(*intersections,
+                                                             *quadtree,
+                                                             *point_indices,
+                                                             *x,
+                                                             *y,
+                                                             *polyline_offsets,
+                                                             *polyline_points_x,
+                                                             *polyline_points_y,
+                                                             mr);
     } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());

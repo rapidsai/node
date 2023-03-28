@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021-2022, NVIDIA CORPORATION.
+# Copyright (c) 2021-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,21 +53,6 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     message(VERBOSE "get_cpm: Using CMake FetchContent base dir: ${CPM_BINARY_CACHE}")
     set(FETCHCONTENT_BASE_DIR "${CPM_BINARY_CACHE}" CACHE STRING "" FORCE)
 endif()
-
-file(DOWNLOAD https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-22.08/RAPIDS.cmake ${CMAKE_BINARY_DIR}/RAPIDS.cmake)
-include(${CMAKE_BINARY_DIR}/RAPIDS.cmake)
-include(rapids-export)
-include(rapids-cmake)
-include(rapids-find)
-include(rapids-cpm)
-
-execute_process(COMMAND node -p
-                "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-rapids_cpm_init(OVERRIDE "${NODE_RAPIDS_CMAKE_MODULES_PATH}/../versions.json")
 
 function(_set_thrust_dir_if_exists)
     if(Thrust_ROOT)
@@ -174,3 +159,25 @@ function(_get_update_disconnected_state target version out_var)
     endif()
     set(${out_var} cpm_${target}_disconnect_update PARENT_SCOPE)
 endfunction()
+
+include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+_get_rapidsai_module_version(rapids-cmake rapids-cmake-version)
+_get_major_minor_version(${rapids-cmake-version} rapids-cmake-version)
+
+file(
+  DOWNLOAD
+    https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-${rapids-cmake-version}/RAPIDS.cmake
+  ${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+include(${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+include(rapids-export)
+include(rapids-cmake)
+include(rapids-find)
+include(rapids-cpm)
+
+execute_process(COMMAND node -p
+                "require('@rapidsai/core').cmake_modules_path"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+rapids_cpm_init(OVERRIDE "${NODE_RAPIDS_CMAKE_MODULES_PATH}/../versions.json")

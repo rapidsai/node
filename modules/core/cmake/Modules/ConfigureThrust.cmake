@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,22 +16,32 @@
 include_guard(GLOBAL)
 
 function(find_and_configure_thrust VERSION)
+
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+
     _set_thrust_dir_if_exists()
+
     find_package(Thrust "${VERSION}.0" EXACT QUIET)
+
     if(NOT Thrust_FOUND)
       _get_update_disconnected_state(Thrust ${VERSION} UPDATE_DISCONNECTED)
+
+      include("${rapids-cmake-dir}/cpm/detail/generate_patch_command.cmake")
+      rapids_cpm_generate_patch_command(Thrust ${VERSION} patch_command)
+
+      message(STATUS "Thrust patch command: ${patch_command}")
+
       CPMAddPackage(NAME         Thrust
-          VERSION                ${VERSION}
+          VERSION                "${VERSION}.0"
           # EXCLUDE_FROM_ALL       TRUE
           GIT_REPOSITORY         https://github.com/NVIDIA/thrust.git
           GIT_TAG                ${VERSION}
           GIT_SHALLOW            TRUE
           ${UPDATE_DISCONNECTED}
-          PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/thrust.patch || true
+          PATCH_COMMAND          ${patch_command}
       )
     endif()
-    set(CPM_THRUST_CURRENT_VERSION ${VERSION} CACHE STRING "version of thrust we checked out" FORCE)
+    set(CPM_THRUST_CURRENT_VERSION "${VERSION}.0" CACHE STRING "version of thrust we checked out" FORCE)
 endfunction()
 
-find_and_configure_thrust(1.15.0)
+find_and_configure_thrust(1.17.2)

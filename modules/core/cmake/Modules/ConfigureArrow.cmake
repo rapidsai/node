@@ -1,5 +1,5 @@
 # =============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -88,6 +88,8 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
 
   _get_update_disconnected_state(Arrow ${VERSION} UPDATE_DISCONNECTED)
 
+  find_package(OpenSSL REQUIRED)
+
   rapids_cpm_find( Arrow ${VERSION}
     GLOBAL_TARGETS arrow_shared arrow_static
                    parquet_shared parquet_static
@@ -140,9 +142,13 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
     if(BUILD_STATIC)
       list(APPEND ARROW_LIBRARIES arrow_static)
       list(APPEND ARROW_LIBRARIES arrow_cuda_static)
+      list(APPEND ARROW_LIBRARIES parquet_static)
+      list(APPEND ARROW_LIBRARIES arrow_dataset_static)
     else()
       list(APPEND ARROW_LIBRARIES arrow_shared)
       list(APPEND ARROW_LIBRARIES arrow_cuda_shared)
+      list(APPEND ARROW_LIBRARIES parquet_shared)
+      list(APPEND ARROW_LIBRARIES arrow_dataset_shared)
     endif()
 
     if(Arrow_DIR)
@@ -155,6 +161,7 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
           # Set this to enable `find_package(Parquet)`
           set(Parquet_DIR "${Arrow_DIR}")
         endif()
+        find_package(Parquet REQUIRED QUIET)
         # Set this to enable `find_package(ArrowDataset)`
         set(ArrowDataset_DIR "${Arrow_DIR}")
         find_package(ArrowDataset REQUIRED QUIET)
@@ -341,29 +348,30 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
         FINAL_CODE_BLOCK parquet_code_string
       )
 
-      set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR_prev}")
     endif()
+
+    set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR_prev}")
   endif()
   # We generate the arrow-config and arrowcuda-config files when we built arrow locally, so always
   # do `find_dependency`
-  rapids_export_package(BUILD Arrow cudf-exports)
-  rapids_export_package(INSTALL Arrow cudf-exports)
+  rapids_export_package(BUILD Arrow ${PROJECT_NAME}-exports)
+  rapids_export_package(INSTALL Arrow ${PROJECT_NAME}-exports)
 
   # We have to generate the find_dependency(ArrowCUDA) ourselves since we need to specify
   # ArrowCUDA_DIR to be where Arrow was found, since Arrow packages ArrowCUDA.config in a
   # non-standard location
-  rapids_export_package(BUILD ArrowCUDA cudf-exports)
+  rapids_export_package(BUILD ArrowCUDA ${PROJECT_NAME}-exports)
   if(ENABLE_PARQUET)
-    rapids_export_package(BUILD Parquet cudf-exports)
-    rapids_export_package(BUILD ArrowDataset cudf-exports)
+    rapids_export_package(BUILD Parquet ${PROJECT_NAME}-exports)
+    rapids_export_package(BUILD ArrowDataset ${PROJECT_NAME}-exports)
   endif()
 
   include("${rapids-cmake-dir}/export/find_package_root.cmake")
-  rapids_export_find_package_root(BUILD Arrow "${Arrow_BINARY_DIR}" cudf-exports)
-  rapids_export_find_package_root(BUILD ArrowCUDA "${Arrow_BINARY_DIR}" cudf-exports)
+  rapids_export_find_package_root(BUILD Arrow "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+  rapids_export_find_package_root(BUILD ArrowCUDA "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
   if(ENABLE_PARQUET)
-    rapids_export_find_package_root(BUILD Parquet "${Arrow_BINARY_DIR}" cudf-exports)
-    rapids_export_find_package_root(BUILD ArrowDataset "${Arrow_BINARY_DIR}" cudf-exports)
+    rapids_export_find_package_root(BUILD Parquet "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    rapids_export_find_package_root(BUILD ArrowDataset "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
   endif()
 
   set(ARROW_FOUND
@@ -387,7 +395,7 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
 
 endfunction()
 
-set(CUDF_VERSION_Arrow 8.0.0)
+set(CUDF_VERSION_Arrow 9.0.0)
 
 find_and_configure_arrow(
   ${CUDF_VERSION_Arrow}
