@@ -101,92 +101,101 @@ const ParticlesContext = createContext<ParticlesContextType>({
   reglState: { reglInstance: null, buffer: null },
   setReglState: () => null
 });
-/*
-const withParticlesProps = mapPropsStream(props$ => {
-  const props_ = ix.ai.from<State>(props$ as any);
-  const quadtreeUpdates = props_.pipe(
+
+// mapPropsStream takes an observable (props$)
+const withParticlesProps = mapPropsStream((props$) => {
+  // Convert the Observable into an AsyncIterable
+  const props_ = ix.ai.from<State>(props$ as AsyncIterable<State>);
+  // Create a pipeline
+  const sourceNameChanged = props_.pipe(
+    // Don't execute the following steps in the pipeline unless the below condition occurs
     ix.ai.ops.distinctUntilChanged({
       comparer(x, y) {
         return x.sourceName === y.sourceName
       }
     }),
+    // Execute the subsequent events and emit the next event in order
     ix.ai.ops.flatMap((props) => {
-      const a = ix.ai.from(async function* () {
+      // Create a function that emits AsyncIterables
+      const computeInitialQuadtree = ix.ai.from(async function* () {
+        // Execute the async first points load
         const csv = await readCsv(props.sourceName);
         const quadtreeName: string = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
         const polygon: string = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
         const quadtreePointCount: { count: number } = await getQuadtreePointCount(quadtreeName, polygon);
-        console.log('quadtreePointCount', quadtreePointCount);
-        console.log(quadtreePointCount);
+        // emit a new event containing the result of this chain
         yield { quadtreeName, polygon, count: quadtreePointCount.count, props };
       }()).pipe(
+        // the next event in the chain will an async function that takes
+        // quadtreeName, polygon, count, and props: an event emitted by the last step in the pipeline
         ix.ai.ops.switchMap(async ({ quadtreeName, polygon, count, props }) => {
           return {
+            // return the original props, with the addition of the buffer created from getQuadtreePoints
             ...props, buffer: (
               await getQuadtreePoints(quadtreeName, polygon, count)
             ) as Float32Array
           } as ParticleState
         }),
       )
+      // create an AsyncIterable of a ParticleState object and the events emitted by a
       return ix.ai.concat(
-        ix.ai.of({ ...props, buffer: testBuffer } as ParticleState), a
+        ix.ai.of({ ...props, buffer: testBuffer } as ParticleState), computeInitialQuadtree
       )
     }),
   );
-  return quadtreeUpdates.pipe(ix.ai.toObservable);
+  // combine the AsyncIterables emitted from props_ and the AsyncIterables emitted from sourceNameChanged
+  return ix.ai.combineLatest(props_, sourceNameChanged).pipe(
+    // when an event is emitted, emit a new event with the destructured props and the buffer
+    ix.ai.ops.map(([props, particleState]) => {
+      return { ...props, buffer: particleState.buffer };
+    })
+    // Make this pipeline observable
+  ).pipe(ix.ai.toObservable);
 });
-const Particles = withParticlesProps(
-*/
 
 interface ReglState {
   reglInstance: regl.Regl | null;
   buffer: regl.Buffer | null;
 }
 
-function Particles({ props, loading, updatePointOffset }) {
-  const canvasRef = useRef(null);
-  const [reglState, setReglState] = useState<ReglState>({ reglInstance: null, buffer: null });
-  const { reglInstance, buffer } = reglState;
+let count = 0;
 
-  useEffect(() => {
-    // Create the initial regl instanc and the maximum size buffer for point storage.
-    console.log('Empty particles useEffect');
-    const reglInstance = regl({
-      canvas: canvasRef.current as any,
-    });
-    const buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
-    const getPoints = async () => {
-      loading();
-      const csv = await readCsv(props.sourceName);
-      const quadtreeName: string = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
-      const polygon: string = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
-      const quadtreePointCount: { count: number } = await getQuadtreePointCount(quadtreeName, polygon);
-      console.log('quadtreePointCount', quadtreePointCount);
-      console.log(quadtreePointCount);
-      const points = await getQuadtreePoints(quadtreeName, polygon, quadtreePointCount.count);
-      console.log(points);
-      console.log(buffer);
-      buffer.subdata(points, 0);
-      updatePointOffset(quadtreePointCount.count);
-    }
-    getPoints();
-    setReglState({ reglInstance, buffer });
-    return () => {
-      reglInstance.destroy();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+const Particles = withParticlesProps(
+  function Particles({ loading, updatePointOffset, ...props }: ParticleState) {
+    const canvasRef = useRef(null);
+    const [reglState, setReglState] = useState<ReglState>({ reglInstance: null, buffer: null });
+    let { reglInstance, buffer } = reglState;
 
-  useEffect(() => {
-    // initial rendering
-    if (buffer && reglInstance) {
-      const drawBuffer = reglInstance(drawBufferObj(buffer, props) as regl.InitializationOptions);
-      drawBuffer(props);
-    }
-  }, [props]); // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+      // Create the initial regl instanc and the maximum size buffer for point storage.
+      console.log('Empty particles useEffect');
+      reglInstance = regl({
+        canvas: canvasRef.current as any,
+      });
+      buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
+      setReglState({ reglInstance, buffer });
+      return () => {
+        reglInstance!.destroy();
+        buffer!.destroy();
+      }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <ParticlesContext.Provider value={{ reglState, setReglState }}>
-    <canvas ref={canvasRef} className='foreground-canvas' width="2000" height="2000" />
-  </ParticlesContext.Provider>
-}
+    useEffect(() => {
+      // initial rendering
+      if (buffer && reglInstance) {
+        if (count < 5) {
+          buffer.subdata(props.buffer, 0);
+        }
+        count++;
+        props.pointOffset = props.buffer.length;
+        const drawBuffer = reglInstance(drawBufferObj(buffer, props) as regl.InitializationOptions);
+        drawBuffer(props);
+      }
+    }, [props]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    return <ParticlesContext.Provider value={{ reglState, setReglState }}>
+      <canvas ref={canvasRef} className='foreground-canvas' width="2000" height="2000" />
+    </ParticlesContext.Provider>
+  });
 
 export default Particles;

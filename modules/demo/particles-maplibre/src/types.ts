@@ -29,4 +29,6 @@ export interface State {
 
 export interface ParticleState extends State {
   buffer: Float32Array;
+  loading: Function;
+  updatePointOffset: Function;
 }

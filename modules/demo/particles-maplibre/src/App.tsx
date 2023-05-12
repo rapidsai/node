@@ -90,7 +90,7 @@ function App(): JSX.Element {
         {spinning && <Spinner />}
         <Map updateTransform={updateTransformHandler} mapReady={mapReadyHandler} />
         <ErrorBoundary>
-          {state.mapReady ? <Particles props={state} loading={loadingHandler} updatePointOffset={updatePointOffsetHandler} /> : null}
+          {state.mapReady ? <Particles {...state} loading={loadingHandler} updatePointOffset={updatePointOffsetHandler} /> : null}
         </ErrorBoundary>
       </div>
       <Controls props={state} />
