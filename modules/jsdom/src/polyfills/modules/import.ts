@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as fs from 'fs/promises';
+import {readFile} from 'fs/promises';
 import * as Path from 'path';
 import * as vm from 'vm';
 import {SourceTextModule, SyntheticModule} from 'vm';
@@ -27,78 +27,66 @@ Object.entries({SyntheticModule, SourceTextModule}).forEach(([name, Class]) => {
   }
 });
 
-declare module 'vm' {
-  interface Module {
-    context: vm.Context;
-    identifier: string;
-    evaluate(): Promise<vm.Module>;
-    link(linker: (specifier: string, parent?: vm.Module) => vm.Module |
-                                                            Promise<vm.Module>): Promise<vm.Module>;
-  }
+export function createDynamicImporter(
+  require: Require, outerContext: vm.Context, transform: (path: string, code: string) => string) {
+  const moduleLinker = createModuleLinker(require, outerContext, transform);
 
-  interface SyntheticModule extends Module {
-    setExport(name: string, value: any): void;
-  }
-  interface SyntheticModuleConstructor {
-    new(exportNames: string[],
-        evaluateCallback: (this: vm.SyntheticModule) => void,
-        options?: string|{identifier: string, context?: vm.Context}): SyntheticModule;
-    readonly name: 'SyntheticModule';
-  }
-  const SyntheticModule: SyntheticModuleConstructor;
-
-  type SourceTextModule = Module
-  interface SourceTextModuleConstructor {
-    new(code: string,
-        options?: string|{identifier: string, context?: vm.Context}): SourceTextModule;
-    readonly name: 'SourceTextModule';
-  }
-  const SourceTextModule: SourceTextModuleConstructor;
-}
-
-export function createImport(require: Require,
-                             context: import('vm').Context,
-                             transform: (path: string, code: string) => string) {
   return importModuleDynamically;
 
-  async function importModuleDynamically(specifier: string, parent?: vm.Script|vm.Module) {
-    const path = require.resolve(specifier);
+  function importModuleDynamically(
+    specifier: string, _script?: vm.Script, assertions: {[key: string]: any} = {}) {
+    return moduleLinker(specifier, {context: outerContext}, {assert: assertions}) as any;
+  }
+}
+
+export function createModuleLinker(
+  require: Require, outerContext: vm.Context, transform: (path: string, code: string) => string) {
+  return linkModule;
+  function linkModule(specifier: string,
+                      {context}: {context: vm.Context} = {context: outerContext},
+                      {assert: assertions}: {assert: {[key: string]: any}} = {assert: {}}) {
     const opts = {
-      identifier: path,
-      displayErrors: true,
-      importModuleDynamically,
-      context: (<any>parent)?.context || context,
-    };
+      context,
+      identifier: require.resolve(specifier),
+      importModuleDynamically: createDynamicImporter(require, context, transform),
+    } as (vm.SyntheticModuleOptions | vm.SourceTextModuleOptions);
     try {
       // Try importing as CJS first
-      return await tryRequire(path, opts);
+      return tryRequire(opts, assertions);
     } catch (e1: any) {
       try {
         // If CJS throws, try importing as ESM
-        return await tryImport(path, opts);
+        return tryImport(opts, assertions);
       } catch (e2: any) {  //
         throw[e1, e2];
       }
     }
   }
 
-  function tryRequire(path: string, opts: any) {
-    const exports = (require as any)(path, true);
-    const keys    = Object.keys(exports);
-    if (exports.__esModule && !('default' in exports)) {
-      exports.default                  = exports;
-      keys[keys.indexOf('__esModule')] = 'default';
+  function tryRequire(opts: vm.SyntheticModuleOptions, assertions: {[key: string]: any}) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const path    = opts.identifier!;
+    const exports = require(path);
+    if (!exports[ESMSyntheticModule]) {
+      const keys = Object.keys(exports);
+      if (exports.__esModule && !('default' in exports)) {
+        exports.default                  = exports;
+        keys[keys.indexOf('__esModule')] = 'default';
+      }
+      const mod = new SyntheticModule(keys, function() {  //
+        keys.forEach((name) => this.setExport(name, exports[name]));
+      }, opts);
+      return linkAndEvaluate(exports[ESMSyntheticModule] = mod, assertions);
     }
-    const mod = new SyntheticModule(keys, function() {  //
-      keys.forEach((name) => this.setExport(name, exports[name]));
-    }, opts);
-    return linkAndEvaluate(exports[ESMSyntheticModule] = mod);
+    return Promise.resolve(exports[ESMSyntheticModule]);
   }
 
-  function tryImport(path: string, opts: any) {
-    const dir = Path.dirname(path);
-    const ext = Path.extname(path);
-    return fs.readFile(path, 'utf8')
+  function tryImport(opts: vm.SourceTextModuleOptions, assertions: {[key: string]: any}) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const path = opts.identifier!;
+    const dir  = Path.dirname(path);
+    const ext  = Path.extname(path);
+    return readFile(path, 'utf8')
       .then((code) => {
         code = `var __dirname='${dir}';\n${code}`;
         code = `var __filename='${path}';\n${code}`;
@@ -107,10 +95,11 @@ export function createImport(require: Require,
         }
         return new SourceTextModule(code, opts);
       })
-      .then(linkAndEvaluate);
+      .then((module) => linkAndEvaluate(module, assertions));
   }
 
-  function linkAndEvaluate(module: vm.Module) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function linkAndEvaluate(module: vm.Module, _assertions: {[key: string]: any}) {
     let r     = require;
     const dir = Path.dirname(module.identifier);
     if (dir !== require.main.path) {
@@ -120,14 +109,14 @@ export function createImport(require: Require,
         parent: require.main,
         extensions: require.extensions,
         resolve: require.main.__resolve,
-        context: module.context || context,
+        context: module.context || outerContext,
       });
 
       r.main._moduleCache  = require.cache;
       r.main._resolveCache = require.main._resolveCache;
     }
 
-    return module.link(createImport(r, r.main._context, transform))
+    return module.link(createModuleLinker(r, r.main._context, transform))
       .then(() => module.evaluate())
       .then(() => module);
   }

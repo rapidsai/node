@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,29 @@ import * as jsdom from 'jsdom';
 
 export let globalWindow: jsdom.DOMWindow;
 
-beforeAll(() => {
-  ({window: globalWindow} = new RapidsJSDOM({glfwOptions: {visible: false}, module: require.main}));
+beforeAll(async () => {
+  const opts = {
+    ...RapidsJSDOM.defaultOptions,
+    glfwOptions: {visible: false},
+    module: require.main,
+  };
+  if (_transpileESMToCJS) {
+    opts.babel.presets = [
+      // transpile all ESM to CJS
+      ['@babel/preset-env', {targets: {node: 'current'}}],
+      ...(opts.babel.presets || []),
+    ];
+  }
+  globalWindow = await (new RapidsJSDOM(opts)).loaded;
 });
+
 afterAll(() => {
   if (globalWindow) {  //
     globalWindow.dispatchEvent(new globalWindow.CloseEvent('close'));
   }
 });
+
+let _transpileESMToCJS = false;
+export function transpileESMToCJS() { _transpileESMToCJS = true; }
+
+export const eval_ = (code: string) => globalWindow.evalFn(() => eval(code), {code});

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,58 +39,50 @@ export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
   onAnimationFrameRequested?: AnimationFrameRequestedCallback;
 }
 
-const defaultOptions = {
-  frameRate: 60,
-  glfwOptions: {},
-  reportUnhandledExceptions: true,
-  onAnimationFrameRequested: undefined,
-  babel: {
-    babelrc: false,
-    presets: [
-      // Uncomment this if we want to transpile all ESM to CJS
-      // ['@babel/preset-env', {'targets': {'node': 'current'}}],
-      ['@babel/preset-react', {'useBuiltIns': true}],
-    ],
-  }
-};
-
 export class RapidsJSDOM extends jsdom.JSDOM {
+  static defaultOptions = {
+    frameRate: 60,
+    glfwOptions: {},
+    reportUnhandledExceptions: true,
+    onAnimationFrameRequested: undefined,
+    babel: {
+      babelrc: false,
+      presets: [['@babel/preset-react', {'useBuiltIns': true}]],
+    } as import('@babel/core').TransformOptions
+  };
+
   static fromReactComponent(componentPath: string,
                             jsdomOptions: RapidsJSDOMOptions = {},
                             reactProps                       = {}) {
     const jsdom = new RapidsJSDOM(jsdomOptions);
     return Object.assign(jsdom, {
-      loaded: jsdom.window.evalFn(
-        async () => {
-          const {createElement} = require('react');
-          const {render}        = require('react-dom');
-          return await window.eval(`import('${componentPath}')`).then((Component: any) => {
-            render(createElement(Component.default || Component, reactProps),
-                   document.body.appendChild(document.createElement('div')));
-          });
-        },
-        {componentPath, reactProps})
+      loaded: jsdom.loaded.then(
+        () => jsdom.window.evalFn(
+          async () => {
+            const {createElement} = require('react');
+            const {render}        = require('react-dom');
+            return await window.eval(`import('${componentPath}')`).then((Component: any) => {
+              render(createElement(Component.default || Component, reactProps),
+                     document.body.appendChild(document.createElement('div')));
+            });
+          },
+          {componentPath, reactProps}))
     });
   }
 
   public loaded: Promise<jsdom.DOMWindow>;
 
   constructor(options: RapidsJSDOMOptions = {}) {
-    const opts                        = Object.assign({}, defaultOptions, options);
+    const opts                        = Object.assign({}, RapidsJSDOM.defaultOptions, options);
     const {path: dir = process.cwd()} = opts.module ?? require.main ?? module;
-    const babel =
-      Object.assign({}, defaultOptions.babel, !opts.babel ? {} : opts.babel, {cwd: dir});
+    const babel                       = Object.assign(
+      {}, RapidsJSDOM.defaultOptions.babel, !opts.babel ? {} : opts.babel, {cwd: dir});
 
     const {url, tmpdir} = createObjectUrlAndTmpDir();
 
     const imageLoader = new ImageLoader(url, dir);
 
-    const polyfillFetchPath     = require.resolve('./polyfills/fetch');
-    const polyfillImagePath     = require.resolve('./polyfills/image');
-    const polyfillCanvasPath    = require.resolve('./polyfills/canvas');
-    const polyfillStreamsPath   = require.resolve('./polyfills/streams');
-    const polyfillObjectURLPath = require.resolve('./polyfills/object-url');
-    const polyfillTransformPath = require.resolve('./polyfills/modules/transform');
+    let loaded: Promise<jsdom.DOMWindow>|undefined = undefined;
 
     super(undefined, {
       ...opts,
@@ -124,64 +116,77 @@ export class RapidsJSDOM extends jsdom.JSDOM {
           })
         ].reduce((window, fn) => fn(window), window);
 
-        window.evalFn(() => {
-          const {createTransform} =
-            require(polyfillTransformPath) as typeof import('./polyfills/modules/transform');
+        const polyfillFetchPath     = require.resolve('./polyfills/fetch');
+        const polyfillImagePath     = require.resolve('./polyfills/image');
+        const polyfillCanvasPath    = require.resolve('./polyfills/canvas');
+        const polyfillStreamsPath   = require.resolve('./polyfills/streams');
+        const polyfillObjectURLPath = require.resolve('./polyfills/object-url');
+        const polyfillTransformPath = require.resolve('./polyfills/modules/transform');
 
-          const {extensions: _extensions, transform: _transform} = createTransform({
-            ...babel,
-            preTransform(path: string, code: string) {
-              // prepend a fix for mapbox-gl's serialization code
-              if (path.includes('mapbox-gl/dist/mapbox-gl') ||
-                  path.includes('maplibre-gl/dist/maplibre-gl')) {
-                return `
-    Object.defineProperty(({}).constructor, '_classRegistryKey', {value: 'Object', writable: false});
-    ${code}`;
-              }
-              return code;
-            }
-          });
-          Object.assign(window.jsdom.global.require, {extensions: _extensions});
-          Object.assign(window.jsdom.global.require.main, {_extensions, _transform});
+        loaded =
+          window
+            .evalFn(
+              async () => {
+                const {createTransform} = await window.import(polyfillTransformPath) as
+                                          typeof import('./polyfills/modules/transform');
+                const {extensions: _extensions, transform: _transform} = createTransform({
+                  ...babel,
+                  preTransform(path: string, code: string) {
+                    // prepend a fix for mapbox-gl's serialization code
+                    if (path.includes('mapbox-gl/dist/mapbox-gl') ||
+                        path.includes('maplibre-gl/dist/maplibre-gl')) {
+                      return `\
+Object.defineProperty(({}).constructor, '_classRegistryKey', {value: 'Object', writable: false});
+${code}`;
+                    }
+                    return code;
+                  }
+                });
 
-          const {installFetch} =  //
-            require(polyfillFetchPath) as typeof import('./polyfills/fetch');
-          const {installImageData, installImageDecode} =
-            require(polyfillImagePath) as typeof import('./polyfills/image');
-          const {installGetContext} =
-            require(polyfillCanvasPath) as typeof import('./polyfills/canvas');
-          const {installStreams} =
-            require(polyfillStreamsPath) as typeof import('./polyfills/streams');
-          const {installObjectURL} =
-            require(polyfillObjectURLPath) as typeof import('./polyfills/object-url');
+                Object.assign(window.jsdom.global.require, {extensions: _extensions});
+                Object.assign(window.jsdom.global.require.main, {_extensions, _transform});
 
-          [installFetch,
-           installStreams,
-           installObjectURL(tmpdir),
-           installImageData,
-           installImageDecode,
-           installGetContext,
-          ].reduce((window, fn) => fn(window), window);
+                const {installFetch} =
+                  await window.import(polyfillFetchPath) as typeof import('./polyfills/fetch');
+                const {installImageData, installImageDecode} =
+                  await window.import(polyfillImagePath) as typeof import('./polyfills/image');
+                const {installGetContext} =
+                  await window.import(polyfillCanvasPath) as typeof import('./polyfills/canvas');
+                const {installStreams} =
+                  await window.import(polyfillStreamsPath) as typeof import('./polyfills/streams');
+                const {installObjectURL} = await window.import(polyfillObjectURLPath) as
+                                           typeof import('./polyfills/object-url');
 
-          imageLoader.svg2img = require('svg2img').default;
-        }, {
-          babel,
-          tmpdir,
-          frameRate,
-          glfwOptions,
-          imageLoader,
-          polyfillFetchPath,
-          polyfillImagePath,
-          polyfillCanvasPath,
-          polyfillStreamsPath,
-          polyfillObjectURLPath,
-          polyfillTransformPath,
-          onAnimationFrameRequested,
-        });
+                [installFetch,
+                 installStreams,
+                 installObjectURL(tmpdir),
+                 installImageData,
+                 installImageDecode,
+                 installGetContext,
+                ].reduce((window, fn) => fn(window), window);
+
+                imageLoader.svg2img =
+                  (await window.import('svg2img')) as typeof import('svg2img').default;
+              },
+              {
+                babel,
+                tmpdir,
+                frameRate,
+                glfwOptions,
+                imageLoader,
+                polyfillFetchPath,
+                polyfillImagePath,
+                polyfillCanvasPath,
+                polyfillStreamsPath,
+                polyfillObjectURLPath,
+                polyfillTransformPath,
+                onAnimationFrameRequested,
+              })
+            .then(() => window);
       }
     });
 
-    this.loaded = Promise.resolve(this.window);
+    this.loaded = loaded ?? Promise.resolve(this.window);
   }
 }
 

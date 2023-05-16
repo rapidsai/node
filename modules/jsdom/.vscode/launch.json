@@ -14,6 +14,7 @@
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "skipFiles": [
                 // "<node_internals>/**",
+                "<node_internals>/**/fs/utils",
                 // "${workspaceFolder}/node_modules/**"
             ],
             "env": {
@@ -38,6 +39,7 @@
             "program": "test/test-import.js",
             "skipFiles": [
                 // "<node_internals>/**",
+                "<node_internals>/**/fs/utils",
                 // "${workspaceFolder}/node_modules/**"
             ],
             "env": {
