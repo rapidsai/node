@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ export function mouseEvents(window: DOMWindow) {
 }
 
 function buttonUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setMouseButtonCallback, window)
+  return windowCallbackAsObservable(glfw.setMouseButtonCallback, window.id)
     .pipe(flatMap(function*([, ...rest]) {
       const mouseEvt = GLFWMouseEvent.fromMouseButton(window, ...rest);
       yield mouseEvt;
@@ -47,7 +47,7 @@ function buttonUpdates(window: DOMWindow) {
 }
 
 function positionUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setCursorPosCallback, window)
+  return windowCallbackAsObservable(glfw.setCursorPosCallback, window.id)
     .pipe(flatMap(function*([, ...rest]) {
       const mouseEvt = GLFWMouseEvent.fromMouseMove(window, ...rest);
       yield mouseEvt;
@@ -58,7 +58,7 @@ function positionUpdates(window: DOMWindow) {
 }
 
 function boundaryUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setCursorEnterCallback, window)
+  return windowCallbackAsObservable(glfw.setCursorEnterCallback, window.id)
     .pipe(flatMap(function*([, ...rest]) {
       const mouseEvt = GLFWMouseEvent.fromMouseEnter(window, ...rest);
       yield mouseEvt;

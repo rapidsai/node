@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,55 +34,55 @@ export function windowEvents(window: DOMWindow) {
 }
 
 function moveUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowPosCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowPosCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromMove(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function sizeUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowSizeCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowSizeCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromResize(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function scaleUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowContentScaleCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowContentScaleCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromScale(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function framebufferSizeUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setFramebufferSizeCallback, window)
+  return windowCallbackAsObservable(glfw.setFramebufferSizeCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromFramebufferResize(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function closeUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowCloseCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowCloseCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromClose(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 // function refreshUpdates(window: DOMWindow) {
-//     return windowCallbackAsObservable(glfw.setWindowRefreshCallback, window)
+//     return windowCallbackAsObservable(glfw.setWindowRefreshCallback, window.id)
 //         .pipe(map(([_, ...rest]) => GLFWWindowEvent.fromRefresh(window, ...rest)))
 //         .pipe(publish(), refCount());
 // }
 
 function focusUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowFocusCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowFocusCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromFocus(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function iconifyUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowIconifyCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowIconifyCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromIconify(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function maximizeUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setWindowMaximizeCallback, window)
+  return windowCallbackAsObservable(glfw.setWindowMaximizeCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWWindowEvent.fromMaximize(window, ...rest)))
     .pipe(publish(), refCount());
 }

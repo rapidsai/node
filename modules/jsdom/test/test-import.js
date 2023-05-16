@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ const {RapidsJSDOM} = require('@rapidsai/jsdom');
            return importedModuleSharesGlobalsWithThisModule;
          })) === true,
          'test-cjs-import and test-cjs-module should share globals');
+
+  jsdom.window.dispatchEvent(new jsdom.window.CloseEvent('close'));
 
   return 0;
 })()

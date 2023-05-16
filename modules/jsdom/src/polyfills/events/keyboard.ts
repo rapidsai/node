@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,13 +45,13 @@ export function keyboardEvents(window: DOMWindow) {
 }
 
 function keyUpdates(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setKeyCallback, window)
+  return windowCallbackAsObservable(glfw.setKeyCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWKeyboardEvent.fromKeyEvent(window, ...rest)))
     .pipe(publish(), refCount());
 }
 
 function characterUpdates(window: DOMWindow, charKeys: Observable<GLFWKeyboardEvent>) {
-  const charCodes = windowCallbackAsObservable(glfw.setCharCallback, window)
+  const charCodes = windowCallbackAsObservable(glfw.setCharCallback, window.id)
                       .pipe(map(([, charCode]) => charCode), publish(), refCount());
   return charCodes
     .pipe(withLatestFrom(charKeys,
