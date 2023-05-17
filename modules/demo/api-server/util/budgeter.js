@@ -22,25 +22,33 @@ class Budgeter {
     this.points          = points;
   }
 
+  reset() {
+    this.called          = 0;
+    this.displayed_count = 0;
+    this._last_budget    = null;
+  }
+
   get_n(budget) {
     if (this._last_budget !== null && budget !== this._last_budget) {
       // Budget was changed
-      this.called = 0;
+      this.called          = 0;
+      this.displayed_count = 0;
     }
-    const step = this.points.length / budget;
+    this._last_budget = budget;
+    const step        = this.points.numRows / budget;
     const indices =
       Series.sequence({type: new Int32, init: 0, size: budget}).mul(step).add(this.called);
     if (this.called === Math.floor(step)) {
       // Return the final points that weren't previously sent.
       const final_range =
-        Series.sequence({type: new Int32, init: this.displayed_count, size: this.points.length});
+        Series.sequence({type: new Int32, init: this.displayed_count, size: this.points.numRows});
       this.called++;
       this.displayed_count += final_range.length;
       return this.points.gather(final_range, true).dropNulls();
     } else if (this.called > Math.floor(step)) {
       // All out of points
       this.called++;
-      return Series.new([]);
+      return this.points.head(0);
     }
     this.called++;
     this.displayed_count += indices.length;

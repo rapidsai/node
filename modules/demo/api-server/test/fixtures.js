@@ -184,7 +184,7 @@ const csv_particles = {
 
 const csv_quadtree = {
   'csv_quadtree.csv':
-    `Index,x,y
+    `Index,Longitude,Latitude
   0,-4.0,4.0
   1,-3.0,3.0
   2,-2.0,2.0

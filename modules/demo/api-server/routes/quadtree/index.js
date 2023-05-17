@@ -268,7 +268,7 @@ module.exports = async function(fastify, opts) {
             points.gather(Series.sequence({size: points.length, step: 2, init: 1})));
           const polylines = cuspatial.makePolylines(pts, ring_offset);
           polygons        = cuspatial.makePolygons(polylines, polygon_offset);
-          await fastify.cacheObject(points.toArray(), {
+          await fastify.cacheObject(request.params.polygon, {
             polygon_offset: polygon_offset,
             ring_offset: ring_offset,
             points: points,

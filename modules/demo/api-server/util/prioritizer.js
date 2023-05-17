@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {Series} = require('@rapidsai/cudf');
-const Budgeter = require('./budgeter');
+const {Series, DataFrame} = require('@rapidsai/cudf');
+const Budgeter            = require('./budgeter');
 
 class Prioritizer {
   constructor(points) { this.points = points; }
 
   set_priorities(priority_array) {
+    // Optimization:
+    // Get unique priority levels
+    // Create one point machine for each priority level.
     this.point_machines = [
       new Budgeter(this.points.filter(priority_array.eq(1))),
       new Budgeter(this.points.filter(priority_array.eq(2))),
@@ -28,11 +31,17 @@ class Prioritizer {
   }
 
   get_n(budget) {
-    for (let i = 0; i < this.point_machines.length; i++) {
-      const prioritized = this.point_machines[i].get_n(budget);
-      if (prioritized.length > 0) { return prioritized; }
+    if (this.point_machines === undefined) {
+      throw new Error('Prioritizer.get_n called before set_priorities');
     }
-    return new Series([]);
+    // Going to carry the empty dataframe through so it doesn' thave to be initialized.
+    let prioritized = undefined;
+    for (let i = 0; i < this.point_machines.length; i++) {
+      prioritized = this.point_machines[i].get_n(budget);
+      if (prioritized.numRows > 0) { return prioritized; }
+    }
+    // Budget has been emptied case, return empty dataframe
+    return prioritized;
   }
 }
 

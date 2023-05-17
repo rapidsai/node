@@ -31,7 +31,7 @@ test('quadtree/create/:table', async (t) => {
   const res     = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const release = await app.inject({method: 'POST', url: '/gpu/release'});
   const result  = JSON.parse(res.payload);
@@ -77,7 +77,7 @@ test('quadtree/get_points_float', async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -112,7 +112,7 @@ test('quadtree/get_points_int', async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -147,7 +147,7 @@ test('quadtree/:quadtree/:polygon/count', async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -186,7 +186,7 @@ test('quadtree/:quadtree/:polygon/:n', async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -202,7 +202,7 @@ test('quadtree/:quadtree/:polygon/:n', async (t) => {
   const polygons_name = JSON.parse(set_poly.payload).params.name;
   const res           = await app.inject({
     method: 'GET',
-    url: 'quadtree/get_points/' + quadtree_name + '/' + polygons_name + '/2',
+    url: 'quadtree/get_points/' + quadtree_name + '/' + polygons_name + '/2/next',
   })
   const release       = await app.inject({method: 'POST', url: '/gpu/release'});
   const table         = tableFromIPC(res.rawPayload);
@@ -221,7 +221,7 @@ test('quadtree/:quadtree/:polygon/:n/next', {only: true}, async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -278,7 +278,7 @@ test('quadtree/:quadtree/:polygon/:n/next', {only: true}, async (t) => {
   const release = await app.inject({method: 'POST', url: '/gpu/release'});
 });
 
-test('quadtree/:quadtree/:polygon/:n max', {only: true}, async (t) => {
+test('quadtree/:quadtree/:polygon/:n max', async (t) => {
   const dir   = t.testdir(csv_quadtree);
   const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
   const app   = await build(t);
@@ -288,7 +288,7 @@ test('quadtree/:quadtree/:polygon/:n max', {only: true}, async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -313,7 +313,7 @@ test('quadtree/:quadtree/:polygon/:n max', {only: true}, async (t) => {
   t.same(got, expected);
 });
 
-test('quadtree/:quadtree/:polygon/:n/next max', {only: true}, async (t) => {
+test('quadtree/:quadtree/:polygon/:n/next max', async (t) => {
   const dir   = t.testdir(csv_quadtree);
   const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
   const app   = await build(t);
@@ -323,7 +323,7 @@ test('quadtree/:quadtree/:polygon/:n/next max', {only: true}, async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({
@@ -348,7 +348,7 @@ test('quadtree/:quadtree/:polygon/:n/next max', {only: true}, async (t) => {
   t.same(got, expected);
 });
 
-test('quadtree/:quadtree/:polygon/clear', {only: true}, async (t) => {
+test('quadtree/:quadtree/:polygon/clear', async (t) => {
   const dir   = t.testdir(csv_quadtree);
   const rpath = 'test/routes/' + dir.substring(dir.lastIndexOf('/'));
   const app   = await build(t);
@@ -358,7 +358,7 @@ test('quadtree/:quadtree/:polygon/clear', {only: true}, async (t) => {
   const create        = await app.inject({
     method: 'POST',
     url: '/quadtree/create/csv_quadtree.csv',
-    body: {xAxisName: 'x', yAxisName: 'y'}
+    body: {xAxisName: 'Longitude', yAxisName: 'Latitude'}
   });
   const quadtree_name = JSON.parse(create.payload).params.quadtree;
   const set_poly      = await app.inject({

@@ -59,6 +59,7 @@ module.exports = async function(fastify, opts) {
       let result  = {'params': request.body, success: false, message: message};
       try {
         const path             = Path.join(fastify.publicPath(), request.body.filename);
+        const columns          = request.body.column;
         const stats            = await Stat(path);
         const message          = 'File is available';
         const currentDataFrame = await fastify.getData(request.body.filename);
@@ -68,13 +69,9 @@ module.exports = async function(fastify, opts) {
           console.log(currentDataFrame);
           currentDataFrame.dispose();
         }
-        const cacheObject = await fastify.readCSV({
-          header: 0,
-          sourceType: 'files',
-          sources: [path],
-          columnsToReturn: ['Longitude', 'Latitude']
-        });
-        const name        = request.body.filename;
+        const cacheObject = await fastify.readCSV(
+          {header: 0, sourceType: 'files', sources: [path], columnsToReturn: columns});
+        const name = request.body.filename;
         await fastify.cacheObject(name, cacheObject);
         result.success    = true;
         result.message    = 'CSV file in GPU memory.';
