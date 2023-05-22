@@ -17,10 +17,10 @@ const https       = require('https');
 const {writeFile} = require('fs/promises');
 const {finished}  = require('stream/promises');
 
-module.exports = loadSpatialDataset;
+module.exports.loadSpatialDataset = loadSpatialDataset;
 
 if (require.main === module) {  //
-  module.exports().catch((e) => console.error(e) || process.exit(1));
+  loadSpatialDataset().catch((e) => console.error(e) || process.exit(1));
 }
 
 async function loadSpatialDataset() {

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import {
 declare module 'jsdom' {
   // clang-format off
   interface DOMWindow {
-    import: (specifier: string) => Promise<import('vm').Module>;
-    evalFn: (script: () => any, globals?: Record<string, any>) => any;
+    import: (specifier: string) => Promise<any>;
+    evalFn: <T>(script: () => T, globals?: Record<string, any>) => T;
   }
   // clang-format on
 }
@@ -38,7 +38,8 @@ export function installJSDOMUtils(options: {
     const require = window.jsdom.global.require =
       createRequire({...options, context: createContext()});
 
-    window.import = window.jsdom.global.import = require.main._cachedDynamicImporter;
+    window.import = window.jsdom.global.import = (specifier: string) =>
+      require.main._cachedDynamicImporter(specifier).then((m: any) => m.namespace);
 
     if (window.jsdom.utils.implForWrapper(window.document)._origin === 'null') {
       window.jsdom.utils.implForWrapper(window.document)._origin = '';

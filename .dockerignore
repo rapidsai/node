@@ -14,12 +14,7 @@
 **/*.tar.gz
 **/*.tar.xz
 **/*.zip
-
-!**/modules/demo/**/*.png
-!**/modules/demo/**/*.jpg
-!**/modules/demo/**/*.gif
-!**/modules/demo/**/*.las
-!**/modules/demo/**/*.laz
+**/*.pyc
 
 **/lerna-debug.log
 **/docker-compose*.yml
@@ -28,19 +23,20 @@
 
 **/z-*
 **/out/
+**/.logs/
 **/.next/
 **/_next/
-**/build
-**/.cache
-**/.ccache
-**/.clangd
-**/.github
-**/.vscode
-**/.cmake-js
-**/node_modules
-**/modules/**/doc
-**/modules/**/lib
-**/modules/**/data
+**/build/
+**/.cache/
+**/.ccache/
+**/.clangd/
+**/.github/
+**/.vscode/
+**/.cmake-js/
+**/node_modules/
+**/modules/**/doc/*
+**/modules/**/lib/*
+**/modules/**/data/*
 
 **/modules/*/include/napi.h
 **/modules/*/include/napi-inl.h
@@ -59,3 +55,16 @@ dev/dockerfiles
 .gitignore
 .clang-format
 .dockerignore
+
+!**/modules/demo/**/data/*.png
+!**/modules/demo/**/data/*.jpg
+!**/modules/demo/**/data/*.gif
+!**/modules/demo/**/data/*.las
+!**/modules/demo/**/data/*.laz
+!**/modules/demo/**/data/*.arrow
+!**/modules/demo/**/public/*.png
+!**/modules/demo/**/public/*.jpg
+!**/modules/demo/**/public/*.gif
+!**/modules/demo/**/public/*.las
+!**/modules/demo/**/public/*.laz
+!**/modules/demo/**/public/*.arrow

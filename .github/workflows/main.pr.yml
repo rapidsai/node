@@ -60,7 +60,7 @@ jobs:
 
       - name: Check if source files changed
         id: src_changed
-        uses: tj-actions/changed-files@v23.1
+        uses: tj-actions/changed-files@v35.4.4
         with:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
@@ -84,7 +84,7 @@ jobs:
 
       - name: Check if GitHub Actions or devel main Dockerfile changed
         id: dev_changed
-        uses: tj-actions/changed-files@v23.1
+        uses: tj-actions/changed-files@v35.4.4
         with:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}

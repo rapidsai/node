@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import {map, publish, refCount} from 'rxjs/operators';
 import {GLFWEvent, windowCallbackAsObservable} from './event';
 
 export function dndEvents(window: DOMWindow) {
-  return windowCallbackAsObservable(glfw.setDropCallback, window)
+  return windowCallbackAsObservable(glfw.setDropCallback, window.id)
     .pipe(map(([, ...rest]) => GLFWDndEvent.create(window, ...rest)))
     .pipe(publish(), refCount());
 }
