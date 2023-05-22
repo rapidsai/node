@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {globalWindow} from './utils';
-
-const eval_ = (code: string) => globalWindow.evalFn(() => {
-  const res = eval(code);
-  return res;
-}, {code});
+import {eval_, globalWindow} from './utils';
 
 test('fails to require a non-existent file', () => {
   expect(() => globalWindow.eval(`require('./files/nonexistent_file')`))  //
@@ -26,12 +21,6 @@ test('fails to require a non-existent file', () => {
 
 test('requires a local CommonJS module', () => {
   const code = `require('./files/test-cjs-module')`;
-  expect(typeof eval_(code)).toBe('object');
-});
-
-// this requires we transpile ESM to CJS with babel
-test.skip('requires a local ESModule module', () => {
-  const code = `require('./files/test-esm-module').default`;
   expect(typeof eval_(code)).toBe('object');
 });
 
@@ -48,13 +37,6 @@ test('imports a local ESModule module', async () => {
 test('requires a local CommonJS module that imports an ESModule', () => {
   const code                                        = `require('./files/test-cjs-import')`;
   const {importedModuleSharesGlobalsWithThisModule} = eval_(code);
-  expect(importedModuleSharesGlobalsWithThisModule).toBe(true);
-});
-
-// this requires we transpile ESM to CJS with babel
-test.skip('requires a local ESModule module that imports an ESModule', () => {
-  const code                                        = `require('./files/test-esm-import')`;
-  const {importedModuleSharesGlobalsWithThisModule} = eval_(code).default;
   expect(importedModuleSharesGlobalsWithThisModule).toBe(true);
 });
 

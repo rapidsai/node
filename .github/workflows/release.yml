@@ -34,7 +34,7 @@ jobs:
 
   extract-and-publish-packages:
     name: Extract libs and publish release
-    runs-on: [self-hosted, linux, amd64, cpu16]
+    runs-on: linux-amd64-cpu16
     strategy:
       fail-fast: true
       matrix:

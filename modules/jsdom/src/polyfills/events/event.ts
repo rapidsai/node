@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {GLFWModifierKey} from '@rapidsai/glfw';
-import {DOMWindow} from 'jsdom';
 import {Observable, Observer} from 'rxjs';
 
 export const isAltKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_ALT) !== 0;
@@ -59,14 +58,13 @@ export function glfwCallbackAsObservable<C extends SetGLFWCallback>(setCallback:
   });
 }
 
-export function windowCallbackAsObservable<C extends SetWindowCallback>(
-  setCallback: C, window: DOMWindow|DOMWindow) {
+export function windowCallbackAsObservable<C extends SetWindowCallback>(setCallback: C,
+                                                                        windowId: number) {
   type Args = WindowCallbackArgs<C>;
   return new Observable<Args>((observer: Observer<Args>) => {
     const next = (..._: Args) => observer.next(_);
-    const dispose = () => trySetCallback(setCallback.name, () => setCallback(window.id, null));
-    return trySetCallback(setCallback.name, () => setCallback(window.id, next)) ? dispose
-                                                                                : () => {};
+    const dispose = () => trySetCallback(setCallback.name, () => setCallback(windowId, null));
+    return trySetCallback(setCallback.name, () => setCallback(windowId, next)) ? dispose : () => {};
   });
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ module.exports = (glfwOptions = {
     module: {path: __dirname},
   });
   return Object.assign(jsdom, {
-    loaded: jsdom.window.evalFn(async () => await import('./app.js')),
+    loaded: jsdom.loaded.then(() => jsdom.window.evalFn(async () => await import('./app.js'))),
   });
 };
 

@@ -58,7 +58,7 @@ on:
 
 jobs:
   build-and-publish-image:
-    runs-on: [self-hosted, linux, amd64, cpu4]
+    runs-on: linux-amd64-cpu4
     strategy:
       fail-fast: true
       matrix:
@@ -108,7 +108,7 @@ jobs:
       - name: Check if files changed
         id: files_changed
         if: ${{ ! inputs.manual-build }}
-        uses: tj-actions/changed-files@v23.1
+        uses: tj-actions/changed-files@v35.4.4
         with:
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |

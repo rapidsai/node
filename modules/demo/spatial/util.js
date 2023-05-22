@@ -28,7 +28,7 @@ import {existsSync} from 'fs';
 import {readFile as fsReadFile} from 'fs/promises';
 import * as Path from 'path';
 
-import * as loadSpatialDataset from './data';
+import {loadSpatialDataset} from './data';
 
 /**
  * @param {Map<number, [number, number, number, number]>} colorMap
@@ -148,8 +148,7 @@ export async function loadPoints() {
       return table;
     } catch (e) {
       if (loadDatasetIfNotFound) {
-        console.error(e);
-        console.log('dataset not found, now downloading...');
+        console.log('Point data not found, downloading now...');
         return await loadSpatialDataset().then(() => loadPointsTable(false))
       }
       console.error(`

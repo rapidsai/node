@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import * as Module from 'module';
 import * as Path from 'path';
 import * as vm from 'vm';
 
-import {createImport} from './import';
+import {createDynamicImporter} from './import';
 import {Resolver} from './resolve';
 import {Transform} from './transform';
 
@@ -72,7 +72,9 @@ export class ContextModule extends Module {
   declare public __resolve: Resolver;
   declare public _transform: Transform;
 
-  declare public _cachedDynamicImporter: (specifier: string) => Promise<vm.Module>;
+  // This should return Promise<vm.Module>, but the TS typings are incorrect.
+  declare public _cachedDynamicImporter:
+    (specifier: string, script?: vm.Script, assertions?: {[key: string]: any}) => any;
 
   /**
    * Custom nodejs Module implementation which uses a provided
@@ -106,8 +108,8 @@ export class ContextModule extends Module {
       this._resolveFilename = module_static__resolveFilename;
     }
 
-    this._cachedDynamicImporter = createImport(
-      this._require, context, (path: string, code: string) => this._transform(path, code));
+    this._cachedDynamicImporter = createDynamicImporter(
+      this._require, this._context, (path: string, code: string) => this._transform(path, code));
 
     this.loaded = true;
   }
@@ -141,10 +143,9 @@ export class ContextModule extends Module {
   public load(filename: string) { return patched_prototype_load.call(this, filename); }
 
   public exec(require: Require, content: string, filename: string, inner = this._context) {
-    const outer   = this._context;
-    const options = {
+    const outer                     = this._context;
+    const options: vm.ScriptOptions = {
       filename,
-      displayErrors: true,
       importModuleDynamically: this.createDynamicImporter(require, inner),
     };
     return tryAndReset(
@@ -157,7 +158,7 @@ export class ContextModule extends Module {
   public createDynamicImporter(require: Require = this._require, context = this._context) {
     return context === this._context  //
              ? this._cachedDynamicImporter
-             : createImport(require, context, this._transform);
+             : createDynamicImporter(require, context, this._transform);
   }
 }
 
@@ -181,7 +182,9 @@ function patched_static__load(request: string, parent: Module, isMain: boolean):
     const cache = Path.extname(filename) === '.node' ? module_static__cache : module._moduleCache;
     const child = cache[filename];
     if (child) {
-      if (parent.children.indexOf(child) === -1) { parent.children.push(child); }
+      if (parent.children.indexOf(child) === -1) {  //
+        parent.children.push(child);
+      }
       return child.exports;
     }
     Module_._cache = cache;
@@ -252,14 +255,9 @@ function patched_prototype__compile(this: Module, content: string, filename: str
   const module = findNearestContextModule(this);
 
   if (module) {
-    const {id}    = this;
-    const require = createRequire(this);
+    const require = createRequire(this, module);
     const dirname = Path.dirname(filename);
-    let exports   = this.exports;
-    if (module._proxyExports[id]) {
-      delete module._proxyExports[id];
-      exports = makeESMExportsProxy(this, exports);
-    }
+    const exports = makeESMExportsProxy(this, this.exports);
     return module.exec(require, Module_.wrap(content), filename)
       .call(exports, exports, require, this, filename, dirname);
   }
@@ -320,8 +318,7 @@ function tryAndReset<Work extends() => any>(setup: () => any, work: Work, reset:
  * @param mod The module to create a require function for.
  */
 function createRequire(mod: Module, main = findNearestContextModule(mod)) {
-  function require(id: string, isAttemptingToRequireCJSAsESM = false) {
-    main && (main._proxyExports[id] = isAttemptingToRequireCJSAsESM);
+  function require(id: string) {
     return tryAndReset(
       installModuleHooks,
       () => mod.require(id),
@@ -376,22 +373,47 @@ const ES6ExportsProxyHandler: ProxyHandler<any> = {
       if (mod) { mod.setExport(p, v); }
     }
     return success;
-  },
+  }
+};
+
+const BuiltInES6ExportsProxyHandler = {
+  ...ES6ExportsProxyHandler,
+  get(target: any, p: string|symbol, receiver: any) {
+    const value = Reflect.get(target, p, receiver);
+    if (typeof value === 'function' && (p in target.constructor.prototype)) {
+      return function(this: any) {
+        // eslint-disable-next-line prefer-rest-params
+        return value.apply(this === receiver ? target : this, arguments);
+      };
+    }
+    return value;
+  }
 };
 
 function makeESMExportsProxy(module: Module, exports: any) {
-  let proxiedExports = new Proxy(exports, ES6ExportsProxyHandler);
+  let proxiedExports: any;
+  if ((exports?.constructor?.name === 'Map') ||      //
+      (exports?.constructor?.name === 'Set') ||      //
+      (exports?.constructor?.name === 'WeakMap') ||  //
+      (exports?.constructor?.name === 'WeakSet')) {
+    proxiedExports = new Proxy(exports, BuiltInES6ExportsProxyHandler);
+  } else {
+    proxiedExports = new Proxy(exports, ES6ExportsProxyHandler);
+  }
+
   Object.defineProperty(module, 'exports', {
     get() { return proxiedExports; },
     set(value: any) {
       if (value !== proxiedExports) {
-        if (value && typeof value === 'object') {  //
-          proxiedExports = new Proxy(value, ES6ExportsProxyHandler);
+        if ((typeof value === 'function') ||  //
+            (value && typeof value === 'object')) {
+          proxiedExports = makeESMExportsProxy(module, value);
         } else {
           proxiedExports = value;
         }
       }
     },
   });
+
   return proxiedExports;
 }

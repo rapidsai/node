@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -277,7 +277,7 @@ void GLFWdrop_cb(GLFWwindow* window, int count, const char** paths) {
 
 };  // namespace
 
-GLFWAPI GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun callback);
+// GLFWAPI GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun callback);
 void glfwSetErrorCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   if (info[0].IsFunction()) {
