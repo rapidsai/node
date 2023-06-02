@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,3 +95,5 @@ endif(DISABLE_DEPRECATION_WARNINGS)
 
 # Enable -fPIC for all libs
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# https://cmake.org/cmake/help/latest/variable/CMAKE_FIND_PACKAGE_TARGETS_GLOBAL.html#variable:CMAKE_FIND_PACKAGE_TARGETS_GLOBAL
+set(CMAKE_FIND_PACKAGE_TARGETS_GLOBAL ON)

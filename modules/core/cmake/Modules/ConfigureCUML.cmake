@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021-2022, NVIDIA CORPORATION.
+# Copyright (c) 2021-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ include_guard(GLOBAL)
 function(find_and_configure_cuml)
 
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_nccl.cmake)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUMLPRIMS.cmake)
 
@@ -72,9 +73,6 @@ function(find_and_configure_cuml)
             PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/../patches/cuml.patch || true
         )
     endif()
-
-    # Make sure consumers of our libs can see cuml::cuml++
-    _fix_cmake_global_defaults(cuml::cuml++)
 
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
     _statically_link_cuda_toolkit_libs(cuml::cuml++)

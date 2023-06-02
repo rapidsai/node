@@ -45,10 +45,6 @@ function(find_and_configure_cugraph_ops)
                                    "CUDA_STATIC_RUNTIME ON"
                                    "BUILD_CUGRAPH_OPS_CPP_TESTS OFF")
     endif()
-    # Make sure consumers of our libs can see cugraph-ops::Thrust
-    _fix_cmake_global_defaults(cugraph-ops::Thrust)
-    # Make sure consumers of our libs can see cugraph-ops::cugraph-ops++
-    _fix_cmake_global_defaults(cugraph-ops::cugraph-ops++)
 
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
     _statically_link_cuda_toolkit_libs(cugraph-ops++)

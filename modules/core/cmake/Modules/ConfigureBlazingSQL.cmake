@@ -61,9 +61,6 @@ function(find_and_configure_blazingsql)
         )
     endif()
 
-    # Make sure consumers of our libs can see blazingdb::blazingsql-io
-    _fix_cmake_global_defaults(blazingdb::blazingsql-io)
-
     set(blazingsql-io_VERSION "${blazingsql-io_VERSION}" PARENT_SCOPE)
 
     _get_rapidsai_module_version(blazingsql-engine VERSION)
@@ -101,9 +98,6 @@ function(find_and_configure_blazingsql)
                                    "BLAZINGSQL_ENGINE_WITH_PYTHON_ERRORS OFF"
         )
     endif()
-
-    # Make sure consumers of our libs can see blazingdb::blazingsql-engine
-    _fix_cmake_global_defaults(blazingdb::blazingsql-engine)
 
     set(blazingsql-engine_VERSION "${blazingsql-engine_VERSION}" PARENT_SCOPE)
 

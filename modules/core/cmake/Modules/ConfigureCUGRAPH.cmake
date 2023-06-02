@@ -52,8 +52,6 @@ function(find_and_configure_cugraph)
             PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/../patches/cugraph.patch || true
         )
     endif()
-    # Make sure consumers of our libs can see cugraph::cugraph
-    _fix_cmake_global_defaults(cugraph::cugraph)
 
     if(NOT TARGET cugraph::cuHornet AND
       (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS}))

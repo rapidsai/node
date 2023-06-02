@@ -375,23 +375,26 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
   endif()
 
   set(ARROW_FOUND
-      "${ARROW_FOUND}"
+      ${ARROW_FOUND}
       PARENT_SCOPE
   )
   set(ARROW_LIBRARIES
-      "${ARROW_LIBRARIES}"
+      ${ARROW_LIBRARIES}
       PARENT_SCOPE
   )
 
-  # Make sure consumers of our libs can see arrow libs
-  _fix_cmake_global_defaults(arrow_shared)
-  _fix_cmake_global_defaults(arrow_static)
-  _fix_cmake_global_defaults(parquet_shared)
-  _fix_cmake_global_defaults(parquet_static)
-  _fix_cmake_global_defaults(arrow_cuda_shared)
-  _fix_cmake_global_defaults(arrow_cuda_static)
-  _fix_cmake_global_defaults(arrow_dataset_shared)
-  _fix_cmake_global_defaults(arrow_dataset_static)
+  if(NOT ("${arrow_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${arrow_code_string}")
+  endif()
+  if(NOT ("${arrow_cuda_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${arrow_cuda_code_string}")
+  endif()
+  if(NOT ("${arrow_dataset_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${arrow_dataset_code_string}")
+  endif()
+  if(NOT ("${parquet_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${parquet_code_string}")
+  endif()
 
 endfunction()
 

@@ -40,10 +40,6 @@ function(find_and_configure_rmm)
                                   "BUILD_BENCHMARKS OFF"
                                   "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
     endif()
-    # Make sure consumers of our libs can see rmm::rmm
-    _fix_cmake_global_defaults(rmm::rmm)
-    _fix_cmake_global_defaults(rmm::Thrust)
-    _fix_cmake_global_defaults(rmm::spdlog_header_only)
 
     set(rmm_VERSION "${rmm_VERSION}" PARENT_SCOPE)
 endfunction()

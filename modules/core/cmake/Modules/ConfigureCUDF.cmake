@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,14 +68,8 @@ function(find_and_configure_cudf)
                                 "CUDF_USE_PER_THREAD_DEFAULT_STREAM ON")
     endif()
 
-    # Make sure consumers of our libs can see cudf::cudf
-    _fix_cmake_global_defaults(cudf::cudf)
-    # Make sure consumers of our libs can see nvcomp::nvcomp
-    _fix_cmake_global_defaults(nvcomp::nvcomp)
-    # Make sure consumers of our libs can see cudf::cudftestutil
-    _fix_cmake_global_defaults(cudf::cudftestutil)
-
     set(cudf_VERSION "${cudf_VERSION}" PARENT_SCOPE)
+    set(ARROW_LIBRARIES ${ARROW_LIBRARIES} PARENT_SCOPE)
 
     _set_package_dir_if_exists(nvcomp nvcomp)
     find_package(nvcomp)

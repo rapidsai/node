@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2022, NVIDIA CORPORATION.
+# Copyright (c) 2022-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,19 +17,22 @@ include_guard(GLOBAL)
 
 function(find_and_configure_nccl)
 
-    if(TARGET NCCL::NCCL)
-        return()
+    if((NOT TARGET NCCL::NCCL) AND (NOT TARGET nccl::nccl))
+        rapids_find_generate_module(NCCL
+            HEADER_NAMES  nccl.h
+            LIBRARY_NAMES nccl
+        )
+        # Currently NCCL has no CMake build-system so we require
+        # it built and installed on the machine already
+        rapids_find_package(NCCL REQUIRED)
     endif()
 
-    rapids_find_generate_module(NCCL
-        HEADER_NAMES  nccl.h
-        LIBRARY_NAMES nccl
-    )
-
-    # Currently NCCL has no CMake build-system so we require
-    # it built and installed on the machine already
-    rapids_find_package(NCCL REQUIRED)
-
+    if (TARGET nccl::nccl AND (NOT TARGET NCCL::NCCL))
+        add_library(NCCL::NCCL ALIAS nccl::nccl)
+    endif()
+    if (TARGET NCCL::NCCL AND (NOT TARGET nccl::nccl))
+        add_library(nccl::nccl ALIAS NCCL::NCCL)
+    endif()
 endfunction()
 
 find_and_configure_nccl()

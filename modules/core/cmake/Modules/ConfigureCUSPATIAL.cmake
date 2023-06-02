@@ -51,8 +51,6 @@ function(find_and_configure_cuspatial)
                                    "PER_THREAD_DEFAULT_STREAM ON"
                                    "DISABLE_DEPRECATION_WARNING ON")
     endif()
-    # Make sure consumers of our libs can see cuspatial::cuspatial
-    _fix_cmake_global_defaults(cuspatial::cuspatial)
 
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
     _statically_link_cuda_toolkit_libs(cuspatial::cuspatial)
