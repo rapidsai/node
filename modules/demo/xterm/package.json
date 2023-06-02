@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-xterm",
   "main": "index.js",
-  "version": "22.12.0",
+  "version": "22.12.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -14,7 +14,7 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --enable-source-maps --trace-uncaught index.js"
   },
   "dependencies": {
-    "@rapidsai/glfw": "~22.12.0",
+    "@rapidsai/glfw": "~22.12.1",
     "xterm": "4.3.0",
     "xterm-addon-webgl": "0.4.1"
   },

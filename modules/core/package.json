@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/core",
-  "version": "22.12.0",
+  "version": "22.12.1",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",
   "types": "build/js",

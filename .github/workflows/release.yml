@@ -5,7 +5,7 @@ on:
     inputs:
       rapids-version:
         type: string
-        default: "22.12.0"
+        default: "22.12.1"
         description: "RAPIDS version"
       make-release:
         type: boolean

@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-luma.gl-lessons-ssr",
   "main": "index.js",
-  "version": "22.12.0",
+  "version": "22.12.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -14,10 +14,10 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --enable-source-maps --trace-uncaught index.js"
   },
   "dependencies": {
-    "@rapidsai/cuda": "~22.12.0",
-    "@rapidsai/deck.gl": "~22.12.0",
-    "@rapidsai/demo-luma.gl-lessons": "~22.12.0",
-    "@rapidsai/jsdom": "~22.12.0",
+    "@rapidsai/cuda": "~22.12.1",
+    "@rapidsai/deck.gl": "~22.12.1",
+    "@rapidsai/demo-luma.gl-lessons": "~22.12.1",
+    "@rapidsai/jsdom": "~22.12.1",
     "fastify": "3.20.2",
     "fastify-socket.io": "2.0.0",
     "fastify-static": "4.4.1",
