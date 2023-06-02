@@ -324,6 +324,14 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
 
       set(parquet_code_string
           [=[
+              if("${THRIFT_CMAKE_DIR}" STREQUAL "")
+                set(THRIFT_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/thrift_ep-install/lib/cmake/thrift")
+              endif()
+
+              if(EXISTS ${THRIFT_CMAKE_DIR}/thriftTargets.cmake AND (NOT TARGET thrift::thrift))
+                include("${THRIFT_CMAKE_DIR}/thriftTargets.cmake")
+              endif()
+
               if (TARGET cudf::parquet_shared AND (NOT TARGET parquet_shared))
                   add_library(parquet_shared ALIAS cudf::parquet_shared)
               endif()
@@ -351,47 +359,51 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
     endif()
 
     set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR_prev}")
-  endif()
-  # We generate the arrow-config and arrowcuda-config files when we built arrow locally, so always
-  # do `find_dependency`
-  rapids_export_package(BUILD Arrow ${PROJECT_NAME}-exports)
-  rapids_export_package(INSTALL Arrow ${PROJECT_NAME}-exports)
 
-  # We have to generate the find_dependency(ArrowCUDA) ourselves since we need to specify
-  # ArrowCUDA_DIR to be where Arrow was found, since Arrow packages ArrowCUDA.config in a
-  # non-standard location
-  rapids_export_package(BUILD ArrowCUDA ${PROJECT_NAME}-exports)
-  if(ENABLE_PARQUET)
-    rapids_export_package(BUILD Parquet ${PROJECT_NAME}-exports)
-    rapids_export_package(BUILD ArrowDataset ${PROJECT_NAME}-exports)
-  endif()
+    # We generate the arrow-config and arrowcuda-config files when we built arrow locally, so always
+    # do `find_dependency`
+    rapids_export_package(BUILD Arrow ${PROJECT_NAME}-exports)
+    rapids_export_package(INSTALL Arrow ${PROJECT_NAME}-exports)
 
-  include("${rapids-cmake-dir}/export/find_package_root.cmake")
-  rapids_export_find_package_root(BUILD Arrow "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
-  rapids_export_find_package_root(BUILD ArrowCUDA "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
-  if(ENABLE_PARQUET)
-    rapids_export_find_package_root(BUILD Parquet "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
-    rapids_export_find_package_root(BUILD ArrowDataset "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    # We have to generate the find_dependency(ArrowCUDA) ourselves since we need to specify
+    # ArrowCUDA_DIR to be where Arrow was found, since Arrow packages ArrowCUDA.config in a
+    # non-standard location
+    rapids_export_package(BUILD ArrowCUDA ${PROJECT_NAME}-exports)
+    if(ENABLE_PARQUET)
+      rapids_export_package(BUILD Parquet ${PROJECT_NAME}-exports)
+      rapids_export_package(BUILD ArrowDataset ${PROJECT_NAME}-exports)
+    endif()
+
+    include("${rapids-cmake-dir}/export/find_package_root.cmake")
+    rapids_export_find_package_root(BUILD Arrow "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    rapids_export_find_package_root(BUILD ArrowCUDA "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    if(ENABLE_PARQUET)
+      rapids_export_find_package_root(BUILD Parquet "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+      rapids_export_find_package_root(BUILD ArrowDataset "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    endif()
   endif()
 
   set(ARROW_FOUND
-      "${ARROW_FOUND}"
+      ${ARROW_FOUND}
       PARENT_SCOPE
   )
   set(ARROW_LIBRARIES
-      "${ARROW_LIBRARIES}"
+      ${ARROW_LIBRARIES}
       PARENT_SCOPE
   )
 
-  # Make sure consumers of our libs can see arrow libs
-  _fix_cmake_global_defaults(arrow_shared)
-  _fix_cmake_global_defaults(arrow_static)
-  _fix_cmake_global_defaults(parquet_shared)
-  _fix_cmake_global_defaults(parquet_static)
-  _fix_cmake_global_defaults(arrow_cuda_shared)
-  _fix_cmake_global_defaults(arrow_cuda_static)
-  _fix_cmake_global_defaults(arrow_dataset_shared)
-  _fix_cmake_global_defaults(arrow_dataset_static)
+  if(NOT ("${arrow_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${arrow_code_string}")
+  endif()
+  if(NOT ("${arrow_cuda_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${arrow_cuda_code_string}")
+  endif()
+  if(NOT ("${arrow_dataset_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${arrow_dataset_code_string}")
+  endif()
+  if(NOT ("${parquet_code_string}" STREQUAL ""))
+    cmake_language(EVAL CODE "${parquet_code_string}")
+  endif()
 
 endfunction()
 

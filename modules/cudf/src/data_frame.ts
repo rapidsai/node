@@ -719,12 +719,11 @@ export class DataFrame<T extends TypeMap = any> {
                  const table = includeNulls ? df.asTable().explodeOuterPosition(i, mr)  //
                                             : df.asTable().explodePosition(i, mr);
                  return new DataFrame(df.names.reduce((series_map, name, index) => {
-                   if (index <= i) {
-                     series_map[name] =
-                       (this.get(name) as any).elements.__construct(table.getColumnByIndex(index));
+                   if (index === i) {
+                     series_map[name] = Series.new(table.getColumnByIndex(index));
                    } else {
                      series_map[name] =
-                       df.__constructChild(name, table.getColumnByIndex(index + 1));
+                       df.__constructChild(name, table.getColumnByIndex(+(index >= i) + index));
                    }
                    return series_map;
                  }, {} as SeriesMap<U>));

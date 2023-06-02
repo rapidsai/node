@@ -104,22 +104,6 @@ function(_clean_build_dirs_if_not_fully_built dir libname)
     endif()
 endfunction()
 
-# If a target is installed, found by the `find_package` step of CPMFindPackage,
-# and marked as IMPORTED, make it globally accessible to consumers of our libs.
-function(_fix_cmake_global_defaults target)
-    if(TARGET ${target})
-        get_target_property(_is_imported ${target} IMPORTED)
-        get_target_property(_already_global ${target} IMPORTED_GLOBAL)
-        if(_is_imported AND NOT _already_global)
-            set_target_properties(${target} PROPERTIES IMPORTED_GLOBAL TRUE)
-        endif()
-        get_target_property(_aliased_target ${target} ALIASED_TARGET)
-        if (_aliased_target)
-            _fix_cmake_global_defaults(${_aliased_target})
-        endif()
-    endif()
-endfunction()
-
 function(_set_interface_include_dirs_as_system target)
     get_target_property(_real ${target} ALIASED_TARGET)
     if (NOT TARGET ${_real})

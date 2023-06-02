@@ -52,8 +52,6 @@ function(find_and_configure_raft)
                                    "RAFT_USE_FAISS_STATIC ON"
                                    "RAFT_COMPILE_LIBRARIES ON")
     endif()
-    # Make sure consumers of our libs can see raft::raft
-    _fix_cmake_global_defaults(raft::raft)
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(faiss::faiss)
 

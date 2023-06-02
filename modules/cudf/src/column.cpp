@@ -530,7 +530,9 @@ Napi::Value Column::get_child(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Column::get_value(Napi::CallbackInfo const& info) {
-  return Napi::Value::From(info.Env(), cudf::get_element(*this, info[0].ToNumber()));
+  try {
+    return Napi::Value::From(info.Env(), cudf::get_element(*this, info[0].ToNumber()));
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 }  // namespace nv

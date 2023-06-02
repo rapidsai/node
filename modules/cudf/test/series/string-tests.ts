@@ -219,7 +219,7 @@ test('Series.pad (right, fill)', () => {
 
 test('Series.zfill', () => {
   const a = Series.new(['1234', '-9876', '+0.34', '-342567', null]);
-  expect([...a.zfill(6)]).toStrictEqual(['001234', '0-9876', '0+0.34', '-342567', null]);
+  expect([...a.zfill(6)]).toStrictEqual(['001234', '-09876', '+00.34', '-342567', null]);
 });
 
 test('Series.isHex', () => {

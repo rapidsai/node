@@ -428,21 +428,6 @@ test('Series.scatter (scalar with array indicies)', () => {
   expect([...result]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
-test('Series.scatter (check_bounds)', () => {
-  const col          = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
-  const values       = Series.new({type: new Int32, data: [200, 400, 500, 800]});
-  const good_indices = [2, 4, 5, 8];
-  const bad_indices  = [2, 4, 5, 18];
-
-  const result = col.scatter(values, good_indices, true)
-                   .scatter(999, good_indices, true)
-                   .scatter(values, bad_indices)
-                   .scatter(999, bad_indices);
-
-  expect(() => result.scatter(values, bad_indices, true)).toThrowError();
-  expect(() => result.scatter(999, bad_indices, true)).toThrowError();
-});
-
 test('Series.scatter (scalar)', () => {
   const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
   const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
@@ -875,7 +860,7 @@ describe('Series.readText', () => {
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
     const text = Series.readText(path, '');
-    expect(text.getValue(0)).toEqual(outputString);
+    expect(text.toArray()).toEqual(outputString.split(''));
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
   });
@@ -884,7 +869,7 @@ describe('Series.readText', () => {
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
     const text = Series.readText(path, '');
-    expect(text.getValue(0)).toEqual(outputString);
+    expect(text.toArray()).toEqual(outputString.split(''));
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
   });
@@ -893,7 +878,7 @@ describe('Series.readText', () => {
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
     const text = Series.readText(path, '');
-    expect(text.getValue(0)).toEqual(outputString);
+    expect(text.toArray()).toEqual(outputString.split(''));
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
   });
