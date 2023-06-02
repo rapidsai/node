@@ -324,6 +324,14 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
 
       set(parquet_code_string
           [=[
+              if("${THRIFT_CMAKE_DIR}" STREQUAL "")
+                set(THRIFT_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/thrift_ep-install/lib/cmake/thrift")
+              endif()
+
+              if(EXISTS ${THRIFT_CMAKE_DIR}/thriftTargets.cmake AND (NOT TARGET thrift::thrift))
+                include("${THRIFT_CMAKE_DIR}/thriftTargets.cmake")
+              endif()
+
               if (TARGET cudf::parquet_shared AND (NOT TARGET parquet_shared))
                   add_library(parquet_shared ALIAS cudf::parquet_shared)
               endif()
@@ -351,27 +359,28 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
     endif()
 
     set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR_prev}")
-  endif()
-  # We generate the arrow-config and arrowcuda-config files when we built arrow locally, so always
-  # do `find_dependency`
-  rapids_export_package(BUILD Arrow ${PROJECT_NAME}-exports)
-  rapids_export_package(INSTALL Arrow ${PROJECT_NAME}-exports)
 
-  # We have to generate the find_dependency(ArrowCUDA) ourselves since we need to specify
-  # ArrowCUDA_DIR to be where Arrow was found, since Arrow packages ArrowCUDA.config in a
-  # non-standard location
-  rapids_export_package(BUILD ArrowCUDA ${PROJECT_NAME}-exports)
-  if(ENABLE_PARQUET)
-    rapids_export_package(BUILD Parquet ${PROJECT_NAME}-exports)
-    rapids_export_package(BUILD ArrowDataset ${PROJECT_NAME}-exports)
-  endif()
+    # We generate the arrow-config and arrowcuda-config files when we built arrow locally, so always
+    # do `find_dependency`
+    rapids_export_package(BUILD Arrow ${PROJECT_NAME}-exports)
+    rapids_export_package(INSTALL Arrow ${PROJECT_NAME}-exports)
 
-  include("${rapids-cmake-dir}/export/find_package_root.cmake")
-  rapids_export_find_package_root(BUILD Arrow "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
-  rapids_export_find_package_root(BUILD ArrowCUDA "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
-  if(ENABLE_PARQUET)
-    rapids_export_find_package_root(BUILD Parquet "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
-    rapids_export_find_package_root(BUILD ArrowDataset "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    # We have to generate the find_dependency(ArrowCUDA) ourselves since we need to specify
+    # ArrowCUDA_DIR to be where Arrow was found, since Arrow packages ArrowCUDA.config in a
+    # non-standard location
+    rapids_export_package(BUILD ArrowCUDA ${PROJECT_NAME}-exports)
+    if(ENABLE_PARQUET)
+      rapids_export_package(BUILD Parquet ${PROJECT_NAME}-exports)
+      rapids_export_package(BUILD ArrowDataset ${PROJECT_NAME}-exports)
+    endif()
+
+    include("${rapids-cmake-dir}/export/find_package_root.cmake")
+    rapids_export_find_package_root(BUILD Arrow "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    rapids_export_find_package_root(BUILD ArrowCUDA "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    if(ENABLE_PARQUET)
+      rapids_export_find_package_root(BUILD Parquet "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+      rapids_export_find_package_root(BUILD ArrowDataset "${Arrow_BINARY_DIR}" ${PROJECT_NAME}-exports)
+    endif()
   endif()
 
   set(ARROW_FOUND
