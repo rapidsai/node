@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/cuda",
-  "version": "22.12.1",
+  "version": "22.12.2",
   "description": "NVIDIA CUDA driver and runtime API bindings",
   "main": "index.js",
   "types": "build/js",
@@ -54,7 +54,7 @@
     "dev:cpack:enabled": "echo $npm_package_name"
   },
   "dependencies": {
-    "@rapidsai/core": "~22.12.1"
+    "@rapidsai/core": "~22.12.2"
   },
   "files": [
     "LICENSE",

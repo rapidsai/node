@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/jsdom",
-  "version": "22.12.1",
+  "version": "22.12.2",
   "description": "JSDOM extensions for running browser-ish code in platform-native (and headless) GPU-accelerated GLFW windows",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -35,8 +35,8 @@
     "@babel/preset-react": "7.14.5",
     "@babel/register": "7.15.3",
     "@cwasm/webp": "0.1.5",
-    "@rapidsai/core": "~22.12.1",
-    "@rapidsai/glfw": "~22.12.1",
+    "@rapidsai/core": "~22.12.2",
+    "@rapidsai/glfw": "~22.12.2",
     "@types/jsdom": "16.2.13",
     "@types/parse5": "6.0.3",
     "canvas": "^2.11.0",

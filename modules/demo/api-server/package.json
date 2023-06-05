@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-api-server",
   "main": "index.js",
-  "version": "22.12.1",
+  "version": "22.12.2",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [

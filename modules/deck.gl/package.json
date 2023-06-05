@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/deck.gl",
-  "version": "22.12.1",
+  "version": "22.12.2",
   "description": "NVIDIA RAPIDS deck.gl components and utilities",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -34,9 +34,9 @@
     "@luma.gl/core": "8.5.16",
     "@luma.gl/engine": "8.5.16",
     "@luma.gl/webgl": "8.5.16",
-    "@rapidsai/core": "~22.12.1",
-    "@rapidsai/cuda": "~22.12.1",
-    "@rapidsai/cudf": "~22.12.1",
+    "@rapidsai/core": "~22.12.2",
+    "@rapidsai/cuda": "~22.12.2",
+    "@rapidsai/cudf": "~22.12.2",
     "mjolnir.js": "2.7.1"
   },
   "files": [

@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/glfw",
-  "version": "22.12.1",
+  "version": "22.12.2",
   "description": "Platform-native (and headless) GPU-accelerated OpenGL windows",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -52,8 +52,8 @@
     "tsc:watch": "yarn tsc:clean && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@rapidsai/core": "~22.12.1",
-    "@rapidsai/webgl": "~22.12.1"
+    "@rapidsai/core": "~22.12.2",
+    "@rapidsai/webgl": "~22.12.2"
   },
   "files": [
     "LICENSE",
