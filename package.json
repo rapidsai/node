@@ -93,6 +93,7 @@
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
     "modules/demo/api-server",
+    "modules/demo/particles",
     "modules/demo/viz-app",
     "modules/demo/sql/*"
   ],

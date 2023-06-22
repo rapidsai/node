@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Particles</title>
+	<style>
+		/* Top component styles */
+		.top {
+			height: 3em;
+			font-size: 48pt;
+			color: white;
+			background-color: black;
+			text-align: center;
+			padding-top: 0.5em;
+		}
+
+		/* Left component styles */
+		.legend {
+			position: fixed;
+			left: 0;
+			top: 3em;
+			height: 10em;
+			width: 200px;
+			background-color: green;
+			border: 1px solid white;
+			overflow-y: scroll;
+			padding: 1em;
+		}
+    .center {
+        margin-left: 50px;
+        margin-right: 50px;
+        height: calc(100vh - 3em - 50px);
+        position: relative; /* add position relative */
+        box-sizing: border-box;
+    }
+
+    .map {
+        height: 100%;
+        background-color: gray;
+        margin-bottom: 1em;
+        box-sizing: border-box;
+        position: relative; /* add position relative */
+    }
+
+    .particles {
+        height: 100%;
+        background-color: transparent;
+        position: absolute; /* add position absolute */
+        top: 0; /* align to top of parent */
+        left: 0; /* align to left of parent */
+        width: 100%;
+        z-index: 1;
+        box-sizing: border-box;
+    }
+  </style>
+  </head>
+  <body>
+    <!-- Top component -->
+    <div class="top">
+      Particles
+    </div>
+
+	<!-- Center components -->
+	<div class="center">
+		<div class="map">
+			Map
+		</div>
+		<div class="particles">
+			Particles
+		</div>
+	</div>
+    
+  <!-- Left component -->
+    <div class="legend">
+      <h2>Legend</h2>
+      <ul>
+        <li>Component 1</li>
+			<li>Component 2</li>
+			<li>Component 3</li>
+			<li>Component 4</li>
+			<li>Component 5</li>
+			<li>Component 6</li>
+			<li>Component 7</li>
+			<li>Component 8</li>
+			<li>Component 9</li>
+			<li>Component 10</li>
+			<li>Component 11</li>
+			<li>Component 12</li>
+			<li>Component 13</li>
+			<li>Component 14</li>
+			<li>Component 15</li>
+			<li>Component 16</li>
+			<li>Component 17</li>
+			<li>Component 18</li>
+			<li>Component 19</li>
+			<li>Component 20</li>
+		</ul>
+	</div>
+
+</body>
+</html>
+
