@@ -15,9 +15,10 @@ const config = {
   PORT: '3010',
   read_csv: {
     URL: '/gpu/DataFrame/readCSV',
-    options: (filename) => {
+    options: (filename, columns) => {
       return {
-        method: 'POST', headers: JSON_CORS_HEADERS, body: JSON.stringify({filename: filename})
+        method: 'POST', headers: JSON_CORS_HEADERS,
+          body: JSON.stringify({filename: filename, column: columns})
       }
     }
   },
@@ -45,15 +46,37 @@ const config = {
   },
   get_points: {URL: '/quadtree/get_points', OPTIONS: {method: 'GET', headers: JSON_CORS_HEADERS}},
   count: {URL: '/quadtree', OPTIONS: {method: 'GET', headers: JSON_CORS_HEADERS}},
+  set_dataframe: {
+    URL: '/rapids-viewer/set_dataframe',
+    options: (dataframe, xAxisName, yAxisName) => {
+      return {
+        method: 'POST', headers: JSON_CORS_HEADERS,
+          body: JSON.stringify({dataframe: dataframe, xAxisName: xAxisName, yAxisName: yAxisName})
+      }
+    },
+  },
+  set_viewport: {
+    URL: '/rapids-viewer/set_viewport',
+    options: (bounds) => {
+      return { method: 'POST', headers: JSON_CORS_HEADERS, body: JSON.stringify(bounds) }
+    },
+  },
+  change_budget: {
+    URL: '/rapids-viewer/change_budget',
+    options: (budget) => {
+      return { method: 'POST', headers: JSON_CORS_HEADERS, body: JSON.stringify({budget: budget}) }
+    },
+  },
+  get_n: {URL: '/rapids-viewer/get_n', OPTIONS: {method: 'GET', headers: JSON_CORS_HEADERS}},
   release: {URL: '/gpu/release', OPTIONS: {method: 'POST'}},
 }
 
-export const readCsv = async (filename) => {
+export const readCsv = async (filename, columns) => {
   /*
     readCsv reads the csv file to the server.
     */
   const result     = await fetch(config.SERVER + ':' + config.PORT + config.read_csv.URL,
-                             config.read_csv.options(filename));
+                             config.read_csv.options(filename, columns));
   const resultJson = await result.json();
   return resultJson.params.filename;
 };
@@ -106,6 +129,43 @@ export const getQuadtreePointCount =
                polygonName + '/count';
     const countResult = await fetch(path, config.count.OPTIONS);
     return await countResult.json();
+  }
+
+export const setRapidsViewerDataframe =
+  /* setRapidsViewerDataframe sets the dataframe to be used by the RapidsViewer. */
+  async (dataframeName, xAxisName, yAxisName) => {
+    let path = config.SERVER + ':' + config.PORT + '/rapids-viewer/set_dataframe';
+    const result =
+      await fetch(path, config.set_dataframe.options(dataframeName, xAxisName, yAxisName));
+    return await result.json();
+  }
+
+export const setRapidsViewerViewport =
+  /* setRapidsViewerViewport sets the viewport to be used by the RapidsViewer. */
+  async (bounds) => {
+    let path                   = config.SERVER + ':' + config.PORT + '/rapids-viewer/set_viewport';
+    const set_viewport_options = config.set_viewport.options(bounds);
+    console.log(set_viewport_options);
+    const result = await fetch(path, config.set_viewport.options(bounds));
+    return await result.json();
+  }
+
+export const changeRapidsViewerBudget =
+  /* changeRapidsViewerBudget sets the budget to be used by the RapidsViewer. */
+  async (budget) => {
+    let path     = config.SERVER + ':' + config.PORT + '/rapids-viewer/change_budget';
+    const result = await fetch(path, config.change_budget.options(budget));
+    return await result.json();
+  }
+
+export const getRapidsViewerNextPoints =
+  /* getRapidsViewerNextPoints gets the next points from the RapidsViewer. */
+  async (n) => {
+    let path = config.SERVER + ':' + config.PORT + '/rapids-viewer/get_n' +
+               '/' + n;
+    const result     = await fetch(path, config.get_n.OPTIONS);
+    const arrowTable = await tableFromIPC(result);
+    return arrowTable.getChildAt(0).toArray();
   }
 
 export const release = async (quadtreeName) => {

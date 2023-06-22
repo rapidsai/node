@@ -21,7 +21,7 @@ export interface State {
   pointOffset: number;
   quads: {totalPoints?: number; displayedPoints: number; pointOffsets: number[];};
   done: Record<string, boolean>;
-  map: {transform: {width?: number; height?: number; mercatorMatrix?: {};};};
+  map: {getBounds(): unknown; transform: {width?: number; height?: number; mercatorMatrix?: {};};};
   isHeld: boolean;
   mapReady: boolean;
   sourceName: string;

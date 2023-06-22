@@ -52,10 +52,14 @@ module.exports = async function(fastify, opts) {
     method: 'POST',
     url: '/set_dataframe',
     schema: {
-      querystring: {
-        dataframe: {type: 'string'},
-        xAxisName: {type: 'string'},
-        yAxisName: {type: 'string'},
+      body: {
+        type: 'object',
+        required: ['dataframe', 'xAxisName', 'yAxisName'],
+        properties: {
+          dataframe: {type: 'string'},
+          xAxisName: {type: 'string'},
+          yAxisName: {type: 'string'},
+        }
       }
     },
     handler: async (request, reply) => {
@@ -68,7 +72,13 @@ module.exports = async function(fastify, opts) {
   fastify.route({
     method: 'POST',
     url: '/set_viewport',
-    schema: {querystring: {lb: {type: 'array'}, ub: {type: 'array'}}},
+    schema: {
+      body: {
+        type: 'object',
+        required: ['lb', 'ub'],
+        properties: {lb: {type: 'array'}, ub: {type: 'array'}}
+      }
+    },
     handler: async (request, reply) => {
       const {lb, ub} = request.body;
       rapids_viewer.set_viewport(lb, ub);

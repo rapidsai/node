@@ -15,9 +15,10 @@
 import React, { useEffect, useRef, createContext, useState } from 'react';
 import regl from 'regl';
 import { State, ParticleState } from './types';
-import { readCsv, release, createQuadtree, setPolygon, getQuadtreePointCount, getQuadtreePoints } from './requests.js';
+import { readCsv, release, createQuadtree, setPolygon, getQuadtreePointCount, getQuadtreePoints, setRapidsViewerDataframe, setRapidsViewerViewport, changeRapidsViewerBudget, getRapidsViewerNextPoints } from './requests.js';
 import { mapPropsStream, createEventHandler } from 'recompose';
 import * as ix from './ix';
+import { ReglRingBuffer } from './ringbuffer';
 const { getProjection } = require('./matrices');
 
 let testBuffer = new Float32Array([
@@ -88,24 +89,28 @@ const drawBufferObj = (buffer: regl.Buffer, props: State) => {
       projection: ({ viewportWidth, viewportHeight }) => props.map.transform.mercatorMatrix,
       time: ({ tick }) => tick * 0.001
     },
-    count: props.pointOffset,
+    count: props.pointBudget,
     primitive: 'points'
   }
 };
 
 interface ParticlesContextType {
-  reglState: { reglInstance: regl.Regl | null; buffer: regl.Buffer | null };
-  setReglState: React.Dispatch<React.SetStateAction<{ reglInstance: regl.Regl | null; buffer: regl.Buffer | null }>>;
+  reglState: { reglInstance: regl.Regl | null; buffer: ReglRingBuffer | null };
+  setReglState: React.Dispatch<React.SetStateAction<{ reglInstance: regl.Regl | null; buffer: ReglRingBuffer | null }>>;
 };
+interface MapBounds {
+  _sw: { lng: number, lat: number },
+  _ne: { lng: number, lat: number }
+}
+
 const ParticlesContext = createContext<ParticlesContextType>({
   reglState: { reglInstance: null, buffer: null },
   setReglState: () => null
 });
-
 // mapPropsStream takes an observable (props$)
 const withParticlesProps = mapPropsStream((props$) => {
   // Convert the Observable into an AsyncIterable
-  const props_ = ix.ai.from<State>(props$ as AsyncIterable<State>);
+  const props_ = ix.ai.from<ParticleState>(props$ as AsyncIterable<ParticleState>);
   // Create a pipeline
   const sourceNameChanged = props_.pipe(
     // Don't execute the following steps in the pipeline unless the below condition occurs
@@ -119,20 +124,25 @@ const withParticlesProps = mapPropsStream((props$) => {
       // Create a function that emits AsyncIterables
       const computeInitialQuadtree = ix.ai.from(async function* () {
         // Execute the async first points load
-        const csv = await readCsv(props.sourceName);
-        const quadtreeName: string = await createQuadtree(csv, { 'x': 'Longitude', 'y': 'Latitude' });
-        const polygon: string = await setPolygon('test', [-127, 51, -64, 51, -64, 24, -127, 24, -127, 51]);
-        const quadtreePointCount: { count: number } = await getQuadtreePointCount(quadtreeName, polygon);
-        // emit a new event containing the result of this chain
-        yield { quadtreeName, polygon, count: quadtreePointCount.count, props };
+        const csv = await readCsv(props.sourceName, ["Longitude", "Latitude"]);
+        // Set the RapidsViewer dataframe
+        await setRapidsViewerDataframe(csv, "Longitude", "Latitude");
+        // Set the current viewport
+        const mapBounds = props.map.getBounds() as MapBounds;
+        const serverBounds = { lb: [mapBounds._sw.lng, mapBounds._sw.lat], ub: [mapBounds._ne.lng, mapBounds._ne.lat] };
+        await setRapidsViewerViewport(serverBounds);
+        // Set the budget
+        await changeRapidsViewerBudget(props.pointBudget);
+        const initial = new Float32Array(0);
+        yield { initial, props };
       }()).pipe(
         // the next event in the chain will an async function that takes
         // quadtreeName, polygon, count, and props: an event emitted by the last step in the pipeline
-        ix.ai.ops.switchMap(async ({ quadtreeName, polygon, count, props }) => {
+        ix.ai.ops.switchMap(async ({ initial, props }) => {
           return {
             // return the original props, with the addition of the buffer created from getQuadtreePoints
             ...props, buffer: (
-              await getQuadtreePoints(quadtreeName, polygon, count)
+              await getRapidsViewerNextPoints(props.pointsPerRequest)
             ) as Float32Array
           } as ParticleState
         }),
@@ -143,8 +153,63 @@ const withParticlesProps = mapPropsStream((props$) => {
       )
     }),
   );
+
+  // Watch for transform change
+  const transformChanged = props_.pipe(
+    ix.ai.ops.distinctUntilChanged({
+      comparer(x, y) {
+        return x.map.transform === y.map.transform
+      }
+    }),
+    ix.ai.ops.flatMap((props) => {
+      const nextPoints = ix.ai.from(async function* () {
+        console.log('transform changed');
+        const mapBounds = props.map.getBounds() as MapBounds;
+        await setRapidsViewerViewport(mapBounds);
+        debugger;
+        yield { props };
+      }()).pipe(
+        ix.ai.ops.switchMap(async ({ props }) => {
+          return {
+            ...props,
+          } as ParticleState
+        }),
+      )
+      return ix.ai.concat(
+        ix.ai.of({ ...props, buffer: testBuffer } as ParticleState), nextPoints
+      )
+    }),
+  );
+
+  // Watch for buffer input
+  const bufferChanged = props_.pipe(
+    ix.ai.ops.flatMap((props) => {
+      const nextPoints = ix.ai.from(async function* () {
+        const next = await getRapidsViewerNextPoints(props.pointsPerRequest);
+        console.log('Point length: ', next.length);
+        yield { next, props };
+      }()).pipe(
+        ix.ai.ops.switchMap(async ({ next, props }) => {
+          return {
+            ...props, buffer: (
+              next
+            ) as Float32Array
+          } as ParticleState
+        }),
+      )
+      return ix.ai.concat(
+        ix.ai.of({ ...props, buffer: testBuffer } as ParticleState), nextPoints
+      )
+    }),
+  );
+  // Create a function that emits AsyncIterables
   // combine the AsyncIterables emitted from props_ and the AsyncIterables emitted from sourceNameChanged
-  return ix.ai.combineLatest(props_, sourceNameChanged).pipe(
+  return ix.ai.combineLatest(
+    props_,
+    sourceNameChanged,
+    transformChanged,
+    bufferChanged
+  ).pipe(
     // when an event is emitted, emit a new event with the destructured props and the buffer
     ix.ai.ops.map(([props, particleState]) => {
       return { ...props, buffer: particleState.buffer };
@@ -155,7 +220,7 @@ const withParticlesProps = mapPropsStream((props$) => {
 
 interface ReglState {
   reglInstance: regl.Regl | null;
-  buffer: regl.Buffer | null;
+  buffer: ReglRingBuffer | null;
 }
 
 let count = 0;
@@ -172,7 +237,7 @@ const Particles = withParticlesProps(
       reglInstance = regl({
         canvas: canvasRef.current as any,
       });
-      buffer = reglInstance.buffer({ usage: 'dynamic', type: 'float', length: props.pointBudget });
+      buffer = new ReglRingBuffer(reglInstance, props.pointBudget);
       setReglState({ reglInstance, buffer });
       return () => {
         reglInstance!.destroy();
@@ -183,12 +248,13 @@ const Particles = withParticlesProps(
     useEffect(() => {
       // initial rendering
       if (buffer && reglInstance) {
-        if (count < 5) {
-          buffer.subdata(props.buffer, 0);
-        }
-        count++;
+        //if (count < 5) {
+        console.log(props.buffer.length, props.buffer[0]);
+        buffer.write(props.buffer);
+        //}
+        //count++;
         props.pointOffset = props.buffer.length;
-        const drawBuffer = reglInstance(drawBufferObj(buffer, props) as regl.InitializationOptions);
+        const drawBuffer = reglInstance(drawBufferObj(buffer.get(), props) as regl.InitializationOptions);
         drawBuffer(props);
       }
     }, [props]); // eslint-disable-line react-hooks/exhaustive-deps
