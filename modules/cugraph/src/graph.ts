@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -114,18 +114,18 @@ export class Graph<T extends DataType = any> {
    *
    * @returns {Float32Buffer} The new positions.
    */
-  public forceAtlas2(options: ForceAtlas2Options = {}) {
+  public forceAtlas2(options: ForceAtlas2Options<any> = {positions: undefined}) {
     const {numNodes} = this;
-    let positions: Float32Buffer|undefined;
+
+    let positions: Float32Buffer|void = undefined;
+
     if (options.positions && typeof options.positions === 'object') {
-      positions = options.positions ? new Float32Buffer(options.positions instanceof MemoryView
-                                                          ? options.positions?.buffer
-                                                          : options.positions)
-                                    : undefined;
-      if (positions && positions.length !== numNodes * 2) {
+      positions = new Float32Buffer(
+        options.positions instanceof MemoryView && options.positions.buffer || options.positions);
+      if (positions.length < numNodes * 2) {
         // reallocate new positions and copy over old X/Y positions
-        const p =
-          new Float32Buffer(new DeviceBuffer(numNodes * 2 * Float32Buffer.BYTES_PER_ELEMENT));
+        const p = new Float32Buffer(
+          new DeviceBuffer(numNodes * 2 * Float32Buffer.BYTES_PER_ELEMENT, options.memoryResource));
         if (positions.length > 0) {
           const pn = positions.length / 2;
           const sx = positions.subarray(0, Math.min(numNodes, pn));
@@ -135,7 +135,8 @@ export class Graph<T extends DataType = any> {
         positions = p;
       }
     }
-    return new Float32Buffer(this.graph.forceAtlas2({...options, positions}));
+
+    return new Float32Buffer(this.graph.forceAtlas2({...options, positions: positions?.buffer}));
   }
 }
 

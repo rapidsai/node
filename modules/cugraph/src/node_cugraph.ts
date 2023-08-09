@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData, MemoryView} from '@rapidsai/cuda';
+import {Memory, MemoryData, MemoryView} from '@rapidsai/cuda';
 import {Column, Float32, Int32} from '@rapidsai/cudf';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
@@ -46,7 +46,9 @@ export declare class Graph {
    *
    * @returns {DeviceBuffer} The new positions.
    */
-  forceAtlas2(options: ForceAtlas2Options): DeviceBuffer;
+  forceAtlas2<T extends ForceAtlas2Options<Memory>>(options: T): T['positions'];
+  forceAtlas2<T extends ForceAtlas2Options<MemoryView>>(options: T): T['positions'];
+  forceAtlas2<T extends ForceAtlas2Options<MemoryData|DeviceBuffer|void>>(options: T): DeviceBuffer;
 
   /**
    * @summary Compute the total number of edges incident to a vertex (both in and out edges).
@@ -104,11 +106,11 @@ export declare class Graph {
   analyzeRatioCutClustering(num_clusters: number, clusters: Column<Int32>): number;
 }
 
-export interface ForceAtlas2Options {
+export interface ForceAtlas2Options<TPositions = void> {
   /**
    * Optional buffer of initial vertex positions.
    */
-  positions?: MemoryData|MemoryView|DeviceBuffer;
+  positions: TPositions;
   /**
    * The maximum number of levels/iterations of the Force Atlas algorithm. When specified the
    * algorithm will terminate after no more than the specified number of iterations. No error occurs
