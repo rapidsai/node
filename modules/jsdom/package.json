@@ -49,6 +49,7 @@
     "rxjs": "6.6.7",
     "source-map-support": "^0.5.20",
     "svg2img": "0.9.3",
+    "sync-request": "6.1.0",
     "usertiming": "0.1.8",
     "web-streams-polyfill": "2.1.1"
   },

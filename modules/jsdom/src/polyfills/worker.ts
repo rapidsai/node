@@ -41,7 +41,10 @@ export function installWorker(window: jsdom.DOMWindow) {
 
 function injectPreamble(filename: string, code: string) {
   return `// rapidsai_jsdom_worker_preamble
+const Url = require('url');
+const Path = require('path');
 const {Blob} = require('buffer');
+const syncRequest = require('${require.resolve('sync-request')}');
 class ImageData {
   constructor(data, width, height, settings) {
     if(typeof data === 'number') {
@@ -105,7 +108,17 @@ class WorkerGlobalScope extends require('events') {
 
     Object.setPrototypeOf(global, this);
   }
-  importScripts(...xs) { xs.forEach(x => require(x)); }
+  importScripts(...xs) {
+    xs.filter(Boolean).forEach(x => {
+      const isDataURI  = x && x.startsWith('data:');
+      const isFilePath = x && !isDataURI && !Url.parse(x).protocol;
+      if(isDataURI || isFilePath) {
+        require(x);
+      } else {
+        eval(syncRequest('GET', x, {}).getBody('utf-8'));
+      }
+    });
+  }
   postMessage(data, ...xs) { parentPort.postMessage({data}, ...xs); }
 }
 global.self = new WorkerGlobalScope(Object.assign(global, {ImageData})).self;
