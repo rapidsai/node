@@ -21,6 +21,24 @@ import {createGLContext} from '@luma.gl/gltools';
 import {AnimationLoop} from './animation-loop';
 
 export class Deck extends (BaseDeck as typeof DeckGL) {
+  constructor(props: any) {
+    super(props);
+    const {
+      Controller,
+      MapController,
+      _GlobeController,
+      FirstPersonController,
+      OrbitController,
+      OrthographicController,
+    } = require('@deck.gl/core');
+
+    Controller.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    MapController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    _GlobeController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    FirstPersonController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    OrbitController.prototype._getTransitionProps = ()   => ({transitionDuration: 0});
+    OrthographicController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+  }
   _createAnimationLoop(props: any) {
     const {
       _sync,
@@ -150,7 +168,6 @@ export class Deck extends (BaseDeck as typeof DeckGL) {
         debug: this.props.debug,
         _animate: this.props._animate,
         _pickable: this.props._pickable,
-        controller: this.props.controller,
         touchAction: this.props.touchAction,
         useDevicePixels: this.props.useDevicePixels,
         initialViewState: this.props.initialViewState,

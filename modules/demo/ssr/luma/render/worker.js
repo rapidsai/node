@@ -56,6 +56,13 @@ function createLoop(width, height, lesson) {
     module: {
       path: Path.join(lessons, 'lessons', lesson),
     },
+    babel: {
+      presets: [
+        // transpile all ESM to CJS
+        ['@babel/preset-env', {targets: {node: 'current'}}],
+        ...RapidsJSDOM.defaultOptions.babel.presets,
+      ]
+    },
     onAnimationFrameRequested: immediateAnimationFrame(state),
   });
 
