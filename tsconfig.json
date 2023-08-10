@@ -1,8 +1,9 @@
 {
     "include": [
-        "modules/*/src/**/*.ts",
+        "modules/**/*/src/**/*.ts",
+        "modules/**/*/test/**/*.ts",
     ],
-    "exclude": ["node_modules"],
+    "exclude": ["node_modules", "build/js"],
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {

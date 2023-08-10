@@ -8,9 +8,7 @@ module.exports = {
   'parser': '@typescript-eslint/parser',
   'parserOptions': {
     'project': [
-      'tsconfig.json',
-      'modules/**/*/tsconfig.json',
-      'modules/**/*/test/tsconfig.json',
+      'tsconfig.json'
     ],
     'sourceType': 'module'
   },
@@ -23,6 +21,7 @@ module.exports = {
     // "prefer-const": "off",
     // "prefer-rest-params": "off",
     'semi': ['error', 'always'],
+    '@typescript-eslint/unbound-method': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-unsafe-call': 'off',
     '@typescript-eslint/no-var-requires': 'off',
