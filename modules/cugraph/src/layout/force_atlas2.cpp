@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,15 +58,51 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
   auto gravity               = get_float(options.Get("gravity"), 1.0);
   auto verbose               = get_bool(options.Get("verbose"), false);
 
+  size_t positions_offset{0};
   float *x_positions{nullptr};
   float *y_positions{nullptr};
-  DeviceBuffer::wrapper_t positions;
+
+  Napi::Object positions;
+  bool positions_is_device_memory_wrapper{false};
+
+  auto is_device_memory = [&](Napi::Value const &data) -> bool {
+    return data.IsObject() and                     //
+           data.As<Napi::Object>().Has("ptr") and  //
+           data.As<Napi::Object>().Get("ptr").IsNumber();
+  };
+  auto is_device_memory_wrapper = [&](Napi::Value const &data) -> bool {
+    return data.IsObject() and                                   //
+           data.As<Napi::Object>().Has("buffer") and             //
+           data.As<Napi::Object>().Get("buffer").IsObject() and  //
+           is_device_memory(data.As<Napi::Object>().Get("buffer"));
+  };
+  auto get_device_memory_ptr = [&](Napi::Object const &buffer) -> float * {
+    return reinterpret_cast<float *>(buffer.Get("ptr").ToNumber().Int64Value()) + positions_offset;
+  };
 
   if (options.Has("positions") && options.Get("positions").IsObject()) {
-    positions = data_to_devicebuffer(
-      env, options.Get("positions"), cudf::data_type{cudf::type_id::FLOAT32}, mr);
-    x_positions = static_cast<float *>(positions->data());
-    y_positions = static_cast<float *>(positions->data()) + num_nodes();
+    positions = options.Get("positions");
+
+    if (is_device_memory_wrapper(positions)) {
+      positions_is_device_memory_wrapper = true;
+
+      if (positions.Has("byteOffset")) {
+        auto val = positions.Get("byteOffset");
+        if (val.IsNumber()) {
+          positions_offset = val.ToNumber().Int64Value();
+        } else if (val.IsBigInt()) {
+          bool lossless{false};
+          positions_offset = val.As<Napi::BigInt>().Uint64Value(&lossless);
+        }
+      }
+
+      positions = positions.Get("buffer").ToObject();
+    } else if (!is_device_memory(positions)) {
+      positions = data_to_devicebuffer(env, positions, cudf::data_type{cudf::type_id::FLOAT32}, mr);
+    }
+
+    x_positions = get_device_memory_ptr(positions);
+    y_positions = x_positions + num_nodes();
   } else {
     positions =
       DeviceBuffer::New(env,
@@ -79,7 +115,7 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
   try {
     cugraph::force_atlas2({rmm::cuda_stream_default},
                           graph,
-                          static_cast<float *>(positions->data()),
+                          get_device_memory_ptr(positions),
                           max_iter,
                           x_positions,
                           y_positions,
@@ -96,7 +132,8 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
                           verbose);
   } catch (std::exception const &e) { throw Napi::Error::New(info.Env(), e.what()); }
 
-  return positions;
+  return positions_is_device_memory_wrapper ? options.Get("positions").As<Napi::Object>()
+                                            : positions;
 }
 
 }  // namespace nv

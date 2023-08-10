@@ -82,8 +82,6 @@ export class RapidsJSDOM extends jsdom.JSDOM {
 
     const imageLoader = new ImageLoader(url, dir);
 
-    let loaded: Promise<jsdom.DOMWindow>|undefined = undefined;
-
     super(undefined, {
       ...opts,
       url,
@@ -123,70 +121,63 @@ export class RapidsJSDOM extends jsdom.JSDOM {
         const polyfillObjectURLPath = require.resolve('./polyfills/object-url');
         const polyfillTransformPath = require.resolve('./polyfills/modules/transform');
 
-        loaded =
-          window
-            .evalFn(
-              async () => {
-                const {createTransform} = await window.import(polyfillTransformPath) as
-                                          typeof import('./polyfills/modules/transform');
-                const {extensions: _extensions, transform: _transform} = createTransform({
-                  ...babel,
-                  preTransform(path: string, code: string) {
-                    // prepend a fix for mapbox-gl's serialization code
-                    if (path.includes('mapbox-gl/dist/mapbox-gl') ||
-                        path.includes('maplibre-gl/dist/maplibre-gl')) {
-                      return `\
+        window.evalFn(() => {
+          const {createTransform} =
+            require(polyfillTransformPath) as typeof import('./polyfills/modules/transform');
+          const {extensions: _extensions, transform: _transform} = createTransform({
+            ...babel,
+            preTransform(path: string, code: string) {
+              // prepend a fix for mapbox-gl's serialization code
+              if (path.includes('mapbox-gl/dist/mapbox-gl') ||
+                  path.includes('maplibre-gl/dist/maplibre-gl')) {
+                return `\
 Object.defineProperty(({}).constructor, '_classRegistryKey', {value: 'Object', writable: false});
 ${code}`;
-                    }
-                    return code;
-                  }
-                });
+              }
+              return code;
+            }
+          });
 
-                Object.assign(window.jsdom.global.require, {extensions: _extensions});
-                Object.assign(window.jsdom.global.require.main, {_extensions, _transform});
+          Object.assign(window.jsdom.global.require, {extensions: _extensions});
+          Object.assign(window.jsdom.global.require.main, {_extensions, _transform});
 
-                const {installFetch} =
-                  await window.import(polyfillFetchPath) as typeof import('./polyfills/fetch');
-                const {installImageData, installImageDecode} =
-                  await window.import(polyfillImagePath) as typeof import('./polyfills/image');
-                const {installGetContext} =
-                  await window.import(polyfillCanvasPath) as typeof import('./polyfills/canvas');
-                const {installStreams} =
-                  await window.import(polyfillStreamsPath) as typeof import('./polyfills/streams');
-                const {installObjectURL} = await window.import(polyfillObjectURLPath) as
-                                           typeof import('./polyfills/object-url');
+          const {installFetch} = require(polyfillFetchPath) as typeof import('./polyfills/fetch');
+          const {installImageData, installImageDecode} =
+            require(polyfillImagePath) as typeof import('./polyfills/image');
+          const {installGetContext} =
+            require(polyfillCanvasPath) as typeof import('./polyfills/canvas');
+          const {installStreams} =
+            require(polyfillStreamsPath) as typeof import('./polyfills/streams');
+          const {installObjectURL} =
+            require(polyfillObjectURLPath) as typeof import('./polyfills/object-url');
 
-                [installFetch,
-                 installStreams,
-                 installObjectURL(tmpdir),
-                 installImageData,
-                 installImageDecode,
-                 installGetContext,
-                ].reduce((window, fn) => fn(window), window);
+          [installFetch,
+           installStreams,
+           installObjectURL(tmpdir),
+           installImageData,
+           installImageDecode,
+           installGetContext,
+          ].reduce((window, fn) => fn(window), window);
 
-                imageLoader.svg2img =
-                  (await window.import('svg2img')) as typeof import('svg2img').default;
-              },
-              {
-                babel,
-                tmpdir,
-                frameRate,
-                glfwOptions,
-                imageLoader,
-                polyfillFetchPath,
-                polyfillImagePath,
-                polyfillCanvasPath,
-                polyfillStreamsPath,
-                polyfillObjectURLPath,
-                polyfillTransformPath,
-                onAnimationFrameRequested,
-              })
-            .then(() => window);
+          imageLoader.svg2img = (require('svg2img')) as typeof import('svg2img').default;
+        }, {
+          babel,
+          tmpdir,
+          frameRate,
+          glfwOptions,
+          imageLoader,
+          polyfillFetchPath,
+          polyfillImagePath,
+          polyfillCanvasPath,
+          polyfillStreamsPath,
+          polyfillObjectURLPath,
+          polyfillTransformPath,
+          onAnimationFrameRequested,
+        });
       }
     });
 
-    this.loaded = loaded ?? Promise.resolve(this.window);
+    this.loaded = Promise.resolve(this.window);
   }
 }
 

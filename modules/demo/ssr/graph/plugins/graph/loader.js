@@ -1,4 +1,4 @@
-const {DataFrame, Series, Uint32, Uint64, Uint8} = require('@rapidsai/cudf');
+const {DataFrame, Series, Int32, Uint32, Uint64, Uint8} = require('@rapidsai/cudf');
 
 function loadNodes(graphId) {
   if (graphId === 'default') { return getDefaultNodes(); }
@@ -83,7 +83,7 @@ function getDefaultEdges() {
   return new DataFrame({
     name: Series.new(Array.from({length: 312}, (_, i) => `${i}`)),
     src: Series.new({
-      type: new Uint32,
+      type: new Int32,
       data: [
         1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,
         1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,
@@ -102,7 +102,7 @@ function getDefaultEdges() {
       ]
     }),
     dst: Series.new({
-      type: new Uint32,
+      type: new Int32,
       data: [
         2,  3,  4,  5,  6,  6,  7,  7,  8,  8,  8,  8,  9,  10, 11, 12, 14, 15, 16, 13, 17, 18, 17,
         17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37,

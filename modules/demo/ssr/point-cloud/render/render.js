@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,10 +37,18 @@ class Renderer {
 
     await this._render();
 
+    const deck = this.deck.serialize();
+
     return {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
-        deck: this.deck.serialize(),
+        deck: {
+          ...deck,
+          props: {
+            ...deck.props,
+            transitionDuration: 0,
+          }
+        },
         window: {
           x: window.x,
           y: window.y,
@@ -89,18 +97,17 @@ function makeDeck() {
   deckLog.level        = 0;
   deckLog.enable(false);
 
-  const {OrbitView, COORDINATE_SYSTEM, LinearInterpolator} = require('@deck.gl/core');
-  const {PointCloudLayer}                                  = require('@deck.gl/layers');
-  const {DeckSSR}                                          = require('@rapidsai/deck.gl');
-  const {LASLoader}                                        = require('@loaders.gl/las');
-  const {registerLoaders}                                  = require('@loaders.gl/core');
+  const {OrbitView, COORDINATE_SYSTEM} = require('@deck.gl/core');
+  const {PointCloudLayer}              = require('@deck.gl/layers');
+  const {DeckSSR}                      = require('@rapidsai/deck.gl');
+  const {LASLoader}                    = require('@loaders.gl/las');
+  const {registerLoaders}              = require('@loaders.gl/core');
 
+  LASLoader.worker = false;
   registerLoaders(LASLoader);
 
   // Data source: kaarta.com
   const LAZ_SAMPLE = 'http://localhost:8080/indoor.0.1.laz';
-
-  const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
 
   const makeLayers = (deck) => {
     return [
@@ -117,6 +124,7 @@ function makeDeck() {
   };
 
   const deck = new DeckSSR({
+    _sync: true,
     createFramebuffer: true,
     initialViewState: {
       target: [0, 0, 0],
@@ -130,9 +138,10 @@ function makeDeck() {
     },
     layers: makeLayers(null),
     views: [
-      new OrbitView({transitionInterpolator}),
+      new OrbitView(),
     ],
     controller: true,
+    transitionDuration: 0,
     parameters: {clearColor: [0.93, 0.86, 0.81, 1]},
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
   });

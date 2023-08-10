@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,17 @@ const copyFramebuffer          = require('./copy')();
 class Renderer {
   constructor() {
     const onAnimationFrameRequested = immediateAnimationFrame(this);
-    const jsdom                     = new RapidsJSDOM({module, onAnimationFrameRequested});
+    const jsdom                     = new RapidsJSDOM({
+      module,
+      onAnimationFrameRequested,
+      babel: {
+        presets: [
+          // transpile all ESM to CJS
+          ['@babel/preset-env', {targets: {node: 'current'}}],
+          ...RapidsJSDOM.defaultOptions.babel.presets,
+        ]
+      },
+    });
 
     const {deck, render} = jsdom.window.evalFn(makeDeck);
 
@@ -37,23 +47,28 @@ class Renderer {
     state?.graph && Object.assign(graph, state.graph);
     state?.window && Object.assign(window, state.window);
 
-    state?.selectedInfo && Object.assign(this.deck.selectedInfo, state.selectedInfo);
-    state?.boxSelectCoordinates &&
-      Object.assign(this.deck.boxSelectCoordinates, state.boxSelectCoordinates);
-
     (events || []).forEach((event) => window.dispatchEvent(event));
 
-    await this._render(graph,
-                       this.deck.boxSelectCoordinates.rectdata,
-                       state.pickingMode === 'boxSelect' ? {controller: {dragPan: false}}
-                                                         : {controller: {dragPan: true}});
+    await this._render(graph);
 
     closeIpcHandles(graph.data.nodes);
     closeIpcHandles(graph.data.edges);
+
+    const deck = this.deck.serialize();
+
     return {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
-        deck: this.deck.serialize(),
+        ...state,
+        deck: {
+          ...deck,
+          props: {
+            ...deck.props,
+            boxSelection: this.deck?.props?.boxSelection,
+            selectedNodes: this.deck?.props?.selectedNodes,
+            selectedEdges: this.deck?.props?.selectedEdges,
+          }
+        },
         graph: this.deck.layerManager.getLayers()
                  ?.find((layer) => layer.id === 'GraphLayer')
                  .serialize(),
@@ -71,9 +86,7 @@ class Renderer {
           scrollY: window.scrollY,
           modifiers: window.modifiers,
           mouseInWindow: window.mouseInWindow,
-        },
-        boxSelectCoordinates: this.deck.boxSelectCoordinates,
-        selectedInfo: this.deck.selectedInfo
+        }
       }
     };
   }
@@ -110,13 +123,13 @@ function makeDeck() {
   const {OrthographicView}        = require('@deck.gl/core');
   const {TextLayer, PolygonLayer} = require('@deck.gl/layers');
   const {DeckSSR, GraphLayer}     = require('@rapidsai/deck.gl');
-  const {OrthographicController}  = require('@rapidsai/deck.gl');
 
   const makeLayers = (deck, graph = {}) => {
-    const [viewport] = (deck?.viewManager?.getViewports() || []);
+    const boxSelection = deck?.props?.boxSelection;
+    const [viewport]   = (deck?.viewManager?.getViewports() || []);
     const [minX = Number.NEGATIVE_INFINITY,
            minY = Number.NEGATIVE_INFINITY,
-    ]                = viewport?.getBounds() || [];
+    ]                  = viewport?.getBounds() || [];
     return [
       new TextLayer({
         sizeScale: 1,
@@ -140,94 +153,106 @@ function makeDeck() {
                                     : [255, 255, 255, 255],
                          }))
       }),
-      new GraphLayer({pickable: true, ...graph})
+      new GraphLayer({pickable: true, ...graph}),
+      new PolygonLayer({
+        filled: true,
+        stroked: true,
+        getPolygon: d => d.polygon,
+        lineWidthUnits: 'pixels',
+        getLineWidth: 2,
+        getLineColor: [80, 80, 80],
+        getLineColor: [0, 0, 0, 150],
+        getFillColor: [255, 255, 255, 65],
+        data: boxSelection ? [boxSelection] : []
+      })
     ];
   };
 
-  getPolygonLayer = (rectdata) => {
-    return new PolygonLayer({
-      filled: true,
-      stroked: true,
-      getPolygon: d => d.polygon,
-      lineWidthUnits: 'pixels',
-      getLineWidth: 2,
-      getLineColor: [80, 80, 80],
-      getLineColor: [0, 0, 0, 150],
-      getFillColor: [255, 255, 255, 65],
-      data: rectdata
-    })
+  function onDragStart(info, event) {
+    if (event?.srcEvent?.shiftKey) {
+      event.preventDefault();
+      const {x, y}   = info;
+      const [px, py] = info.viewport.unproject([x, y]);
+      deck.setProps({
+        boxSelection: {
+          origin: [x, y],
+          polygon: [[px, py], [px, py], [px, py], [px, py]],
+        }
+      });
+      return true;
+    }
+  }
+
+  function onDrag(info, event) {
+    if (deck.props.boxSelection) {
+      event.preventDefault();
+      const {x, y}     = info;
+      const [px, py]   = info.viewport.unproject([x, y]);
+      const [[sx, sy]] = deck.props.boxSelection.polygon;
+      deck.setProps({
+        boxSelection: {
+          ...deck.props.boxSelection,
+          polygon: [[sx, sy], [sx, py], [px, py], [px, sy]],
+        }
+      });
+      return true;
+    }
   };
 
-  const onDragStart =
-    (info, event) => {
-      if (deck.props.controller.dragPan) { return; }
-      const {x, y}                       = info;
-      const [px, py]                     = info.viewport.unproject([x, y]);
-      deck.boxSelectCoordinates.startPos = [x, y];
-      deck.boxSelectCoordinates.rectdata =
-        [{polygon: [[px, py], [px, py], [px, py], [px, py]], show: true}];
-    }
+  function onDragEnd(info, event) {
+    if (deck.props.boxSelection) {
+      event.preventDefault();
 
-  const onDragEnd =
-    (info, event) => {
-      if (deck.props.controller.dragPan || !deck.boxSelectCoordinates.startPos ||
-          !deck.boxSelectCoordinates.rectdata) {
-        return;
-      }
-      const {x, y} = info;
-      const sx     = deck.boxSelectCoordinates.startPos[0];
-      const sy     = deck.boxSelectCoordinates.startPos[1];
+      const {x, y}   = info;
+      const [sx, sy] = deck.props.boxSelection.origin;
 
-      deck.boxSelectCoordinates.rectdata =
-        [{polygon: deck.boxSelectCoordinates.rectdata[0].polygon || [], show: true}];
-      deck.boxSelectCoordinates.startPos    = null;
-      deck.selectedInfo.selectedCoordinates = {
+      const selections = deck.pickObjects({
         x: Math.min(sx, x),
         y: Math.min(sy, y),
         width: Math.abs(x - sx),
         height: Math.abs(y - sy),
         layerIds: ['GraphLayer']
-      };
+      });
 
-      deck.selectedInfo.selectedNodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('nodeId'))
-                                          .map(n => n.nodeId);
+      deck.setProps({
+        boxSelection: null,
+        selectedNodes: selections.filter(x => x.hasOwnProperty('nodeId')).map(n => n.nodeId),
+        selectedEdges: selections.filter(x => x.hasOwnProperty('edgeId')).map(n => n.edgeId),
+      });
 
-      deck.selectedInfo.selectedEdges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('edgeId'))
-                                          .map(n => n.edgeId);
-      console.log('selected Nodes',
-                  deck.selectedInfo.selectedNodes,
-                  '\nselected Edges',
-                  deck.selectedInfo.selectedEdges);
+      if (deck.props.selectedNodes.length > 0) {
+        console.log({'selected nodes': deck.props.selectedNodes});
+      }
+      if (deck.props.selectedEdges.length > 0) {
+        console.log({'selected edges': deck.props.selectedEdges});
+      }
+      return true;
     }
+  }
 
-  const onDrag = (info, event) => {
-    if (deck.props.controller.dragPan) { return; }
-    if (deck.boxSelectCoordinates.startPos) {
-      const {x, y}     = info;
-      const [px, py]   = info.viewport.unproject([x, y]);
-      const startPoint = deck.boxSelectCoordinates.rectdata[0].polygon[0];
-      deck.boxSelectCoordinates.rectdata =
-        [{polygon: [startPoint, [startPoint[0], py], [px, py], [px, startPoint[1]]], show: true}];
-    };
-  };
-
-  const onClick = (info, event) => {
-    deck.selectedInfo.selectedCoordinates = {
+  function onClick(info, event) {
+    const selections = deck.pickObjects({
       x: info.x,
       y: info.y,
       radius: 1,
-    };
-    deck.selectedInfo.selectedNodes =
-      [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
-        .filter(selected => selected && selected.hasOwnProperty('nodeId'))
-        .map(n => n.nodeId);
+    });
 
-    console.log(deck.selectedInfo.selectedNodes, deck.selectedInfo.selectedCoordinates);
-  };
+    deck.setProps({
+      boxSelection: null,
+      selectedNodes: selections.filter(x => x.hasOwnProperty('nodeId')).map(n => n.nodeId),
+      selectedEdges: selections.filter(x => x.hasOwnProperty('edgeId')).map(n => n.edgeId),
+    });
+
+    if (deck.props.selectedNodes.length > 0) {
+      console.log({'selected nodes': deck.props.selectedNodes});
+    }
+    if (deck.props.selectedEdges.length > 0) {
+      console.log({'selected edges': deck.props.selectedEdges});
+    }
+  }
 
   const deck = new DeckSSR({
+    _sync: true,
     createFramebuffer: true,
     initialViewState: {
       zoom: 1,
@@ -244,27 +269,24 @@ function makeDeck() {
         controller: {
           keyboard: false,
           doubleClickZoom: false,
-          type: OrthographicController,
           scrollZoom: {speed: 0.01, smooth: false},
-          // dragPan: false
         }
       }),
     ],
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
+    onClick,
+    onDrag,
+    onDragStart,
+    onDragEnd,
+    selectedNodes: [],
+    selectedEdges: [],
   });
-
-  deck.selectedInfo         = {selectedCoordinates: {}, selected: []};
-  deck.boxSelectCoordinates = {rectdata: [{polygon: [[]], show: false}], startPos: null};
-  deck.setProps({onClick, onDrag, onDragStart, onDragEnd});
 
   return {
     deck,
-    render(graph, rectdata, cb_props = {}) {
+    render(graph) {
       const done = deck.animationLoop.waitForRender();
-      deck.setProps({
-        layers: makeLayers(deck, graph).concat(rectdata[0].show ? getPolygonLayer(rectdata) : []),
-        ...cb_props
-      });
+      deck.setProps({layers: makeLayers(deck, graph)});
       deck.animationLoop.start();
       return done;
     },
@@ -294,10 +316,11 @@ function openGraphIpcHandles({nodes, edges, ...graphLayerProps} = {}) {
 }
 
 function openNodeIpcHandles(attrs = {}) {
+  const positions  = openIpcHandle(attrs.positions);
   const attributes = {
     nodeRadius: openIpcHandle(attrs.nodeRadius),
-    nodeXPositions: openIpcHandle(attrs.nodeXPositions),
-    nodeYPositions: openIpcHandle(attrs.nodeYPositions),
+    nodeXPositions: positions.subarray(0, positions.length / 2),
+    nodeYPositions: positions.subarray(positions.length / 2),
     nodeFillColors: openIpcHandle(attrs.nodeFillColors),
     nodeElementIndices: openIpcHandle(attrs.nodeElementIndices),
   };
