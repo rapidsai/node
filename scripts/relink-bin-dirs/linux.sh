@@ -7,20 +7,6 @@ BIN="$(realpath node_modules/.bin)"
 DIRS=$(lerna exec --scope "@rapidsai/*" "echo \$PWD")
 RAPIDS_CORE_PATH=$(lerna exec --scope "@rapidsai/core" "echo \$PWD" | head -n1)
 
-if [ -L "$TOP/.cache" ]; then
-    OLD_CACHE_DIR="$(realpath -m "$TOP/.cache")"
-    # remove the top-level .cache symlink
-    rm -rf "$TOP/.cache"
-    # ensure the cache dirs exist (clangd index, etc.)
-    mkdir -p "$TOP"/.cache/{binary,clangd,source}
-    # if it exists, migrate the current bash history file
-    if [ -f "$OLD_CACHE_DIR/.eternal_bash_history" ]; then
-        cp "$OLD_CACHE_DIR/.eternal_bash_history" "$TOP/.cache/"
-    fi
-    # remove the old modules/.cache dir
-    rm -rf "$OLD_CACHE_DIR"
-fi
-
 # ensure the cache dirs exist (clangd index, etc.)
 mkdir -p "$TOP"/.cache/{binary,clangd,source}
 
@@ -38,6 +24,8 @@ for DIR in $DIRS; do
         rm -rf "$DIR/.cache"
         # symlink to the shared top-level .cache dir
         ln -sf "$(realpath --relative-to="$DIR" "$TOP/.cache")" "$DIR/.cache"
+        # symlink to the shared .clangd settings file
+        touch ".clangd" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/.clangd")" "$DIR/.clangd"
     fi;
 done
 
