@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@ const workerPath = require('path').join(__dirname, 'worker.js');
 
 class RenderCluster {
   constructor({fps = 60, numWorkers = 4} = {}) {
-    this._fps      = fps;
-    this._timerId  = null;
-    this._workerId = 0;
-    this._reqs     = Object.create(null);
-    this._jobs     = Object.create(null);
-    this._workers  = this._createWorkers(numWorkers);
+    this._fps     = fps;
+    this._timerId = null;
+    this._reqs    = Object.create(null);
+    this._jobs    = Object.create(null);
+    this._workers = this._createWorkers(numWorkers);
 
     process.on('exit', killWorkers);
     process.on('beforeExit', killWorkers);
@@ -61,10 +60,11 @@ class RenderCluster {
     const requests = this._reqs;
     this._reqs     = Object.create(null);
     const workers  = this._workers.slice().sort((a, b) => a.jobs - b.jobs);
+    let workerId   = 0;
     for (const id in requests) {
       if (!(id in this._jobs)) {
-        this._jobs[id] = dispatchJob(id, requests, workers[this._workerId]);
-        this._workerId = (this._workerId + 1) % workers.length;
+        this._jobs[id] = dispatchJob(id, requests, workers[workerId]);
+        workerId       = (workerId + 1) % workers.length;
       }
     }
   }

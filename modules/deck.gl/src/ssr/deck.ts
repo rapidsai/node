@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,27 @@ import {createGLContext} from '@luma.gl/gltools';
 import {AnimationLoop} from './animation-loop';
 
 export class Deck extends (BaseDeck as typeof DeckGL) {
+  constructor(props: any) {
+    super(props);
+    const {
+      Controller,
+      MapController,
+      _GlobeController,
+      FirstPersonController,
+      OrbitController,
+      OrthographicController,
+    } = require('@deck.gl/core');
+
+    Controller.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    MapController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    _GlobeController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    FirstPersonController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+    OrbitController.prototype._getTransitionProps = ()   => ({transitionDuration: 0});
+    OrthographicController.prototype._getTransitionProps = () => ({transitionDuration: 0});
+  }
   _createAnimationLoop(props: any) {
     const {
+      _sync,
       width,
       height,
       gl,
@@ -40,6 +59,7 @@ export class Deck extends (BaseDeck as typeof DeckGL) {
     const getFramebufferFromLoop = createFramebuffer && !props._framebuffer;
 
     const loop = new AnimationLoop({
+      _sync,
       width,
       height,
       animationProps,
@@ -79,7 +99,8 @@ export class Deck extends (BaseDeck as typeof DeckGL) {
   }
 
   _onInteractionStateChange(interactionState: any) {
-    return super._onInteractionStateChange(Object.assign(this.interactiveState, interactionState));
+    return super._onInteractionStateChange(
+      Object.assign(this._interactionState ||= {}, interactionState));
   }
 
   restore(state: any) {
@@ -88,8 +109,8 @@ export class Deck extends (BaseDeck as typeof DeckGL) {
     if (state.metrics) { this.metrics = {...this.metrics, ...state.metrics}; }
     if ('_metricsCounter' in state) { this._metricsCounter = state._metricsCounter; }
     if (state._pickRequest) { this._pickRequest = {...this._pickRequest, ...state._pickRequest}; }
-    if (state.interactiveState) {
-      this.interactiveState = {...this.interactiveState, ...state.interactiveState};
+    if (state.interactionState) {
+      this._interactionState = {...this._interactionState, ...state.interactionState};
     }
     if (state._lastPointerDownInfo) {
       this._lastPointerDownInfo = {...this._lastPointerDownInfo, ...state._lastPointerDownInfo};
@@ -138,7 +159,7 @@ export class Deck extends (BaseDeck as typeof DeckGL) {
       metrics: this.metrics ? {...this.metrics} : undefined,
       _pickRequest: this._pickRequest ? {...this._pickRequest} : undefined,
       animationProps: this.animationLoop ? this.animationLoop.serialize() : undefined,
-      interactiveState: this.interactiveState ? {...this.interactiveState} : undefined,
+      interactionState: this._interactionState ? {...this._interactionState} : undefined,
       _lastPointerDownInfo: serializePickingInfo(this._lastPointerDownInfo),
       deckPicker: this.deckPicker.lastPickedInfo && {
         lastPickedInfo: serializeLastPickedInfo(this),

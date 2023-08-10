@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Memory} from '@rapidsai/cuda';
 import {MemoryResourceType} from './addon';
 
 /** @ignore */
@@ -196,7 +197,7 @@ type DeviceBufferInput = BigIntArray|TypedArray|ArrayBufferLike;
  * {@link MemoryResource}. If not explicitly specified, the memory resource
  * returned from {@link getCurrentDeviceResource} is used.
  */
-export declare class DeviceBuffer extends ArrayBuffer {
+export declare class DeviceBuffer extends ArrayBuffer implements Memory {
   constructor(byteLength?: number, mr?: MemoryResource, stream?: number);
   constructor(source?: DeviceBufferInput, mr?: MemoryResource, stream?: number);
   constructor(sourceOrByteLength?: DeviceBufferInput|number, mr?: MemoryResource, stream?: number);
