@@ -16,14 +16,14 @@ for DIR in $DIRS; do
     if [[ "$BIN" != $DIR/node_modules/.bin ]]; then
         rm -rf "$DIR/node_modules/.bin"
         ln -sf "$BIN" "$DIR/node_modules/.bin"
-        # copy the .env settings file
-        touch ".env" && cp ".env" "$DIR/.env"
         # copy the ESLint settings file (for the VSCode ESLint plugin)
         cp ".eslintrc.js" "$DIR/.eslintrc.js"
         # remove the local .cache symlink
         rm -rf "$DIR/.cache"
         # symlink to the shared top-level .cache dir
         ln -sf "$(realpath --relative-to="$DIR" "$TOP/.cache")" "$DIR/.cache"
+        # symlink to the shared .env settings file
+        touch ".env" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/.env")" "$DIR/.env"
         # symlink to the shared .clangd settings file
         touch ".clangd" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/.clangd")" "$DIR/.clangd"
     fi;
