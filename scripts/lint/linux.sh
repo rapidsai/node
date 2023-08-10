@@ -35,7 +35,7 @@ else
 fi
 
 echo "Running clang-format...";
-time clang-format-12 -i $cpp_files $tsc_files;
+time clang-format-17 -i $cpp_files $tsc_files;
 echo "";
 
 echo "Running ESLint (on up to $JOBS cores)...";

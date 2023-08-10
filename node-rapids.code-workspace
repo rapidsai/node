@@ -99,7 +99,7 @@
         ],
         // Configure the xaver.clang-format plugin
         "clang-format.fallbackStyle": "Google",
-        "clang-format.executable": "clang-format-12",
+        "clang-format.executable": "clang-format-17",
         "clang-format.language.typescript.enable": true,
         "debug.terminal.clearBeforeReusing": true,
         // Configure ESLint plugin
