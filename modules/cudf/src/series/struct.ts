@@ -72,8 +72,8 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
   getValue(index: number) {
     const value = this._col.getValue(index);
     return value === null
-             ? null
-             : this.type.children.reduce(
-                 (xs, f, i) => ({...xs, [f.name]: value.getColumnByIndex(i).getValue(0)}), {});
+           ? null
+           : this.type.children.reduce(
+               (xs, f, i) => ({...xs, [f.name]: value.getColumnByIndex(i).getValue(0)}), {});
   }
 }

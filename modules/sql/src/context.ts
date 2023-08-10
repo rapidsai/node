@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {DataFrame, DataType} from '@rapidsai/cudf';
-import {UcpContext} from '.';
 
+import {UcpContext} from '.';
 import {
   Context,
   ContextProps,

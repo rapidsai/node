@@ -33,8 +33,8 @@ test(`fromArrow works from host memory`, () => {
   });
   const serialized_table = arrow.tableToIPC(table);  // Uint8Array
   const df               = DataFrame.fromArrow<{
-    ints: Int32,      //
-    floats: Float64,  //
+    ints: Int32,                       //
+    floats: Float64,                   //
     points: Struct<{
       x: Float64,
       y: Float64,

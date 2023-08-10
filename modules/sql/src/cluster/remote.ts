@@ -20,7 +20,6 @@ import {nanoid} from 'nanoid';
 import * as Path from 'path';
 
 import {ContextProps} from '../addon';
-
 import {SQLCluster, Worker} from '../cluster';
 
 const remoteWorkerPath =
@@ -137,7 +136,7 @@ export class RemoteSQLWorker implements Worker {
 function promiseSubject() {
   let resolve = (_x: any) => {};
   let reject = (_er: any) => {};
-  const promise           = new Promise((r1, r2) => {
+  const promise            = new Promise((r1, r2) => {
     resolve = r1;
     reject  = r2;
   });

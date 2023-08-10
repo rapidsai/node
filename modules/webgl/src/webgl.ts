@@ -76,7 +76,9 @@ function bufferData(this: WebGL2RenderingContext,
                     usage: GLenum,
                     srcOffset: GLuint,
                     srcByteLength?: GLuint): void;
-function bufferData(this: WebGL2RenderingContext, ...args: [GLenum, GLsizeiptr | BufferSource | null, GLenum, GLuint?, GLuint?]): void {
+function bufferData(
+  this: WebGL2RenderingContext,
+  ...args: [GLenum, GLsizeiptr|BufferSource|null, GLenum, GLuint?, GLuint?]): void {
   let [target, src, usage, srcOffset, srcByteLength] = args;
   if (args.length > 3 && src !== null && typeof src !== 'number' && typeof srcOffset === 'number') {
     let BPM, arr = ArrayBuffer.isView(src) ? src : new Uint8Array(src);
@@ -99,7 +101,9 @@ function bufferSubData(this: WebGL2RenderingContext,
                        srcData: ArrayBufferView,
                        srcOffset: GLuint,
                        srcByteLength?: GLuint): void;
-function bufferSubData(this: WebGL2RenderingContext, ...args: [GLenum, GLintptr, BufferSource | ArrayBufferView, GLuint?, GLuint?]): void {
+function bufferSubData(
+  this: WebGL2RenderingContext,
+  ...args: [GLenum, GLintptr, BufferSource|ArrayBufferView, GLuint?, GLuint?]): void {
   let [target, dstByteOffset, src, srcOffset, srcByteLength] = args;
   if (args.length > 3 && src !== null && typeof src !== 'number' && typeof srcOffset === 'number') {
     let BPM, arr = ArrayBuffer.isView(src) ? src : new Uint8Array(src);
@@ -197,7 +201,18 @@ function texImage2D(this: WebGL2RenderingContext,
                     type: GLenum,
                     srcData?: ArrayBufferView|null,
                     srcOffset?: GLuint): void;
-function texImage2D(this: WebGL2RenderingContext, ...args: [GLenum, GLint, GLint, GLsizei | GLenum, GLsizei | GLenum, GLint | TexImageSource, GLenum?, GLenum?, (GLintptr | TexImageSource | ArrayBufferView | null)?, GLsizei?]): void {
+function texImage2D(this: WebGL2RenderingContext, ...args: [
+  GLenum,
+  GLint,
+  GLint,
+  GLsizei|GLenum,
+  GLsizei|GLenum,
+  GLint|TexImageSource,
+  GLenum?,
+  GLenum?,
+  (GLintptr | TexImageSource | ArrayBufferView | null)?,
+  GLsizei?
+]): void {
   let [target, level, internalformat, width, height, border, format, type, src, offset = 0] = args;
   switch (args.length) {
     case 6: {
@@ -289,7 +304,18 @@ function texSubImage2D(this: WebGL2RenderingContext,
                        type: GLenum,
                        srcData?: ArrayBufferView|null,
                        srcOffset?: GLuint): void;
-function texSubImage2D(this: WebGL2RenderingContext, ...args: [GLenum, GLint, GLint, GLint, GLenum | GLsizei, GLenum | GLsizei, GLenum | TexImageSource, GLenum?, (GLintptr | TexImageSource | ArrayBufferView | null)?, GLuint?]): void {
+function texSubImage2D(this: WebGL2RenderingContext, ...args: [
+  GLenum,
+  GLint,
+  GLint,
+  GLint,
+  GLenum|GLsizei,
+  GLenum|GLsizei,
+  GLenum|TexImageSource,
+  GLenum?,
+  (GLintptr | TexImageSource | ArrayBufferView | null)?,
+  GLuint?
+]): void {
   let [target, level, x, y, width, height, format, type, src, offset = 0] = args;
   switch (args.length) {
     case 7: {
@@ -363,7 +389,16 @@ function readPixels(this: WebGL2RenderingContext,
                     type: GLenum,
                     dstData: ArrayBufferView,
                     dstOffset: GLuint): void;
-function readPixels(this: WebGL2RenderingContext, ...args: [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, (ArrayBufferView | ArrayBuffer | GLintptr | null)?, GLuint?]): void {
+function readPixels(this: WebGL2RenderingContext, ...args: [
+  GLint,
+  GLint,
+  GLsizei,
+  GLsizei,
+  GLenum,
+  GLenum,
+  (ArrayBufferView | ArrayBuffer | GLintptr | null)?,
+  GLuint?
+]): void {
   let [x, y, width, height, format, type, dst, offset = 0] = args;
   switch (args.length) {
     case 6:
@@ -375,16 +410,18 @@ function readPixels(this: WebGL2RenderingContext, ...args: [GLint, GLint, GLsize
       }
       if (args[6] === null || args[6] === undefined || ArrayBuffer.isView(args[6]) ||
           (args[6] instanceof ArrayBuffer)) {
-                [x, y, width, height, format, type, dst] = (args as [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, (ArrayBufferView | null)?]);
-                dst                                      = toArrayBufferViewSlice(dst, offset);
-                break;
+        [x, y, width, height, format, type, dst] =
+          (args as [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, (ArrayBufferView | null)?]);
+        dst = toArrayBufferViewSlice(dst, offset);
+        break;
       }
       throw new TypeError('WebGLRenderingContext readPixels() invalid readPixels target');
     }
     case 8: {
-            [x, y, width, height, format, type, dst, offset = 0] = (args as [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, ArrayBufferView?, GLuint?]);
-            dst = toArrayBufferViewSlice(dst, offset);
-            break;
+      [x, y, width, height, format, type, dst, offset = 0] =
+        (args as [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, ArrayBufferView?, GLuint?]);
+      dst = toArrayBufferViewSlice(dst, offset);
+      break;
     }
     default: throw new TypeError('WebGLRenderingContext readPixels() takes 6, 7, or 8 arguments');
   }
@@ -431,36 +468,36 @@ const gl_uniform1iv                           = OpenGLESRenderingContext.prototy
 OpenGLESRenderingContext.prototype.uniform1iv = uniform1iv;
 function uniform1iv(
   this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
-  return location ? gl_uniform1iv.call(
-                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
-                  : undefined;
+  return location
+         ? gl_uniform1iv.call(this, location, Array.isArray(value) ? new Int32Array(value) : value)
+         : undefined;
 }
 
 const gl_uniform2iv                           = OpenGLESRenderingContext.prototype.uniform2iv;
 OpenGLESRenderingContext.prototype.uniform2iv = uniform2iv;
 function uniform2iv(
   this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
-  return location ? gl_uniform2iv.call(
-                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
-                  : undefined;
+  return location
+         ? gl_uniform2iv.call(this, location, Array.isArray(value) ? new Int32Array(value) : value)
+         : undefined;
 }
 
 const gl_uniform3iv                           = OpenGLESRenderingContext.prototype.uniform3iv;
 OpenGLESRenderingContext.prototype.uniform3iv = uniform3iv;
 function uniform3iv(
   this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
-  return location ? gl_uniform3iv.call(
-                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
-                  : undefined;
+  return location
+         ? gl_uniform3iv.call(this, location, Array.isArray(value) ? new Int32Array(value) : value)
+         : undefined;
 }
 
 const gl_uniform4iv                           = OpenGLESRenderingContext.prototype.uniform4iv;
 OpenGLESRenderingContext.prototype.uniform4iv = uniform4iv;
 function uniform4iv(
   this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
-  return location ? gl_uniform4iv.call(
-                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
-                  : undefined;
+  return location
+         ? gl_uniform4iv.call(this, location, Array.isArray(value) ? new Int32Array(value) : value)
+         : undefined;
 }
 
 const gl_uniformMatrix2fv = OpenGLESRenderingContext.prototype.uniformMatrix2fv;

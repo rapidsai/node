@@ -33,8 +33,7 @@ export type MemoryResource = import('./node_rmm').MemoryResource;
 
 export type setPerDeviceResource = typeof import('./node_rmm').setPerDeviceResource;
 
-export const enum MemoryResourceType
-{
+export const enum MemoryResourceType {
   /* ALIGNED_ADAPTOR          = 0, */
   /* ARENA                    = 1, */
   BINNING = 2,

@@ -15,7 +15,7 @@
 import * as jsdom from 'jsdom';
 
 export function installStreams(window: jsdom.DOMWindow) {
-  const streams                                 = require('web-streams-polyfill');
+  const streams                                   = require('web-streams-polyfill');
   window.jsdom.global.ReadableStream            ??= streams.ReadableStream;
   window.jsdom.global.WritableStream            ??= streams.WritableStream;
   window.jsdom.global.TransformStream           ??= streams.TransformStream;

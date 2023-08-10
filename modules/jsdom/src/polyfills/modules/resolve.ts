@@ -36,8 +36,8 @@ export function createResolve(resolvers?: ResolversMap): Resolver {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const resolveFilename = resolvers![resolverKey(request, parent)];
     return resolveFilename  //
-             ? resolveFilename(request, parent, isMain, options)
-             : (<any>Module)._resolveFilename(request, parent, isMain, options);
+           ? resolveFilename(request, parent, isMain, options)
+           : (<any>Module)._resolveFilename(request, parent, isMain, options);
   }
 
   function resolverKey(request: string, parent: Module) {

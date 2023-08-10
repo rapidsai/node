@@ -16,6 +16,7 @@
 
 import {Device} from '@rapidsai/cuda';
 import {arrowToCUDFType, DataFrame, Series} from '@rapidsai/cudf';
+
 import {ContextProps, parseSchema} from './addon';
 import {LocalSQLWorker} from './cluster/local';
 import {RemoteSQLWorker} from './cluster/remote';

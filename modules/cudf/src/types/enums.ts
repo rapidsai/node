@@ -15,14 +15,12 @@
 /**
  * @summary The desired order of null compared to other elements for a column.
  */
-export enum NullOrder
-{
+export enum NullOrder {
   after,
   before
 }
 
-export enum DuplicateKeepOption
-{
+export enum DuplicateKeepOption {
   any,    // Keeps an unspecified occurrence.
   first,  // Keeps first duplicate row and unique rows.
   last,   // Keeps last duplicate row and unique rows.

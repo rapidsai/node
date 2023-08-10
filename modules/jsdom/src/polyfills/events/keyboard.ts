@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {glfw, GLFWKey} from '@rapidsai/glfw';
-import {GLFWInputMode} from '@rapidsai/glfw';
+import {glfw, GLFWInputMode, GLFWKey} from '@rapidsai/glfw';
 import {DOMWindow} from 'jsdom';
-import {Observable} from 'rxjs';
-import {merge as mergeObservables} from 'rxjs';
+import {merge as mergeObservables, Observable} from 'rxjs';
 import {filter, flatMap, map, mergeAll, publish, refCount, withLatestFrom} from 'rxjs/operators';
 
 import {

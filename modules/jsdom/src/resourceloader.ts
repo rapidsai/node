@@ -42,7 +42,7 @@ export class ImageLoader extends jsdom.ResourceLoader {
   private _loadDataURL(url: string, options: jsdom.FetchOptions) {
     const {mediaType, encoding, contents} = parseDataURLPrefix(url);
     switch (mediaType) {
-      case 'image/webp':  //
+      case 'image/webp':     //
         return loadWebpDataUrl(webp, encoding, contents);
       case 'image/svg+xml':  //
         return loadSVGDataUrl(this._svg2img, encoding, contents, options);

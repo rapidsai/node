@@ -104,119 +104,119 @@ export const REPEAT  = GLFW.REPEAT;
 export const RELEASE = GLFW.RELEASE;
 
 // export const init: () => void = GLFW.init;
-export const terminate: () => void                           = GLFW.terminate;
+export const terminate: () => void                            = GLFW.terminate;
 export const initHint: (hint: number, value: number|boolean) => void = GLFW.initHint;
-export const getVersion: () => GLFWVersion = GLFW.getVersion;
-export const getVersionString: () => string = GLFW.getVersionString;
-export const getError: () => Error | undefined = GLFW.getError;
-export const getMonitors: () => GLFWmonitor[] = GLFW.getMonitors;
-export const getPrimaryMonitor: () => GLFWmonitor  = GLFW.getPrimaryMonitor;
+export const getVersion: () => GLFWVersion  = GLFW.getVersion;
+export const getVersionString: () => string  = GLFW.getVersionString;
+export const getError: () => Error | undefined  = GLFW.getError;
+export const getMonitors: () => GLFWmonitor[]  = GLFW.getMonitors;
+export const getPrimaryMonitor: () => GLFWmonitor   = GLFW.getPrimaryMonitor;
 export const getMonitorPos: (monitor: GLFWmonitor) => GLFWPosition = GLFW.getMonitorPos;
 export const getMonitorWorkarea:
   (monitor: GLFWmonitor) => GLFWPositionAndSize = GLFW.getMonitorWorkarea;
 export const getMonitorPhysicalSize:
   (monitor: GLFWmonitor) => GLFWSize = GLFW.getMonitorPhysicalSize;
 export const getMonitorContentScale:
-  (monitor: GLFWmonitor) => GLFWScale               = GLFW.getMonitorContentScale;
-export const getMonitorName: (monitor: GLFWmonitor) => string = GLFW.getMonitorName;
+  (monitor: GLFWmonitor) => GLFWScale                = GLFW.getMonitorContentScale;
+export const getMonitorName: (monitor: GLFWmonitor) => string  = GLFW.getMonitorName;
 export const getVideoModes: (monitor: GLFWmonitor) => GLFWvidmode[] = GLFW.getVideoModes;
-export const getVideoMode: (monitor: GLFWmonitor) => GLFWvidmode = GLFW.getVideoMode;
+export const getVideoMode: (monitor: GLFWmonitor) => GLFWvidmode  = GLFW.getVideoMode;
 export const setGamma: (monitor: GLFWmonitor, gamma: number) => void = GLFW.setGamma;
-export const getGammaRamp: (monitor: GLFWmonitor) => GLFWgammaramp     = GLFW.getGammaRamp;
+export const getGammaRamp: (monitor: GLFWmonitor) => GLFWgammaramp      = GLFW.getGammaRamp;
 export const setGammaRamp: (monitor: GLFWmonitor, rapi: GLFWgammaramp) => void = GLFW.setGammaRamp;
-export const defaultWindowHints: () => void      = GLFW.defaultWindowHints;
+export const defaultWindowHints: () => void       = GLFW.defaultWindowHints;
 export const windowHint: (hint: GLFWWindowAttribute,
-                          value: number|boolean) => void = GLFW.windowHint;
+                          value: number|boolean) => void  = GLFW.windowHint;
 export const windowHintString: (hint: string,
-                                value: number|boolean) => void = GLFW.windowHintString;
+                                value: number|boolean) => void  = GLFW.windowHintString;
 export const createWindow: (width: number,
                             height: number,
                             title: string,
                             monitor?: GLFWmonitor|null,
-                            root?: GLFWwindow|null) => GLFWwindow = GLFW.createWindow;
+                            root?: GLFWwindow|null) => GLFWwindow  = GLFW.createWindow;
 export const reparentWindow: (child: GLFWwindow,
                               parent: GLFWParentWindow,
                               targetX: number,
-                              targetY: number) => void = GLFW.reparentWindow;
-export const destroyWindow: (window: GLFWwindow) => void = GLFW.destroyWindow;
-export const windowShouldClose: (window: GLFWwindow) => boolean = GLFW.windowShouldClose;
+                              targetY: number) => void  = GLFW.reparentWindow;
+export const destroyWindow: (window: GLFWwindow) => void  = GLFW.destroyWindow;
+export const windowShouldClose: (window: GLFWwindow) => boolean  = GLFW.windowShouldClose;
 export const setWindowShouldClose: (window: GLFWwindow,
-                                    shouldClose: boolean) => void = GLFW.setWindowShouldClose;
+                                    shouldClose: boolean) => void  = GLFW.setWindowShouldClose;
 export const setWindowTitle: (window: GLFWwindow, title: string) => void = GLFW.setWindowTitle;
 export const setWindowIcon: (window: GLFWwindow, icon: GLFWimage) => void = GLFW.setWindowIcon;
-export const getWindowPos: (window: GLFWwindow) => GLFWPosition         = GLFW.getWindowPos;
+export const getWindowPos: (window: GLFWwindow) => GLFWPosition          = GLFW.getWindowPos;
 export const setWindowPos: (window: GLFWwindow, position: GLFWPosition) => void = GLFW.setWindowPos;
-export const getWindowSize: (window: GLFWwindow) => GLFWSize = GLFW.getWindowSize;
+export const getWindowSize: (window: GLFWwindow) => GLFWSize  = GLFW.getWindowSize;
 export const setWindowSizeLimits: (window: GLFWwindow,
                                    limits: GLFWSizeLimits) => void = GLFW.setWindowSizeLimits;
 export const setWindowAspectRatio:
-  (window: GLFWwindow, num: number, denom: number) => void       = GLFW.setWindowAspectRatio;
+  (window: GLFWwindow, num: number, denom: number) => void        = GLFW.setWindowAspectRatio;
 export const setWindowSize: (window: GLFWwindow, size: GLFWSize) => void = GLFW.setWindowSize;
 export const getFramebufferSize: (window: GLFWwindow) => GLFWSize = GLFW.getFramebufferSize;
 export const getWindowFrameSize: (window: GLFWwindow) => GLFWRect = GLFW.getWindowFrameSize;
 export const getWindowContentScale: (window: GLFWwindow) => GLFWScale = GLFW.getWindowContentScale;
-export const getWindowOpacity: (window: GLFWwindow) => number = GLFW.getWindowOpacity;
+export const getWindowOpacity: (window: GLFWwindow) => number  = GLFW.getWindowOpacity;
 export const setWindowOpacity: (window: GLFWwindow,
-                                opacity: number) => void = GLFW.setWindowOpacity;
-export const iconifyWindow: (window: GLFWwindow) => void = GLFW.iconifyWindow;
-export const restoreWindow: (window: GLFWwindow) => void = GLFW.restoreWindow;
-export const maximizeWindow: (window: GLFWwindow) => void = GLFW.maximizeWindow;
-export const showWindow: (window: GLFWwindow) => void = GLFW.showWindow;
-export const hideWindow: (window: GLFWwindow) => void = GLFW.hideWindow;
-export const focusWindow: (window: GLFWwindow) => void    = GLFW.focusWindow;
+                                opacity: number) => void  = GLFW.setWindowOpacity;
+export const iconifyWindow: (window: GLFWwindow) => void  = GLFW.iconifyWindow;
+export const restoreWindow: (window: GLFWwindow) => void  = GLFW.restoreWindow;
+export const maximizeWindow: (window: GLFWwindow) => void  = GLFW.maximizeWindow;
+export const showWindow: (window: GLFWwindow) => void  = GLFW.showWindow;
+export const hideWindow: (window: GLFWwindow) => void  = GLFW.hideWindow;
+export const focusWindow: (window: GLFWwindow) => void     = GLFW.focusWindow;
 export const requestWindowAttention: (window: GLFWwindow) => void = GLFW.requestWindowAttention;
-export const getWindowMonitor: (window: GLFWwindow) => GLFWmonitor = GLFW.getWindowMonitor;
+export const getWindowMonitor: (window: GLFWwindow) => GLFWmonitor  = GLFW.getWindowMonitor;
 export const setWindowMonitor: (window: GLFWwindow,
-                                monitor: GLFWmonitor) => void  = GLFW.setWindowMonitor;
+                                monitor: GLFWmonitor) => void   = GLFW.setWindowMonitor;
 export const getWindowAttrib: (window: GLFWwindow,
                                attribute: GLFWWindowAttribute) => void = GLFW.getWindowAttrib;
 export const setWindowAttrib: (window: GLFWwindow,
                                attribute: GLFWWindowAttribute,
-                               value: number|boolean) => void = GLFW.setWindowAttrib;
-export const pollEvents: () => void = GLFW.pollEvents;
-export const waitEvents: () => void               = GLFW.waitEvents;
-export const waitEventsTimeout: (timeout: number) => void = GLFW.waitEventsTimeout;
-export const postEmptyEvent: () => void                       = GLFW.postEmptyEvent;
+                               value: number|boolean) => void  = GLFW.setWindowAttrib;
+export const pollEvents: () => void  = GLFW.pollEvents;
+export const waitEvents: () => void                = GLFW.waitEvents;
+export const waitEventsTimeout: (timeout: number) => void  = GLFW.waitEventsTimeout;
+export const postEmptyEvent: () => void                        = GLFW.postEmptyEvent;
 export const getInputMode: (window: GLFWwindow, mode: number) => number = GLFW.getInputMode;
 export const setInputMode:
   (window: GLFWwindow, mode: number, value: number|boolean) => void = GLFW.setInputMode;
-export const rawMouseMotionSupported: () => boolean      = GLFW.rawMouseMotionSupported;
-export const getKeyName: (key: number, scancode: number) => string = GLFW.getKeyName;
-export const getKeyScancode: (key: number) => number   = GLFW.getKeyScancode;
-export const getKey: (window: GLFWwindow, key: number) => void    = GLFW.getKey;
+export const rawMouseMotionSupported: () => boolean       = GLFW.rawMouseMotionSupported;
+export const getKeyName: (key: number, scancode: number) => string  = GLFW.getKeyName;
+export const getKeyScancode: (key: number) => number    = GLFW.getKeyScancode;
+export const getKey: (window: GLFWwindow, key: number) => void     = GLFW.getKey;
 export const getMouseButton: (window: GLFWwindow, button: number) => number = GLFW.getMouseButton;
-export const getCursorPos: (window: GLFWwindow) => GLFWPosition         = GLFW.getCursorPos;
+export const getCursorPos: (window: GLFWwindow) => GLFWPosition          = GLFW.getCursorPos;
 export const setCursorPos: (window: GLFWwindow, position: GLFWPosition) => void = GLFW.setCursorPos;
 export const createCursor:
-  (image: GLFWimage, x: number, y: number) => GLFWcursor = GLFW.createCursor;
-export const createStandardCursor: (shape: number) => GLFWcursor = GLFW.createStandardCursor;
-export const destroyCursor: (cursor: GLFWcursor) => void         = GLFW.destroyCursor;
+  (image: GLFWimage, x: number, y: number) => GLFWcursor  = GLFW.createCursor;
+export const createStandardCursor: (shape: number) => GLFWcursor  = GLFW.createStandardCursor;
+export const destroyCursor: (cursor: GLFWcursor) => void          = GLFW.destroyCursor;
 export const setCursor: (window: GLFWwindow, cursor: GLFWcursor) => void = GLFW.setCursor;
 
-export const joystickPresent: (joystickId: number) => boolean = GLFW.joystickPresent;
+export const joystickPresent: (joystickId: number) => boolean  = GLFW.joystickPresent;
 export const getJoystickAxes: (joystickId: number) => number[] = GLFW.getJoystickAxes;
 export const getJoystickButtons: (joystickId: number) => number[] = GLFW.getJoystickButtons;
-export const getJoystickHats: (joystickId: number) => number[] = GLFW.getJoystickHats;
-export const getJoystickName: (joystickId: number) => string = GLFW.getJoystickName;
-export const getJoystickGUID: (joystickId: number) => string = GLFW.getJoystickGUID;
+export const getJoystickHats: (joystickId: number) => number[]  = GLFW.getJoystickHats;
+export const getJoystickName: (joystickId: number) => string  = GLFW.getJoystickName;
+export const getJoystickGUID: (joystickId: number) => string  = GLFW.getJoystickGUID;
 export const joystickIsGamepad: (joystickId: number) => boolean = GLFW.joystickIsGamepad;
-export const updateGamepadMappings: (mappings: string) => void = GLFW.updateGamepadMappings;
+export const updateGamepadMappings: (mappings: string) => void  = GLFW.updateGamepadMappings;
 export const getGamepadName: (joystickId: number) => string = GLFW.getGamepadName;
 export const getGamepadState: (joystickId: number) => GLFWgamepadstate = GLFW.getGamepadState;
 export const setClipboardString: (window: GLFWwindow,
-                                  value: string) => void = GLFW.setClipboardString;
-export const getClipboardString: (window: GLFWwindow) => string = GLFW.getClipboardString;
-export const getTime: () => number   = GLFW.getTime;
-export const setTime: (time: number) => void = GLFW.setTime;
-export const getTimerValue: () => number = GLFW.getTimerValue;
-export const getTimerFrequency: () => number          = GLFW.getTimerFrequency;
+                                  value: string) => void  = GLFW.setClipboardString;
+export const getClipboardString: (window: GLFWwindow) => string  = GLFW.getClipboardString;
+export const getTime: () => number    = GLFW.getTime;
+export const setTime: (time: number) => void  = GLFW.setTime;
+export const getTimerValue: () => number  = GLFW.getTimerValue;
+export const getTimerFrequency: () => number           = GLFW.getTimerFrequency;
 export const makeContextCurrent: (window: GLFWwindow) => void = GLFW.makeContextCurrent;
-export const getCurrentContext: () => GLFWwindow = GLFW.getCurrentContext;
-export const swapBuffers: (window: GLFWwindow) => void = GLFW.swapBuffers;
-export const swapInterval: (interval: number) => void = GLFW.swapInterval;
-export const extensionSupported: (extension: string) => boolean = GLFW.extensionSupported;
-export const getProcAddress: (procname: string) => GLFWglproc = GLFW.getProcAddress;
-export const vulkanSupported: () => boolean    = GLFW.vulkanSupported;
+export const getCurrentContext: () => GLFWwindow  = GLFW.getCurrentContext;
+export const swapBuffers: (window: GLFWwindow) => void  = GLFW.swapBuffers;
+export const swapInterval: (interval: number) => void  = GLFW.swapInterval;
+export const extensionSupported: (extension: string) => boolean  = GLFW.extensionSupported;
+export const getProcAddress: (procname: string) => GLFWglproc  = GLFW.getProcAddress;
+export const vulkanSupported: () => boolean     = GLFW.vulkanSupported;
 export const getRequiredInstanceExtensions: () => string[] = GLFW.getRequiredInstanceExtensions;
 
 export const setErrorCallback:
@@ -308,29 +308,25 @@ export const GLFWStandardCursor = {
   VRESIZE: glfw.createStandardCursor(GLFW.VRESIZE_CURSOR),
 };
 
-export enum GLFWClientAPI
-{
+export enum GLFWClientAPI {
   NONE      = GLFW.NO_API,
   OPENGL    = GLFW.OPENGL_API,
   OPENGL_ES = GLFW.OPENGL_ES_API,
 }
 
-export enum GLFWOpenGLProfile
-{
+export enum GLFWOpenGLProfile {
   ANY    = GLFW.OPENGL_ANY_PROFILE,
   CORE   = GLFW.OPENGL_CORE_PROFILE,
   COMPAT = GLFW.OPENGL_COMPAT_PROFILE,
 }
 
-export enum GLFWContextCreationAPI
-{
+export enum GLFWContextCreationAPI {
   EGL    = GLFW.EGL_CONTEXT_API,
   NATIVE = GLFW.NATIVE_CONTEXT_API,
   OSMESA = GLFW.OSMESA_CONTEXT_API,
 }
 
-export enum GLFWWindowAttribute
-{
+export enum GLFWWindowAttribute {
   FOCUSED                  = GLFW.FOCUSED,
   ICONIFIED                = GLFW.ICONIFIED,
   RESIZABLE                = GLFW.RESIZABLE,
@@ -378,8 +374,7 @@ export enum GLFWWindowAttribute
   X11_INSTANCE_NAME        = GLFW.X11_INSTANCE_NAME,
 }
 
-export enum GLFWModifierKey
-{
+export enum GLFWModifierKey {
   MOD_ALT       = GLFW.MOD_ALT,
   MOD_SHIFT     = GLFW.MOD_SHIFT,
   MOD_SUPER     = GLFW.MOD_SUPER,
@@ -388,8 +383,7 @@ export enum GLFWModifierKey
   MOD_CAPS_LOCK = GLFW.MOD_CAPS_LOCK,
 }
 
-export enum GLFWMouseButton
-{
+export enum GLFWMouseButton {
   MOUSE_BUTTON_1      = GLFW.MOUSE_BUTTON_1,
   MOUSE_BUTTON_2      = GLFW.MOUSE_BUTTON_2,
   MOUSE_BUTTON_3      = GLFW.MOUSE_BUTTON_3,
@@ -404,8 +398,7 @@ export enum GLFWMouseButton
   MOUSE_BUTTON_MIDDLE = GLFW.MOUSE_BUTTON_MIDDLE,
 }
 
-export enum GLFWInputMode
-{
+export enum GLFWInputMode {
   CURSOR               = GLFW.CURSOR,
   STICKY_KEYS          = GLFW.STICKY_KEYS,
   STICKY_MOUSE_BUTTONS = GLFW.STICKY_MOUSE_BUTTONS,
@@ -413,8 +406,7 @@ export enum GLFWInputMode
   RAW_MOUSE_MOTION     = GLFW.RAW_MOUSE_MOTION,
 }
 
-export enum GLFWKey
-{
+export enum GLFWKey {
   KEY_UNKNOWN       = GLFW.KEY_UNKNOWN,
   KEY_SPACE         = GLFW.KEY_SPACE,
   KEY_APOSTROPHE    = GLFW.KEY_APOSTROPHE,

@@ -193,7 +193,9 @@ test('drop_edge_attrs', () => {
     'event_id::2',
   ]);
 
-  expect([...edges.get('edge_type')]).toEqual(['a1', 'a1', 'a1', 'id', 'id', 'id', '🙈', '🙈', '🙈']);
+  expect([
+    ...edges.get('edge_type')
+  ]).toEqual(['a1', 'a1', 'a1', 'id', 'id', 'id', '🙈', '🙈', '🙈']);
 
   expect([...edges.get('attrib_id')]).toEqual([
     'a1::1',

@@ -575,10 +575,10 @@ function toHDView<T extends TypedArray|BigIntArray>(
   TypedArray: TypedArrayConstructor<T>): T|MemoryViewOf<T> {
   if (source instanceof MemoryView) {
     return (source.TypedArray === TypedArray)
-             // If source is already the desired type, return it
-             ? source as MemoryViewOf<T>
-             // If source is another type of MemoryView, wrap in the desired type
-             : toMemoryView(source, TypedArray);
+           // If source is already the desired type, return it
+           ? source as MemoryViewOf<T>
+           // If source is another type of MemoryView, wrap in the desired type
+           : toMemoryView(source, TypedArray);
   } else if (isMemoryLike(source)) {
     // If source is MemoryLike, wrap it in a MemoryView of the desired type
     return toMemoryView(source, TypedArray);

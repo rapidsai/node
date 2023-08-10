@@ -36,7 +36,7 @@ export const isIterable =
   <T = any>(x: any): x is Iterable<T> => { return isObject(x) && isFunction(x[Symbol.iterator]);};
 
 /** @ignore */
-export const isAsyncIterable = <T = any>(x: any):
+export const isAsyncIterable  = <T = any>(x: any):
   x is AsyncIterable<T>      => { return isObject(x) && isFunction(x[Symbol.asyncIterator]);};
 
 /** @ignore */
@@ -61,7 +61,7 @@ export const isArrayBufferLike = (x: any): x is ArrayBufferLike => {
 export const isArrayBufferView = ArrayBuffer.isView;
 
 /** @ignore */
-export const isIteratorResult = <T = any>(x: any):
+export const isIteratorResult  = <T = any>(x: any):
   x is IteratorResult<T>      => { return isObject(x) && ('done' in x) && ('value' in x);};
 
 /**

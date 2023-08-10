@@ -20,60 +20,60 @@
 
 namespace nv {
 
-Napi::Value math_abs(CallbackArgs const &info) {
+Napi::Value math_abs(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_abs{}, info);
 }
-Napi::Value math_acos(CallbackArgs const &info) {
+Napi::Value math_acos(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_acos{}, info);
 }
-Napi::Value math_asin(CallbackArgs const &info) {
+Napi::Value math_asin(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_asin{}, info);
 }
-Napi::Value math_atan(CallbackArgs const &info) {
+Napi::Value math_atan(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_atan{}, info);
 }
-Napi::Value math_atan2(CallbackArgs const &info) {
+Napi::Value math_atan2(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_atan2{}, info);
 }
-Napi::Value math_ceil(CallbackArgs const &info) {
+Napi::Value math_ceil(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_ceil{}, info);
 }
-Napi::Value math_cos(CallbackArgs const &info) {
+Napi::Value math_cos(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_cos{}, info);
 }
-Napi::Value math_exp(CallbackArgs const &info) {
+Napi::Value math_exp(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_exp{}, info);
 }
-Napi::Value math_floor(CallbackArgs const &info) {
+Napi::Value math_floor(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_floor{}, info);
 }
-Napi::Value math_log(CallbackArgs const &info) {
+Napi::Value math_log(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_log{}, info);
 }
-Napi::Value math_max(CallbackArgs const &info) {
+Napi::Value math_max(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_max{}, info);
 }
-Napi::Value math_min(CallbackArgs const &info) {
+Napi::Value math_min(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_min{}, info);
 }
-Napi::Value math_pow(CallbackArgs const &info) {
+Napi::Value math_pow(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_pow{}, info);
 }
-Napi::Value math_round(CallbackArgs const &info) {
+Napi::Value math_round(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_round{}, info);
 }
-Napi::Value math_sin(CallbackArgs const &info) {
+Napi::Value math_sin(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_sin{}, info);
 }
-Napi::Value math_sqrt(CallbackArgs const &info) {
+Napi::Value math_sqrt(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_sqrt{}, info);
 }
-Napi::Value math_tan(CallbackArgs const &info) {
+Napi::Value math_tan(CallbackArgs const& info) {
   return nv::math::dispatch(nv::math::calc_tan{}, info);
 }
 
 namespace math {
-Napi::Object initModule(Napi::Env const &env,
+Napi::Object initModule(Napi::Env const& env,
                         Napi::Object exports,
                         Napi::Object driver,
                         Napi::Object runtime) {

@@ -69,7 +69,10 @@ export function installGetContext(window: jsdom.DOMWindow) {
     null;
   function getContext(contextId: 'webgl2',
                       options?: WebGLContextAttributes): WebGL2RenderingContext|null;
-  function getContext(this: any, ...args: ['2d' | 'bitmaprenderer' | 'webgl' | 'webgl2' | 'experimental-webgl', RenderingContextSettings?]): RenderingContext | null {
+  function getContext(this: any, ...args: [
+    '2d'|'bitmaprenderer'|'webgl'|'webgl2'|'experimental-webgl',
+    RenderingContextSettings?
+  ]): RenderingContext|null {
     const [type, settings = {}] = args;
     switch (type) {
       case 'webgl':

@@ -85,8 +85,8 @@ ML::UMAPParams update_params(NapiToCPP::Object props) {
   params.init                 = get_int(props.Get("init"), 1);
   params.target_n_neighbors   = get_int(props.Get("targetNNeighbors"), 1);
   params.target_metric        = (get_int(props.Get("targetMetric"), 0) == 0)
-                                  ? ML::UMAPParams::MetricType::CATEGORICAL
-                                  : ML::UMAPParams::MetricType::EUCLIDEAN;
+                                ? ML::UMAPParams::MetricType::CATEGORICAL
+                                : ML::UMAPParams::MetricType::EUCLIDEAN;
   params.target_weight        = get_float(props.Get("targetWeight"), 0.5);
   params.random_state         = get_int(props.Get("randomState"), 0);
   return params;

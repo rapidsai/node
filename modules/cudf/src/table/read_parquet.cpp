@@ -107,8 +107,8 @@ Napi::Value Table::read_parquet(Napi::CallbackInfo const& info) {
   NODE_CUDF_EXPECT(sources.IsArray(), "readParquet expects an Array of paths or buffers", env);
   try {
     return (options.Get("sourceType").ToString().Utf8Value() == "files")
-             ? read_parquet_files(options, NapiToCPP{sources})
-             : read_parquet_sources(options, NapiToCPP{sources});
+           ? read_parquet_files(options, NapiToCPP{sources})
+           : read_parquet_sources(options, NapiToCPP{sources});
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 

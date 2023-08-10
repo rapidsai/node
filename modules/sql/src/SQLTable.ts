@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {arrowToCUDFType, DataFrame, DataType} from '@rapidsai/cudf';
+
 import {parseSchema} from './addon';
 
 export interface ParsedSchema {

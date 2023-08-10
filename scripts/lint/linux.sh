@@ -12,6 +12,8 @@ while [[ "$#" -gt 0 ]]; do
             J="${1#-j}";
             if [[ ${J} =~ ^[[:digit:]]+$ ]]; then
                 jobs="${J}";
+            else
+                jobs="$(nproc --ignore=2)";
             fi;;
         --fix) fix_="$1";;
         *) args="${args:+$args }$1";;
@@ -33,10 +35,15 @@ else
 fi
 
 echo "Running clang-format...";
-time clang-format-17 --verbose -i $cpp_files $tsc_files;
+time                                              \
+    xargs -d'\n' -t -n1 -I% -P$jobs               \
+        <<< "$(echo -e "$cpp_files\n$tsc_files")" \
+    clang-format-17 -i %;
 echo "";
 
 echo "Running ESLint (on up to $jobs cores)...";
-time xargs <<< "$tsc_files" -d'\n' -n1 -I% -P$jobs \
+time                                                         \
+    xargs -d'\n' -n1 -I% -P$jobs                             \
+        <<< "$tsc_files"                                     \
     node_modules/.bin/eslint --ignore-path .gitignore $fix_ %;
 echo "";
