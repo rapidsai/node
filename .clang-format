@@ -10,7 +10,7 @@ AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: true 
+AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: true
@@ -20,7 +20,7 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments:  false       
+BinPackArguments:  false
 BinPackParameters: false
 BraceWrapping:
   AfterClass:            false
@@ -156,9 +156,9 @@ UseTab: Never
 #   https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 Language: JavaScript
 #########################################################
-# 
+#
 # Additions or modifications to the above C++ settings
-# 
+#
 #########################################################
 AccessModifierOffset: 0
 AllowAllArgumentsOnNextLine: true
@@ -170,7 +170,6 @@ BreakStringLiterals: false
 InsertTrailingCommas: None
 IndentCaseBlocks: false
 JavaScriptQuotes: Single
-JavaScriptWrapImports: true
 PointerAlignment: Middle
 SpaceAfterCStyleCast: true
 SpaceAfterLogicalNot: false
@@ -183,9 +182,9 @@ SpaceBeforeRangeBasedForLoopColon: false
 SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
 #########################################################
-# 
+#
 # Begin previous C++ settings
-# 
+#
 #########################################################
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
@@ -194,7 +193,7 @@ AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: true 
+AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: true
@@ -204,7 +203,7 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments:  false       
+BinPackArguments:  false
 BinPackParameters: false
 BraceWrapping:
   AfterClass:            false
@@ -262,7 +261,6 @@ IndentCaseLabels: true
 IndentPPDirectives: None
 IndentWidth:     2
 IndentWrappedFunctionNames: false
-JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
