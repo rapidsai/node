@@ -66,7 +66,7 @@
             "twxs.cmake",
             "slevesque.shader",
             "ms-vscode.cpptools",
-            "xaver.clang-format",
+            "seaube.clangformat",
             "cschlosser.doxdocgen",
             "dbaeumer.vscode-eslint",
             "davidanson.vscode-markdownlint",
@@ -97,7 +97,7 @@
             "--completion-style=detailed",
             "--header-insertion-decorators"
         ],
-        // Configure the xaver.clang-format plugin
+        // Configure the seaube.clangformat plugin
         "clang-format.fallbackStyle": "Google",
         "clang-format.executable": "clang-format-17",
         "clang-format.language.typescript.enable": true,
@@ -193,25 +193,25 @@
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "seaube.clangformat"
         },
         "[cpp]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "seaube.clangformat"
         },
         "[cuda]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "seaube.clangformat"
         },
         "[cuda-cpp]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "seaube.clangformat"
         },
         "[json]": {
             "editor.tabSize": 2,
@@ -223,13 +223,13 @@
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "seaube.clangformat"
         },
         "[typescript]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "seaube.clangformat"
         },
         "[javascriptreact]": {
             "editor.tabSize": 2,
