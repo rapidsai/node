@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
+
 import {Series} from '../series';
 import {Struct, Utf8String} from '../types/dtypes';
 import {TypeMap} from '../types/mappings';
@@ -22,6 +23,7 @@ import {TypeMap} from '../types/mappings';
  */
 export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
   /** @ignore */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _castAsString(_memoryResource?: MemoryResource): Series<Utf8String> {
     return Series.new(this.toArray().map((x) => JSON.stringify(x)));
   }

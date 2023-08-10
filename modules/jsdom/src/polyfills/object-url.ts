@@ -47,10 +47,11 @@ export function installObjectURL(tmpdir: string) {
 
     function revokeObjectURL(url: any) {
       if (map.has(url)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const p = map.get(url)!;
         map.delete(url);
         unlinkSync(p);
       }
     }
-  }
+  };
 }
