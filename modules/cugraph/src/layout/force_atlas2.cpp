@@ -23,28 +23,28 @@ namespace nv {
 
 namespace {
 
-int get_int(NapiToCPP const &opt, int const default_val) {
+int get_int(NapiToCPP const& opt, int const default_val) {
   return opt.IsNumber() ? opt.operator int() : default_val;
 }
 
-bool get_bool(NapiToCPP const &opt, bool const default_val) {
+bool get_bool(NapiToCPP const& opt, bool const default_val) {
   return opt.IsBoolean() ? opt.operator bool() : default_val;
 }
 
-float get_float(NapiToCPP const &opt, float const default_val) {
+float get_float(NapiToCPP const& opt, float const default_val) {
   return opt.IsNumber() ? opt.operator float() : default_val;
 }
 
 }  // namespace
 
-Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
+Napi::Value Graph::force_atlas2(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs const args{info};
 
   NapiToCPP::Object options = args[0];
   auto mr                   = MemoryResource::IsInstance(options.Get("memoryResource"))
-                                ? MemoryResource::wrapper_t(options.Get("memoryResource"))
-                                : MemoryResource::Current(env);
+                              ? MemoryResource::wrapper_t(options.Get("memoryResource"))
+                              : MemoryResource::Current(env);
 
   auto max_iter              = get_int(options.Get("numIterations"), 1);
   auto outbound_attraction   = get_bool(options.Get("outboundAttraction"), true);
@@ -59,25 +59,25 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
   auto verbose               = get_bool(options.Get("verbose"), false);
 
   size_t positions_offset{0};
-  float *x_positions{nullptr};
-  float *y_positions{nullptr};
+  float* x_positions{nullptr};
+  float* y_positions{nullptr};
 
   Napi::Object positions;
   bool positions_is_device_memory_wrapper{false};
 
-  auto is_device_memory = [&](Napi::Value const &data) -> bool {
+  auto is_device_memory = [&](Napi::Value const& data) -> bool {
     return data.IsObject() and                     //
            data.As<Napi::Object>().Has("ptr") and  //
            data.As<Napi::Object>().Get("ptr").IsNumber();
   };
-  auto is_device_memory_wrapper = [&](Napi::Value const &data) -> bool {
+  auto is_device_memory_wrapper = [&](Napi::Value const& data) -> bool {
     return data.IsObject() and                                   //
            data.As<Napi::Object>().Has("buffer") and             //
            data.As<Napi::Object>().Get("buffer").IsObject() and  //
            is_device_memory(data.As<Napi::Object>().Get("buffer"));
   };
-  auto get_device_memory_ptr = [&](Napi::Object const &buffer) -> float * {
-    return reinterpret_cast<float *>(buffer.Get("ptr").ToNumber().Int64Value()) + positions_offset;
+  auto get_device_memory_ptr = [&](Napi::Object const& buffer) -> float* {
+    return reinterpret_cast<float*>(buffer.Get("ptr").ToNumber().Int64Value()) + positions_offset;
   };
 
   if (options.Has("positions") && options.Get("positions").IsObject()) {
@@ -130,7 +130,7 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
                           strong_gravity_mode,
                           gravity,
                           verbose);
-  } catch (std::exception const &e) { throw Napi::Error::New(info.Env(), e.what()); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return positions_is_device_memory_wrapper ? options.Get("positions").As<Napi::Object>()
                                             : positions;

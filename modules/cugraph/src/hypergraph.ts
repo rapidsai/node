@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Categorical, DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
-import {TypeMap} from '@rapidsai/cudf';
+import {
+  Categorical,
+  DataFrame,
+  Int32,
+  Series,
+  StringSeries,
+  TypeMap,
+  Utf8String
+} from '@rapidsai/cudf';
+
 import {Graph} from './graph';
 
 export type HypergraphBaseProps<T extends TypeMap = any> = {
@@ -91,8 +99,7 @@ export type HypergraphReturn = {
  * ``eventId`` to a row's unique ID, ``skip`` to all non-categorical columns (or ``columns`` to all
  * categorical columns), and ``categories`` to group columns with the same kinds of values.
  */
-export function
-hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
+export function hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   columns       = values.names,
   dropNulls     = true,
   categories    = {},

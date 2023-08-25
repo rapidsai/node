@@ -226,7 +226,7 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
   type_   = Napi::Persistent(props.Get("type").As<Napi::Object>());
 
   auto mask = Column::IsInstance(props) ? props.Get("mask").As<Napi::Value>()
-              : props.Has("nullMask")   ? props.Get("nullMask").As<Napi::Value>()
+            : props.Has("nullMask")     ? props.Get("nullMask").As<Napi::Value>()
                                         : env.Null();
 
   auto has_length = props.Has("length") && props.Get("length").IsNumber();

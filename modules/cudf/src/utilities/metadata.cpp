@@ -30,8 +30,8 @@ cudf::io::table_input_metadata make_writer_columns_metadata(Napi::Object const& 
   auto null_value = str_opt("nullValue", "N/A");
   cudf::io::table_input_metadata metadata{};
   Napi::Array column_names = napi_opt("columnNames").IsArray()
-                               ? napi_opt("columnNames").As<Napi::Array>()
-                               : Napi::Array::New(env, table.num_columns());
+                             ? napi_opt("columnNames").As<Napi::Array>()
+                             : Napi::Array::New(env, table.num_columns());
   metadata.column_metadata.reserve(table.num_columns());
   for (uint32_t i = 0; i < column_names.Length(); ++i) {
     auto name   = column_names.Has(i) ? column_names.Get(i) : env.Null();

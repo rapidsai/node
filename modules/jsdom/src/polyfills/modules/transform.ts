@@ -103,7 +103,7 @@ function normalizeOptions(options: Partial<babel.TransformOptions>) {
 }
 
 function supportSourceMaps(maps: any) {
-  let sourceMapsSupportInstalled = false;
+  let sourceMapsSupportInstalled  = false;
   return ()                      => {
     if (!sourceMapsSupportInstalled) {
       sourceMapSupport.install({

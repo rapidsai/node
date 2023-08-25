@@ -39,7 +39,6 @@ import {
   Uint8,
   Utf8String
 } from '../types/dtypes';
-
 import {CommonType} from '../types/mappings';
 
 import {Float64Series} from './float';
@@ -93,8 +92,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.bitwiseAnd(rhs, memoryResource))
-             : Series.new(this._col.bitwiseAnd(rhs._col as Column<R>, memoryResource));
+           ? Series.new(this._col.bitwiseAnd(rhs, memoryResource))
+           : Series.new(this._col.bitwiseAnd(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -117,8 +116,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.bitwiseOr(rhs, memoryResource))
-             : Series.new(this._col.bitwiseOr(rhs._col as Column<R>, memoryResource));
+           ? Series.new(this._col.bitwiseOr(rhs, memoryResource))
+           : Series.new(this._col.bitwiseOr(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -141,8 +140,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.bitwiseXor(rhs, memoryResource))
-             : Series.new(this._col.bitwiseXor(rhs._col as Column<R>, memoryResource));
+           ? Series.new(this._col.bitwiseXor(rhs, memoryResource))
+           : Series.new(this._col.bitwiseXor(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -165,8 +164,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.shiftLeft(rhs, memoryResource))
-             : Series.new(this._col.shiftLeft(rhs._col as Column<R>, memoryResource));
+           ? Series.new(this._col.shiftLeft(rhs, memoryResource))
+           : Series.new(this._col.shiftLeft(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -190,8 +189,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.shiftRight(rhs, memoryResource))
-             : Series.new(this._col.shiftRight(rhs._col as Column<R>, memoryResource));
+           ? Series.new(this._col.shiftRight(rhs, memoryResource))
+           : Series.new(this._col.shiftRight(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -215,8 +214,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.shiftRightUnsigned(rhs, memoryResource))
-             : Series.new(this._col.shiftRightUnsigned(rhs._col as Column<R>, memoryResource));
+           ? Series.new(this._col.shiftRightUnsigned(rhs, memoryResource))
+           : Series.new(this._col.shiftRightUnsigned(rhs._col as Column<R>, memoryResource));
   }
 
   /**

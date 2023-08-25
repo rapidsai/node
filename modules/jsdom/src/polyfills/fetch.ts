@@ -27,13 +27,12 @@ export function installFetch(window: jsdom.DOMWindow) {
   window.jsdom.global.Headers  = Headers;
   window.jsdom.global.Request  = Request;
   window.jsdom.global.Response = Response;
-  window.jsdom.global.fetch    = function fileAwareFetch(inp: string|Request,
+  window.jsdom.global.fetch    = function fileAwareFetch(url: string|Request,
                                                       options: RequestInit = {}) {
-    if (typeof inp !== 'string' && ((inp instanceof Request) || ('url' in inp))) {
-      return fetch(inp, options);
+    if (typeof url !== 'string' && ((url instanceof Request) || ('url' in url))) {
+      return fetch(url, options);
     }
 
-    let url          = inp as string;
     const isDataURI  = url && url.startsWith('data:');
     const isFilePath = url && !isDataURI && !Url.parse(url).protocol;
     if (isFilePath) {
@@ -45,7 +44,7 @@ export function installFetch(window: jsdom.DOMWindow) {
         .then((x) => new Response(x, {
                 status: 200,
                 headers: {
-                  'Content-Type': contentTypeFromPath(url),
+                  'Content-Type': contentTypeFromPath(url as string),
                 }
               }));
     }

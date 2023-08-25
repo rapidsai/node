@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {EventEmitter} from 'events';
+
 import {glfw, GLFWmonitor} from './glfw';
 
 export class Monitor extends EventEmitter {

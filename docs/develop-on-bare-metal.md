@@ -20,7 +20,7 @@ The following dependencies are necessary to build any of the `node-rapids` nativ
 * [CMake v3.20.2+](https://cmake.org/) (recommend either the [apt repository](https://apt.kitware.com/) or self-installing shell script).
 * `gcc-9` toolchain (available in Ubuntu via the official toolchain PPA `ppa:ubuntu-toolchain-r/test`)
 * ```txt
-  ninja-build sccache jq zlib1g-dev liblz4-dev clang-format-12 clangd-12 lldb-12
+  ninja-build sccache jq zlib1g-dev liblz4-dev clang-format-17 clangd-17 lldb-17
   ```
 
 ### Additional per-module dependencies

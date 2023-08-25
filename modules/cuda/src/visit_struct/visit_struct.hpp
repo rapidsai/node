@@ -93,7 +93,7 @@ struct type_c {
 template <typename MemPtr, MemPtr ptr>
 struct accessor {
   template <typename T>
-  VISIT_STRUCT_CONSTEXPR auto operator()(T &&t) const -> decltype(std::forward<T>(t).*ptr) {
+  VISIT_STRUCT_CONSTEXPR auto operator()(T&& t) const -> decltype(std::forward<T>(t).*ptr) {
     return std::forward<T>(t).*ptr;
   }
 };
@@ -109,20 +109,20 @@ VISIT_STRUCT_CONSTEXPR std::size_t field_count() {
 }
 
 template <typename S>
-VISIT_STRUCT_CONSTEXPR std::size_t field_count(S &&) {
+VISIT_STRUCT_CONSTEXPR std::size_t field_count(S&&) {
   return field_count<S>();
 }
 
 // apply_visitor (one struct instance)
 template <typename S, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V &&v, S &&s) ->
+VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V&& v, S&& s) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value>::type {
   traits::visitable<traits::clean_t<S>>::apply(std::forward<V>(v), std::forward<S>(s));
 }
 
 // apply_visitor (two struct instances)
 template <typename S1, typename S2, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V &&v, S1 &&s1, S2 &&s2) -> typename std::enable_if<
+VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V&& v, S1&& s1, S2&& s2) -> typename std::enable_if<
   traits::is_visitable<traits::clean_t<typename traits::common_type<S1, S2>::type>>::value>::type {
   using common_S = typename traits::common_type<S1, S2>::type;
   traits::visitable<traits::clean_t<common_S>>::apply(
@@ -131,14 +131,14 @@ VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V &&v, S1 &&s1, S2 &&s2) -> type
 
 // for_each (Alternate syntax for apply_visitor, reverses order of arguments)
 template <typename V, typename S>
-VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S &&s, V &&v) ->
+VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S&& s, V&& v) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value>::type {
   traits::visitable<traits::clean_t<S>>::apply(std::forward<V>(v), std::forward<S>(s));
 }
 
 // for_each with two structure instances
 template <typename S1, typename S2, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S1 &&s1, S2 &&s2, V &&v) -> typename std::enable_if<
+VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S1&& s1, S2&& s2, V&& v) -> typename std::enable_if<
   traits::is_visitable<traits::clean_t<typename traits::common_type<S1, S2>::type>>::value>::type {
   using common_S = typename traits::common_type<S1, S2>::type;
   traits::visitable<traits::clean_t<common_S>>::apply(
@@ -147,21 +147,21 @@ VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S1 &&s1, S2 &&s2, V &&v) -> typename 
 
 // Visit the types (visit_struct::type_c<...>) of the registered members
 template <typename S, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto visit_types(V &&v) ->
+VISIT_STRUCT_CXX14_CONSTEXPR auto visit_types(V&& v) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value>::type {
   traits::visitable<traits::clean_t<S>>::visit_types(std::forward<V>(v));
 }
 
 // Visit the member pointers (&S::a) of the registered members
 template <typename S, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto visit_pointers(V &&v) ->
+VISIT_STRUCT_CXX14_CONSTEXPR auto visit_pointers(V&& v) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value>::type {
   traits::visitable<traits::clean_t<S>>::visit_pointers(std::forward<V>(v));
 }
 
 // Visit the accessors (function objects) of the registered members
 template <typename S, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto visit_accessors(V &&v) ->
+VISIT_STRUCT_CXX14_CONSTEXPR auto visit_accessors(V&& v) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value>::type {
   traits::visitable<traits::clean_t<S>>::visit_accessors(std::forward<V>(v));
 }
@@ -169,14 +169,14 @@ VISIT_STRUCT_CXX14_CONSTEXPR auto visit_accessors(V &&v) ->
 // Apply visitor (with no instances)
 // This calls visit_pointers, for backwards compat reasons
 template <typename S, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V &&v) ->
+VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V&& v) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value>::type {
   visit_struct::visit_pointers<S>(std::forward<V>(v));
 }
 
 // Get value by index (like std::get for tuples)
 template <int idx, typename S>
-VISIT_STRUCT_CONSTEXPR auto get(S &&s) ->
+VISIT_STRUCT_CONSTEXPR auto get(S&& s) ->
   typename std::enable_if<traits::is_visitable<traits::clean_t<S>>::value,
                           decltype(traits::visitable<traits::clean_t<S>>::get_value(
                             std::integral_constant<int, idx>{}, std::forward<S>(s)))>::type {
@@ -194,7 +194,7 @@ VISIT_STRUCT_CONSTEXPR auto get_name() ->
 }
 
 template <int idx, typename S>
-VISIT_STRUCT_CONSTEXPR auto get_name(S &&) -> decltype(get_name<idx, S>()) {
+VISIT_STRUCT_CONSTEXPR auto get_name(S&&) -> decltype(get_name<idx, S>()) {
   return get_name<idx, S>();
 }
 
@@ -208,7 +208,7 @@ VISIT_STRUCT_CONSTEXPR auto get_pointer() ->
 }
 
 template <int idx, typename S>
-VISIT_STRUCT_CONSTEXPR auto get_pointer(S &&) -> decltype(get_pointer<idx, S>()) {
+VISIT_STRUCT_CONSTEXPR auto get_pointer(S&&) -> decltype(get_pointer<idx, S>()) {
   return get_pointer<idx, S>();
 }
 
@@ -222,7 +222,7 @@ VISIT_STRUCT_CONSTEXPR auto get_accessor() ->
 }
 
 template <int idx, typename S>
-VISIT_STRUCT_CONSTEXPR auto get_accessor(S &&) -> decltype(get_accessor<idx, S>()) {
+VISIT_STRUCT_CONSTEXPR auto get_accessor(S&&) -> decltype(get_accessor<idx, S>()) {
   return get_accessor<idx, S>();
 }
 
@@ -246,7 +246,7 @@ VISIT_STRUCT_CONSTEXPR auto get_name() ->
 }
 
 template <typename S>
-VISIT_STRUCT_CONSTEXPR auto get_name(S &&) -> decltype(get_name<S>()) {
+VISIT_STRUCT_CONSTEXPR auto get_name(S&&) -> decltype(get_name<S>()) {
   return get_name<S>();
 }
 
@@ -3426,34 +3426,32 @@ static VISIT_STRUCT_CONSTEXPR const int max_visitable_members = 75;
   std::forward<V>(visitor)(                          \
     #MEMBER_NAME, std::forward<S1>(s1).MEMBER_NAME, std::forward<S2>(s2).MEMBER_NAME);
 
-#define VISIT_STRUCT_MAKE_GETTERS(MEMBER_NAME)                                             \
-  template <typename S>                                                                    \
-  static VISIT_STRUCT_CONSTEXPR auto get_value(                                            \
-    std::integral_constant<int, fields_enum::MEMBER_NAME>, S &&s)                          \
-    ->decltype((std::forward<S>(s).MEMBER_NAME)) {                                         \
-    return std::forward<S>(s).MEMBER_NAME;                                                 \
-  }                                                                                        \
-                                                                                           \
-  static VISIT_STRUCT_CONSTEXPR auto get_name(                                             \
-    std::integral_constant<int, fields_enum::MEMBER_NAME>)                                 \
-    ->decltype(#MEMBER_NAME) {                                                             \
-    return #MEMBER_NAME;                                                                   \
-  }                                                                                        \
-                                                                                           \
-  static VISIT_STRUCT_CONSTEXPR auto get_pointer(                                          \
-    std::integral_constant<int, fields_enum::MEMBER_NAME>)                                 \
-    ->decltype(&this_type::MEMBER_NAME) {                                                  \
-    return &this_type::MEMBER_NAME;                                                        \
-  }                                                                                        \
-                                                                                           \
-  static VISIT_STRUCT_CONSTEXPR auto get_accessor(                                         \
-    std::integral_constant<int, fields_enum::MEMBER_NAME>)                                 \
-    ->visit_struct::accessor<decltype(&this_type::MEMBER_NAME), &this_type::MEMBER_NAME> { \
-    return {};                                                                             \
-  }                                                                                        \
-                                                                                           \
-  static auto type_at(std::integral_constant<int, fields_enum::MEMBER_NAME>)               \
-    ->visit_struct::type_c<decltype(this_type::MEMBER_NAME)>;
+#define VISIT_STRUCT_MAKE_GETTERS(MEMBER_NAME)                                                    \
+  template <typename S>                                                                           \
+  static VISIT_STRUCT_CONSTEXPR auto get_value(                                                   \
+    std::integral_constant<int, fields_enum::MEMBER_NAME>, S&& s)                                 \
+    -> decltype((std::forward<S>(s).MEMBER_NAME)) {                                               \
+    return std::forward<S>(s).MEMBER_NAME;                                                        \
+  }                                                                                               \
+                                                                                                  \
+  static VISIT_STRUCT_CONSTEXPR auto get_name(                                                    \
+    std::integral_constant<int, fields_enum::MEMBER_NAME>) -> decltype(#MEMBER_NAME) {            \
+    return #MEMBER_NAME;                                                                          \
+  }                                                                                               \
+                                                                                                  \
+  static VISIT_STRUCT_CONSTEXPR auto get_pointer(                                                 \
+    std::integral_constant<int, fields_enum::MEMBER_NAME>) -> decltype(&this_type::MEMBER_NAME) { \
+    return &this_type::MEMBER_NAME;                                                               \
+  }                                                                                               \
+                                                                                                  \
+  static VISIT_STRUCT_CONSTEXPR auto get_accessor(                                                \
+    std::integral_constant<int, fields_enum::MEMBER_NAME>)                                        \
+    -> visit_struct::accessor<decltype(&this_type::MEMBER_NAME), &this_type::MEMBER_NAME> {       \
+    return {};                                                                                    \
+  }                                                                                               \
+                                                                                                  \
+  static auto type_at(std::integral_constant<int, fields_enum::MEMBER_NAME>)                      \
+    -> visit_struct::type_c<decltype(this_type::MEMBER_NAME)>;
 
 // This macro specializes the trait, provides "apply" method which does the work.
 // Below, template parameter S should always be the same as STRUCT_NAME modulo const and reference.
@@ -3485,27 +3483,27 @@ static VISIT_STRUCT_CONSTEXPR const int max_visitable_members = 75;
       0 VISIT_STRUCT_PP_MAP(VISIT_STRUCT_FIELD_COUNT, __VA_ARGS__);                    \
                                                                                        \
     template <typename V, typename S>                                                  \
-    VISIT_STRUCT_CXX14_CONSTEXPR static void apply(V &&visitor, S &&struct_instance) { \
+    VISIT_STRUCT_CXX14_CONSTEXPR static void apply(V&& visitor, S&& struct_instance) { \
       VISIT_STRUCT_PP_MAP(VISIT_STRUCT_MEMBER_HELPER, __VA_ARGS__)                     \
     }                                                                                  \
                                                                                        \
     template <typename V, typename S1, typename S2>                                    \
-    VISIT_STRUCT_CXX14_CONSTEXPR static void apply(V &&visitor, S1 &&s1, S2 &&s2) {    \
+    VISIT_STRUCT_CXX14_CONSTEXPR static void apply(V&& visitor, S1&& s1, S2&& s2) {    \
       VISIT_STRUCT_PP_MAP(VISIT_STRUCT_MEMBER_HELPER_PAIR, __VA_ARGS__)                \
     }                                                                                  \
                                                                                        \
     template <typename V>                                                              \
-    VISIT_STRUCT_CXX14_CONSTEXPR static void visit_pointers(V &&visitor) {             \
+    VISIT_STRUCT_CXX14_CONSTEXPR static void visit_pointers(V&& visitor) {             \
       VISIT_STRUCT_PP_MAP(VISIT_STRUCT_MEMBER_HELPER_PTR, __VA_ARGS__)                 \
     }                                                                                  \
                                                                                        \
     template <typename V>                                                              \
-    VISIT_STRUCT_CXX14_CONSTEXPR static void visit_types(V &&visitor) {                \
+    VISIT_STRUCT_CXX14_CONSTEXPR static void visit_types(V&& visitor) {                \
       VISIT_STRUCT_PP_MAP(VISIT_STRUCT_MEMBER_HELPER_TYPE, __VA_ARGS__)                \
     }                                                                                  \
                                                                                        \
     template <typename V>                                                              \
-    VISIT_STRUCT_CXX14_CONSTEXPR static void visit_accessors(V &&visitor) {            \
+    VISIT_STRUCT_CXX14_CONSTEXPR static void visit_accessors(V&& visitor) {            \
       VISIT_STRUCT_PP_MAP(VISIT_STRUCT_MEMBER_HELPER_ACC, __VA_ARGS__)                 \
     }                                                                                  \
                                                                                        \

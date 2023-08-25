@@ -246,16 +246,16 @@ struct CPPToNapi {
     if (std::is_same<T, uint16_t>() || std::is_same<T, unsigned short>()) {
       return Napi::Uint16Array::New(Env(), len, buf, 0);
     }
-    if (std::is_same<T, int32_t>()) {  //
+    if (std::is_same<T, int32_t>()) {   //
       return Napi::Int32Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, uint32_t>()) {  //
       return Napi::Uint32Array::New(Env(), len, buf, 0);
     }
-    if (std::is_same<T, float>()) {  //
+    if (std::is_same<T, float>()) {     //
       return Napi::Float32Array::New(Env(), len, buf, 0);
     }
-    if (std::is_same<T, double>()) {  //
+    if (std::is_same<T, double>()) {    //
       return Napi::Float64Array::New(Env(), len, buf, 0);
     }
     NAPI_THROW(std::runtime_error{"Unknown TypedArray type"}, env.Undefined());

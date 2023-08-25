@@ -16,6 +16,7 @@ import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
 import {Table} from '../table';
+
 import {TypeMap} from './mappings';
 
 export type FloatingPoint = Float32|Float64;

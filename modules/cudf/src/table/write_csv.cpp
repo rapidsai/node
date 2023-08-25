@@ -41,8 +41,8 @@ cudf::io::table_metadata make_csv_writer_metadata(Napi::Object const& options,
 
   if (bool_opt("header", true)) {
     Napi::Array column_names = napi_opt("columnNames").IsArray()
-                                 ? napi_opt("columnNames").As<Napi::Array>()
-                                 : Napi::Array::New(env, table.num_columns());
+                               ? napi_opt("columnNames").As<Napi::Array>()
+                               : Napi::Array::New(env, table.num_columns());
     metadata.column_names.reserve(table.num_columns());
     for (auto i = 0u; i < column_names.Length(); ++i) {
       auto name = column_names.Has(i) ? column_names.Get(i) : env.Null();

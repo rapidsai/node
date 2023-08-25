@@ -282,25 +282,26 @@ describe('Column.replaceSlice', () => {
 
 describe('Column.setNullMask', () => {
   const arange = (length: number) => Array.from({length}, (_, i) => i);
-  const makeTestColumn            = (length: number) =>
+  const makeTestColumn             = (length: number) =>
     new Column({type: new Int32, length, data: arange(length)});
 
-  const validateSetNullMask = (col: Column, length: number, expectedNullCount: number, newNullMask: any, ...args: [any?]) => {
-    expect(col.length).toBe(length);
-    expect(col.nullCount).toBe(0);
+  const validateSetNullMask =
+    (col: Column, length: number, expectedNullCount: number, newNullMask: any, ...args: [any?]) => {
+      expect(col.length).toBe(length);
+      expect(col.nullCount).toBe(0);
 
-    col.setNullMask(newNullMask, ...args);
+      col.setNullMask(newNullMask, ...args);
 
-    expect(col.length).toBe(length);
-    expect(col.nullCount).toBe(expectedNullCount);
-    expect(col.hasNulls).toBe(expectedNullCount > 0);
-    expect(col.nullable).toBe(newNullMask != null);
-    if (newNullMask == null) {
-      expect(col.mask.byteLength).toBe(0);
-    } else {
-      expect(col.mask.byteLength).toBe((((length >> 3) + 63) & ~63) || 64);
-    }
-  };
+      expect(col.length).toBe(length);
+      expect(col.nullCount).toBe(expectedNullCount);
+      expect(col.hasNulls).toBe(expectedNullCount > 0);
+      expect(col.nullable).toBe(newNullMask != null);
+      if (newNullMask == null) {
+        expect(col.mask.byteLength).toBe(0);
+      } else {
+        expect(col.mask.byteLength).toBe((((length >> 3) + 63) & ~63) || 64);
+      }
+    };
 
   test('recomputes nullCount (all null)',
        () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(64).buffer); });

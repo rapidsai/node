@@ -49,11 +49,11 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
    * ]
    * ```
    */
-  const rows = dfs.map((df) => {                        //
-    return names.map((name) => {                        //
-      return df.has(name)                               //
-               ? df.get(name)._col as Column<DataType>  //
-               : null;
+  const rows = dfs.map((df) => {                      //
+    return names.map((name) => {                      //
+      return df.has(name)                             //
+             ? df.get(name)._col as Column<DataType>  //
+             : null;
     });
   });
 
@@ -66,9 +66,9 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
   const commonDtypes = names.map((_, colIdx) => {
     return rows.reduce((commonDtype: DataType|null, columns) => {
       const column = columns[colIdx];
-      return !column        ? commonDtype  ///< If Column is null, return the latest common dtype
-             : !commonDtype ? column.type  ///< If this is the first non-null Column, use its dtype
-                            : findCommonType(commonDtype, column.type);  ///< find the common dtype
+      return !column      ? commonDtype  ///< If Column is null, return the latest common dtype
+           : !commonDtype ? column.type  ///< If this is the first non-null Column, use its dtype
+                          : findCommonType(commonDtype, column.type);  ///< find the common dtype
     }, null)!;
   });
 
@@ -91,7 +91,7 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
     // 2. Cast non-null Columns to the common dtype
     const columns = rows[rowIdx].map((column, colIdx) => {
       const commonDtype = commonDtypes[colIdx];
-      if (column === null) {  // 1.
+      if (column === null) {                                 // 1.
         return makeEmptyColumn(commonDtype);
       } else if (!compareTypes(column.type, commonDtype)) {  // 2.
         return column.cast(commonDtype);

@@ -239,8 +239,8 @@ Napi::Value Table::read_csv(Napi::CallbackInfo const& info) {
   NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of paths or buffers", env);
   try {
     return (options.Get("sourceType").ToString().Utf8Value() == "files")
-             ? read_csv_files(options, NapiToCPP{sources})
-             : read_csv_strings(options, NapiToCPP{sources});
+           ? read_csv_files(options, NapiToCPP{sources})
+           : read_csv_strings(options, NapiToCPP{sources});
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 

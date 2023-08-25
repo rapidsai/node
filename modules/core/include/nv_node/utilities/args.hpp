@@ -51,7 +51,7 @@ struct CallbackArgs {
   NapiToCPP const operator[](size_t i) const { return info_->operator[](i); }
 
   inline Napi::CallbackInfo const& info() const { return *info_; }
-  inline operator Napi::CallbackInfo const &() const { return *info_; }
+  inline operator Napi::CallbackInfo const&() const { return *info_; }
 
  private:
   bool owns_info_{false};

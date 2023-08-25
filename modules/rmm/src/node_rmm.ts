@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Memory} from '@rapidsai/cuda';
+
 import {MemoryResourceType} from './addon';
 
 /** @ignore */

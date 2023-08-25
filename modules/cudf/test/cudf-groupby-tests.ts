@@ -58,7 +58,7 @@ function basicAggCompare<T extends {a: DataType, b: DataType, c: DataType}, E ex
   if (arrow.DataType.isList(rb.type)) {
     const isIterable = (x: any): x is Iterable<any> =>  //
       (x && typeof x === 'object' && typeof x[Symbol.iterator]);
-    const unwrap = (xs: any[]): any[][] =>  //
+    const unwrap = (xs: any[]): any[][] =>              //
       xs.map((ys) => isIterable(ys) ? unwrap([...ys]) : ys);
 
     const actual_rb_lists  = unwrap([...rb]);

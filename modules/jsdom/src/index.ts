@@ -182,13 +182,13 @@ ${code}`;
 }
 
 function installUnhandledExceptionListeners() {
-  process.on(<any>'uncaughtException', (err: Error, origin: any) => {
+  process.on('uncaughtException' as any, (err: Error, origin: any) => {
     /* eslint-disable @typescript-eslint/restrict-template-expressions */
     process.stderr.write(`Uncaught Exception\n` + (origin ? `Origin: ${origin}\n` : '') +
                          `Exception: ${err && err.stack || err}\n`);
   });
 
-  process.on(<any>'unhandledRejection', (err: Error, promise: any) => {
+  process.on('unhandledRejection' as any, (err: Error, promise: any) => {
     /* eslint-disable @typescript-eslint/restrict-template-expressions */
     process.stderr.write(`Unhandled Promise Rejection\n` +
                          (promise ? `Promise: ${promise}\n` : '') +

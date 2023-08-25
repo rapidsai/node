@@ -50,11 +50,11 @@ install_vscode() {
 
 install_clangd() {
     INSTALLED_CLANGD=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-12 clang-format-12"
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-17 clang-format-17"
     if [ ! -d "/etc/apt/sources.list.d/llvm.list" ]; then
         curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        echo "deb http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE-12 main
-deb-src http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE-12 main
+        echo "deb http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE-17 main
+deb-src http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE-17 main
 " | sudo tee /etc/apt/sources.list.d/llvm.list
     fi
 }
@@ -101,7 +101,7 @@ if [ -n "$APT_DEPS" ]; then
     sudo apt update
     sudo apt install -y $APT_DEPS;
     if [ -n "$INSTALLED_CLANGD" ]; then
-        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-12 100
+        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-17 100
         sudo update-alternatives --set clangd /usr/bin/clangd
     fi
 fi

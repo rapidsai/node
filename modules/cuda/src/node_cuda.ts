@@ -50,8 +50,7 @@ export declare namespace Math {
 
 export declare namespace driver {
   /** @ignore */
-  export enum PointerAttributes
-  {
+  export enum PointerAttributes {
     CONTEXT,
     MEMORY_TYPE,
     DEVICE_POINTER,
@@ -72,8 +71,7 @@ export declare namespace runtime {
    * Flags to register a graphics resource
    * @ignore
    */
-  export enum GraphicsRegisterFlags
-  {
+  export enum GraphicsRegisterFlags {
     NONE,
     READ_ONLY,
     WRITE_DISCARD,
@@ -100,8 +98,7 @@ export declare namespace runtime {
  * CUDAArray channel format kind
  * @ignore
  */
-export declare enum ChannelFormatKind
-{
+export declare enum ChannelFormatKind {
   /** Signed channel format */
   SIGNED,
   /** Unsigned channel format */
@@ -146,8 +143,7 @@ export declare class CUDAArray {
  * interacts with the OS scheduler when waiting for results from the GPU.
  * Only one of the scheduling flags can be set when creating a context.
  */
-export declare enum DeviceFlags
-{
+export declare enum DeviceFlags {
   /**
    *  Uses a heuristic based on the number of active CUDA contexts in the
    *  process `C` and the number of logical processors in the system `P`.

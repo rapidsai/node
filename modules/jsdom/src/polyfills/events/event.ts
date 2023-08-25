@@ -45,9 +45,8 @@ type GLFWCallbackArgs<T extends SetGLFWCallback> = T extends(cb: (...args: infer
                                                               any ? P : never;
 
 type SetWindowCallback = (ptr: number, cb: null|((...args: any) => void)) => void;
-type WindowCallbackArgs<T extends SetWindowCallback>                      = T extends(ptr: number,
-                                                                                      cb: (...args: infer P) => void) =>
-                                                                  any ? P : never;
+type WindowCallbackArgs<T extends SetWindowCallback> =
+  T extends(ptr: number, cb: (...args: infer P) => void) => any ? P : never;
 
 export function glfwCallbackAsObservable<C extends SetGLFWCallback>(setCallback: C) {
   type Args = GLFWCallbackArgs<C>;

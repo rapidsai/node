@@ -43,8 +43,7 @@ import {
   Utf8String
 } from './dtypes';
 
-export enum Interpolation
-{
+export enum Interpolation {
   linear,    ///< Linear interpolation between i and j
   lower,     ///< Lower data point (i)
   higher,    ///< Higher data point (j)

@@ -258,10 +258,10 @@ struct NapiToCPP {
   //
   // Pointers
   //
-  inline operator void*() const {  //
+  inline operator void*() const {        //
     return static_cast<void*>(as_span<char>().data());
   }
-  inline operator void const *() const {  //
+  inline operator void const*() const {  //
     return static_cast<void const*>(as_span<char>().data());
   }
   template <typename T>

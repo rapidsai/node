@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import {DataFrame, Table} from '@rapidsai/cudf';
-import {ParsedSchema} from './SQLTable';
+
 import type {defaultContextConfigValues} from './config';
+import {ParsedSchema} from './SQLTable';
 
 /** @ignore */
 export declare const _cpp_exports: any;

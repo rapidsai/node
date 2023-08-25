@@ -40,7 +40,7 @@ export interface GroupByConstructor {
 
 export interface GroupBy {
   _getGroups(values?: Table,
-             memoryResource?: MemoryResource):  //
+             memoryResource?: MemoryResource):              //
     {keys: Table, offsets: Int32Array, values?: Table};
 
   _argmax(values: Table, memoryResource?: MemoryResource):  //
@@ -49,19 +49,19 @@ export interface GroupBy {
   _argmin(values: Table, memoryResource?: MemoryResource):  //
     {keys: Table, cols: Column[]};
 
-  _count(values: Table, memoryResource?: MemoryResource):  //
+  _count(values: Table, memoryResource?: MemoryResource):   //
     {keys: Table, cols: Column[]};
 
-  _max(values: Table, memoryResource?: MemoryResource):  //
+  _max(values: Table, memoryResource?: MemoryResource):     //
     {keys: Table, cols: Column[]};
 
-  _mean(values: Table, memoryResource?: MemoryResource):  //
+  _mean(values: Table, memoryResource?: MemoryResource):    //
     {keys: Table, cols: Column[]};
 
   _median(values: Table, memoryResource?: MemoryResource):  //
     {keys: Table, cols: Column[]};
 
-  _min(values: Table, memoryResource?: MemoryResource):  //
+  _min(values: Table, memoryResource?: MemoryResource):     //
     {keys: Table, cols: Column[]};
 
   _nth(values: Table, memoryResource?: MemoryResource, n?: number, include_nulls?: boolean):

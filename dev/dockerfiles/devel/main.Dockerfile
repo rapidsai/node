@@ -137,9 +137,9 @@ ONBUILD ARG ADDITIONAL_GROUPS="--groups sudo,video"
 
 FROM compilers as main-amd64
 
-ONBUILD ARG LLDB_VERSION=12
-ONBUILD ARG CLANGD_VERSION=12
-ONBUILD ARG CLANG_FORMAT_VERSION=12
+ONBUILD ARG LLDB_VERSION=17
+ONBUILD ARG CLANGD_VERSION=17
+ONBUILD ARG CLANG_FORMAT_VERSION=17
 
 # Install dependencies and dev tools (llnode etc.)
 ONBUILD RUN export DEBIAN_FRONTEND=noninteractive \
@@ -187,11 +187,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
  \
  # Globally install llnode
- && mkdir -p /usr/local/lib/llnode \
- && wget -O - https://github.com/trxcllnt/llnode/archive/refs/heads/use-llvm-project-monorepo.tar.gz \
-  | tar -C /usr/local/lib/llnode -xzf - --strip-components=1 \
- && npm pack --pack-destination /usr/local/lib/llnode /usr/local/lib/llnode \
- && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
+ && npm install --location global --unsafe-perm --no-audit --no-fund --no-update-notifier llnode \
  && echo "llnode: $(which -a llnode)" \
  && echo "llnode version: $(llnode --version)" \
  \

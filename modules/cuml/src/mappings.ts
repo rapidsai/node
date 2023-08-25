@@ -11,14 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-export enum MetricType
-{
+export enum MetricType {
   CATEGORICAL,
   EUCLIDEAN
 }
 
-export enum CUMLLogLevels
-{
+export enum CUMLLogLevels {
   CUML_LEVEL_OFF,
   CUML_LEVEL_CRITICAL,
   CUML_LEVEL_ERROR,

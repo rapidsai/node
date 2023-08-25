@@ -90,9 +90,9 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : EnvLocalObjectWrap<Device
   auto& arg0 = args[0];
   auto& arg1 = args[1];
   auto& arg2 = args[2];
-  auto input = arg0.IsObject()   ? arg0.operator Span<char>()
-               : arg0.IsNumber() ? Span<char>(arg0.operator size_t())
-                                 : Span<char>(0);
+  auto input = arg0.IsObject() ? arg0.operator Span<char>()
+             : arg0.IsNumber() ? Span<char>(arg0.operator size_t())
+                               : Span<char>(0);
 
   mr_ = Napi::Persistent<MemoryResource::wrapper_t>(
     MemoryResource::IsInstance(arg1) ? arg1.ToObject() : MemoryResource::Current(env));

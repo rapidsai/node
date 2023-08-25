@@ -36,7 +36,7 @@ test('basic disposes promise', async () => {
   });
 
   const resolver = async () => promise;
-  const result              = await resolver();
+  const result               = await resolver();
 
   expect(test._col.disposed).toBe(true);
   expect(result._col.disposed).toBe(false);

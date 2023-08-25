@@ -155,8 +155,8 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.Binary]: never,
   [arrow.Type.Utf8]: StringSeries,
   [arrow.Type.Bool]: Bool8Series,
-  [arrow.Type.Decimal]: never,  // TODO
-  [arrow.Type.Date]: never,     // TODO
+  [arrow.Type.Decimal]: never,          // TODO
+  [arrow.Type.Date]: never,             // TODO
   [arrow.Type.DateDay]: TimestampDaySeries,
   [arrow.Type.DateMillisecond]: TimestampMillisecondSeries,
   [arrow.Type.Time]: never,             // TODO
@@ -174,12 +174,12 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.IntervalYearMonth]: never,  // TODO
   [arrow.Type.List]: ListSeries<(T extends List ? T['valueType'] : any)>,
   [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['dataTypes'] : any)>,
-  [arrow.Type.Union]: never,            // TODO
-  [arrow.Type.DenseUnion]: never,       // TODO
-  [arrow.Type.SparseUnion]: never,      // TODO
-  [arrow.Type.FixedSizeBinary]: never,  // TODO
-  [arrow.Type.FixedSizeList]: never,    // TODO
-  [arrow.Type.Map]: never,              // TODO
+  [arrow.Type.Union]: never,              // TODO
+  [arrow.Type.DenseUnion]: never,         // TODO
+  [arrow.Type.SparseUnion]: never,        // TODO
+  [arrow.Type.FixedSizeBinary]: never,    // TODO
+  [arrow.Type.FixedSizeList]: never,      // TODO
+  [arrow.Type.Map]: never,                // TODO
   [arrow.Type.Dictionary]: CategoricalSeries<(T extends arrow.Dictionary ? T['valueType'] : any)>
 }[T['TType']];
 

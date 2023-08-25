@@ -37,146 +37,146 @@ struct get_scalar_value {
   inline std::enable_if_t<std::is_same_v<T, int8_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, int16_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, int32_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, int64_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::BigInt::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::BigInt::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
 
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, uint8_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, uint16_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, uint32_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, uint64_t>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::BigInt::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::BigInt::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_floating_point<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Number::New(env,
-                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Number::New(env,
+                               static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, bool>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Boolean::New(
-                 env, static_cast<cudf::numeric_scalar<bool>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Boolean::New(
+               env, static_cast<cudf::numeric_scalar<bool>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, cudf::string_view>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Value::From(env,
-                                 static_cast<cudf::string_scalar*>(scalar.get())->to_string(stream))
-             : env.Null();
+           ? Napi::Value::From(env,
+                               static_cast<cudf::string_scalar*>(scalar.get())->to_string(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_duration<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Value::From(
-                 env, static_cast<cudf::duration_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Value::From(env,
+                               static_cast<cudf::duration_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_timestamp<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Value::From(
-                 env, static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Value::From(env,
+                               static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, numeric::decimal32>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Value::From(
-                 env, static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Value::From(
+               env, static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, numeric::decimal64>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Napi::Value::From(
-                 env, static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+           ? Napi::Value::From(
+               env, static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, cudf::list_view>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Column::New(env,
-                           std::make_unique<cudf::column>(
-                             // The list_scalar's column_view is copied here because the underlying
-                             // column cannot be moved.
-                             static_cast<cudf::list_scalar*>(scalar.get())->view(),
-                             stream))
-             : env.Null();
+           ? Column::New(env,
+                         std::make_unique<cudf::column>(
+                           // The list_scalar's column_view is copied here because the underlying
+                           // column cannot be moved.
+                           static_cast<cudf::list_scalar*>(scalar.get())->view(),
+                           stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, cudf::struct_view>, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? Table::New(env,
-                          std::make_unique<cudf::table>(
-                            // The struct_scalar's table_view is copied here because the underlying
-                            // table cannot be moved.
-                            static_cast<cudf::struct_scalar*>(scalar.get())->view(),
-                            stream))
-             : env.Null();
+           ? Table::New(env,
+                        std::make_unique<cudf::table>(
+                          // The struct_scalar's table_view is copied here because the underlying
+                          // table cannot be moved.
+                          static_cast<cudf::struct_scalar*>(scalar.get())->view(),
+                          stream))
+           : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<!(cudf::is_chrono<T>() ||                   //

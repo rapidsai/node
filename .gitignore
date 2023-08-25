@@ -1,13 +1,13 @@
 **/z-*
 **/*.log
-**/doc
-**/lib
-**/build
+**/doc/
+**/lib/
+**/build/
 **/.cache
 **/.clangd
 **/.ccache
-**/__pycache__
-**/node_modules
+**/__pycache__/
+**/node_modules/
 **/compile_commands.json
 
 /dev/.ssh/*
@@ -35,3 +35,5 @@ internal/*
 **/.next/
 **/_next/
 **/out/
+
+!/.clangd

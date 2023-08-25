@@ -157,8 +157,8 @@ export class ContextModule extends Module {
 
   public createDynamicImporter(require: Require = this._require, context = this._context) {
     return context === this._context  //
-             ? this._cachedDynamicImporter
-             : createDynamicImporter(require, context, this._transform);
+           ? this._cachedDynamicImporter
+           : createDynamicImporter(require, context, this._transform);
   }
 }
 
@@ -288,9 +288,9 @@ function findNearestContextModule(mod: Module) {
  */
 function runScript(context: vm.Context, script: vm.Script) {
   return context.runVMScript
-           ? context.runVMScript(script)
-           : script.runInContext(context.getInternalVMContext ? context.getInternalVMContext()
-                                                              : context);
+         ? context.runVMScript(script)
+         : script.runInContext(context.getInternalVMContext ? context.getInternalVMContext()
+                                                            : context);
 }
 
 function isContext(context: any) {
