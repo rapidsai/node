@@ -1,5 +1,4 @@
-[!WARNING]
-Not in active development
+# NOTE: Not in active development
 
 # <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids</div>
 
