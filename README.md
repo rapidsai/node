@@ -1,3 +1,6 @@
+[!WARNING]
+Not in active development
+
 # <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids</div>
 
 [`node-rapids`](https://github.com/rapidsai/node) is a collection of Node.js native addons for the [NVIDIA RAPIDS](https://rapids.ai/) suite of GPU-accelerated data-science and ETL libraries on Linux and WSL2.
