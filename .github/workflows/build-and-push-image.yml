@@ -56,6 +56,11 @@ jobs:
         CUDA: ["11.6.2"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
       - name: Dump runner context
         shell: bash
         run: |
@@ -72,7 +77,7 @@ jobs:
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
           lfs: true
           fetch-depth: 0
@@ -90,7 +95,7 @@ jobs:
       - name: Get last successful main commit sha
         id: last_main_commit
         if: ${{ ! inputs.manual-build }}
-        uses: nrwl/last-successful-commit-action@v1
+        uses: nrwl/last-successful-commit-action@f74ee67ed77cc6a9f54c742c8c04b86ae33906fe # v1
         with:
           branch: main
           workflow_id: "merge.pr.yml"
@@ -99,7 +104,7 @@ jobs:
       - name: Check if files changed
         id: files_changed
         if: ${{ ! inputs.manual-build }}
-        uses: tj-actions/changed-files@v35.4.4
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46.0.5
         with:
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
           files: |

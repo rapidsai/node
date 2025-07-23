@@ -43,6 +43,11 @@ jobs:
         NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
       - name: Extract node native addons
         shell: bash
         run: |
@@ -78,7 +83,7 @@ jobs:
           rm -rf build/*.tar.gz;
 
       - name: Upload node native addons
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
         if: ${{ inputs.make-release != true }}
         with:
           path: |
@@ -87,7 +92,7 @@ jobs:
           name: rapidsai-native-addons
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         if: ${{ inputs.make-release == true }}
         with:
           body: ""
@@ -110,6 +115,11 @@ jobs:
         NODE: ["16.15.1"]
         LINUX: ["ubuntu20.04"]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
       - name: Publish npm packages
         shell: bash
         env:

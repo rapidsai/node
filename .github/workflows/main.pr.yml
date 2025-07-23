@@ -20,6 +20,11 @@ jobs:
       NODE: "16.15.1"
       REGISTRY: "ghcr.io"
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
       - name: Dump runner context
         shell: bash
         run: |
@@ -39,7 +44,7 @@ jobs:
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
           lfs: true
           path: node
@@ -51,7 +56,7 @@ jobs:
         working-directory: node
 
       - name: Get last successful main commit sha
-        uses: nrwl/last-successful-commit-action@v1
+        uses: nrwl/last-successful-commit-action@f74ee67ed77cc6a9f54c742c8c04b86ae33906fe # v1
         id: last_main_commit
         with:
           branch: main
@@ -60,7 +65,7 @@ jobs:
 
       - name: Check if source files changed
         id: src_changed
-        uses: tj-actions/changed-files@v35.4.4
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46.0.5
         with:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
@@ -84,7 +89,7 @@ jobs:
 
       - name: Check if GitHub Actions or devel main Dockerfile changed
         id: dev_changed
-        uses: tj-actions/changed-files@v35.4.4
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46.0.5
         with:
           path: node
           base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
@@ -122,7 +127,7 @@ jobs:
 
       - name: Cache C++ dependencies
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: actions/cache@v2
+        uses: actions/cache@8492260343ad570701412c2f464a5877dc76bace # v2
         with:
           key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
@@ -131,7 +136,7 @@ jobs:
 
       - name: Cache node_modules
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: actions/cache@v2
+        uses: actions/cache@8492260343ad570701412c2f464a5877dc76bace # v2
         with:
           key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
@@ -141,7 +146,7 @@ jobs:
 
       - name: Set up ssh-agent
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: webfactory/ssh-agent@v0.5.4
+        uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd # v0.5.4
         with:
           ssh-auth-sock: ${{ env.HOME }}/ssh-agent
           ssh-private-key: |
