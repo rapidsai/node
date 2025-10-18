@@ -110,6 +110,7 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
                            "ARROW_WITH_BACKTRACE ON"
                            "ARROW_CXXFLAGS -w"
                            "ARROW_JEMALLOC OFF"
+                           "ARROW_ACERO ON"
                            "ARROW_S3 ${ENABLE_S3}"
                            "ARROW_ORC ${ENABLE_ORC}"
                            # e.g. needed by blazingsql-io
@@ -199,6 +200,34 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
                     "$<BUILD_INTERFACE:${Arrow_SOURCE_DIR}/cpp/thirdparty/flatbuffers/include>"
         )
       endforeach()
+
+      # Fix for Arrow static library CMake export errors (from cuDF project)
+      # The `arrow_static` library is leaking a dependency on the object libraries it was built with
+      # we need to remove this from the interface, since keeping them around would cause duplicate
+      # symbols and CMake export errors
+      if(BUILD_STATIC)
+        # Fix arrow_static target
+        if(TARGET arrow_static)
+          get_target_property(interface_libs arrow_static INTERFACE_LINK_LIBRARIES)
+          if(interface_libs MATCHES "arrow_array" AND interface_libs MATCHES "arrow_compute")
+            string(REPLACE "BUILD_INTERFACE:" "BUILD_LOCAL_INTERFACE:" interface_libs
+                           "${interface_libs}"
+            )
+            set_target_properties(arrow_static PROPERTIES INTERFACE_LINK_LIBRARIES "${interface_libs}")
+          endif()
+        endif()
+
+        # Fix arrow_dataset_static target
+        if(TARGET arrow_dataset_static)
+          get_target_property(interface_libs arrow_dataset_static INTERFACE_LINK_LIBRARIES)
+          if(interface_libs MATCHES "arrow_acero")
+            string(REPLACE "BUILD_INTERFACE:" "BUILD_LOCAL_INTERFACE:" interface_libs
+                           "${interface_libs}"
+            )
+            set_target_properties(arrow_dataset_static PROPERTIES INTERFACE_LINK_LIBRARIES "${interface_libs}")
+          endif()
+        endif()
+      endif()
     endif()
   else()
     set(ARROW_FOUND FALSE)
@@ -407,12 +436,12 @@ function(find_and_configure_arrow VERSION BUILD_STATIC ENABLE_S3 ENABLE_ORC ENAB
 
 endfunction()
 
-set(CUDF_VERSION_Arrow 9.0.0)
+set(CUDF_VERSION_Arrow 19.0.0)
 
 find_and_configure_arrow(
   ${CUDF_VERSION_Arrow}
   ON  # BUILD_STATIC
-  OFF # ENABLE_S3
+  ON  # ENABLE_S3
   OFF # ENABLE_ORC
   OFF # ENABLE_PYTHON
   ON  # ENABLE_PARQUET

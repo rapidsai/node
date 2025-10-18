@@ -37,7 +37,7 @@ ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
 ARG GCC_VERSION=9
-ARG CMAKE_VERSION=3.26.0-rc2
+ARG CMAKE_VERSION=3.30.5
 ARG SCCACHE_VERSION=0.2.15
 ARG LINUX_VERSION=ubuntu20.04
 
@@ -143,25 +143,13 @@ ONBUILD ARG CLANG_FORMAT_VERSION=17
 
 # Install dependencies and dev tools (llnode etc.)
 ONBUILD RUN export DEBIAN_FRONTEND=noninteractive \
- # Install LLVM apt sources
- && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
-" | tee /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list >/dev/null' \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
-" | tee /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list >/dev/null' \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
-" | tee /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list >/dev/null' \
- \
+ # For Ubuntu 24.04, LLVM 17+ is in the main repos, no need for external sources
  && apt update \
  && apt install --no-install-recommends -y \
-    # lldb (for llnode)
-    lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} \
+    # Python 3.12 (Ubuntu 24.04) requires python3-setuptools for distutils compatibility
+    python3 python3-pip python3-setuptools python3-dev \
+    # lldb (for llnode) - LLVM 17 packages
+    lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} llvm-${LLDB_VERSION}-dev \
     # clangd for C++ intellisense and debugging
     clangd-${CLANGD_VERSION} \
     # clang-format for automatically formatting C++ and TS/JS
@@ -187,7 +175,11 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
  \
  # Globally install llnode
- && npm install --location global --unsafe-perm --no-audit --no-fund --no-update-notifier llnode \
+ && mkdir -p /usr/local/lib/llnode \
+ && wget -O - https://github.com/trxcllnt/llnode/archive/refs/heads/use-llvm-project-monorepo.tar.gz \
+  | tar -C /usr/local/lib/llnode -xzf - --strip-components=1 \
+ && npm pack --pack-destination /usr/local/lib/llnode /usr/local/lib/llnode \
+ && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
  && echo "llnode: $(which -a llnode)" \
  && echo "llnode version: $(llnode --version)" \
  \
@@ -198,10 +190,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     /var/tmp/* \
     /var/cache/apt/* \
     /var/lib/apt/lists/* \
-    /usr/local/lib/llnode \
-    /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
-    /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
-    /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list
+    /usr/local/lib/llnode
 
 FROM main-${TARGETARCH}
 
@@ -234,10 +223,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev \
  \
- # Install UCX
- && wget -O /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
-    https://github.com/openucx/ucx/releases/download/v${UCX_VERSION}/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
- && dpkg -i /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb || true && apt --fix-broken install -y \
+ # Install UCX (use system packages for Ubuntu 24.04)
+ && apt install --no-install-recommends -y libucx-dev libucx0 ucx-utils \
  \
  # Install fixuid
  && curl -SsL "https://github.com/boxboat/fixuid/releases/download/v$FIXUID_VERSION/fixuid-$FIXUID_VERSION-linux-${TARGETARCH}.tar.gz" \
@@ -251,12 +238,14 @@ paths:\n\
   - /opt/rapids/node\n\
 " | tee /etc/fixuid/config.yml >/dev/null' \
  \
- # Add a non-root user
- && useradd \
-    --uid 1000 --shell /bin/bash \
-    --user-group ${ADDITIONAL_GROUPS} \
-    --create-home --home-dir /opt/rapids \
-    rapids \
+ # Add a non-root user (handle existing UID 1000)
+ && if getent passwd 1000 >/dev/null 2>&1; then \
+      existing_user=$(getent passwd 1000 | cut -d: -f1); \
+      usermod -l rapids -d /opt/rapids -m $existing_user; \
+      groupmod -n rapids $existing_user; \
+    else \
+      useradd --uid 1000 --shell /bin/bash --user-group ${ADDITIONAL_GROUPS} --create-home --home-dir /opt/rapids rapids; \
+    fi \
  && mkdir -p /opt/rapids/node/.cache \
  && mkdir -p -m 0700 /opt/rapids/.ssh \
  \

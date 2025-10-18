@@ -57,7 +57,10 @@ include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/install_utils.cmake")
 
 file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
+# Add the generated RMM logger implementation
+set(RMM_LOGGER_IMPL "/opt/rapids/node/.cache/binary/${CMAKE_BUILD_TYPE}/rmm-build/include/rmm/logger_impl/logger.cpp")
+
+add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${RMM_LOGGER_IMPL} ${CMAKE_JS_SRC})
 
 set_target_properties(${PROJECT_NAME}
     PROPERTIES PREFIX                              ""
@@ -76,6 +79,8 @@ target_compile_options(${PROJECT_NAME}
             PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>>"
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>>"
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
+                    # Force include generated RMM logger header to override incomplete source headers
+                    "$<$<COMPILE_LANGUAGE:CXX>:-include;/opt/rapids/node/.cache/binary/${CMAKE_BUILD_TYPE}/rmm-build/include/rmm/logger.hpp>"
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -83,6 +88,7 @@ target_include_directories(${PROJECT_NAME}
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
+    BEFORE PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
 )
 
 target_compile_definitions(${PROJECT_NAME}
@@ -90,9 +96,14 @@ target_compile_definitions(${PROJECT_NAME}
            "$<$<COMPILE_LANGUAGE:CUDA>:CUDA_API_PER_THREAD_DEFAULT_STREAM>"
 )
 
+# Add RMM build include directory BEFORE linking to rmm::rmm to ensure generated headers take precedence
+target_include_directories(${PROJECT_NAME} SYSTEM BEFORE PRIVATE "/opt/rapids/node/.cache/binary/${CMAKE_BUILD_TYPE}/rmm-build/include")
+
 target_link_libraries(${PROJECT_NAME}
                PUBLIC ${CMAKE_JS_LIB}
                       rmm::rmm
+                      fmt::fmt-header-only
+                      spdlog::spdlog_header_only
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node"
                       "${NODE_RAPIDS_CORE_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_core.node")
 

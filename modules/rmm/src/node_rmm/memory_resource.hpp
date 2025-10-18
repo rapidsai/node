@@ -14,6 +14,8 @@
 
 #pragma once
 
+// Generated RMM logger is now force-included via CMake compiler flags
+
 #include "types.hpp"
 #include "utilities/cpp_to_napi.hpp"
 
@@ -193,16 +195,6 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
                                                    rmm::cuda_stream_view stream) const;
 
   /**
-   * @copydoc rmm::mr::device_memory_resource::supports_streams()
-   */
-  bool supports_streams(Napi::Env const& env) const;
-
-  /**
-   * @copydoc rmm::mr::device_memory_resource::supports_get_mem_info()
-   */
-  bool supports_get_mem_info(Napi::Env const& env) const;
-
-  /**
    * @copydoc rmm::mr::logging_resource_adaptor::flush()
    */
   void flush();
@@ -241,9 +233,6 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
   Napi::Value get_mem_info(Napi::CallbackInfo const& info);
   Napi::Value get_file_path(Napi::CallbackInfo const& info);
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
-
-  Napi::Value supports_streams(Napi::CallbackInfo const& info);
-  Napi::Value supports_get_mem_info(Napi::CallbackInfo const& info);
 
   std::string log_file_path_{};
   mr_type type_{mr_type::cuda};

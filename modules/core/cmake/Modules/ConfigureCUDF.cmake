@@ -57,14 +57,15 @@ function(find_and_configure_cudf)
                                 "Thrift_SOURCE BUNDLED"
                                 "CUDA_STATIC_RUNTIME ON"
                                 "CUDF_USE_ARROW_STATIC ON"
-                                "CUDF_ENABLE_ARROW_S3 OFF"
-                                # "CUDF_ENABLE_ARROW_S3 ON"
+                                "CUDF_ENABLE_ARROW_S3 ON"
+                                # "CUDF_ENABLE_ARROW_S3 OFF"
                                 "CUDF_ENABLE_ARROW_ORC OFF"
                                 "CUDF_ENABLE_ARROW_PYTHON OFF"
                                 "CUDF_ENABLE_ARROW_PARQUET ON"
+                                "CUDF_ENABLE_ARROW_ACERO ON"
                                 # "ARROW_DEPENDENCY_SOURCE AUTO"
                                 "DISABLE_DEPRECATION_WARNING ON"
-                                "CUDF_USE_PROPRIETARY_NVCOMP OFF"
+                                "CUDF_USE_PROPRIETARY_NVCOMP ON"
                                 "CUDF_USE_PER_THREAD_DEFAULT_STREAM ON")
     endif()
 
@@ -73,15 +74,19 @@ function(find_and_configure_cudf)
 
     _set_package_dir_if_exists(nvcomp nvcomp)
     find_package(nvcomp)
-    set_target_properties(nvcomp
-        PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${nvcomp_ROOT}"
-                   LIBRARY_OUTPUT_DIRECTORY "${nvcomp_ROOT}")
+    if(TARGET nvcomp::nvcomp)
+        set_target_properties(nvcomp::nvcomp
+            PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${nvcomp_ROOT}"
+                       LIBRARY_OUTPUT_DIRECTORY "${nvcomp_ROOT}")
+    endif()
 
     include(CMakePackageConfigHelpers)
-    write_basic_package_version_file(
-      ${nvcomp_ROOT}/nvcomp-config-version.cmake
-      VERSION 2.3
-      COMPATIBILITY ExactVersion)
+    if(nvcomp_ROOT AND IS_DIRECTORY ${nvcomp_ROOT})
+        write_basic_package_version_file(
+          ${nvcomp_ROOT}/nvcomp-config-version.cmake
+          VERSION 4.2.0.11
+          COMPATIBILITY ExactVersion)
+    endif()
 
     include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
     _statically_link_cuda_toolkit_libs(cudf::cudf)

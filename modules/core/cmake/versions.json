@@ -1,11 +1,12 @@
 {
   "packages": {
     "nvcomp": {
-      "version": "2.4.1",
+      "version": "4.2.0.11",
       "git_url": "https://github.com/NVIDIA/nvcomp.git",
-      "git_tag": "v2.2.0",
+      "git_tag": "main",
       "proprietary_binary": {
-        "x86_64-linux": "http://developer.download.nvidia.com/compute/nvcomp/${version}/local_installers/nvcomp_${version}_Linux_CUDA_11.x.tgz"
+        "aarch64-linux": "https://developer.download.nvidia.com/compute/nvcomp/redist/nvcomp/linux-sbsa/nvcomp-linux-sbsa-${version}_cuda12-archive.tar.xz",
+        "x86_64-linux": "https://developer.download.nvidia.com/compute/nvcomp/redist/nvcomp/linux-x86_64/nvcomp-linux-x86_64-${version}_cuda12-archive.tar.xz"
       }
     },
     "Thrust": {

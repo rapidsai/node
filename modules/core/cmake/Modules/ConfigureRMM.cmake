@@ -38,6 +38,7 @@ function(find_and_configure_rmm)
             ${UPDATE_DISCONNECTED}
             OPTIONS               "BUILD_TESTS OFF"
                                   "BUILD_BENCHMARKS OFF"
+                                  "RMM_LOGGING_LEVEL TRACE"
                                   "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
     endif()
 

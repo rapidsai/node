@@ -116,6 +116,7 @@ export function setDefaultAllocator(allocate?: null|((byteLength: number) => Mem
 /**
  * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface MemoryView<T extends TypedArray|BigIntArray = any> extends ArrayBufferView {
   /**
    * @summary The size in bytes of each element in the MemoryView.
@@ -135,6 +136,7 @@ export interface MemoryView<T extends TypedArray|BigIntArray = any> extends Arra
 /**
  * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements
   ArrayBufferView {
   public static readonly BYTES_PER_ELEMENT: number;

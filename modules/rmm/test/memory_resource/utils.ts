@@ -27,8 +27,7 @@ import * as Path from 'path';
 import {sizes} from '../utils';
 
 type TestConfig = {
-  comparable: boolean; supportsStreams: boolean; supportsGetMemInfo: boolean;
-  createMemoryResource(): MemoryResource;
+  comparable: boolean; createMemoryResource(): MemoryResource;
 };
 
 let logFileDir = '', logFilePath = '';
@@ -50,8 +49,6 @@ export const memoryResourceTestConfigs = [
     `CudaMemoryResource`,
     {
       comparable: true,
-      supportsStreams: false,
-      supportsGetMemInfo: true,
       createMemoryResource: () => new CudaMemoryResource(),
     }
   ],
@@ -59,8 +56,6 @@ export const memoryResourceTestConfigs = [
     `ManagedMemoryResource`,
     {
       comparable: true,
-      supportsStreams: false,
-      supportsGetMemInfo: true,
       createMemoryResource: () => new ManagedMemoryResource(),
     }
   ],
@@ -68,8 +63,6 @@ export const memoryResourceTestConfigs = [
     `PoolMemoryResource`,
     {
       comparable: false,
-      supportsStreams: true,
-      supportsGetMemInfo: false,
       createMemoryResource: () =>
         new PoolMemoryResource(new CudaMemoryResource(), sizes['1_MiB'], sizes['16_MiB']),
     }
@@ -78,8 +71,6 @@ export const memoryResourceTestConfigs = [
     `FixedSizeMemoryResource`,
     {
       comparable: false,
-      supportsStreams: true,
-      supportsGetMemInfo: false,
       createMemoryResource: () =>
         new FixedSizeMemoryResource(new CudaMemoryResource(), sizes['4_MiB'], 1),
     }
@@ -88,8 +79,6 @@ export const memoryResourceTestConfigs = [
     `BinningMemoryResource`,
     {
       comparable: false,
-      supportsStreams: true,
-      supportsGetMemInfo: false,
       createMemoryResource: () => new BinningMemoryResource(
         new CudaMemoryResource(), Math.log2(sizes['1_MiB']), Math.log2(sizes['1_MiB'])),
     }
@@ -98,8 +87,6 @@ export const memoryResourceTestConfigs = [
     `LoggingResourceAdapter`,
     {
       comparable: true,
-      supportsStreams: false,
-      supportsGetMemInfo: true,
       createMemoryResource: () =>
         new LoggingResourceAdapter(new CudaMemoryResource(), logFilePath, true),
     }

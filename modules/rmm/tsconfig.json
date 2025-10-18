@@ -3,6 +3,7 @@
     "exclude": ["node_modules"],
     "compilerOptions": {
         "baseUrl": "./",
+        "types": ["node"],
         "paths": {
             "@rapidsai/rmm": ["src/index"],
             "@rapidsai/rmm/*": ["src/*"]

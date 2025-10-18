@@ -44,4 +44,6 @@ function(find_and_configure_thrust VERSION)
     set(CPM_THRUST_CURRENT_VERSION "${VERSION}.0" CACHE STRING "version of thrust we checked out" FORCE)
 endfunction()
 
-find_and_configure_thrust(1.17.2)
+# Use CCCL unified version for RAPIDS 25.02 compatibility
+# find_and_configure_thrust(1.17.2)
+# Instead, CCCL will provide Thrust 2.7.0 through the unified package

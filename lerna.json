@@ -16,7 +16,6 @@
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
     "modules/demo/api-server",
-    "modules/demo/viz-app",
-    "modules/demo/sql/*"
+    "modules/demo/viz-app"
   ]
 }
