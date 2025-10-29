@@ -137,18 +137,18 @@ ONBUILD ARG ADDITIONAL_GROUPS="--groups sudo,video"
 
 FROM compilers as main-amd64
 
-ONBUILD ARG LLDB_VERSION=17
-ONBUILD ARG CLANGD_VERSION=17
-ONBUILD ARG CLANG_FORMAT_VERSION=17
+ONBUILD ARG LLDB_VERSION=18
+ONBUILD ARG CLANGD_VERSION=18
+ONBUILD ARG CLANG_FORMAT_VERSION=18
 
 # Install dependencies and dev tools (llnode etc.)
 ONBUILD RUN export DEBIAN_FRONTEND=noninteractive \
- # For Ubuntu 24.04, LLVM 17+ is in the main repos, no need for external sources
+ # For Ubuntu 24.04, LLVM 18 is the default version in the main repos
  && apt update \
  && apt install --no-install-recommends -y \
     # Python 3.12 (Ubuntu 24.04) requires python3-setuptools for distutils compatibility
     python3 python3-pip python3-setuptools python3-dev \
-    # lldb (for llnode) - LLVM 17 packages
+    # lldb (for llnode) - LLVM 18 packages
     lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} llvm-${LLDB_VERSION}-dev \
     # clangd for C++ intellisense and debugging
     clangd-${CLANGD_VERSION} \
