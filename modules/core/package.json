@@ -54,7 +54,7 @@
     "tsc:watch": "yarn tsc:clean && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@types/node": "^15.0.0",
+    "@types/node": "^16.0.0",
     "bindings": "^1.5.0",
     "cmake-js": "7.2.1",
     "cross-env": "7.0.3",
