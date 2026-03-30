@@ -137,6 +137,7 @@ jobs:
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=RAPIDS
           PARALLEL_LEVEL=500000
+          CMAKE_BUILD_PARALLEL_LEVEL=500000
           NVCC_APPEND_FLAGS=-t=100
           RAPIDS_VERSION=${RAPIDS_VERSION}
           SCCACHE_IDLE_TIMEOUT=0

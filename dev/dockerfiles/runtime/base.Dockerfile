@@ -103,7 +103,7 @@ RUN if getent passwd $UID >/dev/null 2>&1; then \
 
 ENV npm_config_fund=false
 ENV npm_config_update_notifier=false
-ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
+ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught --openssl-legacy-provider"
 
 WORKDIR /home/node
 
