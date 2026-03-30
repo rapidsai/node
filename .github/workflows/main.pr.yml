@@ -47,73 +47,61 @@ jobs:
         uses: actions/checkout@v6
         with:
           lfs: true
-          path: node
           fetch-depth: 0
 
       - name: Checkout LFS
         shell: bash
         run: git lfs checkout
-        working-directory: node
 
-      - name: Get changed files
+      - id: get-pr-info
+        name: Get PR target branch info
+        uses: ./.github/actions/get-pr-info
+
+      - name: Check if GitHub Actions or devel main Dockerfile changed
         id: changed
-        uses: rapidsai/shared-actions/changed-files@main
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
         with:
+          base_sha: ${{ fromJSON(steps.get-pr-info.outputs.pr-info).base.sha }}
+          sha: ${{ fromJSON(steps.get-pr-info.outputs.pr-info).head.sha }}
           files_yaml: |
             dev:
               - dev/dockerfiles/devel/main.Dockerfile
             src:
-              - node/yarn.lock
-              - node/lerna.json
-              - node/package.json
-              - node/modules/**/*.c
-              - node/modules/**/*.h
-              - node/modules/**/*.ts
-              - node/modules/**/*.js
-              - node/modules/**/*.cu
-              - node/modules/**/*.cuh
-              - node/modules/**/*.cpp
-              - node/modules/**/*.hpp
-              - node/modules/**/*.json
-              - node/modules/**/*.cmake
-              - node/modules/**/*.tsconfig
-              - node/modules/**/package.json
-              - node/modules/**/CMakeLists.txt
-
-      - name: Check if GitHub Actions or devel main Dockerfile changed
-        id: dev_changed
-        uses: rapidsai/shared-actions/changed-files@main
-        with:
-          path: node
-          files_yaml: |
+              - yarn.lock
+              - lerna.json
+              - package.json
+              - modules/**/*.c
+              - modules/**/*.h
+              - modules/**/*.ts
+              - modules/**/*.js
+              - modules/**/*.cu
+              - modules/**/*.cuh
+              - modules/**/*.cpp
+              - modules/**/*.hpp
+              - modules/**/*.json
+              - modules/**/*.cmake
+              - modules/**/*.tsconfig
+              - modules/**/package.json
+              - modules/**/CMakeLists.txt
 
       - name: Update runner env
         env:
-          dev_changed: "${{ fromJSON(steps.changed.outputs.changed_file_groups).dev == 'true' }}"
-          src_changed: "${{ fromJSON(steps.changed.outputs.changed_file_groups).src == 'true' ||
-                            fromJSON(steps.changed.outputs.changed_file_groups).src_any_deleted == 'true' }}"
+          dev_changed: "${{ steps.changed.outputs.dev_any_changed == 'true' }}"
+          src_changed: "${{ steps.changed.outputs.src_any_changed == 'true' ||
+                            steps.changed.outputs.src_any_deleted == 'true' }}"
         shell: bash
         run: |
-          VERSION="$(cat node/lerna.json | jq -r '.version')"
-          RAPIDS_VERSION="$(cat node/package.json | jq -r '.config.rapids_version')"
+          VERSION="$(cat lerna.json | jq -r '.version')"
+          RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV;
           echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
           echo "src_changed=${src_changed}" >> $GITHUB_ENV;
           echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
           echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${VERSION}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-main" >> $GITHUB_ENV;
-          echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
-          echo "\
-          -u $(id -u):$(id -g) \
-          -v $(pwd)/.yarn:/.yarn:rw \
-          -v $(pwd)/.cache:/.cache:rw \
-          -v $(pwd)/node:/opt/rapids/node:rw \
-          --env-file ${{ runner.temp }}/.env \
-          " >> $GITHUB_ENV;
-          echo "EOF" >> $GITHUB_ENV;
 
       - name: Free up disk space
         if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
-        uses: ./node/.github/actions/free-disk-space
+        uses: ./.github/actions/free-disk-space
         with:
           tool_cache: ${{ runner.tool_cache }}
 
@@ -184,21 +172,26 @@ jobs:
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          has_image="$(docker pull -q --platform linux/${{ matrix.ARCH }} ${MAIN_IMG} && echo "true" || echo "false")";
+          has_image="$(docker pull -q --platform linux/${{ matrix.ARCH }} "${MAIN_IMG}" && echo "true" || echo "false")";
           if "$has_image" || "$dev_changed"; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
             docker build --pull --force-rm \
-              --ulimit nofile=500000:500000 \
+              --ulimit "nofile=500000:500000" \
               --build-arg UCX_VERSION="${{ env.UCX }}" \
               --build-arg NODE_VERSION="${{ env.NODE }}" \
               --build-arg LINUX_VERSION="${{ matrix.LINUX }}" \
               --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
               --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-              -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
+              -f dev/dockerfiles/devel/main.Dockerfile -t "${MAIN_IMG}" .
           fi
-          docker run --rm -t ${RUN_ARGS} \
+          docker run --rm -t \
+            -u "$(id -u):$(id -g)" \
+            `# -v "$(pwd)/.yarn:/.yarn:rw"` \
+            `# -v "$(pwd)/.cache:/.cache:rw"` \
+            -v "$(pwd):/opt/rapids/node:rw" \
             -v "$HOME/.gitconfig:/etc/gitconfig" \
-            ${MAIN_IMG} bash -c "set -ex; \
-                yarn --pure-lockfile --prefer-offline \
-             && yarn build"
+            --ulimit "nofile=500000:500000" \
+            --env-file ${{ runner.temp }}/.env \
+            "${MAIN_IMG}" \
+            bash -cex "yarn --pure-lockfile --prefer-offline && yarn build"
