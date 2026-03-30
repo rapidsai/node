@@ -37,10 +37,6 @@
             "path": "modules/io"
         },
         {
-            "name": "sql",
-            "path": "modules/sql"
-        },
-        {
             "name": "deck.gl",
             "path": "modules/deck.gl"
         },
@@ -99,7 +95,7 @@
         ],
         // Configure the seaube.clangformat plugin
         "clang-format.fallbackStyle": "Google",
-        "clang-format.executable": "clang-format-17",
+        "clang-format.executable": "clang-format-18",
         "clang-format.language.typescript.enable": true,
         "debug.terminal.clearBeforeReusing": true,
         // Configure ESLint plugin
@@ -128,7 +124,6 @@
             "./node-rapids/modules/demo",
             "./node-rapids/modules/glfw",
             "./node-rapids/modules/webgl",
-            "./node-rapids/modules/sql",
             "./node-rapids/modules/io"
         ],
         "eslint.options": {
@@ -154,24 +149,29 @@
             "**/.DS_Store": true,
         },
         "files.watcherExclude": {
-            "**/.git/objects/**": true,
-            "**/.git/subtree-cache/**": true,
-            "**/build/**": true,
+            "**/.git/**": true,
             "**/.next/**": true,
             "**/.cache/**": true,
             "**/.cmake-js/**": true,
-            "**/node_modules/**": true
+            "**/.vscode/**": true,
+            "**/_build/**": true,
+            "**/build/**": true,
+            "**/node_modules/**": true,
         },
         "search.exclude": {
+            "**/.env": false,
             "**/napi.h": false,
             "**/napi-inl.h": false,
             "**/napi-inl.deprecated.h": false,
             "**/node_api.h": false,
-            "**/build/**": true,
+            "**/.git/**": true,
             "**/.next/**": true,
             "**/.cache/**": true,
             "**/.cmake-js/**": true,
-            "**/node_modules/**": true
+            "**/.vscode/**": true,
+            "**/_build/**": true,
+            "**/build/**": true,
+            "**/node_modules/**": true,
         },
         "terminal.integrated.cwd": "${workspaceFolder:node-rapids}",
         "terminal.integrated.enableFileLinks": "on",
