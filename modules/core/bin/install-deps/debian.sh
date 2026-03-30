@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
+set -Eeuo pipefail
 
 APT_DEPS=""
 CMAKE_OPTS=""

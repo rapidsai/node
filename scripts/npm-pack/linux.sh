@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
+set -Eeuo pipefail
 
 rm -rf "$PWD/build"
 mkdir -p "$PWD/build"

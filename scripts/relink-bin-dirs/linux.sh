@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
+set -Eeuo pipefail
 
 TOP="$(pwd)"
 BIN="$(realpath node_modules/.bin)"

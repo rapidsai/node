@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
+set -Eeuo pipefail
 
-SCRIPT_DIR=$(dirname "$(realpath "$0")")
-IS_DEBIAN=$(. /etc/os-release;[ "$ID_LIKE" = "debian" ] && echo 1 || echo 0)
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+IS_DEBIAN="$(. /etc/os-release; [ "$ID_LIKE" = "debian" ] && echo true || echo false)"
 
-if [ $IS_DEBIAN ]; then
+if $IS_DEBIAN; then
     source "$SCRIPT_DIR/debian.sh"
 fi
 
