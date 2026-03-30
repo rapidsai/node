@@ -117,24 +117,24 @@ jobs:
         with:
           tool_cache: ${{ runner.tool_cache }}
 
-      - name: Cache C++ dependencies
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
-          path: |
-            node/.cache/binary
-            node/.cache/source
+      # - name: Cache C++ dependencies
+      #   if: env.dev_changed == 'true' || env.src_changed == 'true'
+      #   uses: actions/cache@v2
+      #   with:
+      #     key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
+      #     path: |
+      #       node/.cache/binary
+      #       node/.cache/source
 
-      - name: Cache node_modules
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
-          path: |
-            .yarn
-            .cache
-            node/node_modules
+      # - name: Cache node_modules
+      #   if: env.dev_changed == 'true' || env.src_changed == 'true'
+      #   uses: actions/cache@v2
+      #   with:
+      #     key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+      #     path: |
+      #       .yarn
+      #       .cache
+      #       node/node_modules
 
       - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
