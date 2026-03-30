@@ -13,10 +13,11 @@ jobs:
   build-pull-request:
     name: Build pull request
     # runs-on: ubuntu-20.04
-    runs-on: linux-amd64-cpu4
+    runs-on: linux-${{ matrix.ARCH }}-cpu8
     strategy:
       fail-fast: true
       matrix:
+        ARCH: ["amd64", "arm64"]
         CUDA: ["12.9.1", "13.1.1"]
         LINUX: ["ubuntu24.04"]
     env:
@@ -135,43 +136,60 @@ jobs:
             .cache
             node/node_modules
 
+      - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 43200 # 12h
+
       - name: Make container .env
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          n_archs=2
-          PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
-          threads=$((PARALLEL_LEVEL / n_archs))
-          if [[ "$threads" == 0 ]]; then
-            threads=1;
-          fi
           cat << EOF > "${{ runner.temp }}/.env"
-          CUDAARCHS=ALL
-          PARALLEL_LEVEL=${threads}
-          NVCC_APPEND_FLAGS=--threads=${n_archs}
+          CUDAARCHS=RAPIDS
+          PARALLEL_LEVEL=500000
+          NVCC_APPEND_FLAGS=-t=100
           RAPIDS_VERSION=${RAPIDS_VERSION}
-          SCCACHE_REGION=us-west-2
-          SCCACHE_IDLE_TIMEOUT=32768
-          SCCACHE_BUCKET=node-rapids-sccache
+          SCCACHE_IDLE_TIMEOUT=0
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
+          SCCACHE_REGION=${{ vars.AWS_REGION }}
+          SCCACHE_BUCKET=rapids-sccache-devs
+          SCCACHE_S3_KEY_PREFIX=/node
+          SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
+          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX=/node/preprocessor
+          SCCACHE_DIST_FALLBACK_TO_LOCAL_COMPILE=false
+          SCCACHE_DIST_MAX_RETRIES=inf
+          SCCACHE_DIST_REQUEST_TIMEOUT=7140
+          SCCACHE_DIST_SCHEDULER_URL=https://${{ matrix.ARCH }}.linux.sccache.rapids.nvidia.com
+          SCCACHE_DIST_AUTH_TYPE=token
           EOF
 
           echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
 
           cat << EOF >> "${{ runner.temp }}/.env"
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SESSION_TOKEN=${{ env.AWS_SESSION_TOKEN }}
+          AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }}
+          SCCACHE_DIST_AUTH_TOKEN=$(
+            curl -fsSL -H "Authorization: Bearer $(
+              curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=token.rapids.nvidia.com" \
+            | jq -r '.value'
+            )" https://token.rapids.nvidia.com/gh/token/exchange \
+          | jq -r '.token')
           EOF
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash
         run: |
-          has_image="$(docker pull -q --platform linux/amd64 ${MAIN_IMG} && echo 1 || echo 0)";
-          if [[ ${has_image} == '0' || ${dev_changed} == 'true' ]]; then
+          has_image="$(docker pull -q --platform linux/${{ matrix.ARCH }} ${MAIN_IMG} && echo "true" || echo "false")";
+          if "$has_image" || "$dev_changed"; then
             DOCKER_BUILDKIT=1 \
             DOCKER_SCAN_SUGGEST=false \
             docker build --pull --force-rm \
+              --ulimit nofile=500000:500000 \
               --build-arg UCX_VERSION="${{ env.UCX }}" \
               --build-arg NODE_VERSION="${{ env.NODE }}" \
               --build-arg LINUX_VERSION="${{ matrix.LINUX }}" \
@@ -180,8 +198,6 @@ jobs:
               -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
           fi
           docker run --rm -t ${RUN_ARGS} \
-            -v "$HOME/.ssh:$HOME/.ssh" \
-            -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/etc/gitconfig" \
             ${MAIN_IMG} bash -c "set -ex; \
                 yarn --pure-lockfile --prefer-offline \
