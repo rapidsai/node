@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ !contains(runner.name, 'rapidsai') }}" >> $GITHUB_ENV
+          echo "is_gha_runner=${{ runner.environment == 'self-hosted' }}" >> $GITHUB_ENV
           echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
           echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
           echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
@@ -38,7 +38,7 @@ jobs:
         if: env.is_gha_runner != 'true'
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs openssh-client
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
