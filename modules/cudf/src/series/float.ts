@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -310,7 +310,7 @@ export abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries
   /** @inheritdoc */
   minmax(skipNulls = true, memoryResource?: MemoryResource) {
     return (skipNulls ? this.nansToNulls().dropNulls() : this.nansToNulls())
-             ._col.minmax(memoryResource) as [number, number];
+      ._col.minmax(memoryResource);
   }
 
   /** @inheritdoc */

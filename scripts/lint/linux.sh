@@ -45,5 +45,5 @@ echo "Running ESLint (on up to $jobs cores)...";
 time                                                         \
     xargs -d'\n' -I% -P$jobs                                 \
         <<< "$tsc_files"                                     \
-    node_modules/.bin/eslint --ignore-path .gitignore $fix_ %;
+    node_modules/.bin/eslint --ignore-pattern .gitignore $fix_ %;
 echo "";

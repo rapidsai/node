@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ export function installObjectURL(tmpdir: string) {
 
     function revokeObjectURL(url: any) {
       if (map.has(url)) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const p = map.get(url)!;
         map.delete(url);
         unlinkSync(p);

@@ -19,7 +19,7 @@ import {DeviceBuffer} from '@rapidsai/rmm';
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 describe('dataframe.concat', () => {
-  test('zero series in common same types', async () => {
+  test('zero series in common same types', () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new([5, 6, 7, 8]);
     const dfa = new DataFrame({'a': a});

@@ -37,7 +37,6 @@ interface OpenGLESRenderingContext extends WebGL2RenderingContext {
   _clearMask: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 const OpenGLESRenderingContext: OpenGLESRenderingContext = gl.WebGL2RenderingContext;
 
 OpenGLESRenderingContext.prototype.webgl1        = false;
@@ -121,7 +120,6 @@ function getBufferSubData(this: WebGL2RenderingContext,
                           dst: ArrayBufferView,
                           dstOffset: GLuint = 0,
                           length?: GLuint): void {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const arr  = ArrayBuffer.isView(dst) ? <Uint8Array>dst : toArrayBufferViewSlice(dst, dstOffset)!;
   const size = typeof length === 'undefined' ? arr.byteLength : length * arr.BYTES_PER_ELEMENT;
   return gl_getBufferSubData.call(this, target, srcByteOffset, size, arr);
@@ -147,11 +145,12 @@ function getShaderInfoLog(this: WebGL2RenderingContext, shader: WebGLShader): st
     .map((line) => {
       let errIndex, numIndex, errMatch, numMatch, type, num;
       ({index: errIndex, [0]: errMatch, [1]: type} =
-         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) || {index: undefined, 0: '', 1: ''});
+
+         (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) ||
+         {index: undefined, 0: '', 1: ''});
       ({index: numIndex, [0]: numMatch, [1]: num} =
-         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (line.match(/0\((\d+)\) :/) || {index: undefined, 0: '', 1: ''}));
+
+         (line.match(/0\((\d+)\) :/) || {index: undefined, 0: '', 1: ''}));
       if (errIndex !== undefined && numIndex !== undefined && errMatch && type && numMatch && num) {
         return `${type.toUpperCase()}:${line.slice(errIndex + errMatch.length)}:${num}${
           line.slice(numIndex + numMatch.length)}`;
@@ -618,7 +617,6 @@ if (Boolean(process.env.NVIDIA_NODE_WEBGL_TRACE_CALLS) === true) {
 
 //@ts-ignore
 function wrapAndLogGLMethods(proto: any) {
-  /* eslint-disable @typescript-eslint/restrict-template-expressions */
   const listToString = (x: any) => {
     if (x.length < 10) { return `(length=${x.length}, values=[${x}])`; }
     return `(length=${x.length}, values=[${x.slice(0, 3)}, ... ${
@@ -688,13 +686,12 @@ function pixelsFromImage(source: TexImageSource, width: number, height: number) 
       (typeof HTMLVideoElement !== 'undefined') && (source instanceof HTMLVideoElement) &&
         source.ownerDocument) {
     const canvas = source.ownerDocument.createElement('canvas');
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
     const context = Object.assign(canvas, {width, height}).getContext('2d')!;
     context.drawImage(source, 0, 0);
     return context.getImageData(0, 0, width, height).data;
   }
   if (source && typeof (<any>source).getContext === 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const context = (<any>source).getContext('2d');
     if (context && typeof context.getImageData === 'function') {
       const imageData = context.getImageData(0, 0, width, height);

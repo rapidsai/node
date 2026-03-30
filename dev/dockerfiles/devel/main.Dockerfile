@@ -2,7 +2,7 @@
 ARG TARGETARCH
 ARG AMD64_BASE
 ARG ARM64_BASE
-ARG NODE_VERSION=16.20.2
+ARG NODE_VERSION=24.14.1
 
 # Install latest ninja
 FROM alpine:latest AS ninja-amd64
@@ -20,7 +20,7 @@ ARG TARGETARCH
 
 RUN unzip -d /usr/bin -o /tmp/ninja-linux.zip && chmod +x /usr/bin/ninja
 
-FROM node:$NODE_VERSION-bullseye-slim as node
+FROM node:$NODE_VERSION-trixie-slim as node
 
 FROM ${AMD64_BASE} as base-amd64
 
@@ -57,7 +57,7 @@ ${CUDA_HOME}/lib64/stubs"
 ARG CMAKE_VERSION=4.2.3
 ARG LINUX_VERSION=ubuntu24.04
 
-ARG NODE_VERSION=16.20.2
+ARG NODE_VERSION=24.14.1
 ENV NODE_VERSION=$NODE_VERSION
 
 # Install ninja

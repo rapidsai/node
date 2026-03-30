@@ -18,6 +18,6 @@ pkgs="$(lerna run ${args} --no-prefix --scope '@rapidsai/*' dev:cpack:enabled)";
 args+=" $(for name in ${pkgs}; do echo "--scope $name"; done)";
 
 lerna exec ${args} "\
-cd build/Release \
+cd _build/Release \
 && cpack -G TGZ && rm -rf _CPack_Packages \
 && mv ./rapidsai_*-*-*.tar.gz \$LERNA_ROOT_PATH/build/"

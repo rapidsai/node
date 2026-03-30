@@ -18,18 +18,18 @@ ARG SCCACHE_IDLE_TIMEOUT
 
 RUN echo -e "build env:\n$(env)"
 
-COPY --chown=rapids:rapids .npmrc        /home/node/.npmrc
-COPY --chown=rapids:rapids .npmrc        .npmrc
-COPY --chown=rapids:rapids .yarnrc       .yarnrc
-COPY --chown=rapids:rapids .eslintrc.js  .eslintrc.js
-COPY --chown=rapids:rapids LICENSE       LICENSE
-COPY --chown=rapids:rapids typedoc.js    typedoc.js
-COPY --chown=rapids:rapids lerna.json    lerna.json
-COPY --chown=rapids:rapids tsconfig.json tsconfig.json
-COPY --chown=rapids:rapids package.json  package.json
-COPY --chown=rapids:rapids yarn.lock     yarn.lock
-COPY --chown=rapids:rapids scripts       scripts
-COPY --chown=rapids:rapids modules       modules
+COPY --chown=rapids:rapids .npmrc           /home/node/.npmrc
+COPY --chown=rapids:rapids .npmrc           .npmrc
+COPY --chown=rapids:rapids .yarnrc          .yarnrc
+COPY --chown=rapids:rapids eslint.config.js eslint.config.js
+COPY --chown=rapids:rapids LICENSE          LICENSE
+COPY --chown=rapids:rapids typedoc.js       typedoc.js
+COPY --chown=rapids:rapids lerna.json       lerna.json
+COPY --chown=rapids:rapids tsconfig.json    tsconfig.json
+COPY --chown=rapids:rapids package.json     package.json
+COPY --chown=rapids:rapids yarn.lock        yarn.lock
+COPY --chown=rapids:rapids scripts          scripts
+COPY --chown=rapids:rapids modules          modules
 
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
 

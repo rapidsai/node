@@ -38,7 +38,7 @@ export function installFetch(window: jsdom.DOMWindow) {
     if (isFilePath) {
       if (url.startsWith('/')) { url = url.slice(1); }
       const loader = new jsdom.ResourceLoader();
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       return loader
         .fetch(`file://localhost/${cwd}/${url}`, options)!  //
         .then((x) => new Response(x as any, {

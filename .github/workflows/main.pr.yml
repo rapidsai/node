@@ -21,7 +21,7 @@ jobs:
         LINUX: ["ubuntu24.04"]
     env:
       UCX: "1.20.0"
-      NODE: "16.20.2"
+      NODE: "24.14.1"
       REGISTRY: "ghcr.io"
     steps:
       - name: Dump runner context

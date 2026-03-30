@@ -211,7 +211,7 @@ export class UMAP {
   fitArray(features: (bigint|number|null|undefined)[],
            target?: (bigint|number|null|undefined)[]|null,
            nFeatures?: number): FittedUMAP;
-  fitArray(features: any, target?: any|null, nFeatures = 1) {
+  fitArray(features: any, target?: any, nFeatures = 1) {
     return this.fitSeries(Series.new(features), target && Series.new(target), nFeatures);
   }
 

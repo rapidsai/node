@@ -119,4 +119,5 @@ export interface UMAP {
 
   graph(options?: GetGraphProps): COO;
 }
+
 export const UMAP: UMAPConstructor = CUML.UMAP;

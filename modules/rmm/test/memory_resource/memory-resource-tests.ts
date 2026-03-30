@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import {sizes} from '../utils';
 import {memoryResourceTestConfigs} from './utils';
 
 describe.each(memoryResourceTestConfigs)(`%s`, (_, testConfig) => {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {comparable, createMemoryResource} = testConfig;
 
   test(`MemoryResource Constructor`, () => {

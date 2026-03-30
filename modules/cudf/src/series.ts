@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
+
 import {
   Float32Buffer,
   Float64Buffer,
@@ -779,7 +781,7 @@ export class AbstractSeries<T extends DataType = any> {
       });
 
       // 3. Replace missing codes with `nullSentinel`.
-      return codes.replaceNulls(nullSentinel, memoryResource) as Series<R>;
+      return (codes as any).replaceNulls(nullSentinel as any, memoryResource) as Series<R>;
     }, [this, categories]);
   }
 
@@ -855,6 +857,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([null, true, true]).replaceNulls(false) // [true, true, true]
    * ```
    */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   replaceNulls(value: T['scalarType']|any, memoryResource?: MemoryResource): Series<T>;
 
   /**
@@ -1251,10 +1254,7 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Copy a Series to an Arrow vector in host memory
    */
-  toArrow() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!;
-  }
+  toArrow() { return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!; }
 
   /**
    * Generate an ordering that sorts the Series in a specified way.
@@ -1489,7 +1489,6 @@ export class AbstractSeries<T extends DataType = any> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Series = AbstractSeries;
 
 import {Bool8Series} from './series/bool';
@@ -1714,7 +1713,7 @@ const columnToSeries = (() => {
     visitMany<T extends DataType>(columns: Column<T>[]): Series<T>[];
     getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T>;
   }
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+
   class ColumnToSeriesVisitor extends arrow.Visitor {
     public visit<T extends DataType>(col: Column<T>): Series<T> {
       for (let i = -1, n = col.numChildren; ++i < n;) {
@@ -1823,7 +1822,7 @@ const columnToSeries = (() => {
     // public visitMap                  <T extends Map>(col: Column<T>) { return new (MapSeries as any)(col); }
     // clang-format on
   }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+
   const visitor = new ColumnToSeriesVisitor();
   return function columnToSeries<T extends DataType>(column: Column<T>) {
     return visitor.visit(column);

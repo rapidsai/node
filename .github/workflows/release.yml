@@ -41,7 +41,7 @@ jobs:
       matrix:
         CUDA: ["12.9.1", "13.1.1"]
         ARCH: ["amd64", "arm64"]
-        NODE: ["16.20.2"]
+        NODE: ["24.14.1"]
         LINUX: ["ubuntu24.04"]
     steps:
       - name: Extract node native addons
@@ -96,7 +96,7 @@ jobs:
       matrix:
         CUDA: ["12.9.1", "13.1.1"]
         ARCH: ["amd64"]
-        NODE: ["16.20.2"]
+        NODE: ["24.14.1"]
         LINUX: ["ubuntu24.04"]
     steps:
       - name: Publish npm packages

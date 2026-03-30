@@ -116,7 +116,7 @@ export function setDefaultAllocator(allocate?: null|((byteLength: number) => Mem
 /**
  * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+
 export interface MemoryView<T extends TypedArray|BigIntArray = any> extends ArrayBufferView<any> {
   /**
    * @summary The size in bytes of each element in the MemoryView.
@@ -344,7 +344,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                             case 'number':
                               if (i > -1 && i < receiver.length) {
                                 const {byteOffset, BYTES_PER_ELEMENT, E} = receiver;
-                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
                                 receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
                                 cudaMemcpy(E, receiver, BYTES_PER_ELEMENT);
                                 receiver.byteOffset = byteOffset;
@@ -364,7 +364,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                             case 'number':
                               if (i > -1 && i < receiver.length) {
                                 const {byteOffset, BYTES_PER_ELEMENT, E} = receiver;
-                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
                                 receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
                                 E[0]                = value;
                                 cudaMemcpy(receiver, E, BYTES_PER_ELEMENT);

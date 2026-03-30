@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
+
 import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
@@ -55,7 +57,7 @@ class DataToColumnVisitor extends arrow.Visitor {
     return new Column({
       type: new Bool8,
       data:
-        // eslint-disable-next-line @typescript-eslint/unbound-method
+
         new Uint8Array(new arrow.util.BitIterator(values, 0, data.length, null, arrow.util.getBit)),
       nullMask
     });
@@ -176,7 +178,7 @@ class DataToColumnVisitor extends arrow.Visitor {
   visitDictionary<T extends arrow.Dictionary>(data: arrow.Data<T>) {
     const {type, length, nullBitmap: nullMask} = data;
     const codes = this.visit(data.clone(type.indices)).cast(new Int32);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
     const categories = fromArrow(data.dictionary!);
     return new Column(
       {length, type: new Categorical(categories.type), nullMask, children: [codes, categories]});

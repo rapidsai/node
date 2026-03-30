@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import '../jest-extensions';
 
 import {setDefaultAllocator} from '@rapidsai/cuda';

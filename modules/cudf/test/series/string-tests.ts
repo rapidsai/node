@@ -129,9 +129,8 @@ test('getJSONObject', () => {
     [{goat: {id: 0, species: 'Capra Hircus'}}, {leopard: {id: 1, species: 'Panthera pardus'}}];
   const a = Series.new(object_data.map((x) => JSON.stringify(x)));
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   expect(JSON.parse(a.getJSONObject('$.goat').getValue(0)!)).toEqual(object_data[0].goat);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   expect(JSON.parse(a.getJSONObject('$.leopard').getValue(1)!)).toEqual(object_data[1].leopard);
 
   const b = Series.new(['']).getJSONObject('');

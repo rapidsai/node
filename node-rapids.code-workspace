@@ -127,7 +127,7 @@
             "./node-rapids/modules/io"
         ],
         "eslint.options": {
-            "configFile": ".eslintrc.js"
+            "configFile": "eslint.config.js"
         },
         "git.ignoreLimitWarning": true,
         "markdownlint.config": {

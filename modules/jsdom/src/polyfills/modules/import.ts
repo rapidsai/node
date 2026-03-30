@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,13 +58,13 @@ export function createModuleLinker(
         // If CJS throws, try importing as ESM
         return tryImport(opts, assertions);
       } catch (e2: any) {  //
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw[e1, e2];
       }
     }
   }
 
   function tryRequire(opts: vm.SyntheticModuleOptions, assertions: {[key: string]: any}) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const path    = opts.identifier!;
     const exports = require(path);
     if (!exports[ESMSyntheticModule]) {
@@ -82,7 +82,6 @@ export function createModuleLinker(
   }
 
   function tryImport(opts: vm.SourceTextModuleOptions, assertions: {[key: string]: any}) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const path = opts.identifier!;
     const dir  = Path.dirname(path);
     const ext  = Path.extname(path);

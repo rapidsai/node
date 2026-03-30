@@ -104,10 +104,7 @@ async function readChildProcessOutput(proc: ChildProcessByStdio<Writable, Readab
   const {stdout} = proc;
   return (async () => {
     for await (const chunk of stdout) {
-      if (chunk) {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        return '' + chunk;
-      }
+      if (chunk) { return '' + chunk; }
     }
     return '';
   })();

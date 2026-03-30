@@ -41,7 +41,7 @@ on:
       node-version:
         type: string
         required: false
-        default: "16.20.2"
+        default: "24.14.1"
       files-to-diff:
         default: ""
         type: string
