@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,45 +19,45 @@
 
 #include <cudf/unary.hpp>
 
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
 
 namespace nv {
 
 Column::wrapper_t Column::cast(cudf::data_type out_type,
                                rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::cast(*this, out_type, mr));
+    return Column::New(Env(), cudf::cast(*this, out_type, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_null(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::is_null(*this, mr));
+    return Column::New(Env(), cudf::is_null(*this, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_valid(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::is_valid(*this, mr));
+    return Column::New(Env(), cudf::is_valid(*this, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_nan(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::is_nan(*this, mr));
+    return Column::New(Env(), cudf::is_nan(*this, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::is_not_nan(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::is_not_nan(*this, mr));
+    return Column::New(Env(), cudf::is_not_nan(*this, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::unary_operation(cudf::unary_operator op,
                                           rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::unary_operation(*this, op, mr));
+    return Column::New(Env(), cudf::unary_operation(*this, op, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

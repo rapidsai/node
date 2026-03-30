@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ function bufferData(this: WebGL2RenderingContext,
                     srcByteLength?: GLuint): void;
 function bufferData(
   this: WebGL2RenderingContext,
-  ...args: [GLenum, GLsizeiptr|BufferSource|null, GLenum, GLuint?, GLuint?]): void {
+  ...args: [GLenum, GLsizeiptr|BufferSource|ArrayBufferView|null, GLenum, GLuint?, GLuint?]): void {
   let [target, src, usage, srcOffset, srcByteLength] = args;
   if (args.length > 3 && src !== null && typeof src !== 'number' && typeof srcOffset === 'number') {
     let BPM, arr = ArrayBuffer.isView(src) ? src : new Uint8Array(src);
@@ -205,8 +205,8 @@ function texImage2D(this: WebGL2RenderingContext, ...args: [
   GLenum,
   GLint,
   GLint,
-  GLsizei|GLenum,
-  GLsizei|GLenum,
+  GLsizei,
+  GLsizei,
   GLint|TexImageSource,
   GLenum?,
   GLenum?,
@@ -241,8 +241,9 @@ function texImage2D(this: WebGL2RenderingContext, ...args: [
       if (args[8] && typeof args[8] === 'object') {
         [target, level, internalformat, width, height, border, format, type, src] =
           (args as [GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, TexImageSource]);
-        [width = src.width, height = src.height] = [width, height];
-        src                                      = pixelsFromImage(src, width, height);
+        width  = width ?? (src as any).width ?? (src as any).displayWidth;
+        height = height ?? (src as any).height ?? (src as any).displayHeight;
+        src    = pixelsFromImage(src, width, height);
         break;
       }
       throw new TypeError('WebGLRenderingContext texImage2D() invalid texture source');
@@ -309,8 +310,8 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [
   GLint,
   GLint,
   GLint,
-  GLenum|GLsizei,
-  GLenum|GLsizei,
+  GLenum,
+  GLenum,
   GLenum|TexImageSource,
   GLenum?,
   (GLintptr | TexImageSource | ArrayBufferView | null)?,
@@ -321,7 +322,9 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [
     case 7: {
       [target, level, x, y, format, type, src] =
         (args as [GLenum, GLint, GLint, GLint, GLenum, GLenum, TexImageSource]);
-      src = pixelsFromImage(src, width = src.width, height = src.height);
+      width  = width ?? (src as any).width ?? (src as any).displayWidth;
+      height = height ?? (src as any).height ?? (src as any).displayHeight;
+      src    = pixelsFromImage(src, width, height);
       break;
     }
     case 8:
@@ -350,8 +353,9 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [
       if (args[8] && typeof args[8] === 'object') {
         [target, level, x, y, width, height, format, type, src] =
           (args as [GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, TexImageSource]);
-        [width = src.width, height = src.height] = [width, height];
-        src                                      = pixelsFromImage(src, width, height);
+        width  = width ?? (src as any).width ?? (src as any).displayWidth;
+        height = height ?? (src as any).height ?? (src as any).displayHeight;
+        src    = pixelsFromImage(src, width, height);
         break;
       }
       throw new TypeError('WebGLRenderingContext texSubImage2D() invalid texture source');

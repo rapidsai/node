@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
+#include <cudf/json/json.hpp>
 #include <cudf/stream_compaction.hpp>
-#include <cudf/strings/json.hpp>
 #include <cudf/types.hpp>
 
 #include <napi.h>
@@ -125,8 +125,8 @@ inline NapiToCPP::operator cudf::duplicate_keep_option() const {
 }
 
 template <>
-inline NapiToCPP::operator cudf::strings::get_json_object_options() const {
-  cudf::strings::get_json_object_options opts{};
+inline NapiToCPP::operator cudf::get_json_object_options() const {
+  cudf::get_json_object_options opts{};
   if (IsObject()) {
     auto obj = ToObject();
     opts.set_allow_single_quotes(obj.Get("allowSingleQuotes").ToBoolean());

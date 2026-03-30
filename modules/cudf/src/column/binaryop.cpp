@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,8 +47,10 @@ Column::wrapper_t Column::binary_operation(Column const& rhs,
                                            cudf::type_id output_type,
                                            rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(rhs.Env(),
-                       cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
+    return Column::New(
+      rhs.Env(),
+      cudf::binary_operation(
+        *this, rhs, op, cudf::data_type{output_type}, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -57,8 +59,10 @@ Column::wrapper_t Column::binary_operation(Scalar const& rhs,
                                            cudf::type_id output_type,
                                            rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(rhs.Env(),
-                       cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
+    return Column::New(
+      rhs.Env(),
+      cudf::binary_operation(
+        *this, rhs, op, cudf::data_type{output_type}, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

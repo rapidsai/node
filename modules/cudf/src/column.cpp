@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -187,7 +187,9 @@ Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column
 
   props.Set("offset", 0);
   props.Set("length", column->size());
-  props.Set("nullCount", column->null_count());
+  if (column->nullable() && column->null_count() > 0) {
+    props.Set("nullCount", column->null_count());
+  }
 
   auto type     = column->type();
   auto contents = column->release();
@@ -212,6 +214,8 @@ Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column
 }
 
 Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
+  auto stream = nv::get_default_stream();
+
   auto env = args.Env();
 
   NODE_CUDF_EXPECT(args[0].IsObject(), "Column constructor expects an Object of properties", env);
@@ -229,7 +233,16 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
             : props.Has("nullMask")     ? props.Get("nullMask").As<Napi::Value>()
                                         : env.Null();
 
-  auto has_length = props.Has("length") && props.Get("length").IsNumber();
+  auto has_length   = props.Has("length") && props.Get("length").IsNumber();
+  auto get_children = [&]() {
+    auto objs = props.Get("children").As<Napi::Array>();
+    auto cols = std::vector<Napi::Reference<Column::wrapper_t>>();
+    cols.reserve(objs.Length());
+    for (uint32_t i = 0; i < objs.Length(); ++i) {
+      cols.push_back(Napi::Persistent(Column::wrapper_t{objs.Get(i).ToObject()}));
+    }
+    return cols;
+  };
 
   switch (type().id()) {
     case cudf::type_id::INT8:
@@ -248,69 +261,73 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     case cudf::type_id::TIMESTAMP_MILLISECONDS:
     case cudf::type_id::TIMESTAMP_MICROSECONDS:
     case cudf::type_id::TIMESTAMP_NANOSECONDS: {
-      data_ = Napi::Persistent(data_to_devicebuffer(env, props.Get("data"), type()));
+      data_ = Napi::Persistent(data_to_devicebuffer(env, props.Get("data"), type(), stream));
       size_ =
         has_length
           ? props.Get("length")
           : std::max(0, cudf::size_type(data_.Value()->size() / cudf::size_of(type())) - offset_);
       null_mask_ =
-        Napi::Persistent(mask.IsNull() ? data_to_null_bitmask(env, props.Get("data"), size_)
-                                       : mask_to_null_bitmask(env, mask, size_));
+        Napi::Persistent(mask.IsNull() ? data_to_null_bitmask(env, props.Get("data"), size_, stream)
+                                       : mask_to_null_bitmask(env, mask, size_, stream));
       break;
     }
-    case cudf::type_id::LIST:
-    case cudf::type_id::STRING:
-    case cudf::type_id::DICTIONARY32: {
-      [&](Napi::Array const& children) {
-        children_.reserve(children.Length());
-        for (uint32_t i = 0; i < children.Length(); ++i) {
-          children_.push_back(Napi::Persistent(Column::wrapper_t{children.Get(i).ToObject()}));
-        }
-      }(props.Get("children").As<Napi::Array>());
-      data_      = Napi::Persistent(DeviceBuffer::New(env));
+    case cudf::type_id::STRING: {
+      children_  = get_children();
+      data_      = Napi::Persistent(data_to_devicebuffer(
+        env, props.Get("data"), cudf::data_type{cudf::type_id::UINT8}, stream));
       size_      = has_length ? props.Get("length")
                               : std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
-      null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
+      null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_, stream));
+      break;
+    }
+    case cudf::type_id::LIST: {
+      children_  = get_children();
+      data_      = Napi::Persistent(DeviceBuffer::New(env, stream));
+      size_      = has_length ? props.Get("length")
+                              : std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
+      null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_, stream));
+      break;
+    }
+    case cudf::type_id::DICTIONARY32: {
+      children_  = get_children();
+      data_      = Napi::Persistent(DeviceBuffer::New(env, stream));
+      size_      = has_length ? props.Get("length")
+                              : std::max(0, (num_children() > 0 ? child(0)->size() : 0) - offset_);
+      null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_, stream));
       break;
     }
     case cudf::type_id::STRUCT: {
-      [&](Napi::Array const& children) {
-        children_.reserve(children.Length());
-        for (uint32_t i = 0; i < children.Length(); ++i) {
-          children_.push_back(Napi::Persistent(Column::wrapper_t{children.Get(i).ToObject()}));
-        }
-      }(props.Get("children").As<Napi::Array>());
-      data_ = Napi::Persistent(DeviceBuffer::New(env));
-      if (num_children() > 0) {
-        size_ = has_length ? props.Get("length") : std::max(0, child(0)->size() - offset_);
-        for (cudf::size_type i = 0; ++i < num_children();) {
-          NODE_CUDF_EXPECT((child(i)->size() - offset_) == size_,
-                           "Struct column children must be the same size",
-                           env);
-        }
+      children_ = get_children();
+      data_     = Napi::Persistent(DeviceBuffer::New(env, stream));
+      size_     = has_length ? props.Get("length")
+                             : std::max(0, (num_children() > 0 ? child(0)->size() : 0) - offset_);
+      for (cudf::size_type i = 0; ++i < num_children();) {
+        NODE_CUDF_EXPECT((child(i)->size() - offset_) == size_,
+                         "Struct column children must be the same size",
+                         env);
       }
-      null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
+      null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_, stream));
       break;
     }
     default: break;
   }
 
-  // size_ = props.Has("length") ? props.Get("length") : size_;
-
   set_null_count([&]() -> cudf::size_type {
-    if (!nullable()) { return 0; }
-    if (props.Has("nullCount")) {
+    if (!nullable()) {
+      return 0;
+    } else if (Column::IsInstance(props)) {
+      Column::wrapper_t col = props.val;
+      return col->null_count_;
+    } else if (props.Has("nullCount")) {
       auto val = props.Get("nullCount");
-      if (val.IsNumber()) {
-        return std::max(cudf::UNKNOWN_NULL_COUNT, val.ToNumber().Int32Value());
-      }
+      if (val.IsNumber()) { return std::max(-1, val.ToNumber().Int32Value()); }
       if (val.IsBigInt()) {
         bool lossless{false};
-        return std::max(cudf::UNKNOWN_NULL_COUNT,
+        return std::max(-1,
                         static_cast<cudf::size_type>(val.As<Napi::BigInt>().Int64Value(&lossless)));
       }
     }
-    return cudf::UNKNOWN_NULL_COUNT;
+    return -1;
   }());
 }
 
@@ -358,12 +375,12 @@ cudf::size_type Column::null_count() const {
   CUDF_FUNC_RANGE();
   if (!nullable()) {
     null_count_ = 0;
-  } else if (null_count_ <= cudf::UNKNOWN_NULL_COUNT) {
+  } else if (null_count_ <= -1) {
     try {
       null_count_ =
-        cudf::detail::count_unset_bits(*null_mask(), 0, size_, rmm::cuda_stream_default);
+        cudf::detail::count_unset_bits(*null_mask(), 0, size_, nv::get_default_stream());
     } catch (std::exception const& e) {
-      null_count_ = cudf::UNKNOWN_NULL_COUNT;
+      null_count_ = -1;
       NAPI_THROW(Napi::Error::New(Env(), e.what()));
     }
   }
@@ -372,7 +389,7 @@ cudf::size_type Column::null_count() const {
 
 void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new_null_count) {
   if (new_null_mask.IsNull() or new_null_mask.IsUndefined() or !new_null_mask.IsObject()) {
-    null_mask_ = Napi::Persistent(DeviceBuffer::New(new_null_mask.Env()));
+    null_mask_ = Napi::Persistent(DeviceBuffer::New(new_null_mask.Env(), nv::get_default_stream()));
     set_null_count(new_null_count);
   } else {
     DeviceBuffer::wrapper_t new_mask = new_null_mask.ToObject();
@@ -389,7 +406,7 @@ void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new
 
 void Column::set_null_count(cudf::size_type new_null_count) {
   NODE_CUDF_EXPECT(nullable() || new_null_count <= 0, "Invalid null count.", Env());
-  null_count_ = std::max(std::min(size_, new_null_count), cudf::UNKNOWN_NULL_COUNT);
+  null_count_ = std::max(std::min(size_, new_null_count), -1);
 }
 
 cudf::column_view Column::view() const {
@@ -404,7 +421,7 @@ cudf::column_view Column::view() const {
     child_views.emplace_back(children_[i].Value()->view());
   }
 
-  return cudf::column_view(type, size_, *data, *mask, null_count_, offset_, child_views);
+  return cudf::column_view(type, size_, *data, *mask, null_count(), offset_, child_views);
 }
 
 cudf::mutable_column_view Column::mutable_view() {
@@ -423,12 +440,14 @@ cudf::mutable_column_view Column::mutable_view() {
   // calling `null_count()`, we can avoid a potential invocation of `count_unset_bits()`. This does
   // however mean that calling `null_count()` on the resulting mutable view could still potentially
   // invoke `count_unset_bits()`.
-  auto current_null_count = null_count_;
+  // auto current_null_count = null_count_;
+
+  auto current_null_count = null_count();
 
   // The elements of a column could be changed through a `mutable_column_view`, therefore the
   // existing `null_count` is no longer valid. Reset it to `UNKNOWN_NULL_COUNT` forcing it to be
   // recomputed on the next invocation of `null_count()`.
-  set_null_count(cudf::UNKNOWN_NULL_COUNT);
+  set_null_count(-1);
 
   return cudf::mutable_column_view{
     type, size_, *data, *mask, current_null_count, offset_, child_views};
@@ -476,9 +495,8 @@ Napi::Value Column::null_mask(Napi::CallbackInfo const& info) { return null_mask
 
 void Column::set_null_mask(Napi::CallbackInfo const& info) {
   auto env  = info.Env();
-  auto mask = mask_to_null_bitmask(env, info[0], size_);
-  cudf::size_type null_count{info[0].IsNull() || info[0].IsUndefined() ? 0
-                                                                       : cudf::UNKNOWN_NULL_COUNT};
+  auto mask = mask_to_null_bitmask(env, info[0], size_, nv::get_default_stream());
+  cudf::size_type null_count{info[0].IsNull() || info[0].IsUndefined() ? 0 : -1};
   switch (info.Length()) {
     case 0: break;
     case 1: break;

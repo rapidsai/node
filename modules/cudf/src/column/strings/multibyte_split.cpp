@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,15 +83,13 @@ class device_span_data_chunk_source : public cudf::io::text::data_chunk_source {
 };
 
 Column::wrapper_t split_string_column(Napi::CallbackInfo const& info,
-                                      cudf::mutable_column_view const& col,
+                                      cudf::device_span<char const> span,
                                       std::string const& delimiter,
                                       rmm::mr::device_memory_resource* mr) {
-  /* TODO: This only splits a string column. How to generalize */
-  // Check type
-  auto span = cudf::device_span<char const>(col.child(1).data<char const>(), col.child(1).size());
-  auto datasource = device_span_data_chunk_source(span);
-  return Column::New(info.Env(),
-                     cudf::io::text::multibyte_split(datasource, delimiter, std::nullopt, mr));
+  return Column::New(
+    info.Env(),
+    cudf::io::text::multibyte_split(
+      device_span_data_chunk_source(span), delimiter, {}, nv::get_default_stream(), mr));
 }
 
 Column::wrapper_t read_text_files(Napi::CallbackInfo const& info,
@@ -99,18 +97,20 @@ Column::wrapper_t read_text_files(Napi::CallbackInfo const& info,
                                   std::string const& delimiter,
                                   rmm::mr::device_memory_resource* mr) {
   auto datasource = cudf::io::text::make_source_from_file(filename);
-  return Column::New(info.Env(),
-                     cudf::io::text::multibyte_split(*datasource, delimiter, std::nullopt, mr));
+  return Column::New(
+    info.Env(),
+    cudf::io::text::multibyte_split(*datasource, delimiter, {}, nv::get_default_stream(), mr));
 }
 
 }  // namespace
 
 Napi::Value Column::split(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  std::string const delimiter         = args[0];
-  rmm::mr::device_memory_resource* mr = args[1];
+  auto chars = this->data();
+  auto data  = static_cast<char const*>(chars->data());
+  cudf::device_span<char const> span{data, data + chars->size()};
   try {
-    return split_string_column(info, *this, delimiter, mr);
+    return split_string_column(info, span, args[0], args[1]);
   } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 

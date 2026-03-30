@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,18 +21,8 @@ import {
 } from '@rapidsai/cudf';
 
 /**
- * convert a dataframe to a single series to replicate conversion to a matrix in an organized
- * for {x1,y1,x2,y2...} for df = {x:[x1,x2], y: [y1,y2]}
- */
-export function dataframeToSeries<T extends Numeric, K extends string>(
-  input: DataFrame<{[P in K]: T}>) {
-  return input.interleaveColumns();
-}
-
-/**
  * convert a series to a dataframe as per the number of components in umapparams
  * @param input
- * @param n_samples
  * @param nComponents
  * @returns DataFrame
  */

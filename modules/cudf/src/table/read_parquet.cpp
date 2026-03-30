@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ cudf::io::parquet_reader_options make_reader_options(Napi::Object const& options
   }
 
   auto opts = std::move(cudf::io::parquet_reader_options::builder(source)
-                          .num_rows(long_opt("numRows"))
                           .convert_strings_to_categories(bool_opt("stringsToCategorical", false))
                           .use_pandas_metadata(bool_opt("usePandasMetadata", true))
                           .build());
@@ -54,11 +53,11 @@ cudf::io::parquet_reader_options make_reader_options(Napi::Object const& options
   // These cannot be both set together (cudf exception), so we only set them depending on if
   // the options contains a definition for them.
   if (!row_groups.empty()) { opts.set_row_groups(row_groups); }
+  if (has_opt("numRows")) { opts.set_num_rows(long_opt("numRows")); }
   if (has_opt("skipRows")) { opts.set_skip_rows(long_opt("skipRows")); }
 
   auto columns = napi_opt("columns");
-
-  if (!is_null(columns) && columns.IsArray()) { opts.set_columns(NapiToCPP{columns}); }
+  if (!is_null(columns) && columns.IsArray()) { opts.set_column_names(NapiToCPP{columns}); }
 
   return opts;
 }
@@ -74,21 +73,23 @@ Napi::Value read_parquet_files(Napi::Object const& options,
   return output;
 }
 
-std::vector<cudf::io::host_buffer> get_host_buffers(std::vector<Span<uint8_t>> const& sources) {
-  std::vector<cudf::io::host_buffer> buffers;
+std::vector<cudf::host_span<const char>> get_host_buffers(
+  std::vector<Span<uint8_t>> const& sources) {
+  std::vector<cudf::host_span<const char>> buffers;
   buffers.reserve(sources.size());
   std::transform(sources.begin(), sources.end(), std::back_inserter(buffers), [&](auto const& buf) {
-    return cudf::io::host_buffer{static_cast<Span<char>>(buf), buf.size()};
+    return cudf::host_span<const char>{static_cast<Span<const char>>(buf), buf.size()};
   });
   return buffers;
 }
 
 Napi::Value read_parquet_sources(Napi::Object const& options,
                                  std::vector<Span<uint8_t>> const& sources) {
-  auto env    = options.Env();
-  auto result = cudf::io::read_parquet(
-    make_reader_options(options, cudf::io::source_info{get_host_buffers(sources)}));
-  auto output = Napi::Object::New(env);
+  auto env     = options.Env();
+  auto buffers = get_host_buffers(sources);
+  auto result  = cudf::io::read_parquet(make_reader_options(
+    options, cudf::io::source_info{cudf::host_span<cudf::host_span<char const>>{buffers}}));
+  auto output  = Napi::Object::New(env);
   output.Set("names", get_output_names_from_metadata(env, result));
   output.Set("table", Table::New(env, get_output_cols_from_metadata(env, result)));
   return output;

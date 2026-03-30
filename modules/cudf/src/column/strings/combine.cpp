@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,9 @@ Column::wrapper_t Column::concatenate(Napi::Env const& env,
                                       rmm::mr::device_memory_resource* mr) {
   try {
     return Column::New(
-      env, cudf::strings::concatenate(columns, separator, narep, separator_on_nulls, mr));
+      env,
+      cudf::strings::concatenate(
+        columns, separator, narep, separator_on_nulls, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 

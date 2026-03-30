@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,8 +85,8 @@ export class GraphLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
   }
   static getAccessors(context: DeckContext) {
     return {
-      ...NodeLayer.getAccessors(context),
-      ...EdgeLayer.getAccessors(context),
+      ...NodeLayer.getAccessors(context as any),
+      ...EdgeLayer.getAccessors(context as any),
     };
   }
   initializeState({gl}: DeckContext) {
@@ -102,19 +102,19 @@ export class GraphLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
       edgePositionRanges: new Set(),
       buffers: {
         // edges
-        edgeList: new EdgeListBuffer(gl),
-        edgeBundles: new EdgeListBuffer(gl),
-        edgeColors: new EdgeColorBuffer(gl),
-        edgeControlPoints: new EdgeComponentBuffer(gl),
-        edgeSourcePositions: new EdgeComponentBuffer(gl),
-        edgeTargetPositions: new EdgeComponentBuffer(gl),
+        edgeList: new EdgeListBuffer(gl as any),
+        edgeBundles: new EdgeListBuffer(gl as any),
+        edgeColors: new EdgeColorBuffer(gl as any),
+        edgeControlPoints: new EdgeComponentBuffer(gl as any),
+        edgeSourcePositions: new EdgeComponentBuffer(gl as any),
+        edgeTargetPositions: new EdgeComponentBuffer(gl as any),
         // nodes
-        nodeRadius: new NodeRadiusBuffer(gl),
-        nodeFillColors: new NodeColorBuffer(gl),
-        nodeLineColors: new NodeColorBuffer(gl),
-        nodeXPositions: new NodePositionBuffer(gl),
-        nodeYPositions: new NodePositionBuffer(gl),
-        nodeElementIndices: new NodeElementIndicesBuffer(gl),
+        nodeRadius: new NodeRadiusBuffer(gl as any),
+        nodeFillColors: new NodeColorBuffer(gl as any),
+        nodeLineColors: new NodeColorBuffer(gl as any),
+        nodeXPositions: new NodePositionBuffer(gl as any),
+        nodeYPositions: new NodePositionBuffer(gl as any),
+        nodeElementIndices: new NodeElementIndicesBuffer(gl as any),
       },
     });
   }

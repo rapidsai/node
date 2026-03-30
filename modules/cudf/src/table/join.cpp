@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 #include <node_cudf/table.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
 
-#include <cudf/join.hpp>
+#include <cudf/join/filtered_join.hpp>
+#include <cudf/join/join.hpp>
 #include <cudf/table/table_view.hpp>
 
 namespace nv {
@@ -57,13 +58,17 @@ Napi::Value make_gather_maps(
 
   result.Set(
     0u,
-    Column::New(env,
-                std::make_unique<column>(data_type{type_id::INT32}, lhs_size, lhs_map->release())));
+    Column::New(
+      env,
+      std::make_unique<column>(
+        data_type{type_id::INT32}, lhs_size, lhs_map->release(), rmm::device_buffer{}, 0)));
 
   result.Set(
     1u,
-    Column::New(env,
-                std::make_unique<column>(data_type{type_id::INT32}, rhs_size, rhs_map->release())));
+    Column::New(
+      env,
+      std::make_unique<column>(
+        data_type{type_id::INT32}, rhs_size, rhs_map->release(), rmm::device_buffer{}, 0)));
 
   return result;
 }
@@ -79,7 +84,7 @@ Table::full_join(Napi::Env const& env,
                  rmm::mr::device_memory_resource* mr) {
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
-    return cudf::full_join(left, right, compare_nulls, mr);
+    return cudf::full_join(left, right, compare_nulls, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
@@ -92,7 +97,7 @@ Table::inner_join(Napi::Env const& env,
                   rmm::mr::device_memory_resource* mr) {
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
-    return cudf::inner_join(left, right, compare_nulls, mr);
+    return cudf::inner_join(left, right, compare_nulls, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
@@ -105,7 +110,7 @@ Table::left_join(Napi::Env const& env,
                  rmm::mr::device_memory_resource* mr) {
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
-    return cudf::left_join(left, right, compare_nulls, mr);
+    return cudf::left_join(left, right, compare_nulls, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
@@ -116,8 +121,11 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_semi_join(
   bool null_equality,
   rmm::mr::device_memory_resource* mr) {
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+
   try {
-    return cudf::left_semi_join(left, right, compare_nulls, mr);
+    return cudf::filtered_join(
+             right, compare_nulls, cudf::set_as_build_table::RIGHT, nv::get_default_stream())
+      .semi_join(left, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
@@ -129,7 +137,9 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_anti_join(
   rmm::mr::device_memory_resource* mr) {
   auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
   try {
-    return cudf::left_anti_join(left, right, compare_nulls, mr);
+    return cudf::filtered_join(
+             right, compare_nulls, cudf::set_as_build_table::RIGHT, nv::get_default_stream())
+      .anti_join(left, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
@@ -190,8 +200,10 @@ Napi::Value Table::left_semi_join(Napi::CallbackInfo const& info) {
   auto map      = Table::left_semi_join(info.Env(), lhs, rhs, null_equality, mr);
   auto map_size = static_cast<size_type>(map->size());
 
-  return Column::New(info.Env(),
-                     std::make_unique<column>(data_type{type_id::INT32}, map_size, map->release()));
+  return Column::New(
+    info.Env(),
+    std::make_unique<column>(
+      data_type{type_id::INT32}, map_size, map->release(), rmm::device_buffer{}, 0));
 }
 
 Napi::Value Table::left_anti_join(Napi::CallbackInfo const& info) {
@@ -209,8 +221,10 @@ Napi::Value Table::left_anti_join(Napi::CallbackInfo const& info) {
   auto map      = Table::left_anti_join(info.Env(), lhs, rhs, null_equality, mr);
   auto map_size = static_cast<size_type>(map->size());
 
-  return Column::New(info.Env(),
-                     std::make_unique<column>(data_type{type_id::INT32}, map_size, map->release()));
+  return Column::New(
+    info.Env(),
+    std::make_unique<column>(
+      data_type{type_id::INT32}, map_size, map->release(), rmm::device_buffer{}, 0));
 }
 
 }  // namespace nv

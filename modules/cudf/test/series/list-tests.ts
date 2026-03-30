@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,13 +18,11 @@ import '../jest-extensions';
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Int32, Int32Series, List, Series} from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength));
 
 describe('ListSeries', () => {
   const validateOffsets = (vec: arrow.Vector<arrow.List>, col: Series<List>) => {

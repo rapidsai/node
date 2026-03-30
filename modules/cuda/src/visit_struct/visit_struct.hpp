@@ -122,8 +122,9 @@ VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V&& v, S&& s) ->
 
 // apply_visitor (two struct instances)
 template <typename S1, typename S2, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V&& v, S1&& s1, S2&& s2) -> typename std::enable_if<
-  traits::is_visitable<traits::clean_t<typename traits::common_type<S1, S2>::type>>::value>::type {
+VISIT_STRUCT_CXX14_CONSTEXPR auto apply_visitor(V&& v, S1&& s1, S2&& s2) ->
+  typename std::enable_if<traits::is_visitable<
+    traits::clean_t<typename traits::common_type<S1, S2>::type>>::value>::type {
   using common_S = typename traits::common_type<S1, S2>::type;
   traits::visitable<traits::clean_t<common_S>>::apply(
     std::forward<V>(v), std::forward<S1>(s1), std::forward<S2>(s2));
@@ -138,8 +139,9 @@ VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S&& s, V&& v) ->
 
 // for_each with two structure instances
 template <typename S1, typename S2, typename V>
-VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S1&& s1, S2&& s2, V&& v) -> typename std::enable_if<
-  traits::is_visitable<traits::clean_t<typename traits::common_type<S1, S2>::type>>::value>::type {
+VISIT_STRUCT_CXX14_CONSTEXPR auto for_each(S1&& s1, S2&& s2, V&& v) ->
+  typename std::enable_if<traits::is_visitable<
+    traits::clean_t<typename traits::common_type<S1, S2>::type>>::value>::type {
   using common_S = typename traits::common_type<S1, S2>::type;
   traits::visitable<traits::clean_t<common_S>>::apply(
     std::forward<V>(v), std::forward<S1>(s1), std::forward<S2>(s2));
@@ -3429,8 +3431,8 @@ static VISIT_STRUCT_CONSTEXPR const int max_visitable_members = 75;
 #define VISIT_STRUCT_MAKE_GETTERS(MEMBER_NAME)                                                    \
   template <typename S>                                                                           \
   static VISIT_STRUCT_CONSTEXPR auto get_value(                                                   \
-    std::integral_constant<int, fields_enum::MEMBER_NAME>, S&& s)                                 \
-    -> decltype((std::forward<S>(s).MEMBER_NAME)) {                                               \
+    std::integral_constant<int, fields_enum::MEMBER_NAME>,                                        \
+    S&& s) -> decltype((std::forward<S>(s).MEMBER_NAME)) {                                        \
     return std::forward<S>(s).MEMBER_NAME;                                                        \
   }                                                                                               \
                                                                                                   \
@@ -3451,7 +3453,7 @@ static VISIT_STRUCT_CONSTEXPR const int max_visitable_members = 75;
   }                                                                                               \
                                                                                                   \
   static auto type_at(std::integral_constant<int, fields_enum::MEMBER_NAME>)                      \
-    -> visit_struct::type_c<decltype(this_type::MEMBER_NAME)>;
+    ->visit_struct::type_c<decltype(this_type::MEMBER_NAME)>;
 
 // This macro specializes the trait, provides "apply" method which does the work.
 // Below, template parameter S should always be the same as STRUCT_NAME modulo const and reference.

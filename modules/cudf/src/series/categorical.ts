@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,10 +51,10 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
   /**
    * @inheritdoc
    */
-  public encodeLabels<R extends Integral = Uint32>(
+  public encodeLabels<R extends Integral = Int32>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _categories: Series<Categorical<T>> = this,
-    type: R                             = new Uint32 as R,
+    type: R                             = new Int32 as R,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _nullSentinel: R['scalarType'] = -1,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

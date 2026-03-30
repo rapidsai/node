@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ export class EdgeLayer extends (Layer as typeof DeckLayer) {
     this.internalState.highlightedSourceNodeId = -1;
     this.internalState.selectedTargetNodeId    = -1;
     this.internalState.highlightedTargetNodeId = -1;
-    this.getAttributeManager().addInstanced(EdgeLayer.getAccessors(context));
+    this.getAttributeManager().addInstanced(EdgeLayer.getAccessors(context as any));
   }
   updateState({props, oldProps, context, changeFlags}: UpdateStateProps) {
     ['selectedEdgeId',
@@ -142,7 +142,7 @@ export class EdgeLayer extends (Layer as typeof DeckLayer) {
     return info;
   }
   _getModel({gl, shaderCache}: DeckContext) {
-    return new Model(gl, <any>{
+    return new Model(gl as any, <any>{
       id: this.props.id,
       shaderCache,
       modules: [project32, picking],

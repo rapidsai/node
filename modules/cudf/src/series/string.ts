@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -201,11 +201,19 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(["foo", "bar"]);
    *
-   * a.offsets // Int32Array(3) [ 0, 3, 6 ]
+   * a.offsets.toArray() // Int32Array(3) [ 0, 3, 6 ]
    * ```
    */
-  // TODO: Account for this.offset
-  get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
+  get offsets() {
+    const offset = this.offset;
+    const col    = this._col.getChild<Int32>(0);
+    return Series.new({
+      type: new Int32,
+      offset,
+      length: col.length - offset,
+      data: col.data,
+    });
+  }
 
   /**
    * Series containing the utf8 characters of each string
@@ -214,11 +222,22 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(["foo", "bar"]);
    *
-   * a.data // Uint8Array(6) [ 102, 111, 111, 98, 97, 114 ]
+   * a.data.toArray() // Uint8Array(6) [ 102, 111, 111, 98, 97, 114 ]
    * ```
    */
-  // TODO: Account for this.offset
-  get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+  get data() {
+    const {length, offset, offsets} = this;
+    //
+    const data  = this._col.data;
+    const begin = offset > 0 && offsets.getValue(0) || 0;
+    const end   = offset > 0 && offsets.getValue(length) || data.byteLength;
+    return Series.new({
+      data,
+      type: new Uint8,
+      offset: begin,
+      length: end - begin,
+    });
+  }
 
   /**
    * Returns a boolean series identifying rows which match the given regex pattern.

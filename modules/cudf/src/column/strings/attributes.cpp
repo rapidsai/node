@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,19 +18,21 @@
 #include <node_rmm/memory_resource.hpp>
 
 #include <cudf/strings/attributes.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
 
 namespace nv {
 
 Column::wrapper_t Column::count_characters(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::count_characters(this->view(), mr));
+    return Column::New(Env(),
+                       cudf::strings::count_characters(this->view(), nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::count_bytes(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::count_bytes(this->view(), mr));
+    return Column::New(Env(),
+                       cudf::strings::count_bytes(this->view(), nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

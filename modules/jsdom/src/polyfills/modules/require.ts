@@ -130,7 +130,7 @@ export class ContextModule extends Module {
     const cache    = this._resolveCache;
     const cacheKey = `${parent.path}\x00${request}`;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (cache[cacheKey]) { return cache[cacheKey]!; }
+    if (cache[cacheKey]) { return cache[cacheKey]; }
     const resolved = this.__resolve(request, parent, isMain, options);
     if (resolved) { cache[cacheKey] = resolved; }
     return resolved;

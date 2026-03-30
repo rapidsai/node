@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,15 +37,18 @@ Column::wrapper_t Column::apply_boolean_mask(Column const& boolean_mask,
   try {
     return Column::New(
       Env(),
-      std::move(
-        cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr)->release()[0]));
+      std::move(cudf::apply_boolean_mask(
+                  cudf::table_view{{*this}}, boolean_mask, nv::get_default_stream(), mr)
+                  ->release()[0]));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Column::wrapper_t Column::drop_nulls(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(
-      Env(), std::move(cudf::drop_nulls(cudf::table_view{{*this}}, {0}, mr)->release()[0]));
+      Env(),
+      std::move(cudf::drop_nulls(cudf::table_view{{*this}}, {0}, nv::get_default_stream(), mr)
+                  ->release()[0]));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -56,7 +59,9 @@ Napi::Value Column::drop_nulls(Napi::CallbackInfo const& info) {
 Column::wrapper_t Column::drop_nans(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(
-      Env(), std::move(cudf::drop_nans(cudf::table_view{{*this}}, {0}, mr)->release()[0]));
+      Env(),
+      std::move(cudf::drop_nans(cudf::table_view{{*this}}, {0}, nv::get_default_stream(), mr)
+                  ->release()[0]));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 

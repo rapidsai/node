@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace nv {
 std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> Column::bools_to_mask(
   rmm::mr::device_memory_resource* mr) const {
   try {
-    return cudf::bools_to_mask(*this, mr);
+    return cudf::bools_to_mask(*this, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -45,29 +45,16 @@ Napi::Value Column::bools_to_mask(Napi::CallbackInfo const& info) {
   return ary;
 }
 
-std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> Column::nans_to_nulls(
-  rmm::mr::device_memory_resource* mr) const {
+std::unique_ptr<cudf::column> Column::nans_to_nulls(rmm::mr::device_memory_resource* mr) const {
   try {
-    return cudf::nans_to_nulls(*this, mr);
+    return cudf::column_nans_to_nulls(*this, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
   rmm::mr::device_memory_resource* mr = NapiToCPP(info[0]);
-  auto result                         = nans_to_nulls(mr);
   try {
-    auto col =
-      Column::New(Env(), cudf::allocate_like(*this, cudf::mask_allocation_policy::RETAIN, mr));
-
-    [&](cudf::mutable_column_view view) {
-      cudf::copy_range_in_place(*this, view, 0, size(), 0);
-    }(col->mutable_view());
-
-    col->set_null_mask(DeviceBuffer::New(info.Env(), std::move(result.first)),
-                       null_count() == cudf::UNKNOWN_NULL_COUNT ? cudf::UNKNOWN_NULL_COUNT
-                                                                : null_count() + result.second);
-
-    return col;
+    return Column::New(Env(), nans_to_nulls(mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }  // namespace nv
 }  // namespace nv

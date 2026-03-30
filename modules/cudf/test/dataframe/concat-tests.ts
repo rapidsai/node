@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import {DeviceBuffer} from '@rapidsai/rmm';
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 describe('dataframe.concat', () => {
-  test('zero series in common same types', () => {
+  test('zero series in common same types', async () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new([5, 6, 7, 8]);
     const dfa = new DataFrame({'a': a});

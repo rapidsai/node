@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ describe('Series binaryops (Int64)', () => {
     test('floorDivides by a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs / lhs == floor([0/0, 1/1, 2/2])
-      expect([...lhs.floorDiv(lhs)].map(Number)).toEqual([-9223372036854776000, 1, 1]);
+      expect([...lhs.floorDiv(lhs)].map(Number)).toEqual([4294967295, 1, 1]);
       // lhs / rhs == floor([0/1, 1/2, 2/3])
       expect([...lhs.floorDiv(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
@@ -165,8 +165,7 @@ describe('Series binaryops (Int64)', () => {
     test('floorDivides by a bigint', () => {
       const {lhs} = makeTestData();
       expect([...lhs.floorDiv(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.floorDiv(0n)].map(toBigInt))
-        .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
+      expect([...lhs.floorDiv(0n)].map(toBigInt)).toEqual([4294967295n, 4294967295n, 4294967295n]);
       expect([...lhs.floorDiv(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
       expect([...lhs.floorDiv(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });

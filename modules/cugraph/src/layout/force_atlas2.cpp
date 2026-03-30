@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cugraph/cugraph/algorithms.hpp>
-#include <node_cugraph/graph.hpp>
+#include "node_cugraph/cugraph/algorithms.hpp"
+#include "node_cugraph/graph.hpp"
 
 #include <node_cudf/utilities/buffer.hpp>
 
+#include <node_rmm/default_stream.hpp>
 #include <node_rmm/device_buffer.hpp>
 
 namespace nv {
@@ -107,29 +108,38 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const& info) {
     positions =
       DeviceBuffer::New(env,
                         std::make_unique<rmm::device_buffer>(
-                          num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, *mr));
+                          num_nodes() * 2 * sizeof(float), nv::get_default_stream(), *mr));
   }
 
   auto graph = this->coo_view();
 
   try {
-    cugraph::force_atlas2({rmm::cuda_stream_default},
-                          graph,
-                          get_device_memory_ptr(positions),
-                          max_iter,
-                          x_positions,
-                          y_positions,
-                          outbound_attraction,
-                          lin_log_mode,
-                          prevent_overlapping,
-                          edge_weight_influence,
-                          jitter_tolerance,
-                          true,
-                          barnes_hut_theta,
-                          scaling_ratio,
-                          strong_gravity_mode,
-                          gravity,
-                          verbose);
+    constexpr uint64_t seed{0};
+    raft::random::RngState rng_state(seed);
+    raft::handle_t handle(nv::get_default_stream());
+    cugraph::force_atlas2(handle,                            // handle
+                          rng_state,                         // rng_state
+                          graph,                             // graph
+                          get_device_memory_ptr(positions),  // pos
+                          max_iter,                          // max_iter
+                          x_positions,                       // x_start
+                          y_positions,                       // y_start
+                          outbound_attraction,               // outbound_attraction_distribution
+                          lin_log_mode,                      // lin_log_mode
+                          prevent_overlapping,               // prevent_overlapping
+                          nullptr,                           // vertex_radius_values
+                          100.0,                             // overlap_scaling_ratio
+                          edge_weight_influence,             // edge_weight_influence
+                          jitter_tolerance,                  // jitter_tolerance
+                          true,                              // barnes_hut_optimize
+                          barnes_hut_theta,                  // barnes_hut_theta
+                          scaling_ratio,                     // scaling_ratio
+                          strong_gravity_mode,               // strong_gravity_mode
+                          gravity,                           // gravity
+                          nullptr,                           // vertex_mobility_values
+                          nullptr,                           // vertex_mass_values
+                          verbose                            // verbose
+    );
   } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return positions_is_device_memory_wrapper ? options.Get("positions").As<Napi::Object>()

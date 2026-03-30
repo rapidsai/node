@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+import {Memory} from '@rapidsai/cuda';
 
 import {MemoryResourceType} from './addon';
 
@@ -196,7 +198,7 @@ type DeviceBufferInput = BigIntArray|TypedArray|ArrayBufferLike;
  * {@link MemoryResource}. If not explicitly specified, the memory resource
  * returned from {@link getCurrentDeviceResource} is used.
  */
-export declare class DeviceBuffer extends ArrayBuffer {
+export declare class DeviceBuffer extends ArrayBuffer implements Memory {
   constructor(byteLength?: number, mr?: MemoryResource, stream?: number);
   constructor(source?: DeviceBufferInput, mr?: MemoryResource, stream?: number);
   constructor(sourceOrByteLength?: DeviceBufferInput|number, mr?: MemoryResource, stream?: number);

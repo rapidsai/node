@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ Column::wrapper_t get_col(NapiToCPP::Object opts, std::string const& name) {
 
   NODE_CUGRAPH_EXPECT(col->type().id() == type,
                       "Graph requires `" + name + "` to be a Column of " +
-                        cudf::type_dispatcher(cudf::data_type{type}, cudf::type_to_name{}),
+                        cudf::type_to_name_impl{}.operator()<decltype(cudf::data_type{type})>(),
                       env);
   return col;
 }
@@ -77,7 +77,8 @@ std::tuple<Column::wrapper_t, Column::wrapper_t, Column::wrapper_t> coo_to_csr(
   auto csr_col = [&](cudf::type_id type_id, rmm::device_buffer& data) {
     auto type = cudf::data_type{type_id};
     auto size = data.size() / cudf::size_of(type);
-    return Column::New(env, std::make_unique<cudf::column>(type, size, std::move(data)));
+    return Column::New(
+      env, std::make_unique<cudf::column>(type, size, std::move(data), rmm::device_buffer{}, 0));
   };
 
   auto offsets   = csr_col(cudf::type_to_id<edge_t>(), *csr.offsets.release());

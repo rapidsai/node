@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,9 +45,10 @@ cudf::io::table_input_metadata make_writer_columns_metadata(Napi::Object const& 
 
 Napi::Array get_output_names_from_metadata(Napi::Env const& env,
                                            cudf::io::table_with_metadata const& result) {
-  auto const& column_names = result.metadata.column_names;
-  auto names               = Napi::Array::New(env, column_names.size());
-  for (std::size_t i = 0; i < column_names.size(); ++i) { names.Set(i, column_names[i]); }
+  auto names = Napi::Array::New(env, result.metadata.schema_info.size());
+  for (std::size_t i = 0; i < result.metadata.schema_info.size(); ++i) {
+    names.Set(i, result.metadata.schema_info[i].name);
+  }
   return names;
 }
 

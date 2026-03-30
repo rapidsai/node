@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,11 +27,9 @@ import {
   Uint64,
   Uint8
 } from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 const data: string[] = [
   'foo bar baz',   // start of string
@@ -260,5 +258,5 @@ test('Series.isIpv4', () => {
 
 test('Series.ipv4ToIntegers', () => {
   const a = Series.new(['123.255.0.7', '127.0.0.1', null]);
-  expect([...a.ipv4ToIntegers()]).toStrictEqual([2080309255n, 2130706433n, null]);
+  expect([...a.ipv4ToIntegers()]).toStrictEqual([0x7BFF0007, 0x7F000001, null]);
 });

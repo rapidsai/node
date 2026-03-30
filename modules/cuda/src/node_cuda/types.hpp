@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,21 +34,31 @@ VISITABLE_STRUCT(CUDARTAPI::cudaDeviceProp,
                  maxThreadsPerBlock,
                  maxThreadsDim,
                  maxGridSize,
+#if CUDART_VERSION < 13000
                  clockRate,
+#endif
                  totalConstMem,
                  major,
                  minor,
                  textureAlignment,
                  texturePitchAlignment,
+#if CUDART_VERSION < 13000
                  deviceOverlap,
+#endif
                  multiProcessorCount,
+#if CUDART_VERSION < 13000
                  kernelExecTimeoutEnabled,
+#endif
                  integrated,
                  canMapHostMemory,
+#if CUDART_VERSION < 13000
                  computeMode,
+#endif
                  maxTexture1D,
                  maxTexture1DMipmap,
+#if CUDART_VERSION < 13000
                  maxTexture1DLinear,
+#endif
                  maxTexture2D,
                  maxTexture2DMipmap,
                  maxTexture2DLinear,
@@ -75,7 +85,9 @@ VISITABLE_STRUCT(CUDARTAPI::cudaDeviceProp,
                  tccDriver,
                  asyncEngineCount,
                  unifiedAddressing,
+#if CUDART_VERSION < 13000
                  memoryClockRate,
+#endif
                  memoryBusWidth,
                  l2CacheSize,
                  maxThreadsPerMultiProcessor,
@@ -88,13 +100,17 @@ VISITABLE_STRUCT(CUDARTAPI::cudaDeviceProp,
                  isMultiGpuBoard,
                  multiGpuBoardGroupID,
                  hostNativeAtomicSupported,
+#if CUDART_VERSION < 13000
                  singleToDoublePrecisionPerfRatio,
+#endif
                  pageableMemoryAccess,
                  concurrentManagedAccess,
                  computePreemptionSupported,
                  canUseHostPointerForRegisteredMem,
                  cooperativeLaunch,
+#if CUDART_VERSION < 13000
                  cooperativeMultiDeviceLaunch,
+#endif
                  sharedMemPerBlockOptin,
                  pageableMemoryAccessUsesHostPageTables,
                  directManagedMemAccessFromHost);

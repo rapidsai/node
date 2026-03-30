@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <node_rmm/default_stream.hpp>
 #include <node_rmm/memory_resource.hpp>
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
@@ -63,7 +64,7 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
    */
   inline static wrapper_t New(Napi::Env const& env,
                               MemoryResource::wrapper_t const& mr,
-                              rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+                              rmm::cuda_stream_view stream = nv::get_default_stream()) {
     return EnvLocalObjectWrap<DeviceBuffer>::New(env, 0, mr, stream);
   }
 
@@ -74,7 +75,7 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
    * resource supports streams.
    */
   inline static wrapper_t New(Napi::Env const& env,
-                              rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+                              rmm::cuda_stream_view stream = nv::get_default_stream()) {
     return EnvLocalObjectWrap<DeviceBuffer>::New(env, 0, MemoryResource::Cuda(env), stream);
   }
 
@@ -90,7 +91,7 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
   inline static wrapper_t New(Napi::Env const& env,
                               Napi::Array const& data,
                               MemoryResource::wrapper_t const& mr,
-                              rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+                              rmm::cuda_stream_view stream = nv::get_default_stream()) {
     std::vector<T> hvec = NapiToCPP{data};
     return New(env, Span<char>{hvec.data(), hvec.size()}, mr, stream);
   }
@@ -105,7 +106,7 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
   static wrapper_t New(Napi::Env const& env,
                        Napi::Uint8Array const& data,
                        MemoryResource::wrapper_t const& mr,
-                       rmm::cuda_stream_view stream = rmm::cuda_stream_default);
+                       rmm::cuda_stream_view stream = nv::get_default_stream());
 
   /**
    * @brief Construct a new DeviceBuffer instance from C++.
@@ -117,7 +118,7 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
   static wrapper_t New(Napi::Env const& env,
                        Span<char> const& data,
                        MemoryResource::wrapper_t const& mr,
-                       rmm::cuda_stream_view stream = rmm::cuda_stream_default);
+                       rmm::cuda_stream_view stream = nv::get_default_stream());
 
   /**
    * @brief Construct a new DeviceBuffer instance from C++.
@@ -132,7 +133,7 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
                        void* const data,
                        size_t const size,
                        MemoryResource::wrapper_t const& mr,
-                       rmm::cuda_stream_view stream = rmm::cuda_stream_default);
+                       rmm::cuda_stream_view stream = nv::get_default_stream());
 
   /**
    * @brief Construct a new DeviceBuffer instance.
@@ -168,29 +169,45 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
   }
 
   inline rmm::cuda_stream_view stream() const noexcept {
-    return buffer_.get() != nullptr ? buffer_->stream() : rmm::cuda_stream_default;
+    return buffer_.get() != nullptr ? buffer_->stream() : nv::get_default_stream();
   }
 
   void resize(std::size_t new_size, rmm::cuda_stream_view stream = rmm::cuda_stream_view{});
 
   inline rmm::mr::device_memory_resource* get_mr() const { return *mr_.Value(); }
 
-  // convert to void*
-  inline operator void*() noexcept { return static_cast<void*>(data()); }
-  // convert to const void*
-  inline operator const void*() const noexcept { return static_cast<const void*>(data()); }
-  // convert to cudf::valid_type*
-  inline operator uint8_t*() noexcept { return static_cast<uint8_t*>(data()); }
-  // convert to const cudf::valid_type*
-  inline operator const uint8_t*() const noexcept { return static_cast<const uint8_t*>(data()); }
-  // convert to cudf::offset_type*
-  inline operator int32_t*() noexcept { return static_cast<int32_t*>(data()); }
-  // convert to const cudf::offset_type*
-  inline operator const int32_t*() const noexcept { return static_cast<const int32_t*>(data()); }
-  // convert to cudf::bitmask_type*
-  inline operator uint32_t*() noexcept { return static_cast<uint32_t*>(data()); }
-  // convert to const cudf::bitmask_type*
-  inline operator const uint32_t*() const noexcept { return static_cast<const uint32_t*>(data()); }
+  // // convert to void*
+  // inline operator void*() noexcept { return static_cast<void*>(data()); }
+  // // convert to const void*
+  // inline operator const void*() const noexcept { return static_cast<const void*>(data()); }
+  // // convert to cudf::valid_type*
+  // inline operator uint8_t*() noexcept { return static_cast<uint8_t*>(data()); }
+  // // convert to const cudf::valid_type*
+  // inline operator const uint8_t*() const noexcept { return static_cast<const uint8_t*>(data()); }
+  // // convert to cudf::offset_type*
+  // inline operator int32_t*() noexcept { return static_cast<int32_t*>(data()); }
+  // // convert to const cudf::offset_type*
+  // inline operator const int32_t*() const noexcept { return static_cast<const int32_t*>(data()); }
+  // // convert to cudf::bitmask_type*
+  // inline operator uint32_t*() noexcept { return static_cast<uint32_t*>(data()); }
+  // // convert to const cudf::bitmask_type*
+  // inline operator const uint32_t*() const noexcept { return static_cast<const uint32_t*>(data());
+  // }
+
+  // cast to pointer T*
+  template <typename T>
+  inline operator T*() noexcept {
+    return size() == 0 ? nullptr : static_cast<T*>(data());
+  }
+
+  // cast to const pointer T*
+  template <typename T>
+  inline operator const T*() const noexcept {
+    return size() == 0 ? nullptr : static_cast<const T*>(data());
+  }
+
+  // ref to the underlying unique_ptr
+  inline operator std::unique_ptr<rmm::device_buffer>&() noexcept { return buffer_; }
 
  private:
   Napi::Value get_mr(Napi::CallbackInfo const& info);

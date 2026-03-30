@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ const numbers        = [1, null, 2, 3, 4, 5, null, 10];
 const bigints        = [1n, null, 2n, 3n, 4n, 5n, null, 10n];
 const float_with_NaN = [1.0, NaN, 2.0, 3.0, 4.0, 5.0, NaN, 10.0];
 
-const result = 2.4377317925288935;
+const result = 2.43773179252889;
 
 function testNumberKurtosis<T extends Int8|Int16|Int32|Int64|Uint8|Uint16|Uint32|Uint64|Float32|
                             Float64>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {

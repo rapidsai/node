@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +24,13 @@ Napi::Value Column::string_partition(Napi::CallbackInfo const& info) {
   std::string const delimiter         = args[0];
   rmm::mr::device_memory_resource* mr = args[1];
   try {
-    auto ary  = Napi::Array::New(info.Env(), 3);
-    auto cols = cudf::strings::partition(view(), delimiter, mr)->release();
+    auto ary = Napi::Array::New(info.Env(), 3);
+    auto cols =
+      cudf::strings::partition(view(),
+                               cudf::string_scalar{delimiter, true, nv::get_default_stream(), mr},
+                               nv::get_default_stream(),
+                               mr)
+        ->release();
     for (std::size_t i = 0; i < cols.size(); ++i) {  //
       ary[i] = Column::New(Env(), std::move(cols[i]));
     }

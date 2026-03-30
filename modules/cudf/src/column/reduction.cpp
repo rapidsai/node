@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 #include <cudf/utilities/type_dispatcher.hpp>
 
 #include <memory>
-#include <string>
 
 namespace nv {
 
@@ -50,7 +49,7 @@ cudf::data_type _compute_dtype(cudf::type_id id) {
 std::pair<Scalar::wrapper_t, Scalar::wrapper_t> Column::minmax(
   rmm::mr::device_memory_resource* mr) const {
   try {
-    auto result = cudf::minmax(*this, mr);
+    auto result = cudf::minmax(*this, nv::get_default_stream(), mr);
     return {Scalar::New(Env(), std::move(result.first)),  //
             Scalar::New(Env(), std::move(result.second))};
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
@@ -75,7 +74,8 @@ Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::reduce_aggregation> const
                                  cudf::data_type const& output_dtype,
                                  rmm::mr::device_memory_resource* mr) const {
   try {
-    return Scalar::New(Env(), cudf::reduce(*this, *agg, output_dtype, mr));
+    return Scalar::New(Env(),
+                       cudf::reduce(*this, *agg, output_dtype, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -84,7 +84,8 @@ Column::wrapper_t Column::scan(std::unique_ptr<cudf::scan_aggregation> const& ag
                                cudf::null_policy null_handling,
                                rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::scan(*this, *agg, inclusive, null_handling, mr));
+    return Column::New(
+      Env(), cudf::scan(*this, *agg, inclusive, null_handling, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 

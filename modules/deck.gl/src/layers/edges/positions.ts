@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ export interface ComputeEdgePositionsTransform {
 
 export class ComputeEdgePositionsTransform extends Transform {
   constructor(gl: WebGL2RenderingContext) {
-    super(gl, <any>{
+    super(gl as any, <any>{
       elementCount: 0,
       isInstanced: false,
       vs: computePositionVertexShader,
@@ -53,12 +53,12 @@ export class ComputeEdgePositionsTransform extends Transform {
       },
       varyings: ['controlPoint', 'sourcePosition', 'targetPosition'],
       feedbackBuffers: {
-        controlPoint: new EdgeComponentBuffer(gl, 1),
-        sourcePosition: new EdgeComponentBuffer(gl, 1),
-        targetPosition: new EdgeComponentBuffer(gl, 1),
+        controlPoint: new EdgeComponentBuffer(gl as any, 1),
+        sourcePosition: new EdgeComponentBuffer(gl as any, 1),
+        targetPosition: new EdgeComponentBuffer(gl as any, 1),
       },
     });
-    this.gl = gl;
+    this.gl = gl as any;
   }
   getTextureWidth(size: number) {
     return Math.min((size + 7) & ~7, getParameters(this.gl, this.gl.MAX_TEXTURE_SIZE));

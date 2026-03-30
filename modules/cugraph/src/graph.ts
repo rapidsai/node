@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2023, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 import {Float32Buffer, MemoryView} from '@rapidsai/cuda';
 import {DataFrame, DataType, Float32, Int32, scope, Series} from '@rapidsai/cudf';
-import {DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
 import {Graph as CUGraph} from './addon';
 import {ForceAtlas2Options, SpectralClusteringOptions} from './node_cugraph';
@@ -148,6 +148,7 @@ export interface AnalyzeClusteringOptions {
   num_clusters: number;
   cluster: Series<Int32>;
   type: 'modularity'|'edge_cut'|'ratio_cut';
+  memoryResource?: MemoryResource;
 }
 
 export class DedupedEdgesGraph<T extends DataType = any> extends Graph<T> {
@@ -188,7 +189,7 @@ export class DedupedEdgesGraph<T extends DataType = any> extends Graph<T> {
    */
   public computeClusters(options: ClusteringOptions) {
     Object.assign(options, {
-      num_eigen_vecs: Math.min(2, options.num_clusters),
+      num_eigen_vecs: Math.min(Math.max(2, options.num_eigen_vecs ?? 2), options.num_clusters),
       evs_tolerance: 0.00001,
       evs_max_iter: 100,
       kmean_tolerance: 0.00001,
@@ -207,22 +208,23 @@ export class DedupedEdgesGraph<T extends DataType = any> extends Graph<T> {
 
   /**
    * @summary Compute a score for a given partitioning/clustering. The assumption is
-   * that `options.clustering` is the results from a call to {@link computeClusters} and
+   * that `options.cluster` is the results from a call to {@link computeClusters} and
    * contains columns named `vertex` and `cluster`.
    *
    * @param {AnalyzeClusteringOptions} options
    *
    * @returns {number} The computed clustering score
    */
-  public analyzeClustering(options: AnalyzeClusteringOptions) {
-    switch (options.type) {
+  public analyzeClustering({type, cluster, num_clusters, memoryResource}:
+                             AnalyzeClusteringOptions) {
+    switch (type) {
       case 'edge_cut':
-        return this.graph.analyzeEdgeCutClustering(options.num_clusters, options.cluster._col);
+        return this.graph.analyzeEdgeCutClustering(num_clusters, cluster._col, memoryResource);
       case 'ratio_cut':
-        return this.graph.analyzeRatioCutClustering(options.num_clusters, options.cluster._col);
+        return this.graph.analyzeRatioCutClustering(num_clusters, cluster._col, memoryResource);
       case 'modularity':
-        return this.graph.analyzeModularityClustering(options.num_clusters, options.cluster._col);
-      default: throw new Error(`Unrecognized clustering type "${options.type as string}"`);
+        return this.graph.analyzeModularityClustering(num_clusters, cluster._col, memoryResource);
+      default: throw new Error(`Unrecognized clustering type "${type as string}"`);
     }
   }
 }

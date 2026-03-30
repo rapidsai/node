@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ struct get_common_type_id {
             typename std::enable_if_t<not common_type_exists<LHS, RHS>::value>* = nullptr>
   cudf::type_id operator()() {
     CUDF_FAIL("Cannot determine a logical common type between " +
-              cudf::type_to_name{}.operator()<LHS>() + " and " +
-              cudf::type_to_name{}.operator()<RHS>());
+              cudf::type_to_name_impl{}.operator()<LHS>() + " and " +
+              cudf::type_to_name_impl{}.operator()<RHS>());
   }
 };
 
@@ -227,9 +227,9 @@ Napi::Object cudf_scalar_type_to_arrow_type(Napi::Env const& env, cudf::data_typ
     // case cudf::type_id::DECIMAL32: // TODO
     // case cudf::type_id::DECIMAL64: // TODO
     default:
-      throw Napi::Error::New(env,
-                             "cudf_scalar_type_to_arrow_type not implemented for type: " +
-                               cudf::type_dispatcher(type, cudf::type_to_name{}));
+      throw Napi::Error::New(
+        env,
+        "cudf_scalar_type_to_arrow_type not implemented for type: " + cudf::type_to_name(type));
   }
   return arrow_type;
 }

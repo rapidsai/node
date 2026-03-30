@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ export class EdgeComponentBuffer extends Buffer {
 // Transform feedback buffers
 export class EdgePositionTexture extends Texture2D {
   constructor(gl: WebGL2RenderingContext) {
-    super(gl, {
+    super(gl as any, {
       format: gl.R32F,
       type: gl.FLOAT,
       width: 1,

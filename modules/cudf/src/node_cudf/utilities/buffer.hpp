@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include <node_rmm/device_buffer.hpp>
 
 #include <cudf/types.hpp>
+#include <cudf/utilities/default_stream.hpp>
 
 namespace nv {
 
@@ -41,13 +42,13 @@ DeviceBuffer::wrapper_t data_to_devicebuffer(
   Napi::Value const& value,
   cudf::data_type const& dtype,
   MemoryResource::wrapper_t const& mr,
-  rmm::cuda_stream_view stream = rmm::cuda_stream_default);
+  rmm::cuda_stream_view stream = nv::get_default_stream());
 
 inline DeviceBuffer::wrapper_t data_to_devicebuffer(
   Napi::Env const& env,
   Napi::Value const& value,
   cudf::data_type const& dtype,
-  rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+  rmm::cuda_stream_view stream = nv::get_default_stream()) {
   return data_to_devicebuffer(env, value, dtype, MemoryResource::Current(env), stream);
 }
 
@@ -72,13 +73,13 @@ DeviceBuffer::wrapper_t mask_to_null_bitmask(
   Napi::Value const& value,
   cudf::size_type const& size,
   MemoryResource::wrapper_t const& mr,
-  rmm::cuda_stream_view stream = rmm::cuda_stream_default);
+  rmm::cuda_stream_view stream = nv::get_default_stream());
 
 inline DeviceBuffer::wrapper_t mask_to_null_bitmask(
   Napi::Env const& env,
   Napi::Value const& value,
   cudf::size_type const& size,
-  rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+  rmm::cuda_stream_view stream = nv::get_default_stream()) {
   return mask_to_null_bitmask(env, value, size, MemoryResource::Current(env), stream);
 }
 
@@ -104,13 +105,13 @@ DeviceBuffer::wrapper_t data_to_null_bitmask(
   Napi::Value const& value,
   cudf::size_type const& size,
   MemoryResource::wrapper_t const& mr,
-  rmm::cuda_stream_view stream = rmm::cuda_stream_default);
+  rmm::cuda_stream_view stream = nv::get_default_stream());
 
 inline DeviceBuffer::wrapper_t data_to_null_bitmask(
   Napi::Env const& env,
   Napi::Value const& value,
   cudf::size_type const& size,
-  rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+  rmm::cuda_stream_view stream = nv::get_default_stream()) {
   return data_to_null_bitmask(env, value, size, MemoryResource::Current(env), stream);
 }
 

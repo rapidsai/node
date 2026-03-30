@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,10 @@ import '../jest-extensions';
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Categorical, Series, Utf8String} from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength));
 
 describe('CategoricalSeries', () => {
   test('Constructs CategoricalSeries from Arrow Dictionary Vector', () => {

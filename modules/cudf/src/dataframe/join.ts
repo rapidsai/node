@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
+import {DataType} from '../types/dtypes';
 import {ColumnsMap, CommonType, findCommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
@@ -217,7 +218,7 @@ function mergeResults<
       return cols;
     }, <any>{}) as ColumnsMap<{
              [P in keyof TResult]:  //
-               P extends TOn ? CommonType<Lhs[P], Rhs[P]>: TResult[P]
+               (P extends TOn ? CommonType<Lhs[P], Rhs[P]>: TResult[P]) & DataType
            }>;
   }
 

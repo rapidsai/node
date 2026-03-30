@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ import {DataFrame, Float32, Numeric, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import * as CUML from './addon';
-import {dataframeToSeries} from './utilities/array_utils';
 
 /**
  * Expresses to what extent the local structure is retained in embedding. The score is defined in
@@ -68,9 +67,9 @@ export function trustworthinessDataFrame<T extends Numeric, R extends Numeric, K
 
   const nComponents = embedded.numColumns;
 
-  return CUML.trustworthiness(dataframeToSeries(features).data.buffer as DeviceBuffer,
+  return CUML.trustworthiness(features.interleaveColumns().data.buffer as DeviceBuffer,
                               features.get(features.names[0]).type,
-                              dataframeToSeries(embedded).data.buffer as DeviceBuffer,
+                              embedded.interleaveColumns().data.buffer as DeviceBuffer,
                               embedded.get(embedded.names[0]).type,
                               nSamples,
                               nFeatures,

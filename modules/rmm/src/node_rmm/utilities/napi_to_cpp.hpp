@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
 #include <rmm/cuda_stream_view.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/device_memory_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
+#include <rmm/resource_ref.hpp>
+
+#include <rapids_logger/logger.hpp>
 
 namespace nv {
 
@@ -37,6 +40,25 @@ inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
 }
 
 template <>
+inline NapiToCPP::operator rmm::device_async_resource_ref() const {
+  if (MemoryResource::IsInstance(val)) {
+    return rmm::to_device_async_resource_ref_checked(MemoryResource::Unwrap(val.ToObject()));
+  }
+  if (val.IsNull() or val.IsUndefined()) { return rmm::mr::get_current_device_resource(); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
+}
+
+template <>
+inline NapiToCPP::operator std::shared_ptr<rmm::mr::device_memory_resource>() const {
+  if (MemoryResource::IsInstance(val)) { return *MemoryResource::Unwrap(val.ToObject()); }
+  if (val.IsNull() or val.IsUndefined()) {
+    return std::shared_ptr<rmm::mr::device_memory_resource>(rmm::mr::get_current_device_resource(),
+                                                            [](auto _) {});
+  }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
+}
+
+template <>
 inline NapiToCPP::operator rmm::cuda_device_id() const {
   if (this->IsNumber()) { return rmm::cuda_device_id{this->operator int32_t()}; }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric device ordinal");
@@ -46,6 +68,13 @@ template <>
 inline NapiToCPP::operator rmm::cuda_stream_view() const {
   if (this->IsNumber()) { return rmm::cuda_stream_view{this->operator cudaStream_t()}; }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric cudaStream_t");
+}
+
+template <>
+inline NapiToCPP::operator rapids_logger::level_enum() const {
+  if (this->IsNumber()) { return rapids_logger::level_enum{this->operator int32_t()}; }
+  NAPI_THROW(Napi::Error::New(val.Env()),
+             "Expected value to be a numeric rapids_logger level_enum");
 }
 
 }  // namespace nv

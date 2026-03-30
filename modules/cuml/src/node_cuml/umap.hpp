@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,18 +57,13 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   void fit(DeviceBuffer::wrapper_t const& X,
            cudf::size_type n_samples,
            cudf::size_type n_features,
-           DeviceBuffer::wrapper_t const& y,
-           DeviceBuffer::wrapper_t const& knn_indices,
-           DeviceBuffer::wrapper_t const& knn_dists,
-           bool convert_dtype,
-           DeviceBuffer::wrapper_t const& embeddings,
-           raft::sparse::COO<float>* graph);
+           COO::wrapper_t const& graph,
+           DeviceBuffer::wrapper_t const& embeddings);
 
   void refine(DeviceBuffer::wrapper_t const& X,
               cudf::size_type n_samples,
               cudf::size_type n_features,
-              COO::wrapper_t const& coo,
-              bool convert_dtype,
+              COO::wrapper_t const& graph,
               DeviceBuffer::wrapper_t const& embeddings);
 
   COO::wrapper_t get_graph(DeviceBuffer::wrapper_t const& X,
@@ -76,18 +71,15 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
                            cudf::size_type n_features,
                            DeviceBuffer::wrapper_t const& knn_indices,
                            DeviceBuffer::wrapper_t const& knn_dists,
-                           DeviceBuffer::wrapper_t const& y,
-                           bool convert_dtype);
+                           DeviceBuffer::wrapper_t const& y);
 
   void transform(DeviceBuffer::wrapper_t const& X,
                  cudf::size_type n_samples,
                  cudf::size_type n_features,
-                 DeviceBuffer::wrapper_t const& knn_indices,
-                 DeviceBuffer::wrapper_t const& knn_dists,
                  DeviceBuffer::wrapper_t const& orig_X,
                  int orig_n,
-                 bool convert_dtype,
                  DeviceBuffer::wrapper_t const& embeddings,
+                 int embeddings_n,
                  DeviceBuffer::wrapper_t const& transformed);
 
  private:
@@ -95,9 +87,7 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   Napi::Value fit(Napi::CallbackInfo const& info);
   Napi::Value refine(Napi::CallbackInfo const& info);
   Napi::Value get_graph(Napi::CallbackInfo const& info);
-  Napi::Value fit_sparse(Napi::CallbackInfo const& info);
   Napi::Value transform(Napi::CallbackInfo const& info);
-  Napi::Value transform_sparse(Napi::CallbackInfo const& info);
   Napi::Value n_neighbors(Napi::CallbackInfo const& info);
   Napi::Value n_components(Napi::CallbackInfo const& info);
   Napi::Value n_epochs(Napi::CallbackInfo const& info);

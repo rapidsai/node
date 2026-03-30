@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,23 +26,23 @@
 
 #include <rmm/cuda_stream_view.hpp>
 // #include <rmm/mr/device/aligned_resource_adaptor.hpp>
-#include <rmm/mr/device/arena_memory_resource.hpp>
-#include <rmm/mr/device/binning_memory_resource.hpp>
-#include <rmm/mr/device/cuda_async_memory_resource.hpp>
-#include <rmm/mr/device/cuda_memory_resource.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
-#include <rmm/mr/device/fixed_size_memory_resource.hpp>
-#include <rmm/mr/device/limiting_resource_adaptor.hpp>
-#include <rmm/mr/device/logging_resource_adaptor.hpp>
-#include <rmm/mr/device/managed_memory_resource.hpp>
-#include <rmm/mr/device/owning_wrapper.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
-#include <rmm/mr/device/polymorphic_allocator.hpp>
-#include <rmm/mr/device/pool_memory_resource.hpp>
-#include <rmm/mr/device/statistics_resource_adaptor.hpp>
-#include <rmm/mr/device/thread_safe_resource_adaptor.hpp>
-#include <rmm/mr/device/thrust_allocator_adaptor.hpp>
-#include <rmm/mr/device/tracking_resource_adaptor.hpp>
+#include <rmm/mr/arena_memory_resource.hpp>
+#include <rmm/mr/binning_memory_resource.hpp>
+#include <rmm/mr/cuda_async_memory_resource.hpp>
+#include <rmm/mr/cuda_memory_resource.hpp>
+#include <rmm/mr/device_memory_resource.hpp>
+#include <rmm/mr/fixed_size_memory_resource.hpp>
+#include <rmm/mr/limiting_resource_adaptor.hpp>
+#include <rmm/mr/logging_resource_adaptor.hpp>
+#include <rmm/mr/managed_memory_resource.hpp>
+#include <rmm/mr/owning_wrapper.hpp>
+#include <rmm/mr/per_device_resource.hpp>
+#include <rmm/mr/polymorphic_allocator.hpp>
+#include <rmm/mr/pool_memory_resource.hpp>
+#include <rmm/mr/statistics_resource_adaptor.hpp>
+#include <rmm/mr/thread_safe_resource_adaptor.hpp>
+#include <rmm/mr/thrust_allocator_adaptor.hpp>
+#include <rmm/mr/tracking_resource_adaptor.hpp>
 
 #include <napi.h>
 #include <memory>
@@ -86,7 +86,7 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
       } else if (dynamic_cast<rmm::mr::cuda_memory_resource*>(mr)) {
         return mr_type::cuda;
       } else if (dynamic_cast<
-                   rmm::mr::fixed_size_memory_resource<rmm::mr::device_memory_resource>*>(mr)) {
+                        rmm::mr::fixed_size_memory_resource<rmm::mr::device_memory_resource>*>(mr)) {
         return mr_type::fixed_size;
       } else if (dynamic_cast<rmm::mr::limiting_resource_adaptor<rmm::mr::device_memory_resource>*>(
                    mr)) {
@@ -103,10 +103,10 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
                    mr)) {
         return mr_type::pool;
       } else if (dynamic_cast<
-                   rmm::mr::statistics_resource_adaptor<rmm::mr::device_memory_resource>*>(mr)) {
+                        rmm::mr::statistics_resource_adaptor<rmm::mr::device_memory_resource>*>(mr)) {
         return mr_type::statistics_adaptor;
       } else if (dynamic_cast<
-                   rmm::mr::thread_safe_resource_adaptor<rmm::mr::device_memory_resource>*>(mr)) {
+                        rmm::mr::thread_safe_resource_adaptor<rmm::mr::device_memory_resource>*>(mr)) {
         return mr_type::thread_safe_adaptor;
       } else if (dynamic_cast<rmm::mr::tracking_resource_adaptor<rmm::mr::device_memory_resource>*>(
                    mr)) {
@@ -177,7 +177,13 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
 
   inline rmm::cuda_device_id device() const noexcept { return device_id_; }
 
+  inline operator rmm::device_resource_ref() const { return mr_.get(); }
+
+  inline operator rmm::device_async_resource_ref() const { return mr_.get(); }
+
   inline operator rmm::mr::device_memory_resource*() const { return mr_.get(); }
+
+  inline operator std::shared_ptr<rmm::mr::device_memory_resource>() const { return mr_; }
 
   std::string file_path() const;
 

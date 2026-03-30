@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 
 #include <node_rmm/memory_resource.hpp>
 
+#include <cudf/strings/regex/regex_program.hpp>
 #include <cudf/strings/replace_re.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+
+#include <rmm/mr/per_device_resource.hpp>
 
 namespace nv {
 
@@ -31,10 +33,11 @@ Column::wrapper_t Column::replace_re(std::string const& pattern,
     return Column::New(Env(),
                        cudf::strings::replace_re(
                          this->view(),
-                         pattern,
-                         replacement,
+                         *cudf::strings::regex_program::create(
+                           pattern, flags, cudf::strings::capture_groups::NON_CAPTURE),
+                         cudf::string_scalar{replacement, true, nv::get_default_stream(), mr},
                          max_replace_count < 0 ? std::nullopt : std::optional{max_replace_count},
-                         flags,
+                         nv::get_default_stream(),
                          mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }

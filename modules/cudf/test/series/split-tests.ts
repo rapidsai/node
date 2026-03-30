@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../../jest-extensions';
-
 import {setDefaultAllocator} from '@rapidsai/cuda';
-import {Series, Utf8String} from '@rapidsai/cudf';
+import {Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-describe('Series unaryops (Bool8)', () => {
-  test('Series.cast Utf8String', () => {
-    const actual = Series.new([null, true, false, true]);
-    expect([...actual.cast(new Utf8String)]).toEqual([null, 'true', 'false', 'true']);
+describe('StringSeries split', () => {
+  test('split a basic string', () => {
+    const input = Series.new(['abcdefg']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efg']);
+  });
+  test('split a string twice', () => {
+    const input = Series.new(['abcdefgdcba']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efgd', 'cba']);
   });
 });

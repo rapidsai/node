@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ export type TypeMap = {
 };
 
 export type ColumnsMap<T extends TypeMap = any> = {
-  [P in keyof T]: Column<T[P]>
+  [P in keyof T]: Column<T[P]&DataType>
 };
 
 type CommonType_Bool8<T extends Numeric> = T;

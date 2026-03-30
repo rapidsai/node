@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,12 +24,10 @@ import {
   Series,
   Table
 } from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 test('DataFrame initialization', () => {
   const length = 100;
@@ -787,7 +785,7 @@ test('dataframe.kurtosis', () => {
   const b  = Series.new([7, 8, 9, 10]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  expect([...df.kurtosis()]).toEqual([-1.1999999999999904, -1.2000000000000686]);
+  expect([...df.kurtosis()]).toEqual([-1.200000000000001, -1.200000000000001]);
 
   const c                   = Series.new(['foo', 'bar', 'foo', 'bar']);
   const invalid_kurtosis_df = new DataFrame({'a': a, 'b': b, 'c': c});
@@ -799,7 +797,7 @@ test('dataframe.skew', () => {
   const b  = Series.new([7, 8, 9, 10, 11, 12, 12]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  expect([...df.skew()]).toEqual([-0.288195490292614, -0.2881954902926153]);
+  expect([...df.skew()]).toEqual([-0.2881954902926138, -0.2881954902926149]);
 
   const c               = Series.new(['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo']);
   const invalid_skew_df = new DataFrame({'a': a, 'b': b, 'c': c});

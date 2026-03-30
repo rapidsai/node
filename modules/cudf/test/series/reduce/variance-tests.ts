@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(i));
 const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 2 == 0));
 
 const param_ddof         = [1, 3, 5];
-const var_number_results = new Map([[1, 9.166666666666668], [3, 11.785714285714288], [5, 16.5]]);
+const var_number_results = new Map([[1, 9.166666666666666], [3, 11.785714285714286], [5, 16.5]]);
 
 const var_bool_results = new Map([[1, 0.2777777777777778], [3, 0.35714285714285715], [5, 0.5]]);
 

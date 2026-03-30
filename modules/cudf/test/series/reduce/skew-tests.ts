@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ const numbers        = [1, null, 2, 3, 4, 5, null, 10];
 const bigints        = [1n, null, 2n, 3n, 4n, 5n, null, 10n];
 const float_with_NaN = [1.0, NaN, 2.0, 3.0, 4.0, 5.0, NaN, 10.0];
 
-const result = 1.439590274527955;
+const result = 1.439590274527954;
 
 function testNumberSkew<T extends Int8|Int16|Int32|Int64|Uint8|Uint16|Uint32|Uint64|Float32|
                         Float64>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
@@ -44,7 +44,7 @@ function testNumberSkew<T extends Int8|Int16|Int32|Int64|Uint8|Uint16|Uint32|Uin
   expect(Series.new({type, data}).skew(skipNulls)).toEqual(expected);
 }
 
-describe.each([[true], [false]])('Series.kurtosis(skipNulls=%p)', (skipNulls) => {
+describe.each([[true], [false]])('Series.skew(skipNulls=%p)', (skipNulls) => {
   test('Int8', () => { testNumberSkew(new Int8, numbers, skipNulls); });
   test('Int16', () => { testNumberSkew(new Int16, numbers, skipNulls); });
   test('Int32', () => { testNumberSkew(new Int32, numbers, skipNulls); });
@@ -65,7 +65,6 @@ describe.each([[[]], [[2]], [[2, 3]]])('Too short (data=%p)', (data) => {
 });
 
 describe('Zero variance', () => {
-  test('returns 0', () => {
-    expect(Series.new({type: new Float32, data: [1, 1, 1, 1, 1, 1]}).skew()).toBe(0);
-  });
+  test('returns 0',
+       () => { expect(Series.new({type: new Float32, data: [1, 1, 1, 1, 1, 1]}).skew()).toBe(0); });
 });

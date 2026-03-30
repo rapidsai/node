@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ Napi::Value Table::concat(Napi::CallbackInfo const& info) {
                  [](const Table::wrapper_t& t) -> cudf::table_view { return t->view(); });
 
   try {
-    return Table::New(info.Env(), cudf::concatenate(table_views, mr));
+    return Table::New(info.Env(), cudf::concatenate(table_views, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
 }
 

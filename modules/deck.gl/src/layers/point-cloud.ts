@@ -43,11 +43,11 @@ export class PointCloudLayer extends (CompositeLayer as typeof DeckCompositeLaye
       numPointsLoaded: 0,
       buffers: {
         // points
-        pointPositionX: new PointPositionBuffer(gl),
-        pointPositionY: new PointPositionBuffer(gl),
-        pointPositionZ: new PointPositionBuffer(gl),
-        pointColor: new PointColorBuffer(gl),
-        pointNormal: new PointNormalizeBuffer(gl)
+        pointPositionX: new PointPositionBuffer(gl as any),
+        pointPositionY: new PointPositionBuffer(gl as any),
+        pointPositionZ: new PointPositionBuffer(gl as any),
+        pointColor: new PointColorBuffer(gl as any),
+        pointNormal: new PointNormalizeBuffer(gl as any)
       },
     });
   }

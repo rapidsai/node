@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #pragma once
+
+#include <node_rmm/default_stream.hpp>
 
 #include <cudf/io/datasource.hpp>
 #include <cudf/table/table.hpp>
@@ -139,6 +141,6 @@ struct PointDataFormatThree {
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> read_las(
   const std::unique_ptr<cudf::io::datasource>& datasource,
   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource(),
-  rmm::cuda_stream_view stream        = rmm::cuda_stream_default);
+  rmm::cuda_stream_view stream        = nv::get_default_stream());
 
 }  // namespace nv

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,9 +38,10 @@ export type TypedArrayConstructor<T extends TypedArray|BigIntArray> = {
 };
 
 /** @ignore */
-export type MemoryData = TypedArray|BigIntArray|ArrayBufferView|ArrayBufferLike  //
-  |(import('./addon').DeviceMemory)                                              //
-  |(import('./addon').PinnedMemory)                                              //
-  |(import('./addon').ManagedMemory)                                             //
-  |(import('./addon').IpcMemory)                                                 //
+export type MemoryData = TypedArray|BigIntArray|ArrayBufferView<any>|ArrayBufferLike  //
+  |(import('./addon').Memory)                                                         //
+  |(import('./addon').DeviceMemory)                                                   //
+  |(import('./addon').PinnedMemory)                                                   //
+  |(import('./addon').ManagedMemory)                                                  //
+  |(import('./addon').IpcMemory)                                                      //
   |(import('./addon').MappedGLMemory);

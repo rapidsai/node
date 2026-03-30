@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,13 +13,16 @@
 // limitations under the License.
 
 #include "node_rmm/memory_resource.hpp"
+#include "node_rmm/default_stream.hpp"
 #include "node_rmm/utilities/napi_to_cpp.hpp"
 
-#include <cuda_runtime.h>
 #include <node_cuda/device.hpp>
 
-#include <thrust/optional.h>
+#include <rmm/cuda_device.hpp>
+
 #include <optional>
+
+#include <cuda_runtime.h>
 
 namespace nv {
 
@@ -66,7 +69,9 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
                        "which to allocate blocks for the pool.",
                        env);
       rmm::mr::device_memory_resource* mr = arg1;
-      size_t const initial_pool_size = arg2.IsNumber() ? arg2 : 1024 * 1024 * 256;  // 256MB default
+      size_t const initial_pool_size =
+        arg2.IsNumber() ? arg2
+                        : rmm::percent_of_free_device_memory(50);  // align behavior with RMM python
       size_t const maximum_pool_size = arg3.IsNumber() ? arg3 : -1uL;
       upstream_mr_                   = Napi::Persistent(arg1.ToObject());
       mr_ = std::make_shared<rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>>(
@@ -212,7 +217,7 @@ Napi::Value MemoryResource::get_mem_info(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   // Always call get_mem_info since all memory resources in RMM 25.02 can provide memory information
   auto mem_info =
-    get_mem_info(env, info[0].IsNumber() ? CallbackArgs{info}[0] : rmm::cuda_stream_default);
+    get_mem_info(env, info[0].IsNumber() ? CallbackArgs{info}[0] : nv::get_default_stream());
   return Napi::Value::From(info.Env(), mem_info);
 }
 

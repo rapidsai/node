@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+import '../../jest-extensions';
 
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
-#include <raft/linalg/distance_type.h>
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
+import {setDefaultAllocator} from '@rapidsai/cuda';
+import {Series, Utf8String} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
+
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
+
+describe('Series unaryops (Bool8)', () => {
+  test('Series.cast Utf8String', () => {
+    const actual = Series.new([null, true, false, true]);
+    expect([...actual.cast(new Utf8String)]).toEqual([null, 'true', 'false', 'true']);
+  });
+});

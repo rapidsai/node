@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ namespace nv {
 Column::wrapper_t Column::concat(cudf::column_view const& other,
                                  rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::concatenate(std::vector{this->view(), other}, mr));
+    return Column::New(
+      Env(), cudf::concatenate(std::vector{this->view(), other}, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
