@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ if(DEFINED ENV{CUDAARCHS})
         # If CUDAARCHS is "ALL," build for all supported archs
         set(NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS TRUE)
         message(STATUS "Building all supported GPU architectures because the CUDAARCHS environment variable = 'ALL'")
+    elseif("$ENV{CUDAARCHS}" STREQUAL "RAPIDS")
+        # If CUDAARCHS is "RAPIDS," build for all supported archs
+        set(NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS TRUE)
+        message(STATUS "Building all supported GPU architectures because the CUDAARCHS environment variable = 'RAPIDS'")
     else()
         # Use the current value of the CUDAARCHS env var
         set(CMAKE_CUDA_ARCHITECTURES "$ENV{CUDAARCHS}")
@@ -48,6 +52,10 @@ elseif(DEFINED CMAKE_CUDA_ARCHITECTURES)
         # If CMAKE_CUDA_ARCHITECTURES is "ALL," build for all supported archs
         set(NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS TRUE)
         message(STATUS "Building all supported GPU architectures because CMAKE_CUDA_ARCHITECTURES = 'ALL'")
+    elseif(CMAKE_CUDA_ARCHITECTURES STREQUAL "RAPIDS")
+        # If CMAKE_CUDA_ARCHITECTURES is "RAPIDS," build for all supported archs
+        set(NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS TRUE)
+        message(STATUS "Building all supported GPU architectures because CMAKE_CUDA_ARCHITECTURES = 'RAPIDS'")
     else()
         # Use the current value of CMAKE_CUDA_ARCHITECTURES
         message(STATUS "Using GPU architectures defined in CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}")
@@ -60,9 +68,9 @@ endif()
 
 # Build the list of supported architectures
 
-set(SUPPORTED_CUDA_ARCHITECTURES "60" "70" "75" "80" "86")
+set(SUPPORTED_CUDA_ARCHITECTURES "60" "70" "75" "80" "86" "90a" "100f" "120a" "120")
 
-find_package(CUDAToolkit REQUIRED)
+find_package(CUDAToolkit REQUIRED GLOBAL)
 
 # CMake < 3.20 has a bug in FindCUDAToolkit where it won't properly detect the CUDAToolkit version
 # when find_package(CUDAToolkit) occurs before enable_language(CUDA)
@@ -77,27 +85,30 @@ if(NOT DEFINED CUDAToolkit_VERSION AND CMAKE_CUDA_COMPILER)
     unset(NVCC_OUT)
 endif()
 
-if(CUDAToolkit_VERSION_MAJOR EQUAL 11 AND CUDAToolkit_VERSION_MINOR LESS 2)
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "86")
+if(NOT CMAKE_CUDA_COMPILER_VERSION)
+  set(CMAKE_CUDA_COMPILER_VERSION "${CUDAToolkit_VERSION}")
 endif()
-if(CUDAToolkit_VERSION_MAJOR LESS 11)
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "86")
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "80")
-endif()
-if(CUDAToolkit_VERSION_MAJOR LESS 10)
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "75")
-endif()
-if(CUDAToolkit_VERSION_MAJOR LESS 9)
-    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "70")
+
+if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0.0)
+  set(SUPPORTED_CUDA_ARCHITECTURES "75-real" "80-real" "86-real" "90a-real" "100f-real" "120a-real" "120")
+elseif(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 12.9.0)
+  set(SUPPORTED_CUDA_ARCHITECTURES "70-real" "75-real" "80-real" "86-real" "90a-real" "100f-real"
+                      "120a-real" "120")
+else()
+  set(SUPPORTED_CUDA_ARCHITECTURES "70-real" "75-real" "80-real" "86-real" "90a-real" "90-virtual")
+  if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 12.8.0)
+    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "90-virtual")
+    list(APPEND SUPPORTED_CUDA_ARCHITECTURES "100-real" "120a-real" "120-virtual")
+  endif()
 endif()
 
 if(NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS)
     set(CMAKE_CUDA_ARCHITECTURES ${SUPPORTED_CUDA_ARCHITECTURES})
-    # CMake architecture list entry of "80" means to build compute and sm. What we want is for the
-    # newest arch only to build that way while the rest built only for sm.
-    list(POP_BACK CMAKE_CUDA_ARCHITECTURES latest_arch)
-    list(TRANSFORM CMAKE_CUDA_ARCHITECTURES APPEND "-real")
-    list(APPEND CMAKE_CUDA_ARCHITECTURES ${latest_arch})
+    # # CMake architecture list entry of "80" means to build compute and sm. What we want is for the
+    # # newest arch only to build that way while the rest built only for sm.
+    # list(POP_BACK CMAKE_CUDA_ARCHITECTURES latest_arch)
+    # list(TRANSFORM CMAKE_CUDA_ARCHITECTURES APPEND "-real")
+    # list(APPEND CMAKE_CUDA_ARCHITECTURES ${latest_arch})
 elseif(NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS)
     # Auto-detect available GPU compute architectures
     execute_process(COMMAND node -p
@@ -110,6 +121,7 @@ elseif(NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS)
     list(TRANSFORM CMAKE_CUDA_ARCHITECTURES APPEND "-real")
 endif()
 
+message(STATUS "CMAKE_CUDA_COMPILER_VERSION: ${CMAKE_CUDA_COMPILER_VERSION}")
 message(STATUS "BUILD_FOR_DETECTED_ARCHS: ${NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS}")
 message(STATUS "BUILD_FOR_ALL_CUDA_ARCHS: ${NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS}")
 message(STATUS "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}")

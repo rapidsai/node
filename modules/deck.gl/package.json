@@ -1,6 +1,6 @@
 {
   "name": "@rapidsai/deck.gl",
-  "version": "22.12.2",
+  "version": "26.4.0",
   "description": "NVIDIA RAPIDS deck.gl components and utilities",
   "license": "Apache-2.0",
   "main": "index.js",
@@ -18,9 +18,9 @@
     "url": "git+https://github.com/rapidsai/node.git"
   },
   "scripts": {
-    "clean": "rimraf build doc compile_commands.json",
+    "clean": "rimraf _build build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
-    "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
+    "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js -i",
     "build": "yarn tsc:build",
     "compile": "yarn tsc:build",
     "rebuild": "yarn tsc:build",
@@ -34,9 +34,9 @@
     "@luma.gl/core": "8.5.16",
     "@luma.gl/engine": "8.5.16",
     "@luma.gl/webgl": "8.5.16",
-    "@rapidsai/core": "~22.12.2",
-    "@rapidsai/cuda": "~22.12.2",
-    "@rapidsai/cudf": "~22.12.2",
+    "@rapidsai/core": "~26.4.0",
+    "@rapidsai/cuda": "~26.4.0",
+    "@rapidsai/cudf": "~26.4.0",
     "mjolnir.js": "2.7.1"
   },
   "files": [

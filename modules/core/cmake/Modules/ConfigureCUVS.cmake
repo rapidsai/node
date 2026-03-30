@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2022-2026, NVIDIA CORPORATION.
+# Copyright (c) 2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/get_cpm.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/get_version.cmake)
 
-_get_rapidsai_module_version(raft VERSION GIT_TAG)
+_get_rapidsai_module_version(cuvs VERSION GIT_TAG)
 
-_clean_build_dirs_if_not_fully_built(raft libraft)
+_clean_build_dirs_if_not_fully_built(cuvs libcuvs_static)
 
-if(NOT TARGET raft::compiled_static)
-  _get_update_disconnected_state(raft ${VERSION} UPDATE_DISCONNECTED)
+if(NOT TARGET cuvs::cuvs_static)
+  _get_update_disconnected_state(cuvs ${VERSION} UPDATE_DISCONNECTED)
 
+  # For raft sub-build
   set(BUILD_C_LIBRARY OFF)
   set(BUILD_CUVS_BENCH OFF)
   set(BUILD_CAGRA_HNSWLIB OFF)
@@ -35,49 +36,48 @@ if(NOT TARGET raft::compiled_static)
   set(CUVS_STATIC_RAPIDS_LIBRARIES ON)
   set(DISABLE_DEPRECATION_WARNINGS ON)
 
-  CPMFindPackage(NAME         raft
+  CPMFindPackage(NAME         cuvs
     VERSION                 ${VERSION}
-    GIT_REPOSITORY          https://github.com/rapidsai/raft.git
+    GIT_REPOSITORY          https://github.com/rapidsai/cuvs.git
     GIT_TAG                 ${GIT_TAG}
     CUSTOM_CACHE_KEY        ${GIT_TAG}
     GIT_SHALLOW             TRUE
     SOURCE_SUBDIR           cpp
-    FIND_PACKAGE_ARGUMENTS  "COMPONENTS compiled compiled-static"
+    FIND_PACKAGE_ARGUMENTS  "COMPONENTS cuvs_static"
     ${UPDATE_DISCONNECTED}
     OPTIONS                 "BUILD_TESTS OFF"
-                            # "BLA_VENDOR OpenBLAS"
-                            "BUILD_SHARED_LIBS OFF"
-                            "BUILD_PRIMS_BENCH OFF"
+                            "BUILD_SHARED_LIBS ON"
+                            "BUILD_C_LIBRARY OFF"
+                            "BUILD_CUVS_BENCH OFF"
                             "BUILD_CAGRA_HNSWLIB OFF"
+                            "BUILD_MG_ALGOS OFF"
                             "CUDA_STATIC_MATH_LIBRARIES ON"
                             "CUDA_STATIC_RUNTIME ON"
-                            "RAFT_COMPILE_LIBRARY ON"
-                            "RAFT_COMPILE_DYNAMIC_ONLY OFF"
+                            "CUVS_STATIC_RAPIDS_LIBRARIES ON"
+                            "CUVS_COMPILE_DYNAMIC_ONLY OFF"
+                            "DETECT_CONDA_ENV OFF"
                             "DISABLE_DEPRECATION_WARNINGS ON"
                             "DISABLE_OPENMP ON"
                             "CMAKE_C_FLAGS -w"
                             "CMAKE_CXX_FLAGS -w"
                             "CMAKE_CUDA_FLAGS -w"
-    PATCHES                 "${CMAKE_CURRENT_LIST_DIR}/../patches/raft.patch"
   )
 endif()
 
-if(NOT raft_BINARY_DIR OR (NOT raft_SOURCE_DIR))
-  if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-    set(raft_BINARY_DIR "${CPM_BINARY_CACHE}/raft-build")
-    set(raft_SOURCE_DIR "${CPM_SOURCE_CACHE}/raft/${GIT_TAG}")
+if(NOT cuvs_BINARY_DIR OR (NOT cuvs_SOURCE_DIR))
+  if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    set(cuvs_BINARY_DIR "${CPM_BINARY_CACHE}/cuvs-build")
+    set(cuvs_SOURCE_DIR "${CPM_SOURCE_CACHE}/cuvs/${GIT_TAG}")
   else()
-    set(raft_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/raft-build")
-    set(raft_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/raft/${GIT_TAG}")
+    set(cuvs_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cuvs-build")
+    set(cuvs_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cuvs/${GIT_TAG}")
   endif()
 endif()
 
-set(CPM_raft_SOURCE "${raft_SOURCE_DIR}")
+set(CPM_cuvs_SOURCE "${cuvs_SOURCE_DIR}")
 
 include(${CMAKE_CURRENT_LIST_DIR}/link_utils.cmake)
-_statically_link_cuda_toolkit_libs(raft::raft)
-_statically_link_cuda_toolkit_libs(raft::compiled_static)
-_statically_link_cuda_toolkit_libs(raft::raft_lib_static)
+_statically_link_cuda_toolkit_libs(cuvs::cuvs_static)
 
-rapids_export_package(INSTALL raft ${PROJECT_NAME}-exports COMPONENTS compiled-static GLOBAL_TARGETS compiled_static)
-rapids_export_find_package_root(INSTALL raft "\${PACKAGE_PREFIX_DIR}/lib/cmake/raft" EXPORT_SET ${PROJECT_NAME}-exports)
+rapids_export_package(INSTALL cuvs ${PROJECT_NAME}-exports COMPONENTS cuvs_static GLOBAL_TARGETS cuvs_static)
+rapids_export_find_package_root(INSTALL cuvs "\${PACKAGE_PREFIX_DIR}/lib/cmake/cuvs" EXPORT_SET ${PROJECT_NAME}-exports)

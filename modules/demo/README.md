@@ -45,12 +45,6 @@ Some demos require downloading datasets to run, while others have defaults inclu
 
 <br/><br/>
 
-## [SQL](https://github.com/rapidsai/node/tree/main/modules/demo/sql/sql-cluster-server) | [YouTube Demo](https://youtu.be/EmwcMM_mYKA)
-### Demo of multi-GPU SQL demo w/ a browser UI query builder
-![streaming ssr point cloud](../../docs/images/demo-screenshots/sql-ss-sm.png)
-
-<br/><br/>
-
 ## [Node.js Notebook](https://github.com/rapidsai/node/tree/main/modules/cudf/notebooks) | [YouTube Demo](https://youtu.be/LbHpK8M3cV4)
 ### GPU accelerated data science in JupyterLab Notebook with Node.js
 ![streaming ssr point cloud](../../docs/images/demo-screenshots/jupyterlab-nodejs-ss-sm.png)

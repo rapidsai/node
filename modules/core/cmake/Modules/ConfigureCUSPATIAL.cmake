@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021-2022, NVIDIA CORPORATION.
+# Copyright (c) 2021-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,47 +15,64 @@
 #=============================================================================
 include_guard(GLOBAL)
 
-function(find_and_configure_cuspatial)
+include(${CMAKE_CURRENT_LIST_DIR}/get_cpm.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/get_version.cmake)
 
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUDF.cmake)
+set(cuspatial_VERSION 25.04.00)
+set(cuspatial_GIT_TAG branch-25.04)
 
-    _get_rapidsai_module_version(cuspatial VERSION)
+_get_rapidsai_module_version(cuspatial VERSION GIT_TAG)
+set(VERSION 25.04)
 
-    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
+_clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
 
-    _set_thrust_dir_if_exists()
-    _set_package_dir_if_exists(cudf cudf)
-    _set_package_dir_if_exists(cuco cuco)
-    _set_package_dir_if_exists(dlpack dlpack)
-    _set_package_dir_if_exists(jitify jitify)
-    _set_package_dir_if_exists(nvcomp nvcomp)
-    _set_package_dir_if_exists(cuspatial cuspatial)
+if(NOT TARGET cuspatial::cuspatial)
+  _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
+  CPMFindPackage(NAME         cuspatial
+    VERSION                 ${VERSION}
+    GIT_REPOSITORY          https://github.com/rapidsai/cuspatial.git
+    GIT_TAG                 ${GIT_TAG}
+    CUSTOM_CACHE_KEY        ${GIT_TAG}
+    GIT_SHALLOW             TRUE
+    ${UPDATE_DISCONNECTED}
+    SOURCE_SUBDIR           cpp
+    OPTIONS                 "BUILD_TESTS OFF"
+                            "BUILD_BENCHMARKS OFF"
+                            "BUILD_SHARED_LIBS OFF"
+                            "CUDA_STATIC_RUNTIME ON"
+                            "PER_THREAD_DEFAULT_STREAM ON"
+                            "DISABLE_DEPRECATION_WARNING ON"
+                            "DISABLE_DEPRECATION_WARNINGS ON"
+    PATCHES                 "${CMAKE_CURRENT_LIST_DIR}/../patches/cuspatial.patch"
+  )
 
-    if(NOT TARGET cuspatial::cuspatial)
-        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
-        _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME        cuspatial
-            VERSION                ${VERSION}
-            # EXCLUDE_FROM_ALL       TRUE
-            GIT_REPOSITORY         https://github.com/rapidsai/cuspatial.git
-            GIT_TAG                branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW            TRUE
-            ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR          cpp
-            OPTIONS                "BUILD_TESTS OFF"
-                                   "BUILD_BENCHMARKS OFF"
-                                   "BUILD_SHARED_LIBS OFF"
-                                   "CUDA_STATIC_RUNTIME ON"
-                                   "PER_THREAD_DEFAULT_STREAM ON"
-                                   "DISABLE_DEPRECATION_WARNING ON")
-    endif()
+  if(cuspatial_ADDED)
+    rapids_export(
+      INSTALL ranger
+      VERSION 00.01.00
+      EXPORT_SET ranger-exports
+      GLOBAL_TARGETS ranger
+      NAMESPACE ranger::
+    )
+  endif()
+endif()
 
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
-    _statically_link_cuda_toolkit_libs(cuspatial::cuspatial)
+if(NOT cuspatial_BINARY_DIR OR (NOT cuspatial_SOURCE_DIR))
+  if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    set(cuspatial_BINARY_DIR "${CPM_BINARY_CACHE}/cuspatial-build")
+    set(cuspatial_SOURCE_DIR "${CPM_SOURCE_CACHE}/cuspatial/${GIT_TAG}")
+  else()
+    set(cuspatial_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cuspatial-build")
+    set(cuspatial_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cuspatial/${GIT_TAG}")
+  endif()
+endif()
 
-    set(cuspatial_VERSION "${cuspatial_VERSION}" PARENT_SCOPE)
-endfunction()
+set(CPM_cuspatial_SOURCE "${cuspatial_SOURCE_DIR}")
 
-find_and_configure_cuspatial()
+include(${CMAKE_CURRENT_LIST_DIR}/link_utils.cmake)
+_statically_link_cuda_toolkit_libs(cuspatial::cuspatial)
+
+rapids_export_package(INSTALL ranger ${PROJECT_NAME}-exports)
+rapids_export_package(INSTALL cuspatial ${PROJECT_NAME}-exports)
+rapids_export_find_package_root(INSTALL cuspatial "\${PACKAGE_PREFIX_DIR}/lib/cmake/cuspatial" EXPORT_SET ${PROJECT_NAME}-exports)
+rapids_export_find_package_root(INSTALL ranger "\${PACKAGE_PREFIX_DIR}/lib/cmake/ranger" EXPORT_SET ${PROJECT_NAME}-exports)

@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright 2022-2023 NVIDIA Corporation
+# Copyright 2022-2026 NVIDIA Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ function(find_or_configure_OpenBLAS)
       CPM_ARGS
         GIT_REPOSITORY   ${PKG_REPOSITORY}
         GIT_TAG          ${PKG_PINNED_TAG}
+        CUSTOM_CACHE_KEY ${PKG_PINNED_TAG}
         GIT_SHALLOW      TRUE
         EXCLUDE_FROM_ALL ${PKG_EXCLUDE_FROM_ALL}
         OPTIONS "USE_CUDA 1"

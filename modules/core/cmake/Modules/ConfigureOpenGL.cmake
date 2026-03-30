@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #=============================================================================
 include_guard(GLOBAL)
 
-# include(FindOpenGL REQUIRED)
+include(${CMAKE_CURRENT_LIST_DIR}/get_cpm.cmake)
 
 find_package(OpenGL REQUIRED EGL OpenGL)
 
@@ -28,3 +28,5 @@ message(STATUS "OpenGL includes: " ${OPENGL_INCLUDE_DIR})
 
 message(STATUS "OPENGL_egl_LIBRARY: " ${OPENGL_egl_LIBRARY})
 message(STATUS "OPENGL_EGL_INCLUDE_DIRS: " ${OPENGL_EGL_INCLUDE_DIRS})
+
+rapids_export_package(INSTALL OpenGL ${PROJECT_NAME}-exports COMPONENTS EGL OpenGL)

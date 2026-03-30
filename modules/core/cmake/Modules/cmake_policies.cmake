@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,13 @@ if(POLICY CMP0072)
   set(CMAKE_POLICY_DEFAULT_CMP0072 NEW)
 endif()
 
+if(POLICY CMP0099)
+  # Link properties are transitive over private dependencies of static libraries
+  # https://cmake.org/cmake/help/latest/policy/CMP0099.html#policy:CMP0099
+  cmake_policy(SET CMP0099 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0099 NEW)
+endif()
+
 if(POLICY CMP0102)
   # empty cache variable sets
   # https://cmake.org/cmake/help/latest/policy/CMP0102.html#policy:CMP0102
@@ -42,3 +49,26 @@ if(POLICY CMP0126)
   cmake_policy(SET CMP0126 NEW)
   set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
 endif()
+
+if(POLICY CMP0169)
+  # Allow calling FetchContent_Populate with declared details
+  # https://cmake.org/cmake/help/latest/policy/CMP0169.html
+  cmake_policy(SET CMP0169 OLD)
+  set(CMAKE_POLICY_DEFAULT_CMP0169 OLD)
+endif()
+
+if(POLICY CMP0177)
+  # install() DESTINATION paths are normalized
+  # https://cmake.org/cmake/help/latest/policy/CMP0177.html
+  cmake_policy(SET CMP0177 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0177 NEW)
+endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
+
+option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
+
+# Don't use sccache-dist for CMake's compiler tests
+set(ENV{SCCACHE_NO_DIST_COMPILE} "1")

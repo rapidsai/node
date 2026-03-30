@@ -3,6 +3,7 @@
 **/doc/
 **/lib/
 **/build/
+**/_build/
 **/.cache
 **/.clangd
 **/.ccache

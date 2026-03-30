@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021-2023, NVIDIA CORPORATION.
+# Copyright (c) 2021-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,69 +15,91 @@
 #=============================================================================
 include_guard(GLOBAL)
 
-function(find_and_configure_cuml)
 
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_nccl.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUMLPRIMS.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/get_cpm.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/get_version.cmake)
 
-    _get_rapidsai_module_version(cuml VERSION)
+_get_rapidsai_module_version(cuml VERSION GIT_TAG)
 
-    _clean_build_dirs_if_not_fully_built(cuml libcuml++)
+_clean_build_dirs_if_not_fully_built(cuml libcuml++_static)
 
-    _set_thrust_dir_if_exists()
-    _set_package_dir_if_exists(cuml cuml)
-    _set_package_dir_if_exists(raft raft)
-    _set_package_dir_if_exists(faiss faiss)
-    _set_package_dir_if_exists(Treelite cuml)
-    _set_package_dir_if_exists(GPUTreeShap cuml)
-    _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
+set(CUVS_LIB cuvs::cuvs_static)
 
-    if(NOT TARGET cuml::cuml)
-        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
-        _get_update_disconnected_state(cuml ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME        cuml
-            VERSION                ${VERSION}
-            # EXCLUDE_FROM_ALL       TRUE
-            GIT_REPOSITORY         https://github.com/rapidsai/cuml.git
-            GIT_TAG                branch-${MAJOR_AND_MINOR}
-            GIT_SHALLOW            TRUE
-            ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR          cpp
-            OPTIONS                "WITH_UCX ON"
-                                   "SINGLEGPU OFF"
-                                   "CUDA_STATIC_RUNTIME ON"
-                                   "BUILD_TESTS OFF"
-                                   "BUILD_BENCHMARKS OFF"
-                                   "DISABLE_OPENMP OFF"
-                                   "DETECT_CONDA_ENV OFF"
-                                   "ENABLE_CUMLPRIMS_MG ON"
-                                   "BUILD_SHARED_LIBS OFF"
-                                   "BUILD_CUML_MG_TESTS OFF"
-                                   "BUILD_CUML_MG_BENCH OFF"
-                                   "BUILD_CUML_STD_COMMS ON"
-                                   "BUILD_CUML_MPI_COMMS ON"
-                                   "BUILD_CUML_TESTS OFF"
-                                   "BUILD_CUML_BENCH OFF"
-                                   "BUILD_PRIMS_TESTS OFF"
-                                   "BUILD_CUML_EXAMPLES OFF"
-                                   "BUILD_CUML_C_LIBRARY OFF"
-                                   "BUILD_CUML_CPP_LIBRARY ON"
-                                   "BUILD_CUML_PRIMS_BENCH OFF"
-                                   "RAFT_USE_FAISS_STATIC ON"
-                                   "CUML_USE_FAISS_STATIC ON"
-                                   "CUML_USE_TREELITE_STATIC ON"
-                                   "CUML_EXPORT_TREELITE_LINKAGE ON"
-                                   "CUML_USE_CUMLPRIMS_MG_STATIC ON"
-            PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/../patches/cuml.patch || true
-        )
-    endif()
+if(NOT TARGET cuml::cuml++_static)
+  _get_update_disconnected_state(cuml ${VERSION} UPDATE_DISCONNECTED)
 
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
-    _statically_link_cuda_toolkit_libs(cuml::cuml++)
+  # For raft/cuvs sub-builds
+  set(BUILD_C_LIBRARY OFF)
+  set(BUILD_CUVS_BENCH OFF)
+  set(BUILD_CAGRA_HNSWLIB OFF)
+  set(BUILD_MG_ALGOS OFF)
+  set(CUDA_STATIC_RUNTIME ON)
+  set(CUDA_STATIC_MATH_LIBRARIES ON)
+  set(CUVS_COMPILE_DYNAMIC_ONLY OFF)
+  set(CUVS_STATIC_RAPIDS_LIBRARIES ON)
+  set(DISABLE_DEPRECATION_WARNINGS ON)
 
-    set(cuml_VERSION "${cuml_VERSION}" PARENT_SCOPE)
-endfunction()
+  CPMFindPackage(NAME         cuml
+    VERSION                 ${VERSION}
+    GIT_REPOSITORY          https://github.com/rapidsai/cuml.git
+    GIT_TAG                 ${GIT_TAG}
+    CUSTOM_CACHE_KEY        ${GIT_TAG}
+    GIT_SHALLOW             TRUE
+    ${UPDATE_DISCONNECTED}
+    SOURCE_SUBDIR           cpp
+    OPTIONS                 "CUML_ENABLE_GPU ON"
+                            "BUILD_CUML_CPP_LIBRARY ON"
+                            "CUML_RAFT_CLONE_ON_PIN ON"
+                            "CUML_CUVS_CLONE_ON_PIN ON"
+                            "DISABLE_OPENMP ON"
+                            "SINGLEGPU ON"
+                            "CUDA_STATIC_RUNTIME ON"
+                            "CUDA_STATIC_MATH_LIBRARIES ON"
+                            "CUML_USE_CUVS_STATIC ON"
+                            "CUML_USE_TREELITE_STATIC ON"
+                            "BUILD_SHARED_LIBS OFF"
+                            "BUILD_CUML_C_LIBRARY OFF"
+                            "BUILD_CUML_TESTS OFF"
+                            "BUILD_PRIMS_TESTS OFF"
+                            "BUILD_CUML_EXAMPLES OFF"
+                            "BUILD_CUML_BENCH OFF"
+                            "DETECT_CONDA_ENV OFF"
+                            "DISABLE_DEPRECATION_WARNINGS ON"
+                            "CUDA_WARNINGS_AS_ERRORS OFF"
+                            "CUML_COMPILE_DYNAMIC_ONLY OFF"
+                            "BUILD_CUML_MG_TESTS OFF"
+                            "BUILD_CUML_MPI_COMMS OFF"
+                            "CUDA_ENABLE_KERNEL_INFO OFF"
+                            "CUDA_ENABLE_LINE_INFO OFF"
+                            "NVTX OFF"
+                            "USE_CCACHE OFF"
+                            "CUML_EXCLUDE_RAFT_FROM_ALL OFF"
+                            "CUML_EXCLUDE_TREELITE_FROM_ALL OFF"
+                            "CMAKE_C_FLAGS -w"
+                            "CMAKE_CXX_FLAGS -w"
+                            "CMAKE_CUDA_FLAGS -w"
+    PATCHES                 "${CMAKE_CURRENT_LIST_DIR}/../patches/cuml.patch"
+  )
+endif()
 
-find_and_configure_cuml()
+if(NOT cuml_BINARY_DIR OR (NOT cuml_SOURCE_DIR))
+  if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    set(cuml_BINARY_DIR "${CPM_BINARY_CACHE}/cuml-build")
+    set(cuml_SOURCE_DIR "${CPM_SOURCE_CACHE}/cuml/${GIT_TAG}")
+  else()
+    set(cuml_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cuml-build")
+    set(cuml_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cuml/${GIT_TAG}")
+  endif()
+endif()
+
+rapids_export_find_package_root(BUILD Treelite "${cuml_BINARY_DIR}" EXPORT_SET cuml-exports)
+
+set(CPM_cuml_SOURCE "${cuml_SOURCE_DIR}")
+
+include(${CMAKE_CURRENT_LIST_DIR}/link_utils.cmake)
+_statically_link_cuda_toolkit_libs(cuml::cuml++_static)
+
+rapids_export_package(INSTALL cuml ${PROJECT_NAME}-exports)
+rapids_export_find_package_root(INSTALL cuml "\${PACKAGE_PREFIX_DIR}/lib/cmake/cuml" EXPORT_SET ${PROJECT_NAME}-exports)
+rapids_export_find_package_root(INSTALL Treelite "\${PACKAGE_PREFIX_DIR}/lib/cmake/treelite" EXPORT_SET ${PROJECT_NAME}-exports)
+rapids_export_find_package_root(INSTALL GPUTreeShap "\${PACKAGE_PREFIX_DIR}/lib/cmake/gputreeshap" EXPORT_SET ${PROJECT_NAME}-exports)
