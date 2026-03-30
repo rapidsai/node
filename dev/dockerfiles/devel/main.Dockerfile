@@ -1,8 +1,24 @@
-# syntax=docker/dockerfile:1.3
-
+# syntax=docker/dockerfile:1
+ARG TARGETARCH
 ARG AMD64_BASE
 ARG ARM64_BASE
 ARG NODE_VERSION=16.20.2
+
+# Install latest ninja
+FROM alpine:latest AS ninja-amd64
+RUN apk add --no-cache unzip
+ADD https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip /tmp
+
+FROM alpine:latest AS ninja-arm64
+RUN apk add --no-cache unzip
+ADD https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux-aarch64.zip /tmp
+RUN mv /tmp/ninja-linux-aarch64.zip /tmp/ninja-linux.zip
+
+FROM ninja-${TARGETARCH} AS ninja
+
+ARG TARGETARCH
+
+RUN unzip -d /usr/bin -o /tmp/ninja-linux.zip && chmod +x /usr/bin/ninja
 
 FROM node:$NODE_VERSION-bullseye-slim as node
 
@@ -21,6 +37,8 @@ ONBUILD RUN \
 
 FROM base-${TARGETARCH} as compilers
 
+ARG TARGETARCH
+
 SHELL ["/bin/bash", "-c"]
 
 ENV CUDA_HOME="/usr/local/cuda"
@@ -36,13 +54,14 @@ ${CUDA_HOME}/lib64:\
 ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
-ARG GCC_VERSION=13
-ARG CMAKE_VERSION=3.30.5
-ARG SCCACHE_VERSION=0.10.0
-ARG LINUX_VERSION=ubuntu20.04
+ARG CMAKE_VERSION=4.2.3
+ARG LINUX_VERSION=ubuntu24.04
 
 ARG NODE_VERSION=16.20.2
 ENV NODE_VERSION=$NODE_VERSION
+
+# Install ninja
+COPY --from=ninja /usr/bin/ninja /usr/bin/ninja
 
 # Install node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
@@ -72,11 +91,10 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  \
  && apt update \
  && apt install --no-install-recommends -y \
-    git \
+    git unzip \
     # Needed for CMake to find static `liblapack.a`
     gfortran \
-    ninja-build \
-    gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
+    gcc g++ gdb \
     curl libssl-dev libcurl4-openssl-dev xz-utils zlib1g-dev liblz4-dev \
     # From opengl/glvnd:devel
     pkg-config \
@@ -93,7 +111,7 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  && bash /tmp/cmake_${CMAKE_VERSION}.sh --skip-license --exclude-subdir --prefix=/usr \
  \
  # Install sccache
- && curl -SsL "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
+ && curl -SsL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
     | tar -C /usr/bin -zf - --wildcards --strip-components=1 -x */sccache \
  && chmod +x /usr/bin/sccache \
  \
@@ -199,7 +217,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 ARG TARGETARCH
 
 ARG ADDITIONAL_GROUPS
-ARG UCX_VERSION=1.12.1
+ARG UCX_VERSION=1.20.0
 ARG FIXUID_VERSION=0.5.1
 ARG NODE_WEBRTC_VERSION=0.4.7
 
@@ -207,7 +225,7 @@ ARG NODE_WEBRTC_VERSION=0.4.7
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install --no-install-recommends -y \
-    jq entr ssh vim nano sudo less bash-completion ripgrep fzf \
+    lsof bsdextrautils jq entr ssh vim nano sudo less bash-completion ripgrep fzf \
     # X11 dependencies
     libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
@@ -218,8 +236,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     build-essential libxmu-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
-    # SQL dependencies
-    maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev \
  \
@@ -247,10 +263,6 @@ paths:\n\
       useradd --uid 1000 --shell /bin/bash --user-group ${ADDITIONAL_GROUPS} --create-home --home-dir /opt/rapids rapids; \
     fi \
  && mkdir -p /opt/rapids/node/.cache \
- && mkdir -p -m 0700 /opt/rapids/.ssh \
- \
- # Add GitHub's public keys to known_hosts
- && curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /opt/rapids/.ssh/known_hosts \
  && cp /root/.npmrc /opt/rapids/.npmrc \
  && ln -s /opt/rapids/node/.vscode/server /opt/rapids/.vscode-server \
  && ln -s /opt/rapids/node/.vscode/server-insiders /opt/rapids/.vscode-server-insiders \
