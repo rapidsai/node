@@ -23,13 +23,13 @@ jobs:
       files-to-diff: |
         modules
       build-args: |
-        "UCX_VERSION=1.12.1"
+        "UCX_VERSION=1.20.0"
 
   build-and-publish-devel-packages-image:
     name: Build devel packages image
     needs:
       - build-and-publish-devel-main-image
-    uses: ./.github/workflows/build-and-push-image-ssh.yml
+    uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
     with:
       from_: devel-main
@@ -149,26 +149,6 @@ jobs:
         dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
-  build-and-publish-runtime-sql-image:
-    name: Build runtime sql image
-    needs:
-      - build-and-publish-devel-packages-image
-      - build-and-publish-runtime-cuda-base-image
-    uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
-    with:
-      from_: runtime-base
-      image: runtime-sql
-      build: devel-packages
-      devel: devel-main
-      file: dev/dockerfiles/runtime/sql.Dockerfile
-      files-to-diff: |
-        modules/(core|rmm|cuda|cudf|sql)
-        dev/dockerfiles/runtime/base.Dockerfile
-      manual-build: ${{ github.event_name == 'workflow_dispatch' }}
-      build-args: |
-        "UCX_VERSION=1.12.1"
-
   build-and-publish-runtime-main-image:
     name: Build runtime main image
     needs:
@@ -183,11 +163,11 @@ jobs:
       devel: devel-main
       file: dev/dockerfiles/runtime/main.Dockerfile
       files-to-diff: |
-        modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck.gl|jsdom)
+        modules/(core|cuda|glfw|webgl|rmm|cudf|cuml|cugraph|cuspatial|deck.gl|jsdom)
         dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=1.12.1"
+        "UCX_VERSION=1.20.0"
 
   build-and-publish-runtime-demo-image:
     name: Build runtime demo image
@@ -207,7 +187,7 @@ jobs:
         dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=1.12.1"
+        "UCX_VERSION=1.20.0"
 
   build-and-publish-runtime-notebook-image:
     name: Build runtime notebook image

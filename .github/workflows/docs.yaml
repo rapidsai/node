@@ -18,14 +18,14 @@ jobs:
   update:
     name: Update Docs
     runs-on: ubuntu-20.04
-    container: node:16.15.1-bullseye
+    container: node:16.20.2-bullseye
     steps:
       - name: Checkout main
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           path: main
       - name: Checkout gh-pages
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
           path: gh-pages

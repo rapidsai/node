@@ -5,6 +5,10 @@ on:
     branches:
       - 'pull-request/**'
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build-pull-request:
     name: Build pull request
@@ -13,11 +17,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["11.6.2"]
-        LINUX: ["ubuntu20.04"]
+        CUDA: ["12.9.1", "13.1.1"]
+        LINUX: ["ubuntu24.04"]
     env:
-      UCX: "1.12.1"
-      NODE: "16.15.1"
+      UCX: "1.20.0"
+      NODE: "16.20.2"
       REGISTRY: "ghcr.io"
     steps:
       - name: Dump runner context
@@ -39,7 +43,7 @@ jobs:
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           lfs: true
           path: node
@@ -50,51 +54,43 @@ jobs:
         run: git lfs checkout
         working-directory: node
 
-      - name: Get last successful main commit sha
-        uses: nrwl/last-successful-commit-action@v1
-        id: last_main_commit
+      - name: Get changed files
+        id: changed
+        uses: rapidsai/shared-actions/changed-files@main
         with:
-          branch: main
-          workflow_id: "merge.pr.yml"
-          github_token: "${{ github.token }}"
-
-      - name: Check if source files changed
-        id: src_changed
-        uses: tj-actions/changed-files@v35.4.4
-        with:
-          path: node
-          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
-          files: |
-            yarn.lock
-            lerna.json
-            package.json
-            modules/**/*.c
-            modules/**/*.h
-            modules/**/*.ts
-            modules/**/*.js
-            modules/**/*.cu
-            modules/**/*.cuh
-            modules/**/*.cpp
-            modules/**/*.hpp
-            modules/**/*.json
-            modules/**/*.cmake
-            modules/**/*.tsconfig
-            modules/**/package.json
-            modules/**/CMakeLists.txt
+          files_yaml: |
+            dev:
+              - dev/dockerfiles/devel/main.Dockerfile
+            src:
+              - node/yarn.lock
+              - node/lerna.json
+              - node/package.json
+              - node/modules/**/*.c
+              - node/modules/**/*.h
+              - node/modules/**/*.ts
+              - node/modules/**/*.js
+              - node/modules/**/*.cu
+              - node/modules/**/*.cuh
+              - node/modules/**/*.cpp
+              - node/modules/**/*.hpp
+              - node/modules/**/*.json
+              - node/modules/**/*.cmake
+              - node/modules/**/*.tsconfig
+              - node/modules/**/package.json
+              - node/modules/**/CMakeLists.txt
 
       - name: Check if GitHub Actions or devel main Dockerfile changed
         id: dev_changed
-        uses: tj-actions/changed-files@v35.4.4
+        uses: rapidsai/shared-actions/changed-files@main
         with:
           path: node
-          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
-          files: |
-            dev/dockerfiles/devel/main.Dockerfile
+          files_yaml: |
 
       - name: Update runner env
         env:
-          dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
-          src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
+          dev_changed: "${{ fromJSON(steps.changed.outputs.changed_file_groups).dev == 'true' }}"
+          src_changed: "${{ fromJSON(steps.changed.outputs.changed_file_groups).src == 'true' ||
+                            fromJSON(steps.changed.outputs.changed_file_groups).src_any_deleted == 'true' }}"
         shell: bash
         run: |
           VERSION="$(cat node/lerna.json | jq -r '.version')"
@@ -138,15 +134,6 @@ jobs:
             .yarn
             .cache
             node/node_modules
-
-      - name: Set up ssh-agent
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-auth-sock: ${{ env.HOME }}/ssh-agent
-          ssh-private-key: |
-            ${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
-            ${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
 
       - name: Make container .env
         if: env.dev_changed == 'true' || env.src_changed == 'true'
@@ -194,8 +181,6 @@ jobs:
           fi
           docker run --rm -t ${RUN_ARGS} \
             -v "$HOME/.ssh:$HOME/.ssh" \
-            -e "SSH_AUTH_SOCK=/ssh-agent" \
-            -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.ssh:/opt/rapids/.ssh" \
             -v "$HOME/.gitconfig:/etc/gitconfig" \
             ${MAIN_IMG} bash -c "set -ex; \

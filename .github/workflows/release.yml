@@ -5,7 +5,7 @@ on:
     inputs:
       rapids-version:
         type: string
-        default: "22.12.2"
+        default: "26.4.0"
         description: "RAPIDS version"
       make-release:
         type: boolean
@@ -29,19 +29,20 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
 
   extract-and-publish-packages:
     name: Extract libs and publish release
-    runs-on: linux-amd64-cpu16
+    runs-on: linux-${{ matrix.ARCH }}-cpu16
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["11.6.2"]
-        ARCH: ["amd64"]
-        NODE: ["16.15.1"]
-        LINUX: ["ubuntu20.04"]
+        CUDA: ["12.9.1", "13.1.1"]
+        ARCH: ["amd64", "arm64"]
+        NODE: ["16.20.2"]
+        LINUX: ["ubuntu24.04"]
     steps:
       - name: Extract node native addons
         shell: bash
@@ -59,41 +60,29 @@ jobs:
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
-          for x in cuda rmm cudf cuml cugraph cuspatial io sql; do
+          for x in cuda rmm cudf cuml cugraph cuspatial io; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
                   --wildcards --strip-components=2 \
                   -C build -x "*/rapidsai_${x}*.node" \
                   --transform="s/rapidsai_${x}.node/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}.node/" \
-                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm60/" \
-                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm70/" \
-                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm75/" \
-                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm80/" \
-                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm86/" ;
+                  --transform="s/rapidsai_${x}_(.*)/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm\1/" ;
           done;
-
-          tar -zf build/rapidsai_sql-*.tar.gz \
-              --wildcards --strip-components=2 \
-              -C build -x "*/blazingsql-*.jar" ;
 
           rm -rf build/*.tar.gz;
 
       - name: Upload node native addons
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         if: ${{ inputs.make-release != true }}
         with:
-          path: |
-            build/*.jar
-            build/*.node
+          path: build/*.node
           name: rapidsai-native-addons
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: ${{ inputs.make-release == true }}
         with:
           body: ""
-          files: |
-            build/*.jar
-            build/*.node
+          files: build/*.node
           tag_name: "v${{ env.RAPIDS }}"
           repository: ${{ github.repository }}
           draft: ${{ inputs.draft-release == true }}
@@ -105,10 +94,10 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["11.6.2"]
+        CUDA: ["12.9.1", "13.1.1"]
         ARCH: ["amd64"]
-        NODE: ["16.15.1"]
-        LINUX: ["ubuntu20.04"]
+        NODE: ["16.20.2"]
+        LINUX: ["ubuntu24.04"]
     steps:
       - name: Publish npm packages
         shell: bash

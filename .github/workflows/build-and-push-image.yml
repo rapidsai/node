@@ -41,7 +41,7 @@ on:
       node-version:
         type: string
         required: false
-        default: "16.15.1"
+        default: "16.20.2"
       files-to-diff:
         default: ""
         type: string
@@ -49,12 +49,13 @@ on:
 
 jobs:
   build-and-publish-image:
-    runs-on: linux-amd64-cpu4
+    runs-on: linux-${{ matrix.ARCH }}-cpu4
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["11.6.2"]
-        LINUX: ["ubuntu20.04"]
+        ARCH: ["amd64", "arm64"]
+        CUDA: ["12.9.1", "13.1.1"]
+        LINUX: ["ubuntu24.04"]
     steps:
       - name: Dump runner context
         shell: bash
@@ -72,7 +73,7 @@ jobs:
           echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           lfs: true
           fetch-depth: 0
@@ -87,30 +88,21 @@ jobs:
         with:
           tool_cache: ${{ runner.tool_cache }}
 
-      - name: Get last successful main commit sha
-        id: last_main_commit
+      - name: Get changed files
+        id: changed
         if: ${{ ! inputs.manual-build }}
-        uses: nrwl/last-successful-commit-action@v1
+        uses: rapidsai/shared-actions/changed-files@main
         with:
-          branch: main
-          workflow_id: "merge.pr.yml"
-          github_token: "${{ github.token }}"
-
-      - name: Check if files changed
-        id: files_changed
-        if: ${{ ! inputs.manual-build }}
-        uses: tj-actions/changed-files@v35.4.4
-        with:
-          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
-          files: |
-            .npmrc
-            yarn.lock
-            lerna.json
-            ${{ inputs.file }}
-            ${{ inputs.files-to-diff }}
-            .github/workflows/merge.pr.yml
-            .github/workflows/build-and-push-image.yml
-            .github/actions/build-and-publish-image/action.yml
+          files_yaml: |
+            all: |
+              .npmrc
+              yarn.lock
+              lerna.json
+              ${{ inputs.file }}
+              ${{ inputs.files-to-diff }}
+              .github/workflows/merge.pr.yml
+              .github/workflows/build-and-push-image.yml
+              .github/actions/build-and-publish-image/action.yml
 
       - name: Set environment variables
         shell: bash
@@ -126,7 +118,9 @@ jobs:
           CUDA_VERSION_MINOR="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)"
           CUDA_VERSION_PATCH="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)"
           RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
-          files_changed="${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}"
+          files_changed="${{
+            fromJSON(steps.changed.outputs.changed_file_groups).all == 'true' ||
+            fromJSON(steps.changed.outputs.changed_file_groups).all_any_deleted == 'true' }}"
 
           echo "NODE=$NODE" >> $GITHUB_ENV;
           echo "VERSION=$VERSION" >> $GITHUB_ENV;
