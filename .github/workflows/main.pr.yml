@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ runner.environment == 'self-hosted' }}" >> $GITHUB_ENV
+          echo "is_gha_runner=${{ runner.environment != 'self-hosted' }}" >> $GITHUB_ENV
           echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
           echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
           echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV

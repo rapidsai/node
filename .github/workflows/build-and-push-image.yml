@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}";
-          echo "is_gha_runner=${{ runner.environment == 'self-hosted' }}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ runner.environment != 'self-hosted' }}" >> $GITHUB_ENV;
 
       - name: Set up self-hosted runner
         if: ${{ env.is_gha_runner != 'true' }}
