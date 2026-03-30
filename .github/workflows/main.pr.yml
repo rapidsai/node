@@ -58,34 +58,28 @@ jobs:
       - name: Get changed files
         id: changed
         uses: rapidsai/shared-actions/changed-files@main
+        working-directory: node
         with:
           files_yaml: |
             dev:
               - dev/dockerfiles/devel/main.Dockerfile
             src:
-              - node/yarn.lock
-              - node/lerna.json
-              - node/package.json
-              - node/modules/**/*.c
-              - node/modules/**/*.h
-              - node/modules/**/*.ts
-              - node/modules/**/*.js
-              - node/modules/**/*.cu
-              - node/modules/**/*.cuh
-              - node/modules/**/*.cpp
-              - node/modules/**/*.hpp
-              - node/modules/**/*.json
-              - node/modules/**/*.cmake
-              - node/modules/**/*.tsconfig
-              - node/modules/**/package.json
-              - node/modules/**/CMakeLists.txt
-
-      - name: Check if GitHub Actions or devel main Dockerfile changed
-        id: dev_changed
-        uses: rapidsai/shared-actions/changed-files@main
-        with:
-          path: node
-          files_yaml: |
+              - yarn.lock
+              - lerna.json
+              - package.json
+              - modules/**/*.c
+              - modules/**/*.h
+              - modules/**/*.ts
+              - modules/**/*.js
+              - modules/**/*.cu
+              - modules/**/*.cuh
+              - modules/**/*.cpp
+              - modules/**/*.hpp
+              - modules/**/*.json
+              - modules/**/*.cmake
+              - modules/**/*.tsconfig
+              - modules/**/package.json
+              - modules/**/CMakeLists.txt
 
       - name: Update runner env
         env:
