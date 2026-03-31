@@ -6553,6 +6553,14 @@ echarts-for-react@3.0.1:
     fast-deep-equal "^3.1.3"
     size-sensor "^1.0.1"
 
+echarts-for-react@3.0.6:
+  version "3.0.6"
+  resolved "https://registry.npmjs.org/echarts-for-react/-/echarts-for-react-3.0.6.tgz#267908f53854856833dc39088d2a97ab4bbfad86"
+  integrity sha512-4zqLgTGWS3JvkQDXjzkR1k1CHRdpd6by0988TWMJgnvDytegWLbeP/VNZmMa+0VJx2eD7Y632bi2JquXDgiGJg==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+    size-sensor "^1.0.1"
+
 echarts@5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/echarts/-/echarts-5.0.2.tgz#1726d17a57cf05d62cd0567b4325e1201a56baf6"
@@ -6560,6 +6568,14 @@ echarts@5.0.2:
   dependencies:
     tslib "2.0.3"
     zrender "5.0.4"
+
+echarts@6.0.0:
+  version "6.0.0"
+  resolved "https://registry.npmjs.org/echarts/-/echarts-6.0.0.tgz#2935aa7751c282d1abbbf7d719d397199a15b9e7"
+  integrity sha512-Tte/grDQRiETQP4xz3iZWSvoHrkCQtwqd6hs+mifXcjrCuo2iKWbajFObuLJVBlDIJlOzgQPd1hsaKt/3+OMkQ==
+  dependencies:
+    tslib "2.3.0"
+    zrender "6.0.0"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -15133,6 +15149,11 @@ tslib@2.0.3:
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.0.3.tgz#8e0741ac45fc0c226e58a17bfc3e64b9bc6ca61c"
   integrity sha512-uZtkfKblCEQtZKBF6EBXVZeQNl82yqtDQdv+eck8u7tdPxjLu2/lp5/uPW+um2tpuxINHWy3GhiccY7QgEaVHQ==
 
+tslib@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.npmjs.org/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
+  integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+
 tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
@@ -16188,3 +16209,10 @@ zrender@5.0.4:
   integrity sha512-DJpy0yrHYY5CuH6vhb9IINWbjvBUe/56J8aH86Jb7O8rRPAYZ3M2E469Qf5B3EOIfM3o3aUrO5edRQfLJ+l1Qw==
   dependencies:
     tslib "2.0.3"
+
+zrender@6.0.0:
+  version "6.0.0"
+  resolved "https://registry.npmjs.org/zrender/-/zrender-6.0.0.tgz#947077bc69cdea744134984927f132f3727f8079"
+  integrity sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==
+  dependencies:
+    tslib "2.3.0"

@@ -89,6 +89,7 @@
     "modules/demo/umap",
     "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
+    "modules/demo/client-server",
     "modules/demo/api-server",
     "modules/demo/viz-app"
   ],
