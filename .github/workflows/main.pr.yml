@@ -13,7 +13,7 @@ jobs:
   build-pull-request:
     name: Build pull request
     # runs-on: ubuntu-20.04
-    runs-on: linux-${{ matrix.ARCH }}-cpu8
+    runs-on: linux-${{ matrix.ARCH }}-cpu16
     strategy:
       fail-fast: false
       matrix:
