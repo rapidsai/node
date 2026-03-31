@@ -4,7 +4,6 @@ set -Eeuo pipefail
 
 cmd_args=()
 scope_args=()
-CMAKE_BUILD_PARALLEL_LEVEL=
 
 while test -n "${1:+x}"; do
     case "$1" in
@@ -13,8 +12,7 @@ while test -n "${1:+x}"; do
             shift 2
             ;;
         --parallel)
-            CMAKE_BUILD_PARALLEL_LEVEL="$2"
-            export CMAKE_BUILD_PARALLEL_LEVEL
+            export CMAKE_BUILD_PARALLEL_LEVEL="$2"
             cmd_args+=("$1" "$2")
             shift 2
             ;;

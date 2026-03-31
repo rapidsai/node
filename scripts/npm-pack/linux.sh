@@ -5,19 +5,19 @@ set -Eeuo pipefail
 rm -rf "$PWD/build"
 mkdir -p "$PWD/build"
 
-args="--stream --no-sort --parallel";
+declare -a args=(--stream --no-sort --parallel);
 
 echo "running npm pack..."
 
-lerna exec ${args} "npm pack --pack-destination $PWD/build \$PWD";
+lerna exec "${args[@]}" "npm pack --pack-destination $PWD/build \$PWD";
 
 echo "running cpack..."
 
-pkgs="$(lerna run ${args} --no-prefix --scope '@rapidsai/*' dev:cpack:enabled)";
+declare -a pkgs="($(lerna run "${args[@]}" --no-prefix --scope '@rapidsai/*' dev:cpack:enabled))";
 
-args+=" $(for name in ${pkgs}; do echo "--scope $name"; done)";
+args+=("${pkgs[@]/#/--scope }")
 
-lerna exec ${args} "\
+lerna exec "${args[@]}" "\
 cd _build/Release \
 && cpack -G TGZ && rm -rf _CPack_Packages \
 && mv ./rapidsai_*-*-*.tar.gz \$LERNA_ROOT_PATH/build/"
