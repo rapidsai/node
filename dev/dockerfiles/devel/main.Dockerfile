@@ -197,7 +197,7 @@ ONBUILD RUN export DEBIAN_FRONTEND=noninteractive \
  && wget -O - https://github.com/trxcllnt/llnode/archive/refs/heads/use-llvm-project-monorepo.tar.gz \
   | tar -C /usr/local/lib/llnode -xzf - --strip-components=1 \
  && npm pack --pack-destination /usr/local/lib/llnode /usr/local/lib/llnode \
- && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
+ && npm install --location=global --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
  && echo "llnode: $(which -a llnode)" \
  && echo "llnode version: $(llnode --version)" \
  \
@@ -298,10 +298,10 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
     https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
   | tee /etc/bash_completion.d/yarn >/dev/null \
  \
- # Install NVENC-enabled wrtc
- && wget -O /opt/rapids/wrtc-dev.tgz \
-    https://github.com/trxcllnt/node-webrtc-builds/releases/download/v${NODE_WEBRTC_VERSION}/wrtc-${NODE_WEBRTC_VERSION}-linux-${TARGETARCH}.tgz \
- && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
+#  # Install NVENC-enabled wrtc
+#  && wget -O /opt/rapids/wrtc-dev.tgz \
+#     https://github.com/trxcllnt/node-webrtc-builds/releases/download/v${NODE_WEBRTC_VERSION}/wrtc-${NODE_WEBRTC_VERSION}-linux-${TARGETARCH}.tgz \
+#  && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
