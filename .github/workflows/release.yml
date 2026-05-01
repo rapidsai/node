@@ -62,7 +62,7 @@ jobs:
 
           for x in cuda rmm cudf cuml cugraph cuspatial io; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
-                  --wildcards --strip-components=2 \
+                  --wildcards --strip-components=1 \
                   -C build -x "*/rapidsai_${x}*.node" \
                   --transform="s/rapidsai_${x}.node/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}.node/" \
                   --transform="s/rapidsai_${x}_(.*)/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm\1/" ;
@@ -71,14 +71,14 @@ jobs:
           rm -rf build/*.tar.gz;
 
       - name: Upload node native addons
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ inputs.make-release != true }}
         with:
           path: build/*.node
           name: rapidsai-native-addons
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         if: ${{ inputs.make-release == true }}
         with:
           body: ""
@@ -90,11 +90,11 @@ jobs:
   publish-npm-packages:
     if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
     name: Publish npm packages
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["12.9.1", "13.1.1"]
+        CUDA: ["13.1.1"]
         ARCH: ["amd64"]
         NODE: ["24.14.1"]
         LINUX: ["ubuntu24.04"]
