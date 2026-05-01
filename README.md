@@ -41,8 +41,6 @@ Check out our [demos](https://github.com/rapidsai/node/tree/main/modules/demo) t
 * [Simulating & rendering with cuGraph](https://github.com/rapidsai/node/tree/main/modules/demo/graph/)
 * [Querying millions of points with cuSpatial](https://github.com/rapidsai/node/tree/main/modules/demo/spatial/)
 
-Check out our [Jupyter Lab Notebook Demos](https://github.com/rapidsai/node/tree/main/modules/cudf/notebooks) to see how to use Node.js for GPU accelerated data science.
-
 ## License
 
 This work is licensed under the [Apache-2.0 license](https://github.com/rapidsai/node/tree/main/LICENSE).
