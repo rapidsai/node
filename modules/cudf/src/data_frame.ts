@@ -587,7 +587,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns DataFrame of Series cast to the new dtype
-   *make notebooks.run
+   * const df = new DataFrame({
    *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
    *  b: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]})
    * })
