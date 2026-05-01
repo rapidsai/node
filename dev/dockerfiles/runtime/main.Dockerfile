@@ -13,7 +13,6 @@ ENV RAPIDSAI_SKIP_DOWNLOAD=1
 
 RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
-        /tmp/rapids/wrtc-dev.tgz             \
         /tmp/rapids/rapidsai-core-*.tgz      \
         /tmp/rapids/rapidsai-cuda-*.tgz      \
         /tmp/rapids/rapidsai-glfw-*.tgz      \
@@ -29,9 +28,9 @@ RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
     for x in cuda rmm cudf cuml cugraph cuspatial io; do \
         mkdir node_modules/@rapidsai/${x}/build/Release; \
         tar -C node_modules/@rapidsai/${x}/build/Release \
-            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
-            --wildcards --strip-components=2 \
-            -x "**/lib/rapidsai_${x}.node" ; \
+            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz  \
+            --wildcards --strip-components=1             \
+            -x "**/rapidsai_${x}.node" ;                 \
     done;
 
 FROM scratch as ucx-amd64
@@ -74,7 +73,7 @@ RUN --mount=type=bind,from=ucx,target=/usr/src/ucx \
     # node-canvas dependencies
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg8 libgif7 librsvg2-2 \
  # Install UCX
- && tar -C /usr/src/ucx -xvjf /usr/src/ucx/ucx.tar.bz2; \
+ && tar -C /usr/src/ucx -xvjf /usr/src/ucx/ucx.tar.bz2 \
  && apt install -y --no-install-recommends /usr/src/ucx/*.deb || true \
  && apt install -y --fix-broken \
  # Clean up

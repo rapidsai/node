@@ -53,11 +53,11 @@ if __name__ == \"__main__\":\n\
  && apt update \
  && DEBIAN_FRONTEND=noninteractive \
     apt install -y --no-install-recommends \
-    python3-minimal libasound2 jupyter-notebook /tmp/JupyterLab-Setup-Debian.deb \
+    python3-minimal libasound2t64 jupyter-notebook /tmp/JupyterLab-Setup-Debian.deb \
  # Remove python3 kernelspec
  && jupyter kernelspec remove -f python3 \
  # Install ijavascript
- && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier ijavascript \
+ && npm install --location=global --no-audit --no-fund --no-update-notifier ijavascript \
  && ijsinstall --install=global --spec-path=full \
  \
  # Clean up

@@ -120,11 +120,10 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
 fund=false\n\
 audit=false\n\
 save-prefix=\n\
---omit=optional\n\
+omit=optional\n\
 save-exact=true\n\
 package-lock=false\n\
 update-notifier=false\n\
-scripts-prepend-node-path=true\n\
 registry=https://registry.npmjs.org/\n\
 " | tee /root/.npmrc >/dev/null' \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
@@ -301,7 +300,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 #  # Install NVENC-enabled wrtc
 #  && wget -O /opt/rapids/wrtc-dev.tgz \
 #     https://github.com/trxcllnt/node-webrtc-builds/releases/download/v${NODE_WEBRTC_VERSION}/wrtc-${NODE_WEBRTC_VERSION}-linux-${TARGETARCH}.tgz \
-#  && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
+#  && npm install --location=global --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
@@ -312,7 +311,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 ENV NO_UPDATE_NOTIFIER=1
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
-ENV npm_config_nodedir=/usr/local
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_PATH=/usr/local/lib/node_modules
 ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught --openssl-legacy-provider"
 

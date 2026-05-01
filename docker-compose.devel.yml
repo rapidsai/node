@@ -107,12 +107,11 @@ services:
       secrets:
         - sccache_credentials
       args:
-        CUDAARCHS: "${CUDAARCHS:-ALL}"
-        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
-        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:-}"
-        SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
-        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
-        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
+        CUDAARCHS: "${CUDAARCHS:-RAPIDS}"
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:---threads=100}"
+        SCCACHE_REGION: "${SCCACHE_REGION:-us-east-2}"
+        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-rapids-sccache-devs}"
         RAPIDS_VERSION: "${npm_package_config_rapids_version:-26.04.00}"
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-26.4.0}-devel-node${NODE_VERSION:-24.14.1}-cuda${CUDA_VERSION_MAJOR:-12}-${LINUX_VERSION:-ubuntu24.04}-main
     ulimits:

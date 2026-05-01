@@ -15,7 +15,7 @@ echo "running cpack..."
 
 declare -a pkgs="($(lerna run "${args[@]}" --no-prefix --scope '@rapidsai/*' dev:cpack:enabled))";
 
-args+=("${pkgs[@]/#/--scope }")
+mapfile -O "${#args[@]}" -t args < <(echo "${pkgs[*]/#/--scope }" | tr ' ' '\n')
 
 lerna exec "${args[@]}" "\
 cd _build/Release \
