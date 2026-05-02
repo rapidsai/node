@@ -42,7 +42,7 @@ x-main-service-settings: &main_service_settings
 
 services:
 
-  main:
+  main: &main_service
     <<: *main_service_settings
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-26.4.0}-devel-node${NODE_VERSION:-24.14.1}-cuda${CUDA_VERSION_MAJOR:-12}-${LINUX_VERSION:-ubuntu24.04}-main
     build:
@@ -73,6 +73,11 @@ services:
       - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
       - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:/ssh-agent"
       - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
+
+  devcontainer:
+    <<: *main_service
+    env_file:
+      - .env
 
   packages:
     <<: *base_service_settings
