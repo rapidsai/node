@@ -47,7 +47,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install --no-install-recommends -y \
     software-properties-common \
- && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  && apt update \
  && apt install --no-install-recommends -y \
     libstdc++6 \
@@ -59,7 +59,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
  && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
  # Clean up
- && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
  && apt remove -y software-properties-common \
  && apt autoremove -y && apt clean \
  && rm -rf \

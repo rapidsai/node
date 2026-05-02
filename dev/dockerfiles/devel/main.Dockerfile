@@ -80,8 +80,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install --no-install-recommends -y \
     gpg wget software-properties-common lsb-release \
- && add-apt-repository --no-update -y ppa:git-core/ppa \
- && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --no-update -y ppa:git-core/ppa \
+ # && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  # Install kitware cmake apt repository
  && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
   | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
@@ -135,8 +135,8 @@ registry=https://registry.npmjs.org/\n\
  && echo "yarn version: $(yarn --version)" \
  \
  # Clean up
- && add-apt-repository --remove -y ppa:git-core/ppa \
- && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --remove -y ppa:git-core/ppa \
+ # && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
  && apt autoremove -y && apt clean \
  && rm -rf \
     /tmp/* \
