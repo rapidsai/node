@@ -86,7 +86,7 @@ jobs:
         shell: bash
         run: |
           echo "${{ toJSON(runner) }}";
-          echo "is_gha_runner=${{ runner.environment != 'self-hosted' }}" >> $GITHUB_ENV;
+          echo "is_gha_runner=${{ runner.environment != 'self-hosted' }}" >> "$GITHUB_ENV";
 
       - name: Set up self-hosted runner
         if: ${{ env.is_gha_runner != 'true' }}
@@ -95,7 +95,7 @@ jobs:
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs openssh-client
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
-          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
+          echo "HOME=${{ runner.workspace }}" >> "$GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -158,17 +158,17 @@ jobs:
             fromJSON(steps.changed.outputs.changed_file_groups).all == 'true' ||
             fromJSON(steps.changed.outputs.changed_file_groups).all_any_deleted == 'true' }}"
 
-          echo "NODE=$NODE" >> $GITHUB_ENV;
-          echo "VERSION=$VERSION" >> $GITHUB_ENV;
-          echo "image_type=$image_type" >> $GITHUB_ENV;
-          echo "image_name=$image_name" >> $GITHUB_ENV;
-          echo "REPOSITORY=$REPOSITORY" >> $GITHUB_ENV;
-          echo "files_changed=$files_changed" >> $GITHUB_ENV;
-          echo "PARALLEL_LEVEL=$PARALLEL_LEVEL" >> $GITHUB_ENV;
-          echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR" >> $GITHUB_ENV;
-          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR" >> $GITHUB_ENV;
-          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH" >> $GITHUB_ENV;
+          echo "NODE=$NODE" >> "$GITHUB_ENV";
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV";
+          echo "image_type=$image_type" >> "$GITHUB_ENV";
+          echo "image_name=$image_name" >> "$GITHUB_ENV";
+          echo "REPOSITORY=$REPOSITORY" >> "$GITHUB_ENV";
+          echo "files_changed=$files_changed" >> "$GITHUB_ENV";
+          echo "PARALLEL_LEVEL=$PARALLEL_LEVEL" >> "$GITHUB_ENV";
+          echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> "$GITHUB_ENV";
+          echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR" >> "$GITHUB_ENV";
+          echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR" >> "$GITHUB_ENV";
+          echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH" >> "$GITHUB_ENV";
 
           if [[ "${GENERATE_CREDENTIALS:-false}" == true ]]; then
             if [[ "$is_gha_runner" != true ]]; then
@@ -184,7 +184,8 @@ jobs:
             )" https://token.rapids.nvidia.com/gh/token/exchange \
           | jq -r '.token')
           EOF
-            else
+              echo "SECRET_FILES=sccache_credentials=.creds" >> "$GITHUB_ENV";
+            elif test -n "${SCACHE_DIST_AUTH_TOKEN:+x}"; then
               gh extension install nv-gha-runners/gh-nv-gha-aws
               GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
                 gh nv-gha-aws org nvidia \
@@ -196,45 +197,46 @@ jobs:
               | sed 's/export //' \
               | cat - <(cat <<< "SCCACHE_DIST_AUTH_TOKEN=$SCACHE_DIST_AUTH_TOKEN") \
               > .creds
+              echo "SECRET_FILES=sccache_credentials=.creds" >> "$GITHUB_ENV";
             fi
           fi
 
-          echo "BUILD_ARGS<<EOF" >> $GITHUB_ENV;
+          echo "BUILD_ARGS<<EOF" >> "$GITHUB_ENV";
 
           if [[ -n "${{ inputs.build-args }}" ]]; then
-            echo -e "${{ inputs.build-args }}" >> $GITHUB_ENV;
+            echo -e "${{ inputs.build-args }}" >> "$GITHUB_ENV";
           fi
 
           if [[ "${{ inputs.image }}" == devel-main ]]; then
-            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> $GITHUB_ENV;
-            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> "$GITHUB_ENV";
+            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" >> "$GITHUB_ENV";
           elif [[ "${{ inputs.image }}" == runtime-base ]]; then
-            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-base-${{ matrix.LINUX }}" >> $GITHUB_ENV;
-            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-base-${{ matrix.LINUX }}" >> $GITHUB_ENV;
+            echo "ARM64_BASE=nvidia/cuda:${{ matrix.CUDA }}-base-${{ matrix.LINUX }}" >> "$GITHUB_ENV";
+            echo "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-base-${{ matrix.LINUX }}" >> "$GITHUB_ENV";
           fi
 
           if [[ -n "${{ inputs.from_ }}" ]]; then
             from__type="$(echo "${{ inputs.from_ }}" | cut -d'-' -f1)";
             from__name="$(echo "${{ inputs.from_ }}" | cut -d'-' -f2)";
             from_image="${REPOSITORY}:${VERSION}-${from__type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${from__name}";
-            echo "FROM_IMAGE=${from_image}" >> $GITHUB_ENV;
+            echo "FROM_IMAGE=${from_image}" >> "$GITHUB_ENV";
           fi
 
           if [[ -n "${{ inputs.build }}" ]]; then
             build_type="$(echo "${{ inputs.build }}" | cut -d'-' -f1)";
             build_name="$(echo "${{ inputs.build }}" | cut -d'-' -f2)";
             build_image="${REPOSITORY}:${VERSION}-${build_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${build_name}";
-            echo "BUILD_IMAGE=${build_image}" >> $GITHUB_ENV;
+            echo "BUILD_IMAGE=${build_image}" >> "$GITHUB_ENV";
           fi
 
           if [[ -n "${{ inputs.devel }}" ]]; then
             devel_type="$(echo "${{ inputs.devel }}" | cut -d'-' -f1)";
             devel_name="$(echo "${{ inputs.devel }}" | cut -d'-' -f2)";
             devel_image="${REPOSITORY}:${VERSION}-${devel_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${devel_name}";
-            echo "DEVEL_IMAGE=${devel_image}" >> $GITHUB_ENV;
+            echo "DEVEL_IMAGE=${devel_image}" >> "$GITHUB_ENV";
           fi
 
-          echo "EOF" >> $GITHUB_ENV;
+          echo "EOF" >> "$GITHUB_ENV";
 
           TAG="${VERSION}-${image_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${image_name}";
           NAME="${REPOSITORY}:${TAG}";
@@ -242,7 +244,7 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT";
           echo "name=${NAME}" >> "$GITHUB_OUTPUT";
           echo "repo=${REPOSITORY}" >> "$GITHUB_OUTPUT";
-          echo "IMAGE_NAME=${NAME}" >> $GITHUB_ENV;
+          echo "IMAGE_NAME=${NAME}" >> "$GITHUB_ENV";
 
       - id: build
         name: Build image
@@ -257,7 +259,7 @@ jobs:
           registry-url: ghcr.io
           registry-username: ${{ github.actor }}
           registry-password: ${{ github.token }}
-          secret-files: ${{ fromJSON(inputs.generate-creds == 'true' && '"sccache_credentials=.creds"' || '""') }}
+          secret-files: ${{ env.SECRET_FILES }}
           build-args: |
             ${{ env.BUILD_ARGS }}
             "NODE_VERSION=${{ env.NODE }}"
