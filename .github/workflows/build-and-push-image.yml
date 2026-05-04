@@ -46,16 +46,41 @@ on:
         default: ""
         type: string
         required: false
+      generate-creds:
+        default: false
+        required: false
+        description: "Generate sccache and sccache-dist credentials"
+
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  discussions: none
+  id-token: write
+  issues: none
+  packages: write
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
 
 jobs:
-  build-and-publish-image:
-    runs-on: linux-${{ matrix.ARCH }}-cpu4
+  build:
+    runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu4"', matrix.ARCH)) }}
     strategy:
       fail-fast: true
       matrix:
         ARCH: ["amd64", "arm64"]
         CUDA: ["12.9.1", "13.1.1"]
         LINUX: ["ubuntu24.04"]
+    outputs:
+      digest_amd64: ${{ steps.build.outputs.digest_amd64 }}
+      digest_arm64: ${{ steps.build.outputs.digest_arm64 }}
+      name: ${{ steps.vars.outputs.name }}
+      repo: ${{ steps.vars.outputs.repo }}
+      tag: ${{ steps.vars.outputs.tag }}
     steps:
       - name: Dump runner context
         shell: bash
@@ -104,8 +129,19 @@ jobs:
               .github/workflows/build-and-push-image.yml
               .github/actions/build-and-publish-image/action.yml
 
-      - name: Set environment variables
+      - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        if: inputs.generate-creds == 'true' && env.is_gha_runner != 'true'
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 43200 # 12h
+
+      - id: vars
+        name: Set environment variables
         shell: bash
+        env:
+          GENERATE_CREDENTIALS: ${{ inputs.generate-creds }}
+          SCACHE_DIST_AUTH_TOKEN: ${{ secrets.SCCACHE_GH_PAT }}
         run: |
 
           NODE="${{ inputs.node-version }}"
@@ -133,6 +169,35 @@ jobs:
           echo "CUDA_VERSION_MAJOR=$CUDA_VERSION_MAJOR" >> $GITHUB_ENV;
           echo "CUDA_VERSION_MINOR=$CUDA_VERSION_MINOR" >> $GITHUB_ENV;
           echo "CUDA_VERSION_PATCH=$CUDA_VERSION_PATCH" >> $GITHUB_ENV;
+
+          if [[ "${GENERATE_CREDENTIALS:-false}" == true ]]; then
+            if [[ "$is_gha_runner" != true ]]; then
+              cat <<EOF >> .creds
+          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+          AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
+          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+          SCCACHE_DIST_AUTH_TOKEN=$(
+            curl -fsSL -H "Authorization: Bearer $(
+              curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=token.rapids.nvidia.com" \
+            | jq -r '.value'
+            )" https://token.rapids.nvidia.com/gh/token/exchange \
+          | jq -r '.token')
+          EOF
+            else
+              gh extension install nv-gha-runners/gh-nv-gha-aws
+              GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
+                gh nv-gha-aws org nvidia \
+                  --duration 43200 \
+                  --output shell \
+                  --aud "sts.amazonaws.com" \
+                  --idp-url "https://token.rapids.nvidia.com" \
+                  --role-arn "arn:aws:iam::279114543810:role/rapids-token-sccache-devs" \
+              | sed 's/export //' \
+              | cat - <(cat <<< "SCCACHE_DIST_AUTH_TOKEN=$SCACHE_DIST_AUTH_TOKEN") \
+              > .creds
+            fi
+          fi
 
           echo "BUILD_ARGS<<EOF" >> $GITHUB_ENV;
 
@@ -171,21 +236,68 @@ jobs:
 
           echo "EOF" >> $GITHUB_ENV;
 
-          echo "IMAGE_NAME=${REPOSITORY}:${VERSION}-${image_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${image_name}" >> $GITHUB_ENV;
+          TAG="${VERSION}-${image_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${image_name}";
+          NAME="${REPOSITORY}:${TAG}";
 
-      - name: Build and push image
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT";
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT";
+          echo "repo=${REPOSITORY}" >> "$GITHUB_OUTPUT";
+          echo "IMAGE_NAME=${NAME}" >> $GITHUB_ENV;
+
+      - id: build
+        name: Build image
         if: ${{ inputs.manual-build || env.files_changed == 'true' }}
         uses: ./.github/actions/build-and-publish-image
         with:
+          arch: ${{ matrix.ARCH }}
           pull: ${{ inputs.pull }}
           push: ${{ inputs.push }}
           file: ${{ inputs.file }}
-          tags: ${{ env.IMAGE_NAME }}
+          repo: ${{ env.REPOSITORY }}
           registry-url: ghcr.io
           registry-username: ${{ github.actor }}
           registry-password: ${{ github.token }}
+          secret-files: ${{ fromJSON(inputs.generate-creds == 'true' && '"sccache_credentials=.creds"' || '""') }}
           build-args: |
             ${{ env.BUILD_ARGS }}
             "NODE_VERSION=${{ env.NODE }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
+
+  push:
+    if: inputs.push == 'true'
+    name: Push to ghcr.io
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to ghcr.io
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - id: push
+        name: Push manifest to ghcr.io
+        shell: bash --noprofile --norc -x -eo pipefail {0}
+        env:
+          digest_amd64: ${{ needs.build.outputs.digest_amd64 }}
+          digest_arm64: ${{ needs.build.outputs.digest_arm64 }}
+          name: ${{ needs.build.outputs.name }}
+          repo: ${{ needs.build.outputs.repo }}
+          repo_prefix: "ghcr.io/${{ github.actor }}"
+        run: |
+          # Create the multiarch manifest
+          docker buildx imagetools create --tag "${name}" "${digest_amd64}" "${digest_arm64}";
+          echo "repo=${repo#${repo_prefix}/}" >> "$GITHUB_OUTPUT";
+
+      - name: Clean up untagged images
+        uses: snok/container-retention-policy@3b0972b2276b171b212f8c4efbca59ebba26eceb
+        with:
+          cut-off: 1hr
+          tag-selection: untagged
+          token: "${{ github.token }}"
+          image-tags: "${{ needs.build.outputs.tag }}"
+          image-names: "${{ steps.push.outputs.repo }}"
+          skip-shas: "${{ needs.build.outputs.digest_amd64 }} ${{ needs.build.outputs.digest_arm64 }}"
+          account: "${{ github.actor == github.triggering_actor && 'user' || github.actor }}"

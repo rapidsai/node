@@ -10,6 +10,21 @@ concurrency:
   group: build-docker-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  discussions: none
+  id-token: write
+  issues: none
+  packages: write
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 jobs:
 
   build-and-publish-devel-main-image:
@@ -39,11 +54,15 @@ jobs:
       files-to-diff: |
         modules
         dev/dockerfiles/devel/main.Dockerfile
+      generate-creds: true
+      secret-files: |
+        sccache_credentials=.creds
       build-args: |
         "CUDAARCHS=RAPIDS"
-        "PARALLEL_LEVEL=128"
-        "SCCACHE_REGION=us-east-2"
-        "SCCACHE_BUCKET=rapids-sccache-devs"
+        "PARALLEL_LEVEL=${{ secrets.SCCACHE_GH_PAT != '' && 64 || 128 }}"
+        "CMAKE_BUILD_PARALLEL_LEVEL=${{ secrets.SCCACHE_GH_PAT != '' && 64 || 128 }}"
+        "SCCACHE_REGION=${{ secrets.SCCACHE_GH_PAT != '' && 'us-east-2' || vars.AWS_REGION }}"
+        "SCCACHE_BUCKET=${{ secrets.SCCACHE_GH_PAT != '' && 'rapids-sccache-devs' || 'rapids-sccache-east' }}"
 
   build-and-publish-runtime-cuda-base-image:
     name: Build runtime cuda-base image

@@ -35,7 +35,7 @@ jobs:
 
   extract-and-publish-packages:
     name: Extract libs and publish release
-    runs-on: linux-${{ matrix.ARCH }}-cpu16
+    runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu16"', matrix.ARCH)) }}
     strategy:
       fail-fast: true
       matrix:

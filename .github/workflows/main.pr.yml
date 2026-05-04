@@ -12,8 +12,7 @@ permissions:
 jobs:
   build-pull-request:
     name: Build pull request
-    # runs-on: ubuntu-24.04
-    runs-on: linux-${{ matrix.ARCH }}-cpu16
+    runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu16"', matrix.ARCH)) }}
     strategy:
       fail-fast: false
       matrix:
@@ -125,6 +124,7 @@ jobs:
       #       node/node_modules
 
       - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        if: env.is_gha_runner != 'true'
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
@@ -136,29 +136,35 @@ jobs:
         run: |
           cat << EOF > "${{ runner.temp }}/.env"
           CUDAARCHS=RAPIDS
-          PARALLEL_LEVEL=128
-          CMAKE_BUILD_PARALLEL_LEVEL=128
           NVCC_APPEND_FLAGS=-t=100
           RAPIDS_VERSION=${RAPIDS_VERSION}
+          SCCACHE_DIST_AUTH_TYPE=token
           SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
-          SCCACHE_REGION=${{ vars.AWS_REGION }}
+          EOF
+
+      - name: Make container .env (nv-gha-runner)
+        if: env.is_gha_runner != 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
+        run: |
+          cat << EOF >> "${{ runner.temp }}/.env"
+          PARALLEL_LEVEL=128
+          CMAKE_BUILD_PARALLEL_LEVEL=128
           SCCACHE_BUCKET=rapids-sccache-east
-          SCCACHE_S3_KEY_PREFIX=/node
-          SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
-          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX=/node/preprocessor
+          SCCACHE_REGION=${{ vars.AWS_REGION }}
           SCCACHE_DIST_FALLBACK_TO_LOCAL_COMPILE=false
           SCCACHE_DIST_MAX_RETRIES=inf
           SCCACHE_DIST_REQUEST_TIMEOUT=7140
           SCCACHE_DIST_SCHEDULER_URL=https://${{ matrix.ARCH }}.linux.sccache.rapids.nvidia.com
-          SCCACHE_DIST_AUTH_TYPE=token
+          SCCACHE_S3_KEY_PREFIX=/node
+          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX=/node/preprocessor
+          SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
           EOF
 
           echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
 
           cat << EOF >> "${{ runner.temp }}/.env"
-          AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SESSION_TOKEN=${{ env.AWS_SESSION_TOKEN }}
-          AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+          AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
+          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
           SCCACHE_DIST_AUTH_TOKEN=$(
             curl -fsSL -H "Authorization: Bearer $(
               curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
@@ -167,6 +173,43 @@ jobs:
             )" https://token.rapids.nvidia.com/gh/token/exchange \
           | jq -r '.token')
           EOF
+
+      - name: Make container .env (GitHub runner)
+        if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
+        env:
+          SCACHE_DIST_AUTH_TOKEN: ${{ secrets.SCCACHE_GH_PAT }}
+        run: |
+          if ! test -n "${SCACHE_DIST_AUTH_TOKEN:+x}"; then
+            exit 0
+          fi
+
+          cat << EOF >> "${{ runner.temp }}/.env"
+          PARALLEL_LEVEL=64
+          CMAKE_BUILD_PARALLEL_LEVEL=64
+          SCCACHE_BUCKET=rapids-sccache-devs
+          SCCACHE_REGION=us-east-2
+          SCCACHE_DIST_FALLBACK_TO_LOCAL_COMPILE=false
+          SCCACHE_DIST_MAX_RETRIES=inf
+          SCCACHE_DIST_REQUEST_TIMEOUT=7140
+          SCCACHE_DIST_SCHEDULER_URL=https://${{ matrix.ARCH }}.linux.sccache.rapids.nvidia.com
+          SCCACHE_S3_KEY_PREFIX=/node
+          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX=/node/preprocessor
+          SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
+          EOF
+
+          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
+
+          gh extension install nv-gha-runners/gh-nv-gha-aws
+          GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
+            gh nv-gha-aws org nvidia \
+              --duration 43200 \
+              --output shell \
+              --aud "sts.amazonaws.com" \
+              --idp-url "https://token.rapids.nvidia.com" \
+              --role-arn "arn:aws:iam::279114543810:role/rapids-token-sccache-devs" \
+          | sed 's/export //' \
+          | cat - <(cat <<< "SCCACHE_DIST_AUTH_TOKEN=$SCACHE_DIST_AUTH_TOKEN") \
+          >> "${{ runner.temp }}/.env"
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
