@@ -25,9 +25,6 @@ permissions:
   security-events: none
   statuses: none
 
-env:
-  HAS_CUSTOM_SCCACHE_PAT: ${{ secrets.SCCACHE_GH_PAT != '' }}
-
 jobs:
 
   build-and-publish-devel-main-image:
@@ -43,10 +40,36 @@ jobs:
       build-args: |
         "UCX_VERSION=1.20.0"
 
+  package-build-args:
+    name: Package build args
+    runs-on: ubuntu-latest
+    outputs:
+      PARALLEL_LEVEL: ${{ steps.args.outputs.PARALLEL_LEVEL }}
+      SCCACHE_REGION: ${{ steps.args.outputs.SCCACHE_REGION }}
+      SCCACHE_BUCKET: ${{ steps.args.outputs.SCCACHE_BUCKET }}
+    steps:
+      - id: args
+        name: Determine build args for packages image build
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
+          HAS_CUSTOM_SCCACHE_PAT: ${{ secrets.SCCACHE_GH_PAT != '' }}
+        run: |
+          if test "$HAS_CUSTOM_SCCACHE_PAT"; then
+            echo "PARALLEL_LEVEL=64" >> "$GITHUB_OUTPUT";
+            echo "SCCACHE_BUCKET=rapids-sccache-devs" >> "$GITHUB_OUTPUT";
+            echo "SCCACHE_REGION=us-east-2" >> "$GITHUB_OUTPUT";
+          else
+            echo "PARALLEL_LEVEL=128" >> "$GITHUB_OUTPUT";
+            echo "SCCACHE_BUCKET=rapids-sccache-east" >> "$GITHUB_OUTPUT";
+            echo "SCCACHE_REGION=$AWS_REGION" >> "$GITHUB_OUTPUT";
+          fi
+
+
   build-and-publish-devel-packages-image:
     name: Build devel packages image
     needs:
       - build-and-publish-devel-main-image
+      - package-build-args
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
     with:
@@ -62,10 +85,9 @@ jobs:
         sccache_credentials=.creds
       build-args: |
         "CUDAARCHS=RAPIDS"
-        "PARALLEL_LEVEL=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 64 || 128 }}"
-        "CMAKE_BUILD_PARALLEL_LEVEL=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 64 || 128 }}"
-        "SCCACHE_REGION=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 'us-east-2' || vars.AWS_REGION }}"
-        "SCCACHE_BUCKET=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 'rapids-sccache-devs' || 'rapids-sccache-east' }}"
+        "PARALLEL_LEVEL=${{ needs.package-build-args.outputs.PARALLEL_LEVEL }}"
+        "SCCACHE_BUCKET=${{ needs.package-build-args.outputs.SCCACHE_BUCKET }}"
+        "SCCACHE_REGION=${{ needs.package-build-args.outputs.SCCACHE_REGION }}"
 
   build-and-publish-runtime-cuda-base-image:
     name: Build runtime cuda-base image
