@@ -48,6 +48,7 @@ on:
         required: false
       generate-creds:
         default: false
+        type: boolean
         required: false
         description: "Generate sccache and sccache-dist credentials"
 
