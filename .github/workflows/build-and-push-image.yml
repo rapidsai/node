@@ -181,7 +181,8 @@ jobs:
           EOF
               echo "SECRET_FILES=sccache_credentials=.creds" >> "$GITHUB_ENV";
             elif test -n "${SCACHE_DIST_AUTH_TOKEN:+x}"; then
-              gh extension install nv-gha-runners/gh-nv-gha-aws
+              GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
+                gh extension install nv-gha-runners/gh-nv-gha-aws
               GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
                 gh nv-gha-aws org nvidia \
                   --duration 43200 \

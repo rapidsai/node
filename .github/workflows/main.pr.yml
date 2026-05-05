@@ -199,7 +199,8 @@ jobs:
 
           echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
 
-          gh extension install nv-gha-runners/gh-nv-gha-aws
+          GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
+            gh extension install nv-gha-runners/gh-nv-gha-aws
           GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
             gh nv-gha-aws org nvidia \
               --duration 43200 \
