@@ -115,6 +115,7 @@ runs:
       env:
         arch: ${{ inputs.arch }}
         push: ${{ inputs.push }}
+      shell: bash
       run: |
         if test "${push}" = true; then
           echo "${arch}=${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT";
