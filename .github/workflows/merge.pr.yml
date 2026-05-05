@@ -62,10 +62,10 @@ jobs:
         sccache_credentials=.creds
       build-args: |
         "CUDAARCHS=RAPIDS"
-        "PARALLEL_LEVEL=${{ HAS_CUSTOM_SCCACHE_PAT == 'true' && 64 || 128 }}"
-        "CMAKE_BUILD_PARALLEL_LEVEL=${{ HAS_CUSTOM_SCCACHE_PAT == 'true' && 64 || 128 }}"
-        "SCCACHE_REGION=${{ HAS_CUSTOM_SCCACHE_PAT == 'true' && 'us-east-2' || vars.AWS_REGION }}"
-        "SCCACHE_BUCKET=${{ HAS_CUSTOM_SCCACHE_PAT == 'true' && 'rapids-sccache-devs' || 'rapids-sccache-east' }}"
+        "PARALLEL_LEVEL=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 64 || 128 }}"
+        "CMAKE_BUILD_PARALLEL_LEVEL=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 64 || 128 }}"
+        "SCCACHE_REGION=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 'us-east-2' || vars.AWS_REGION }}"
+        "SCCACHE_BUCKET=${{ env.HAS_CUSTOM_SCCACHE_PAT == 'true' && 'rapids-sccache-devs' || 'rapids-sccache-east' }}"
 
   build-and-publish-runtime-cuda-base-image:
     name: Build runtime cuda-base image
