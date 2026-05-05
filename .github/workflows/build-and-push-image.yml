@@ -125,7 +125,7 @@ jobs:
               .github/actions/build-and-publish-image/action.yml
 
       - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
-        if: inputs.generate-creds == 'true' && env.is_gha_runner != 'true'
+        if: inputs.generate-creds && env.is_gha_runner != 'true'
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
@@ -269,7 +269,7 @@ jobs:
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
 
   push:
-    if: inputs.push == 'true'
+    if: inputs.push
     name: Push to ghcr.io
     needs: [build]
     runs-on: ubuntu-latest
