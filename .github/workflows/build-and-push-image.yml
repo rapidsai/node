@@ -93,7 +93,7 @@ jobs:
         if: ${{ env.is_gha_runner != 'true' }}
         shell: bash
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs openssh-client
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
           sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           echo "HOME=${{ runner.workspace }}" >> "$GITHUB_ENV"
@@ -157,8 +157,8 @@ jobs:
           RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
           files_changed="${{
             inputs.manual-build == 'true' ||
-            fromJSON(steps.changed.outputs.changed_file_groups).all == 'true' ||
-            fromJSON(steps.changed.outputs.changed_file_groups).all_any_deleted == 'true' }}"
+            fromJSON(steps.changed.outputs.changed_file_groups || '{}').all == 'true' ||
+            fromJSON(steps.changed.outputs.changed_file_groups || '{}').all_any_deleted == 'true' }}"
 
           echo "NODE=$NODE" >> "$GITHUB_ENV";
           echo "VERSION=$VERSION" >> "$GITHUB_ENV";
