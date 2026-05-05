@@ -150,7 +150,7 @@ jobs:
           CUDA_VERSION_PATCH="$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)"
           RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
           files_changed="${{
-            inputs.manual-build == 'true' ||
+            inputs.manual-build ||
             fromJSON(steps.changed.outputs.changed_file_groups || '{}').all == 'true' ||
             fromJSON(steps.changed.outputs.changed_file_groups || '{}').all_any_deleted == 'true' }}"
 
