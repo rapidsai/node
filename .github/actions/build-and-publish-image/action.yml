@@ -88,7 +88,7 @@ runs:
         driver-opts: ${{ inputs.buildx-driver-opts }}
     - name: Login to container registry
       if: inputs.push == 'true'
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
+      uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
       with:
         registry: ${{ inputs.registry-url }}
         username: ${{ inputs.registry-username }}
