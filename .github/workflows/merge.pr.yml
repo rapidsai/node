@@ -81,8 +81,6 @@ jobs:
         modules
         dev/dockerfiles/devel/main.Dockerfile
       generate-creds: true
-      secret-files: |
-        sccache_credentials=.creds
       build-args: |
         "CUDAARCHS=RAPIDS"
         "PARALLEL_LEVEL=${{ needs.package-build-args.outputs.PARALLEL_LEVEL }}"
