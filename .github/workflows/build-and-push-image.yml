@@ -108,12 +108,6 @@ jobs:
         shell: bash
         run: git lfs checkout
 
-      - name: Free up disk space
-        if: ${{ env.is_gha_runner == 'true' }}
-        uses: ./.github/actions/free-disk-space
-        with:
-          tool_cache: ${{ runner.tool_cache }}
-
       - name: Get changed files
         id: changed
         if: ${{ ! inputs.manual-build }}
@@ -248,9 +242,15 @@ jobs:
           echo "repo=${REPOSITORY}" >> "$GITHUB_OUTPUT";
           echo "IMAGE_NAME=${NAME}" >> "$GITHUB_ENV";
 
+      - name: Free up disk space
+        if: ${{ env.is_gha_runner == 'true' && env.files_changed == 'true' }}
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
+
       - id: build
         name: Build image
-        if: ${{ inputs.manual-build || env.files_changed == 'true' }}
+        if: ${{ env.files_changed == 'true' }}
         uses: ./.github/actions/build-and-publish-image
         with:
           arch: ${{ matrix.ARCH }}
