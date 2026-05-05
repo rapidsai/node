@@ -8,17 +8,6 @@ FROM ${AMD64_BASE} as base-amd64
 
 FROM ${ARM64_BASE} as base-arm64
 
-ONBUILD RUN cd /usr/local/cuda/lib64 \
- && ln -s \
-    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1) \
-    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
- && ln -s \
-    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
-    libcudart.so \
- && rm /etc/ld.so.cache && ldconfig
-
-ONBUILD ARG ADDITIONAL_GROUPS="--groups video"
-
 FROM base-${TARGETARCH}
 
 SHELL ["/bin/bash", "-c"]
@@ -81,14 +70,13 @@ COPY --from=devel /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entr
 COPY --from=devel /usr/local/cuda/lib64/libnvrtc* /usr/local/cuda/lib64/
 
 ARG UID=1000
-ARG ADDITIONAL_GROUPS
 
 RUN if getent passwd $UID >/dev/null 2>&1; then \
       existing_user=$(getent passwd $UID | cut -d: -f1); \
       usermod -l node -d /home/node -m $existing_user; \
       groupmod -n node $existing_user; \
     else \
-      useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --create-home node; \
+      useradd --uid $UID --shell /bin/bash --create-home node; \
     fi \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
