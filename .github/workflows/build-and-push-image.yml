@@ -77,11 +77,10 @@ jobs:
         CUDA: ["12.9.1", "13.1.1"]
         LINUX: ["ubuntu24.04"]
     outputs:
-      digest_amd64: ${{ steps.build.outputs.digest_amd64 }}
-      digest_arm64: ${{ steps.build.outputs.digest_arm64 }}
-      name: ${{ steps.vars.outputs.name }}
-      repo: ${{ steps.vars.outputs.repo }}
-      tag: ${{ steps.vars.outputs.tag }}
+      cuda12_amd64: ${{ steps.result.outputs.cuda12_amd64 }}
+      cuda12_arm64: ${{ steps.result.outputs.cuda12_arm64 }}
+      cuda13_amd64: ${{ steps.result.outputs.cuda13_amd64 }}
+      cuda13_arm64: ${{ steps.result.outputs.cuda13_arm64 }}
     steps:
       - name: Dump runner context
         shell: bash
@@ -237,9 +236,7 @@ jobs:
           TAG="${VERSION}-${image_type}-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-${image_name}";
           NAME="${REPOSITORY}:${TAG}";
 
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT";
-          echo "name=${NAME}" >> "$GITHUB_OUTPUT";
-          echo "repo=${REPOSITORY}" >> "$GITHUB_OUTPUT";
+          echo "IMAGE_TAG=${TAG}" >> "$GITHUB_ENV";
           echo "IMAGE_NAME=${NAME}" >> "$GITHUB_ENV";
 
       - name: Free up disk space
@@ -267,6 +264,21 @@ jobs:
             "NODE_VERSION=${{ env.NODE }}"
             "LINUX_VERSION=${{ matrix.LINUX }}"
             "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
+      - id: result
+        name: Set outputs
+        shell: bash
+        env:
+          ARCH: ${{ matrix.ARCH }}
+        run: |
+          if test "${ARCH}" = amd64; then
+            DIGEST="${{ steps.build.outputs.digest_amd64 }}"
+          else
+            DIGEST="${{ steps.build.outputs.digest_arm64 }}"
+          fi
+          cat <<EOF >> "$GITHUB_OUTPUT"
+          cuda${CUDA_VERSION_MAJOR}_${ARCH}={"digest":"${DIGEST}","name":"${IMAGE_NAME}","repo":"${REPOSITORY}","tag":"${IMAGE_TAG}"}
+          EOF
+
 
   push:
     if: inputs.push
@@ -285,15 +297,30 @@ jobs:
         name: Push manifest to ghcr.io
         shell: bash --noprofile --norc -x -eo pipefail {0}
         env:
-          digest_amd64: ${{ needs.build.outputs.digest_amd64 }}
-          digest_arm64: ${{ needs.build.outputs.digest_arm64 }}
-          name: ${{ needs.build.outputs.name }}
-          repo: ${{ needs.build.outputs.repo }}
-          repo_prefix: "ghcr.io/${{ github.actor }}"
+          CUDA12_AMD64: ${{ needs.build.outputs.cuda12_amd64 }}
+          CUDA12_ARM64: ${{ needs.build.outputs.cuda12_arm64 }}
+          CUDA13_AMD64: ${{ needs.build.outputs.cuda13_amd64 }}
+          CUDA13_ARM64: ${{ needs.build.outputs.cuda13_arm64 }}
+          REPO: ${{ fromJSON(needs.build.outputs.cuda13_amd64).repo }}
+          REPO_PREFIX: "ghcr.io/${{ github.actor }}"
         run: |
-          # Create the multiarch manifest
-          docker buildx imagetools create --tag "${name}" "${digest_amd64}" "${digest_arm64}";
-          echo "repo=${repo#${repo_prefix}/}" >> "$GITHUB_OUTPUT";
+          # Create the multiarch manifest for CUDA 12
+          docker buildx imagetools create --tag \
+            "${{ fromJSON(env.CUDA12_AMD64).name }}" \
+            "${{ fromJSON(env.CUDA12_AMD64).digest }}" \
+            "${{ fromJSON(env.CUDA12_ARM64).digest }}" \
+            ;
+
+          # Create the multiarch manifest for CUDA 13
+          docker buildx imagetools create --tag \
+            "${{ fromJSON(env.CUDA13_AMD64).name }}" \
+            "${{ fromJSON(env.CUDA13_AMD64).digest }}" \
+            "${{ fromJSON(env.CUDA13_ARM64).digest }}" \
+            ;
+
+          echo "repo=${REPO#${REPO_PREFIX}/}" >> "$GITHUB_OUTPUT";
+          echo "tags=${{ fromJSON(env.CUDA12_AMD64).tag }} ${{ fromJSON(env.CUDA13_AMD64).tag }}" >> "$GITHUB_OUTPUT";
+          echo "shas=${{ fromJSON(env.CUDA12_AMD64).digest }} ${{ fromJSON(env.CUDA12_ARM64).digest }} ${{ fromJSON(env.CUDA13_AMD64).digest }} ${{ fromJSON(env.CUDA13_ARM64).digest }}" >> "$GITHUB_OUTPUT";
 
       - name: Clean up untagged images
         uses: snok/container-retention-policy@3b0972b2276b171b212f8c4efbca59ebba26eceb
@@ -301,7 +328,7 @@ jobs:
           cut-off: 1hr
           tag-selection: untagged
           token: "${{ github.token }}"
-          image-tags: "${{ needs.build.outputs.tag }}"
+          image-tags: "${{ steps.push.outputs.tags }}"
           image-names: "${{ steps.push.outputs.repo }}"
-          skip-shas: "${{ needs.build.outputs.digest_amd64 }} ${{ needs.build.outputs.digest_arm64 }}"
+          skip-shas: "${{ steps.push.outputs.shas }}"
           account: "${{ github.actor == github.triggering_actor && 'user' || github.actor }}"
