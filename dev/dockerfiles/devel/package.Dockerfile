@@ -35,7 +35,7 @@ COPY --chown=rapids:rapids modules          modules
 
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
 
-SHELL ["/bin/bash", "-cx"]
+SHELL ["/bin/bash", "-c"]
 
 RUN --mount=type=secret,id=sccache_credentials,uid=1000,gid=1000 \
     --mount=type=bind,source=dev/.gitconfig,target=/opt/rapids/.gitconfig \
