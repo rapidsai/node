@@ -119,7 +119,6 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Checkout LFS
         shell: bash --noprofile --norc -eo pipefail {0}
