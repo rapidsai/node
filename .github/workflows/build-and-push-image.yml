@@ -70,13 +70,6 @@ permissions:
   security-events: none
   statuses: none
 
-env:
-  REGISTRY: "ghcr.io"
-  LINUX: "ubuntu24.04"
-  DOCKER_BUILDKIT: "1"
-  DOCKER_CLI_HINTS: "false"
-  DOCKER_SCAN_SUGGEST: "false"
-
 jobs:
   build:
     runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu4"', matrix.ARCH)) }}
@@ -87,6 +80,12 @@ jobs:
     outputs:
       amd64: ${{ steps.result.outputs.amd64 }}
       arm64: ${{ steps.result.outputs.arm64 }}
+    env:
+      REGISTRY: "ghcr.io"
+      LINUX: "ubuntu24.04"
+      DOCKER_BUILDKIT: "1"
+      DOCKER_CLI_HINTS: "false"
+      DOCKER_SCAN_SUGGEST: "false"
     steps:
       - name: Dump runner context
         shell: bash --noprofile --norc -x -eo pipefail {0}
@@ -280,6 +279,8 @@ jobs:
     name: Push to ${{ env.REGISTRY }}
     needs: [build]
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: "ghcr.io"
     steps:
       - name: Login to ${{ env.REGISTRY }}
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
