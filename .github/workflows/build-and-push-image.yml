@@ -110,9 +110,9 @@ jobs:
         shell: bash --noprofile --norc -eo pipefail {0}
         run: |
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
-          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
-          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
-          echo "HOME=${{ runner.workspace }}" >> "$GITHUB_ENV"
+          # sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          # sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          # echo "HOME=${{ runner.workspace }}" >> "$GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
