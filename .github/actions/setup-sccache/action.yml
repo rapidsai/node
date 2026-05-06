@@ -60,7 +60,7 @@ runs:
         role-duration-seconds: 43200 # 12h
     - name: Exchange token
       if: runner.environment == 'self-hosted' && inputs.custom-gh-token == ''
-      shell: bash --noprofile --norc -x -eo pipefail {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       env:
         SCCACHE_BUCKET: ${{ inputs.prod-sccache-bucket || 'rapids-sccache-east' }}
         SCCACHE_REGION: ${{ inputs.prod-sccache-region || inputs.aws-region }}
@@ -78,7 +78,7 @@ runs:
         EOF
     - name: Generate creds via custom PAT
       if: runner.environment != 'self-hosted' || inputs.custom-gh-token != ''
-      shell: bash --noprofile --norc -x -eo pipefail {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       env:
         RUNNER_TEMP: ${{ runner.temp }}
         CUSTOM_GH_TOKEN: ${{ inputs.custom-gh-token }}
@@ -103,7 +103,7 @@ runs:
         >> "$GITHUB_ENV"
     - name: Set outputs
       id: results
-      shell: bash --noprofile --norc -x -eo pipefail {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         if test -n "${AWS_ACCESS_KEY_ID:+x}"; then
           echo "::add-mask::$AWS_ACCESS_KEY_ID"

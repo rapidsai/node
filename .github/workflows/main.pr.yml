@@ -28,7 +28,7 @@ jobs:
       DOCKER_SCAN_SUGGEST: "false"
     steps:
       - name: Dump runner context
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           CUDA: "${{ matrix.CUDA }}"
         run: |
@@ -46,7 +46,7 @@ jobs:
 
       - name: Set up self-hosted runner
         if: runner.environment == 'self-hosted'
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: |
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           # sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
@@ -61,7 +61,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout LFS
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: git lfs checkout
 
       - name: Get PR target branch info
@@ -101,7 +101,7 @@ jobs:
           src_changed: "${{ steps.changed.outputs.src_any_changed == 'true' ||
                             steps.changed.outputs.src_any_deleted == 'true' }}"
           REPOSITORY: "${{ env.REGISTRY }}/${{ github.repository }}"
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: |
           VERSION="$(jq -r '.version' lerna.json)"
           RAPIDS_VERSION="$(jq -r '.config.rapids_version' package.json)"
@@ -151,7 +151,7 @@ jobs:
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           ARCH: ${{ matrix.ARCH }}
           CUDA: ${{ matrix.CUDA }}

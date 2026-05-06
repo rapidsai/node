@@ -88,7 +88,7 @@ jobs:
       DOCKER_SCAN_SUGGEST: "false"
     steps:
       - name: Dump runner context
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           CUDA: "${{ inputs.cuda }}"
         run: |
@@ -107,7 +107,7 @@ jobs:
 
       - name: Set up self-hosted runner
         if: runner.environment == 'self-hosted'
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: |
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
           sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
@@ -122,7 +122,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout LFS
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: git lfs checkout
 
       - name: Get changed files
@@ -152,7 +152,7 @@ jobs:
 
       - id: vars
         name: Set environment variables
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           CUDA: "${{ inputs.cuda }}"
           LINUX: "${{ env.LINUX }}"
@@ -263,7 +263,7 @@ jobs:
 
       - name: Set outputs
         id: result
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           ARCH: ${{ matrix.ARCH }}
         run: |
@@ -293,7 +293,7 @@ jobs:
 
       - id: push
         name: Create manifest in ${{ env.REGISTRY }}
-        shell: bash --noprofile --norc -x -eo pipefail {0}
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           AMD64: ${{ needs.build.outputs.amd64 }}
           ARM64: ${{ needs.build.outputs.arm64 }}

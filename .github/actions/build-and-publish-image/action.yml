@@ -77,7 +77,7 @@ runs:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
     - name: Set up Docker Buildx context
-      shell: bash --noprofile --norc -x -eo pipefail {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         docker context create builders
     - name: Set up Docker Buildx
@@ -115,7 +115,7 @@ runs:
       env:
         arch: ${{ inputs.arch }}
         push: ${{ inputs.push }}
-      shell: bash --noprofile --norc -x -eo pipefail {0}
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         if test "${push}" = true; then
           echo "${arch}=${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT";
