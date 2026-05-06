@@ -150,8 +150,7 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - id: vars
-        name: Set environment variables
+      - name: Set environment variables
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
           CUDA: "${{ inputs.cuda }}"
@@ -189,7 +188,7 @@ jobs:
 
           echo "BUILD_ARGS<<EOF" >> "$GITHUB_ENV";
 
-          if test -n "${INPUT_BUILD_ARGS:+x}" ]]; then
+          if test -n "${INPUT_BUILD_ARGS:+x}"; then
             echo -e "${INPUT_BUILD_ARGS}" >> "$GITHUB_ENV";
           fi
 
