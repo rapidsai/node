@@ -93,10 +93,10 @@ jobs:
           CUDA: "${{ inputs.cuda }}"
         run: |
           echo "${{ toJSON(runner) }}";
-          CUDA_VERSION_MAJOR="$(cut -d'.' -f1 <<< "${CUDA}")" >> "$GITHUB_ENV"
-          CUDA_VERSION_MINOR="$(cut -d'.' -f2 <<< "${CUDA}")" >> "$GITHUB_ENV"
-          CUDA_VERSION_PATCH="$(cut -d'.' -f3 <<< "${CUDA}")" >> "$GITHUB_ENV"
-          REPOSITORY="${REGISTRY}/${{ github.repository }}" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_MAJOR=$(cut -d'.' -f1 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_MINOR=$(cut -d'.' -f2 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_PATCH=$(cut -d'.' -f3 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "REPOSITORY=${REGISTRY}/${{ github.repository }}" >> "$GITHUB_ENV"
 
       - name: Setup proxy cache
         if: runner.environment == 'self-hosted'
