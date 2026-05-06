@@ -19,6 +19,14 @@ inputs:
     default: ""
     type: string
     required: false
+  role-to-assume:
+    default: ""
+    type: string
+    required: false
+  aws-region:
+    default: ""
+    type: string
+    required: false
   custom-gh-token:
     default: ""
     type: string
@@ -47,15 +55,15 @@ runs:
       if: runner.environment == 'self-hosted' && inputs.custom-gh-token == ''
       uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
       with:
-        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-        aws-region: ${{ vars.AWS_REGION }}
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
         role-duration-seconds: 43200 # 12h
     - name: Exchange token
       if: runner.environment == 'self-hosted' && inputs.custom-gh-token == ''
       shell: bash --noprofile --norc -x -eo pipefail {0}
       env:
         SCCACHE_BUCKET: ${{ inputs.prod-sccache-bucket || 'rapids-sccache-east' }}
-        SCCACHE_REGION: ${{ inputs.prod-sccache-region || vars.AWS_REGION }}
+        SCCACHE_REGION: ${{ inputs.prod-sccache-region || inputs.aws-region }}
       run: |
         cat <<EOF >> "$GITHUB_ENV"
         SCCACHE_BUCKET=$SCCACHE_BUCKET

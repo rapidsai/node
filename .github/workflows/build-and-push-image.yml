@@ -147,6 +147,8 @@ jobs:
         uses: ./.github/actions/setup-sccache
         with:
           custom-gh-token: ${{ secrets.SCCACHE_GH_PAT }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - id: vars
         name: Set environment variables
