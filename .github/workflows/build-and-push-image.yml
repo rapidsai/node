@@ -201,7 +201,7 @@ jobs:
             echo "AMD64_BASE=nvidia/cuda:${CUDA}-base-${LINUX}" >> "$GITHUB_ENV";
           fi
 
-          if test -n "${INPUT__FROM:+x}" then
+          if test -n "${INPUT__FROM:+x}"; then
             _type="$(cut -d'-' -f1 <<< "${INPUT__FROM}")";
             _name="$(cut -d'-' -f2 <<< "${INPUT__FROM}")";
             echo "FROM_IMAGE=${REPOSITORY}:${VERSION}-${_type}-${IMAGE_MID}-${_name}" >> "$GITHUB_ENV";
