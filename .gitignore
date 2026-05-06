@@ -14,6 +14,7 @@
 /dev/.ssh/*
 !/dev/.ssh/.keepDir
 
+.aws
 .env
 .creds
 .vscode/server

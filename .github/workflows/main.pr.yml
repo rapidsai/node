@@ -23,40 +23,52 @@ jobs:
       UCX: "1.20.0"
       NODE: "24.14.1"
       REGISTRY: "ghcr.io"
+      DOCKER_BUILDKIT: "1"
+      DOCKER_CLI_HINTS: "false"
+      DOCKER_SCAN_SUGGEST: "false"
     steps:
       - name: Dump runner context
-        shell: bash
+        shell: bash --noprofile --norc -x -eo pipefail {0}
+        env:
+          CUDA: "${{ matrix.CUDA }}"
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ runner.environment != 'self-hosted' }}" >> $GITHUB_ENV
-          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
-          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
-          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MAJOR=$(cut -d'.' -f1 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_MINOR=$(cut -d'.' -f2 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_PATCH=$(cut -d'.' -f3 <<< "${CUDA}")" >> "$GITHUB_ENV"
+
+      - name: Setup proxy cache
+        if: runner.environment == 'self-hosted'
+        uses: nv-gha-runners/setup-proxy-cache@c5e8f6fd27b493abfd6af230e6a5d4bf43d1d766
+        continue-on-error: true
+        with:
+          enable-apt: true
 
       - name: Set up self-hosted runner
-        if: env.is_gha_runner != 'true'
-        shell: bash
+        if: runner.environment == 'self-hosted'
+        shell: bash --noprofile --norc -x -eo pipefail {0}
         run: |
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
-          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
-          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
-          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
+          # sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          # sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          # echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           lfs: true
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Checkout LFS
-        shell: bash
+        shell: bash --noprofile --norc -x -eo pipefail {0}
         run: git lfs checkout
 
-      - id: get-pr-info
-        name: Get PR target branch info
+      - name: Get PR target branch info
+        id: get-pr-info
         uses: ./.github/actions/get-pr-info
 
-      - name: Check if GitHub Actions or devel main Dockerfile changed
+      - name: Get changed files
         id: changed
         uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
         with:
@@ -83,26 +95,25 @@ jobs:
               - modules/**/package.json
               - modules/**/CMakeLists.txt
 
-      - name: Update runner env
+      - name: Update runner environment
         env:
           dev_changed: "${{ steps.changed.outputs.dev_any_changed == 'true' }}"
           src_changed: "${{ steps.changed.outputs.src_any_changed == 'true' ||
                             steps.changed.outputs.src_any_deleted == 'true' }}"
-        shell: bash
+          REPOSITORY: "${{ env.REGISTRY }}/${{ github.repository }}"
+        shell: bash --noprofile --norc -x -eo pipefail {0}
         run: |
-          VERSION="$(cat lerna.json | jq -r '.version')"
-          RAPIDS_VERSION="$(cat package.json | jq -r '.config.rapids_version')"
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV;
-          echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
-          echo "src_changed=${src_changed}" >> $GITHUB_ENV;
-          echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
-          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${VERSION}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-main" >> $GITHUB_ENV;
-
-      - name: Free up disk space
-        if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
-        uses: ./.github/actions/free-disk-space
-        with:
-          tool_cache: ${{ runner.tool_cache }}
+          VERSION="$(jq -r '.version' lerna.json)"
+          RAPIDS_VERSION="$(jq -r '.config.rapids_version' package.json)"
+          cat <<EOF >> "$GITHUB_ENV"
+          CUDAARCHS=RAPIDS
+          MAIN_IMG=${REPOSITORY}:${VERSION}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-main
+          NVCC_APPEND_FLAGS=-t=100
+          RAPIDS_VERSION=${RAPIDS_VERSION}
+          VERSION=${VERSION}
+          dev_changed=${dev_changed}
+          src_changed=${src_changed}
+          EOF
 
       # - name: Cache C++ dependencies
       #   if: env.dev_changed == 'true' || env.src_changed == 'true'
@@ -123,119 +134,99 @@ jobs:
       #       .cache
       #       node/node_modules
 
-      - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
-        if: env.is_gha_runner != 'true'
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-          role-duration-seconds: 43200 # 12h
-
-      - name: Make container .env
+      - name: Setup sccache
+        id: sccache
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        shell: bash
-        run: |
-          cat << EOF > "${{ runner.temp }}/.env"
-          CUDAARCHS=RAPIDS
-          NVCC_APPEND_FLAGS=-t=100
-          RAPIDS_VERSION=${RAPIDS_VERSION}
-          SCCACHE_DIST_AUTH_TYPE=token
-          SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
-          EOF
+        uses: ./.github/actions/setup-sccache
+        with:
+          custom-gh-token: ${{ secrets.SCCACHE_GH_PAT }}
 
-      - name: Make container .env (nv-gha-runner)
-        if: env.is_gha_runner != 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
-        run: |
-          cat << EOF >> "${{ runner.temp }}/.env"
-          PARALLEL_LEVEL=128
-          CMAKE_BUILD_PARALLEL_LEVEL=128
-          SCCACHE_BUCKET=rapids-sccache-east
-          SCCACHE_REGION=${{ vars.AWS_REGION }}
-          SCCACHE_DIST_FALLBACK_TO_LOCAL_COMPILE=false
-          SCCACHE_DIST_MAX_RETRIES=inf
-          SCCACHE_DIST_REQUEST_TIMEOUT=7140
-          SCCACHE_DIST_SCHEDULER_URL=https://${{ matrix.ARCH }}.linux.sccache.rapids.nvidia.com
-          SCCACHE_S3_KEY_PREFIX=/node
-          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX=/node/preprocessor
-          SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
-          EOF
-
-          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
-
-          cat << EOF >> "${{ runner.temp }}/.env"
-          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-          AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-          SCCACHE_DIST_AUTH_TOKEN=$(
-            curl -fsSL -H "Authorization: Bearer $(
-              curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-                "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=token.rapids.nvidia.com" \
-            | jq -r '.value'
-            )" https://token.rapids.nvidia.com/gh/token/exchange \
-          | jq -r '.token')
-          EOF
-
-      - name: Make container .env (GitHub runner)
-        if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
-        env:
-          SCACHE_DIST_AUTH_TOKEN: ${{ secrets.SCCACHE_GH_PAT }}
-        run: |
-          if ! test -n "${SCACHE_DIST_AUTH_TOKEN:+x}"; then
-            exit 0
-          fi
-
-          cat << EOF >> "${{ runner.temp }}/.env"
-          PARALLEL_LEVEL=64
-          CMAKE_BUILD_PARALLEL_LEVEL=64
-          SCCACHE_BUCKET=rapids-sccache-devs
-          SCCACHE_REGION=us-east-2
-          SCCACHE_DIST_FALLBACK_TO_LOCAL_COMPILE=false
-          SCCACHE_DIST_MAX_RETRIES=inf
-          SCCACHE_DIST_REQUEST_TIMEOUT=7140
-          SCCACHE_DIST_SCHEDULER_URL=https://${{ matrix.ARCH }}.linux.sccache.rapids.nvidia.com
-          SCCACHE_S3_KEY_PREFIX=/node
-          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX=/node/preprocessor
-          SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
-          EOF
-
-          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
-
-          GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
-            gh extension install nv-gha-runners/gh-nv-gha-aws
-          GH_TOKEN="$SCACHE_DIST_AUTH_TOKEN" \
-            gh nv-gha-aws org nvidia \
-              --duration 43200 \
-              --output shell \
-              --aud "sts.amazonaws.com" \
-              --idp-url "https://token.rapids.nvidia.com" \
-              --role-arn "arn:aws:iam::279114543810:role/rapids-token-sccache-devs" \
-          | sed 's/export //' \
-          | cat - <(cat <<< "SCCACHE_DIST_AUTH_TOKEN=$SCACHE_DIST_AUTH_TOKEN") \
-          >> "${{ runner.temp }}/.env"
+      - name: Free up disk space
+        if: runner.environment == 'github-hosted' && (env.dev_changed == 'true' || env.src_changed == 'true')
+        uses: ./.github/actions/free-disk-space
+        with:
+          tool_cache: ${{ runner.tool_cache }}
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        shell: bash
+        shell: bash --noprofile --norc -x -eo pipefail {0}
+        env:
+          ARCH: ${{ matrix.ARCH }}
+          CUDA: ${{ matrix.CUDA }}
+          LINUX: ${{ matrix.LINUX }}
+          PARALLEL_LEVEL: ${{ steps.sccache.outputs.parallel_level }}
         run: |
-          has_image="$(docker pull -q --platform linux/${{ matrix.ARCH }} "${MAIN_IMG}" && echo "true" || echo "false")";
-          if "$has_image" || "$dev_changed"; then
-            DOCKER_BUILDKIT=1 \
-            DOCKER_SCAN_SUGGEST=false \
-            docker build --pull --force-rm \
-              --ulimit "nofile=500000:500000" \
-              --build-arg UCX_VERSION="${{ env.UCX }}" \
-              --build-arg NODE_VERSION="${{ env.NODE }}" \
-              --build-arg LINUX_VERSION="${{ matrix.LINUX }}" \
-              --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-              --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-              -f dev/dockerfiles/devel/main.Dockerfile -t "${MAIN_IMG}" .
+          function begin_group() {
+            local blue="34"
+            echo -e "::group::\e[${blue}m${1:-}\e[0m"
+          }
+
+          function end_group() {
+            local name="${1:-}"
+            local build_status="${2:-0}"
+            local red="31"
+
+            echo "::endgroup::"
+            if [ "$build_status" -ne 0 ]; then
+              echo -e "::error::\e[${red}m ${name} - Failed (⬆️ click above for full log ⬆️)\e[0m"
+            fi
+          }
+
+          function run_command() {
+            local -;
+            set -euo pipefail;
+
+            local group="${1:-}";
+            shift;
+            local command=("$@");
+            local exit_code="0";
+
+            begin_group "$group";
+
+            echo "Working directory: $(pwd)";
+            echo "Running command: ${command[*]}";
+            "${command[@]}" || exit_code=$?;
+
+            end_group "$group" "$exit_code"
+
+            return "$exit_code"
+          }
+
+          has_image="false"
+
+          if run_command "Pull ${MAIN_IMG}" \
+            docker pull --platform "linux/${ARCH}" "${MAIN_IMG}"; then
+            has_image="true"
           fi
-          docker run --rm -t \
-            -u "$(id -u):$(id -g)" \
-            `# -v "$(pwd)/.yarn:/.yarn:rw"` \
-            `# -v "$(pwd)/.cache:/.cache:rw"` \
-            -v "$(pwd):/opt/rapids/node:rw" \
-            -v "$HOME/.gitconfig:/etc/gitconfig" \
-            --ulimit "nofile=500000:500000" \
-            --env-file ${{ runner.temp }}/.env \
-            "${MAIN_IMG}" \
-            bash -cex "yarn --pure-lockfile --prefer-offline && yarn build"
+
+          if [[ ! "$has_image" ]] || [[ "$dev_changed" ]]; then
+            run_command "Build ${MAIN_IMG}" \
+              docker build --pull --force-rm \
+                --ulimit "nofile=500000:500000" \
+                --build-arg UCX_VERSION="${UCX}" \
+                --build-arg NODE_VERSION="${NODE}" \
+                --build-arg LINUX_VERSION="${LINUX}" \
+                --build-arg AMD64_BASE="nvidia/cuda:${CUDA}-devel-${LINUX}" \
+                --build-arg ARM64_BASE="nvidia/cuda:${CUDA}-devel-${LINUX}" \
+                -f dev/dockerfiles/devel/main.Dockerfile \
+                -t "${MAIN_IMG}" \
+                .
+          fi
+
+          run_command "Build node-rapids" \
+           docker run --rm -t \
+              --user "$(id -u):$(id -g)" \
+              --ulimit "nofile=500000:500000" \
+              `# -v "$(pwd)/.yarn:/.yarn:rw"` \
+              `# -v "$(pwd)/.cache:/.cache:rw"` \
+              -v "$(pwd):/opt/rapids/node:rw" \
+              -v "${HOME}/.aws:/opt/rapids/.aws:ro" \
+              -v "${HOME}/.config:/opt/rapids/.config:ro" \
+              -v "${HOME}/.gitconfig:/opt/rapids/.gitconfig:ro" \
+              -e "CUDAARCHS=${CUDAARCHS}" \
+              -e "PARALLEL_LEVEL=${PARALLEL_LEVEL}" \
+              -e "RAPIDS_VERSION=${RAPIDS_VERSION}" \
+              -e "NVCC_APPEND_FLAGS=${NVCC_APPEND_FLAGS}" \
+              -e "CMAKE_BUILD_PARALLEL_LEVEL=${PARALLEL_LEVEL}" \
+              "${MAIN_IMG}" \
+              bash -cex "yarn --pure-lockfile --prefer-offline && yarn build"

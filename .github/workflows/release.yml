@@ -45,7 +45,7 @@ jobs:
         LINUX: ["ubuntu24.04"]
     steps:
       - name: Extract node native addons
-        shell: bash
+        shell: bash --noprofile --norc -x -eo pipefail {0}
         run: |
           set -x;
 
@@ -100,7 +100,7 @@ jobs:
         LINUX: ["ubuntu24.04"]
     steps:
       - name: Publish npm packages
-        shell: bash
+        shell: bash --noprofile --norc -x -eo pipefail {0}
         env:
           NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
         run: |

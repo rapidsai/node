@@ -28,10 +28,15 @@ permissions:
 jobs:
 
   build-and-publish-devel-main-image:
-    name: Build and publish devel main image
+    name: Build devel main image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       image: devel-main
       file: dev/dockerfiles/devel/main.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
@@ -40,39 +45,18 @@ jobs:
       build-args: |
         "UCX_VERSION=1.20.0"
 
-  package-build-args:
-    name: Package build args
-    runs-on: ubuntu-latest
-    outputs:
-      PARALLEL_LEVEL: ${{ steps.args.outputs.PARALLEL_LEVEL }}
-      SCCACHE_REGION: ${{ steps.args.outputs.SCCACHE_REGION }}
-      SCCACHE_BUCKET: ${{ steps.args.outputs.SCCACHE_BUCKET }}
-    steps:
-      - id: args
-        name: Determine build args for packages image build
-        env:
-          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
-          HAS_CUSTOM_SCCACHE_PAT: ${{ secrets.SCCACHE_GH_PAT != '' }}
-        run: |
-          if test "$HAS_CUSTOM_SCCACHE_PAT"; then
-            echo "PARALLEL_LEVEL=64" >> "$GITHUB_OUTPUT";
-            echo "SCCACHE_BUCKET=rapids-sccache-devs" >> "$GITHUB_OUTPUT";
-            echo "SCCACHE_REGION=us-east-2" >> "$GITHUB_OUTPUT";
-          else
-            echo "PARALLEL_LEVEL=128" >> "$GITHUB_OUTPUT";
-            echo "SCCACHE_BUCKET=rapids-sccache-east" >> "$GITHUB_OUTPUT";
-            echo "SCCACHE_REGION=$AWS_REGION" >> "$GITHUB_OUTPUT";
-          fi
-
-
   build-and-publish-devel-packages-image:
     name: Build devel packages image
     needs:
       - build-and-publish-devel-main-image
-      - package-build-args
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: devel-main
       image: devel-packages
       file: dev/dockerfiles/devel/package.Dockerfile
@@ -83,9 +67,6 @@ jobs:
       generate-creds: true
       build-args: |
         "CUDAARCHS=RAPIDS"
-        "PARALLEL_LEVEL=${{ needs.package-build-args.outputs.PARALLEL_LEVEL }}"
-        "SCCACHE_BUCKET=${{ needs.package-build-args.outputs.SCCACHE_BUCKET }}"
-        "SCCACHE_REGION=${{ needs.package-build-args.outputs.SCCACHE_REGION }}"
 
   build-and-publish-runtime-cuda-base-image:
     name: Build runtime cuda-base image
@@ -93,7 +74,12 @@ jobs:
       - build-and-publish-devel-main-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       image: runtime-base
       devel: devel-main
       file: dev/dockerfiles/runtime/base.Dockerfile
@@ -108,7 +94,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cudf
       build: devel-packages
@@ -126,7 +117,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cuml
       build: devel-packages
@@ -144,7 +140,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cugraph
       build: devel-packages
@@ -162,7 +163,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cuspatial
       build: devel-packages
@@ -180,7 +186,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-glfw
       build: devel-packages
@@ -198,7 +209,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-main
       build: devel-packages
@@ -218,7 +234,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-demo
       build: devel-packages

@@ -2,7 +2,6 @@ x-base-settings: &base_service_settings
   tty: true
   env_file:
     - .env
-    - .creds
   network_mode: host
   build: &base_build_settings
     context: .
@@ -74,11 +73,6 @@ services:
       - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:/ssh-agent"
       - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
 
-  devcontainer:
-    <<: *main_service
-    env_file:
-      - .env
-
   packages:
     <<: *base_service_settings
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-26.4.0}-devel-node${NODE_VERSION:-24.14.1}-cuda${CUDA_VERSION_MAJOR:-12}-${LINUX_VERSION:-ubuntu24.04}-packages
@@ -88,7 +82,8 @@ services:
       ssh:
         - default
       secrets:
-        - sccache_credentials
+        - aws_creds
+        - sccache_config
       args:
         CUDAARCHS: "${CUDAARCHS:-RAPIDS}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
@@ -103,5 +98,7 @@ services:
         hard: 500000
 
 secrets:
-  sccache_credentials:
-    file: .creds
+  aws_creds:
+    file: ../.aws/credentials
+  sccache_config:
+    file: ../.config/sccache/config

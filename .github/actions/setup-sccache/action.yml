@@ -1,0 +1,181 @@
+name: generate-creds
+
+description: "Generate sccache and sccache-dist credentials"
+
+inputs:
+  dev-sccache-bucket:
+    default: rapids-sccache-devs
+    type: string
+    required: false
+  dev-sccache-region:
+    default: ""
+    type: string
+    required: false
+  prod-sccache-bucket:
+    default: rapids-sccache-east
+    type: string
+    required: false
+  prod-sccache-region:
+    default: ""
+    type: string
+    required: false
+  custom-gh-token:
+    default: ""
+    type: string
+    required: false
+
+outputs:
+  aws_access_key_id:
+    value: "${{ steps.results.outputs.aws_access_key_id }}"
+  aws_session_token:
+    value: "${{ steps.results.outputs.aws_session_token }}"
+  aws_secret_access_key:
+    value: "${{ steps.results.outputs.aws_secret_access_key }}"
+  parallel_level:
+    value: "${{ steps.results.outputs.parallel_level }}"
+  sccache_bucket:
+    value: "${{ steps.results.outputs.sccache_bucket }}"
+  sccache_region:
+    value: "${{ steps.results.outputs.sccache_region }}"
+  sccache_dist_auth_token:
+    value: "${{ steps.results.outputs.sccache_dist_auth_token }}"
+
+runs:
+  using: composite
+  steps:
+    - name: Assume role
+      if: runner.environment == 'self-hosted' && inputs.custom-gh-token == ''
+      uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        role-duration-seconds: 43200 # 12h
+    - name: Exchange token
+      if: runner.environment == 'self-hosted' && inputs.custom-gh-token == ''
+      shell: bash --noprofile --norc -x -eo pipefail {0}
+      env:
+        SCCACHE_BUCKET: ${{ inputs.prod-sccache-bucket || 'rapids-sccache-east' }}
+        SCCACHE_REGION: ${{ inputs.prod-sccache-region || vars.AWS_REGION }}
+      run: |
+        cat <<EOF >> "$GITHUB_ENV"
+        SCCACHE_BUCKET=$SCCACHE_BUCKET
+        SCCACHE_REGION=$SCCACHE_REGION
+        SCCACHE_DIST_AUTH_TOKEN=$(
+          curl -fsSL -H "Authorization: Bearer $(
+            curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=token.rapids.nvidia.com" \
+          | jq -r '.value'
+          )" https://token.rapids.nvidia.com/gh/token/exchange \
+        | jq -r '.token')
+        EOF
+    - name: Generate creds via custom PAT
+      if: runner.environment != 'self-hosted' || inputs.custom-gh-token != ''
+      shell: bash --noprofile --norc -x -eo pipefail {0}
+      env:
+        RUNNER_TEMP: ${{ runner.temp }}
+        CUSTOM_GH_TOKEN: ${{ inputs.custom-gh-token }}
+        SCCACHE_BUCKET: ${{ inputs.dev-sccache-bucket || 'rapids-sccache-devs' }}
+        SCCACHE_REGION: ${{ inputs.dev-sccache-region || 'us-east-2' }}
+      run: |
+        GH_TOKEN="$CUSTOM_GH_TOKEN" \
+          gh extension install nv-gha-runners/gh-nv-gha-aws
+
+        GH_TOKEN="$CUSTOM_GH_TOKEN" \
+          gh nv-gha-aws org nvidia \
+            --output shell \
+            --duration 43200 \
+            --aud "sts.amazonaws.com" \
+            --idp-url "https://token.rapids.nvidia.com" \
+            --role-arn "arn:aws:iam::279114543810:role/rapids-token-sccache-devs" \
+        | sed 's/export //' \
+        | cat - \
+          <(cat <<< "SCCACHE_BUCKET=$SCCACHE_BUCKET") \
+          <(cat <<< "SCCACHE_REGION=$SCCACHE_REGION") \
+          <(cat <<< "SCCACHE_DIST_AUTH_TOKEN=$CUSTOM_GH_TOKEN") \
+        >> "$GITHUB_ENV"
+    - name: Set outputs
+      id: results
+      shell: bash --noprofile --norc -x -eo pipefail {0}
+      run: |
+        if test -n "${AWS_ACCESS_KEY_ID:+x}"; then
+          echo "::add-mask::$AWS_ACCESS_KEY_ID"
+        fi
+        if test -n "${AWS_SESSION_TOKEN:+x}"; then
+          echo "::add-mask::$AWS_SESSION_TOKEN"
+        fi
+        if test -n "${AWS_SECRET_ACCESS_KEY:+x}"; then
+          echo "::add-mask::$AWS_SECRET_ACCESS_KEY"
+        fi
+        if test -n "${SCCACHE_DIST_AUTH_TOKEN:+x}"; then
+          echo "::add-mask::$SCCACHE_DIST_AUTH_TOKEN"
+        fi
+
+        # Memory (in KB) used by each `sccache <compiler> ...` invocation from ninja
+        # * 1.5Mb for the shell launched by ninja
+        # * 6MiB for each sccache client process
+        # * round up
+        mem_per_sccache_client="$((1024 * 8))"
+        # It's usually around 400-600MiB, but be conservative
+        # and assume the sccache daemon will use 1GiB of RAM
+        mem_for_sccache_daemon="$((1 * 1024 * 1024))"
+        # Preprocessor invocations take ~250Mb or so
+        mem_for_preprocessor="$(($(nproc --all) * 250 * 1024))"
+        # Available memory (in KB), for more details see free(1).
+        mem_avail="$(cat /proc/meminfo | grep MemAvailable | tr -s '[:space:]' | cut -d' ' -f2)"
+        # Total job count is available memory after accounting for `nproc` preprocessor calls
+        # divided by the amount of memory required to invoke the sccache thin client process.
+        PARALLEL_LEVEL="$(((mem_avail - mem_for_preprocessor - mem_for_sccache_daemon) / mem_per_sccache_client))"
+
+        cat <<EOF >> "$GITHUB_OUTPUT"
+        aws_access_key_id=$AWS_ACCESS_KEY_ID
+        aws_session_token=$AWS_SESSION_TOKEN
+        aws_secret_access_key=$AWS_SECRET_ACCESS_KEY
+        parallel_level=$PARALLEL_LEVEL
+        sccache_bucket=$SCCACHE_BUCKET
+        sccache_region=$SCCACHE_REGION
+        sccache_dist_auth_token=$SCCACHE_DIST_AUTH_TOKEN
+        EOF
+
+        mkdir -p "$HOME"/.aws
+        mkdir -p "$HOME"/.config/sccache
+        touch "$HOME"/.aws/credentials
+        touch "$HOME"/.config/sccache/config
+
+        if test -n "${AWS_ACCESS_KEY_ID:+x}"; then
+
+          cat <<EOF > "$HOME"/.aws/credentials
+        [default]
+        aws_access_key_id = $AWS_ACCESS_KEY_ID
+        aws_secret_access_key = $AWS_SESSION_TOKEN
+        aws_session_token = $AWS_SECRET_ACCESS_KEY
+        EOF
+
+          cat <<EOF >> "$HOME"/.config/sccache/config
+        [cache.s3]
+        bucket = "$SCCACHE_BUCKET"
+        region = "$SCCACHE_REGION"
+        key_prefix = "node"
+
+        [cache.s3.preprocessor_cache_mode]
+        use_preprocessor_cache_mode = true
+        key_prefix = "node/preprocessor"
+        EOF
+
+        fi
+
+        if test -n "${SCCACHE_DIST_AUTH_TOKEN:+x}"; then
+
+          cat <<EOF >> "$HOME"/.config/sccache/config
+        [dist]
+        scheduler_url = "https://${{ matrix.ARCH }}.linux.sccache.rapids.nvidia.com"
+        fallback_to_local_compile = false
+        max_retries = inf
+
+        [dist.auth]
+        type = "token"
+        token = "$SCCACHE_DIST_AUTH_TOKEN"
+        EOF
+
+        fi
+
+        echo -e "sccache config:\n$(cat "$HOME"/.config/sccache/config)"

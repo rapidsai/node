@@ -1,8 +1,8 @@
 {
   "shutdownAction": "stopCompose",
   "dockerComposeFile": "${localWorkspaceFolder}/docker-compose.devel.yml",
-  "service": "devcontainer",
-  "runServices": ["devcontainer"],
+  "service": "main",
+  "runServices": ["main"],
   "hostRequirements": {"gpu": "optional"},
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1.0.12": {},
@@ -12,7 +12,7 @@
     "ghcr.io/devcontainers/features/github-cli",
     "ghcr.io/rapidsai/devcontainers/features/utils:latest"
   ],
-  "initializeCommand": ["/bin/bash", "-c", "mkdir -m 0755 -p ${localWorkspaceFolder}/../.{aws,cache,config,log/devcontainer-utils} && touch .env .creds"],
+  "initializeCommand": ["/bin/bash", "-c", "mkdir -m 0755 -p ${localWorkspaceFolder}/../.{aws,cache,config,log/devcontainer-utils} && touch ${localWorkspaceFolder}/.env ${localWorkspaceFolder}/../.{aws/credentials,config/sccache/config}"],
   "postAttachCommand": ["/bin/bash", "-c", "if [ ${CODESPACES:-false} = 'true' ]; then . devcontainer-utils-post-attach-command; fi"],
   "workspaceFolder": "/opt/rapids/node",
   "mounts": [

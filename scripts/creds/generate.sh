@@ -61,22 +61,37 @@ unset args wanted_scopes active_scopes needed_scopes
 
 declare -a args=(
     --duration 43200
-    --output shell
+    --profile default
+    --output creds-file
     --aud "${AWS_AUDIENCE:-sts.amazonaws.com}"
     --idp-url "${AWS_IDP_URL:-https://token.rapids.nvidia.com}"
     --role-arn "${AWS_ROLE_ARN:-arn:aws:iam::279114543810:role/rapids-token-sccache-devs}"
 )
 
-echo >/out/creds
-
 # Generate temporary S3 credentials that expire after 12 hours.
 # These allow RW access to the `rapids-sccache-devs` build cache S3 bucket.
 
-gh nv-gha-aws org nvidia "${args[@]}" 2>/dev/null \
-  | sed 's/export //' \
-  | cat - <(cat <<EOF
-SCCACHE_DIST_AUTH_TOKEN=$(gh auth token)
+gh nv-gha-aws org nvidia "${args[@]}" 2>/dev/null >/out/credentials
+
+cat <<EOF > /out/sccache
+[cache.s3]
+bucket = "rapids-sccache-devs"
+region = "us-east-2"
+key_prefix = "node"
+
+[cache.s3.preprocessor_cache_mode]
+use_preprocessor_cache_mode = true
+key_prefix = "node/preprocessor"
+
+[dist]
+scheduler_url = "https://$(uname -m | sed -e 's/x86_/amd/' -e 's/aarch/arm/').linux.sccache.rapids.nvidia.com"
+fallback_to_local_compile = true
+max_retries = 5
+
+[dist.auth]
+type = "token"
+token = "$(gh auth token)"
 EOF
-) >/out/creds
+
 
 unset args

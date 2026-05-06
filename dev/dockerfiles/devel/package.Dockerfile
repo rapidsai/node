@@ -37,15 +37,12 @@ ENV RAPIDSAI_SKIP_DOWNLOAD=1
 
 SHELL ["/bin/bash", "-c"]
 
-RUN --mount=type=secret,id=sccache_credentials,uid=1000,gid=1000 \
-    --mount=type=bind,source=dev/.gitconfig,target=/opt/rapids/.gitconfig \
+RUN --mount=type=bind,source=dev/.gitconfig,target=/opt/rapids/.gitconfig \
+    --mount=type=secret,id=aws_creds,uid=1000,gid=1000,target=/opt/rapids/.aws/credentials \
+    --mount=type=secret,id=sccache_config,uid=1000,gid=1000,target=/opt/rapids/.config/sccache/config \
 <<EOF_RUN
 
 sudo chown -R $(id -u):$(id -g) /opt/rapids
-
-if [ -f /run/secrets/sccache_credentials ]; then
-    export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n')
-fi
 
 echo -e "build context:\n$(find .)"
 

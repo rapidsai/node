@@ -4,7 +4,8 @@ set -Eeuo pipefail
 
 cd "$(dirname "$(realpath "$0")")" || exit 1
 
-touch ../../.creds
+mkdir -p ../../../.aws
+touch ../../../.aws/credentials
 
 docker build -f Dockerfile -t node-rapids-generate-creds .
 
@@ -30,7 +31,8 @@ if test -v SSH_AUTH_SOCK && test -e "$SSH_AUTH_SOCK"; then
 fi
 
 args+=(
-  -v "$(realpath -m ../../.creds):/out/creds:rw" \
+  -v "$(realpath -m ../../../.aws/credentials):/out/credentials:rw" \
+  -v "$(realpath -m ../../../.config/sccache/config):/out/sccache:rw" \
 #   -v "$(pwd)/generate.sh:/generate.sh:rw" \
   -e "PUID=$(id -u)" \
   -e "PGID=$(id -g)" \
