@@ -35,10 +35,10 @@ inputs:
 outputs:
   aws_access_key_id:
     value: "${{ steps.results.outputs.aws_access_key_id }}"
-  aws_session_token:
-    value: "${{ steps.results.outputs.aws_session_token }}"
   aws_secret_access_key:
     value: "${{ steps.results.outputs.aws_secret_access_key }}"
+  aws_session_token:
+    value: "${{ steps.results.outputs.aws_session_token }}"
   parallel_level:
     value: "${{ steps.results.outputs.parallel_level }}"
   sccache_bucket:
@@ -136,8 +136,8 @@ runs:
 
         cat <<EOF >> "$GITHUB_OUTPUT"
         aws_access_key_id=$AWS_ACCESS_KEY_ID
-        aws_session_token=$AWS_SESSION_TOKEN
         aws_secret_access_key=$AWS_SECRET_ACCESS_KEY
+        aws_session_token=$AWS_SESSION_TOKEN
         parallel_level=$PARALLEL_LEVEL
         sccache_bucket=$SCCACHE_BUCKET
         sccache_region=$SCCACHE_REGION
@@ -153,9 +153,9 @@ runs:
 
           cat <<EOF > "$HOME"/.aws/credentials
         [default]
-        aws_access_key_id = $AWS_ACCESS_KEY_ID
-        aws_secret_access_key = $AWS_SESSION_TOKEN
-        aws_session_token = $AWS_SECRET_ACCESS_KEY
+        aws_access_key_id=$AWS_ACCESS_KEY_ID
+        aws_secret_access_key=$AWS_SECRET_ACCESS_KEY
+        aws_session_token=$AWS_SESSION_TOKEN
         EOF
 
           cat <<EOF >> "$HOME"/.config/sccache/config
