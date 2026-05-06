@@ -278,7 +278,7 @@ jobs:
 
   push:
     if: inputs.push
-    name: Push to ${{ env.REGISTRY }}
+    name: Create manifest
     needs: [build]
     runs-on: ubuntu-latest
     env:
@@ -292,7 +292,7 @@ jobs:
           password: ${{ github.token }}
 
       - id: push
-        name: Push manifest to ${{ env.REGISTRY }}
+        name: Create manifest in ${{ env.REGISTRY }}
         shell: bash --noprofile --norc -x -eo pipefail {0}
         env:
           AMD64: ${{ needs.build.outputs.amd64 }}
