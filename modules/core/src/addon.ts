@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ try {
   /**/
 }
 
-// eslint-disable-next-line @typescript-eslint/unbound-method
 export const {
   _cpp_exports,
   getCudaDriverVersion,

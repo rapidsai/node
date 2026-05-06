@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ export type GLFWmonitor      = number;
 export type GLFWwindow       = number;
 export type GLFWcursor       = number;
 export type GLFWglproc       = number;
-export type GLFWParentWindow = number|bigint|Buffer|ArrayBufferView|ArrayBufferView;
+export type GLFWParentWindow = number|bigint|Buffer|ArrayBufferLike|ArrayBufferView<any>;
 
 export interface GLFWVersion {
   major: number;
@@ -86,7 +86,7 @@ export interface GLFWimage {
   /** The width, in pixels, of this image.                                 */ width: number;
   /** The height, in pixels, of this image.                                */ height: number;
   /** The pixel data of this image, arranged left-to-right, top-to-bottom. */ pixels:
-    ArrayBufferLike|ArrayBufferView;
+    ArrayBufferLike|ArrayBufferView<any>;
 }
 
 export interface GLFWgamepadstate {

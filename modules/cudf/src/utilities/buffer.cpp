@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -114,9 +114,9 @@ DeviceBuffer::wrapper_t array_to_device_buffer(Napi::Env const& env,
                                                MemoryResource::wrapper_t const& mr,
                                                rmm::cuda_stream_view stream) {
   switch (dtype.id()) {
-    case cudf::type_id::INT64: return DeviceBuffer::New<int64_t>(env, data, mr);
-    case cudf::type_id::UINT64: return DeviceBuffer::New<uint64_t>(env, data, mr);
-    case cudf::type_id::FLOAT64: return DeviceBuffer::New<double>(env, data, mr);
+    case cudf::type_id::INT64: return DeviceBuffer::New<int64_t>(env, data, mr, stream);
+    case cudf::type_id::UINT64: return DeviceBuffer::New<uint64_t>(env, data, mr, stream);
+    case cudf::type_id::FLOAT64: return DeviceBuffer::New<double>(env, data, mr, stream);
     case cudf::type_id::FLOAT32:
     case cudf::type_id::INT8:
     case cudf::type_id::INT16:
@@ -125,9 +125,10 @@ DeviceBuffer::wrapper_t array_to_device_buffer(Napi::Env const& env,
     case cudf::type_id::UINT16:
     case cudf::type_id::UINT32:
     case cudf::type_id::BOOL8: {
-      auto buffer          = DeviceBuffer::New<double>(env, data, mr);
+      auto buffer          = DeviceBuffer::New<double>(env, data, mr, stream);
       cudf::size_type size = buffer->size() / sizeof(double);
-      cudf::column_view view{cudf::data_type{cudf::type_id::FLOAT64}, size, buffer->data()};
+      cudf::column_view view{
+        cudf::data_type{cudf::type_id::FLOAT64}, size, buffer->data(), nullptr, 0};
       return DeviceBuffer::New(env, std::move(cudf::cast(view, dtype)->release().data), mr);
     }
     default: return DeviceBuffer::New(env, mr, stream);
@@ -146,7 +147,7 @@ DeviceBuffer::wrapper_t bool_array_to_null_bitmask(Napi::Env const& env,
     // Set the valid bit if the value is "truthy" by JS standards
     if (data.Get(i).ToBoolean().Value()) { cudf::set_bit_unsafe(mask.data(), i); }
   }
-  return DeviceBuffer::New(env, mask.data(), mask_size, MemoryResource::Current(env));
+  return DeviceBuffer::New(env, mask.data(), mask_size, mr, stream);
 }
 
 DeviceBuffer::wrapper_t data_array_to_null_bitmask(Napi::Env const& env,
@@ -164,7 +165,7 @@ DeviceBuffer::wrapper_t data_array_to_null_bitmask(Napi::Env const& env,
       cudf::set_bit_unsafe(mask.data(), i);
     }
   }
-  return DeviceBuffer::New(env, mask.data(), mask_size, MemoryResource::Current(env));
+  return DeviceBuffer::New(env, mask.data(), mask_size, mr, stream);
 }
 
 }  // namespace
@@ -177,7 +178,7 @@ DeviceBuffer::wrapper_t data_to_devicebuffer(Napi::Env const& env,
   if (value.IsObject() and !(value.IsEmpty() || value.IsNull() || value.IsUndefined())) {
     auto data = value.As<Napi::Object>();
     if (DeviceBuffer::IsInstance(data)) { return data; }
-    if (is_device_buffer_wrapper(data)) { return data.Get("buffer").ToObject(); }
+    if (is_device_buffer_wrapper(data)) { return data.Get("buffer").As<Napi::Object>(); }
     if (is_device_memory(data)) { return device_memory_to_device_buffer(env, data, mr, stream); }
     if (is_device_memory_wrapper(data)) {
       return device_memory_wrapper_to_device_buffer(env, data, mr, stream);
@@ -206,8 +207,12 @@ DeviceBuffer::wrapper_t mask_to_null_bitmask(Napi::Env const& env,
   if (value.IsBoolean()) {
     // Return a full bitmask indicating either all-valid or all-null
     auto mask = cudf::create_null_mask(
-      size, value.ToBoolean() ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL);
-    return DeviceBuffer::New(value.Env(), std::make_unique<rmm::device_buffer>(std::move(mask)));
+      size,
+      value.ToBoolean() ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL,
+      stream,
+      *mr);
+    return DeviceBuffer::New(
+      value.Env(), std::make_unique<rmm::device_buffer>(std::move(mask)), mr);
   }
   if (value.IsArray()) {
     return bool_array_to_null_bitmask(env, value.As<Napi::Array>(), size, mr, stream);

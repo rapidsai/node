@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace {
 cudf::io::orc_writer_options make_writer_options(Napi::Object const& options,
                                                  cudf::io::sink_info const& sink,
                                                  cudf::table_view const& table,
-                                                 cudf::io::table_input_metadata* metadata) {
+                                                 cudf::io::table_input_metadata metadata) {
   auto has_opt = [&](std::string const& key) { return options.Has(key); };
   auto str_opt = [&](std::string const& key, std::string const& default_val) {
     return has_opt(key) ? options.Get(key).ToString().Utf8Value() : default_val;
@@ -56,9 +56,11 @@ void Table::write_orc(Napi::CallbackInfo const& info) {
   auto options          = args[1].As<Napi::Object>();
 
   cudf::table_view table = *this;
+  auto stream            = nv::get_default_stream();
   auto metadata          = make_writer_columns_metadata(options, table);
-  auto writer_opts = make_writer_options(options, cudf::io::sink_info{file_path}, table, &metadata);
-  cudf::io::write_orc(writer_opts);
+  auto writer_opts = make_writer_options(options, cudf::io::sink_info{file_path}, table, metadata);
+  cudf::io::write_orc(writer_opts, stream);
+  stream.synchronize();
 }
 
 }  // namespace nv

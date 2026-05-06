@@ -20,7 +20,7 @@ The following dependencies are necessary to build any of the `node-rapids` nativ
 * [CMake v3.20.2+](https://cmake.org/) (recommend either the [apt repository](https://apt.kitware.com/) or self-installing shell script).
 * `gcc-9` toolchain (available in Ubuntu via the official toolchain PPA `ppa:ubuntu-toolchain-r/test`)
 * ```txt
-  ninja-build sccache jq zlib1g-dev liblz4-dev clang-format-17 clangd-17 lldb-17
+  ninja-build sccache jq zlib1g-dev liblz4-dev clang-format-18 clangd-18 lldb-18
   ```
 
 ### Additional per-module dependencies
@@ -30,20 +30,6 @@ The following dependencies are necessary to build any of the `node-rapids` nativ
   ```txt
   libgdal-dev
   ```
-
-* `@rapidsai/sql`
-
-  ```txt
-  maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev
-  ```
-
-  (`openjdk-11-jdk` also acceptable)
-
-  * [UCX v1.11.x](https://github.com/openucx/ucx.git)
-
-    ```txt
-    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev
-    ```
 
 * `node-canvas`, `@rapidsai/glfw`, `@rapidsai/webgl`
 

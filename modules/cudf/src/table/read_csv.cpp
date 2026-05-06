@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -198,11 +198,11 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   return opts;
 }
 
-std::vector<cudf::io::host_buffer> get_host_buffers(std::vector<Span<char>> const& sources) {
-  std::vector<cudf::io::host_buffer> buffers;
+std::vector<cudf::host_span<char const>> get_host_buffers(std::vector<Span<char>> const& sources) {
+  std::vector<cudf::host_span<char const>> buffers;
   buffers.reserve(sources.size());
   std::transform(sources.begin(), sources.end(), std::back_inserter(buffers), [&](auto const& buf) {
-    return cudf::io::host_buffer{buf.data(), buf.size()};
+    return cudf::host_span<char const>{buf.data(), buf.size()};
   });
   return buffers;
 }
@@ -217,10 +217,11 @@ Napi::Value read_csv_files(Napi::Object const& options, std::vector<std::string>
 }
 
 Napi::Value read_csv_strings(Napi::Object const& options, std::vector<Span<char>> const& sources) {
-  auto env    = options.Env();
-  auto result = cudf::io::read_csv(
-    make_reader_options(options, cudf::io::source_info{get_host_buffers(sources)}));
-  auto output = Napi::Object::New(env);
+  auto env     = options.Env();
+  auto buffers = get_host_buffers(sources);
+  auto result  = cudf::io::read_csv(make_reader_options(
+    options, cudf::io::source_info{cudf::host_span<cudf::host_span<char const>>{buffers}}));
+  auto output  = Napi::Object::New(env);
   output.Set("names", get_output_names_from_metadata(env, result));
   output.Set("table", Table::New(env, get_output_cols_from_metadata(env, result)));
   return output;

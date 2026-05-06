@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2022, NVIDIA CORPORATION.
+# Copyright (c) 2022-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,26 +20,36 @@ function(_statically_link_cuda_toolkit_libs target)
 
     get_target_property(_aliased_target ${target} ALIASED_TARGET)
 
-    if (_aliased_target)
+    if (_aliased_target AND (TARGET ${_aliased_target}))
         _statically_link_cuda_toolkit_libs(${_aliased_target})
         return()
     endif()
 
     get_target_property(_link_libs ${target} INTERFACE_LINK_LIBRARIES)
 
-    foreach(_lib IN ITEMS blas cublas cublasLt cudart cufft cufftw cupti curand
-                          cusolver cusolver_lapack cusolver_metis cusparse lapack nppc
-                          nppial nppicc nppicom nppidei nppif nppig nppim nppist nppisu
-                          nppitc npps nvgraph nvrtc nvrtc_builtins)
-      set(_suf "_static")
-      if(_lib STREQUAL "cufft")
-        set(_suf "_static_nocallback")
-      endif()
-      string(REPLACE "CUDA::${_lib};" "CUDA::${_lib}${_suf};" _link_libs "${_link_libs}")
-      string(REPLACE "CUDA::${_lib}>" "CUDA::${_lib}${_suf}>" _link_libs "${_link_libs}")
-      string(REPLACE "CUDA::${_lib}\"" "CUDA::${_lib}${_suf}\"" _link_libs "${_link_libs}")
-    endforeach()
+    if(_link_libs)
+      foreach(_lib IN ITEMS blas cudart cublas cublasLt cuFile cuFile_rdma cufft cufftw curand
+                            cusolver cusparse cupti nvperf_host nppc nppial nppicc nppicom nppidei
+                            nppif nppig nppim nppist nppisu nppitc npps nvgraph nvjpeg nvptxcompiler
+                            nvrtc nvrtc_builtins nvJitLink nvfatbin nvml)
+        set(_suf "_static")
+        if(TARGET CUDA::${_lib}${_suf})
+          string(REPLACE "CUDA::${_lib};" "CUDA::${_lib}${_suf};" _link_libs "${_link_libs}")
+          string(REPLACE "CUDA::${_lib}>" "CUDA::${_lib}${_suf}>" _link_libs "${_link_libs}")
+          string(REPLACE "CUDA::${_lib}\"" "CUDA::${_lib}${_suf}\"" _link_libs "${_link_libs}")
+          if(_lib STREQUAL "cufft")
+            set(_lib "${_lib}${_suf}")
+            set(_suf "_nocallback")
+            if(TARGET CUDA::${_lib}${_suf})
+              string(REPLACE "CUDA::${_lib};" "CUDA::${_lib}${_suf};" _link_libs "${_link_libs}")
+              string(REPLACE "CUDA::${_lib}>" "CUDA::${_lib}${_suf}>" _link_libs "${_link_libs}")
+              string(REPLACE "CUDA::${_lib}\"" "CUDA::${_lib}${_suf}\"" _link_libs "${_link_libs}")
+            endif()
+          endif()
+        endif()
+      endforeach()
 
-    set_target_properties(${target} PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
+      set_target_properties(${target} PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}")
+    endif()
   endif()
 endfunction()

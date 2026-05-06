@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ export function polylineBoundingBoxes<T extends FloatingPoint>(
   const points         = polylines.elements;
   const xs             = points.getChild('x');
   const ys             = points.getChild('y');
-  const {names, table} = computePolylineBoundingBoxes(offsetsMinus1(polylines.offsets),
+  const {names, table} = computePolylineBoundingBoxes(polylines.offsets._col,
                                                       xs._col as Column<T>,
                                                       ys._col as Column<T>,
                                                       expansionRadius,
@@ -80,8 +80,8 @@ export function polygonBoundingBoxes<T extends FloatingPoint>(polygons: Polygons
   const points         = rings.elements;
   const xs             = points.getChild('x');
   const ys             = points.getChild('y');
-  const {names, table} = computePolygonBoundingBoxes(offsetsMinus1(polygons.offsets),
-                                                     offsetsMinus1(rings.offsets),
+  const {names, table} = computePolygonBoundingBoxes(polygons.offsets._col,
+                                                     rings.offsets._col,
                                                      xs._col as Column<T>,
                                                      ys._col as Column<T>,
                                                      memoryResource);
@@ -91,8 +91,4 @@ export function polygonBoundingBoxes<T extends FloatingPoint>(polygons: Polygons
     [names[2]]: table.getColumnByIndex<T>(2),
     [names[3]]: table.getColumnByIndex<T>(3),
   });
-}
-
-function offsetsMinus1(offsets: Series<Int32>) {
-  return new Column({type: new Int32, data: offsets.data, length: offsets.length - 1});
 }

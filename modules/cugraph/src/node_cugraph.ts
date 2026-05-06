@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,7 +81,9 @@ export declare class Graph {
    *
    * @returns {number} The computed modularity score
    */
-  analyzeModularityClustering(num_clusters: number, clusters: Column<Int32>): number;
+  analyzeModularityClustering(num_clusters: number,
+                              clusters: Column<Int32>,
+                              memoryResource?: MemoryResource): number;
 
   /**
    * @summary Compute the edge cut score for a partitioning/clustering The assumption is that
@@ -93,7 +95,9 @@ export declare class Graph {
    *
    * @returns {number} The computed edge cut score
    */
-  analyzeEdgeCutClustering(num_clusters: number, clusters: Column<Int32>): number;
+  analyzeEdgeCutClustering(num_clusters: number,
+                           clusters: Column<Int32>,
+                           memoryResource?: MemoryResource): number;
 
   /**
    * @summary Compute the ratio cut score for a partitioning/clustering.
@@ -103,7 +107,9 @@ export declare class Graph {
    *
    * @returns {number} The computed ratio cut score
    */
-  analyzeRatioCutClustering(num_clusters: number, clusters: Column<Int32>): number;
+  analyzeRatioCutClustering(num_clusters: number,
+                            clusters: Column<Int32>,
+                            memoryResource?: MemoryResource): number;
 }
 
 export interface ForceAtlas2Options<TPositions = void> {
@@ -190,4 +196,5 @@ export interface SpectralClusteringOptions {
    * @summary Specifies the maximum number of iterations for the k-means solver. Default is 100.
    */
   kmean_max_iter?: number;
+  memoryResource?: MemoryResource;
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -183,13 +183,11 @@ ${code}`;
 
 function installUnhandledExceptionListeners() {
   process.on('uncaughtException' as any, (err: Error, origin: any) => {
-    /* eslint-disable @typescript-eslint/restrict-template-expressions */
     process.stderr.write(`Uncaught Exception\n` + (origin ? `Origin: ${origin}\n` : '') +
                          `Exception: ${err && err.stack || err}\n`);
   });
 
   process.on('unhandledRejection' as any, (err: Error, promise: any) => {
-    /* eslint-disable @typescript-eslint/restrict-template-expressions */
     process.stderr.write(`Unhandled Promise Rejection\n` +
                          (promise ? `Promise: ${promise}\n` : '') +
                          `Exception: ${err && err.stack || err}\n`);

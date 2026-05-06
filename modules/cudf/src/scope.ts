@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import {DataFrame} from './data_frame';
 import {Series} from './series';
 import {Table} from './table';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type Resource = DataFrame|Series|Column|Table|DeviceBuffer;
 
 export class Disposer {
@@ -41,11 +42,11 @@ export class Disposer {
     if (this.currentScopeId > -1) {
       this.currentScopeId -= 1;
       const flatten = (xs: Resource[]) => flattenDeviceBuffers(xs);
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       const test = new Set(flatten(this.trackedResources.pop()!));
       const keep = new Set(flatten([
         result,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         ...this.ingoredResources.pop()!,
         ...this.ingoredResources.flat(1),
         ...this.trackedResources.flat(1),
@@ -71,6 +72,7 @@ export function scope<T extends Resource, F extends(() => T | Promise<T>)>(
   return DISPOSER.exit(result) as ReturnType<F>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function flattenDeviceBuffers(input: Resource|null|undefined, visited = new Set): DeviceBuffer[] {
   if (!input) { return []; }
   if (input instanceof DeviceBuffer) { return [input]; }

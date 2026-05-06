@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
 #include <node_rmm/memory_resource.hpp>
 
 #include <cudf/strings/contains.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <cudf/strings/regex/regex_program.hpp>
+
+#include <rmm/mr/per_device_resource.hpp>
 
 namespace nv {
 
@@ -27,7 +29,12 @@ Column::wrapper_t Column::contains_re(std::string const& pattern,
   try {
     return Column::New(
       Env(),
-      cudf::strings::contains_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
+      cudf::strings::contains_re(
+        this->view(),
+        *cudf::strings::regex_program::create(
+          pattern, cudf::strings::regex_flags::DEFAULT, cudf::strings::capture_groups::NON_CAPTURE),
+        nv::get_default_stream(),
+        mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -36,7 +43,12 @@ Column::wrapper_t Column::count_re(std::string const& pattern,
   try {
     return Column::New(
       Env(),
-      cudf::strings::count_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
+      cudf::strings::count_re(
+        this->view(),
+        *cudf::strings::regex_program::create(
+          pattern, cudf::strings::regex_flags::DEFAULT, cudf::strings::capture_groups::NON_CAPTURE),
+        nv::get_default_stream(),
+        mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -45,7 +57,12 @@ Column::wrapper_t Column::matches_re(std::string const& pattern,
   try {
     return Column::New(
       Env(),
-      cudf::strings::matches_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
+      cudf::strings::matches_re(
+        this->view(),
+        *cudf::strings::regex_program::create(
+          pattern, cudf::strings::regex_flags::DEFAULT, cudf::strings::capture_groups::NON_CAPTURE),
+        nv::get_default_stream(),
+        mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

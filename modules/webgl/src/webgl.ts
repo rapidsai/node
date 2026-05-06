@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ interface OpenGLESRenderingContext extends WebGL2RenderingContext {
   _clearMask: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 const OpenGLESRenderingContext: OpenGLESRenderingContext = gl.WebGL2RenderingContext;
 
 OpenGLESRenderingContext.prototype.webgl1        = false;
@@ -78,7 +77,7 @@ function bufferData(this: WebGL2RenderingContext,
                     srcByteLength?: GLuint): void;
 function bufferData(
   this: WebGL2RenderingContext,
-  ...args: [GLenum, GLsizeiptr|BufferSource|null, GLenum, GLuint?, GLuint?]): void {
+  ...args: [GLenum, GLsizeiptr|BufferSource|ArrayBufferView|null, GLenum, GLuint?, GLuint?]): void {
   let [target, src, usage, srcOffset, srcByteLength] = args;
   if (args.length > 3 && src !== null && typeof src !== 'number' && typeof srcOffset === 'number') {
     let BPM, arr = ArrayBuffer.isView(src) ? src : new Uint8Array(src);
@@ -121,7 +120,6 @@ function getBufferSubData(this: WebGL2RenderingContext,
                           dst: ArrayBufferView,
                           dstOffset: GLuint = 0,
                           length?: GLuint): void {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const arr  = ArrayBuffer.isView(dst) ? <Uint8Array>dst : toArrayBufferViewSlice(dst, dstOffset)!;
   const size = typeof length === 'undefined' ? arr.byteLength : length * arr.BYTES_PER_ELEMENT;
   return gl_getBufferSubData.call(this, target, srcByteOffset, size, arr);
@@ -147,11 +145,12 @@ function getShaderInfoLog(this: WebGL2RenderingContext, shader: WebGLShader): st
     .map((line) => {
       let errIndex, numIndex, errMatch, numMatch, type, num;
       ({index: errIndex, [0]: errMatch, [1]: type} =
-         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) || {index: undefined, 0: '', 1: ''});
+
+         (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) ||
+         {index: undefined, 0: '', 1: ''});
       ({index: numIndex, [0]: numMatch, [1]: num} =
-         // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (line.match(/0\((\d+)\) :/) || {index: undefined, 0: '', 1: ''}));
+
+         (line.match(/0\((\d+)\) :/) || {index: undefined, 0: '', 1: ''}));
       if (errIndex !== undefined && numIndex !== undefined && errMatch && type && numMatch && num) {
         return `${type.toUpperCase()}:${line.slice(errIndex + errMatch.length)}:${num}${
           line.slice(numIndex + numMatch.length)}`;
@@ -205,8 +204,8 @@ function texImage2D(this: WebGL2RenderingContext, ...args: [
   GLenum,
   GLint,
   GLint,
-  GLsizei|GLenum,
-  GLsizei|GLenum,
+  GLsizei,
+  GLsizei,
   GLint|TexImageSource,
   GLenum?,
   GLenum?,
@@ -241,8 +240,9 @@ function texImage2D(this: WebGL2RenderingContext, ...args: [
       if (args[8] && typeof args[8] === 'object') {
         [target, level, internalformat, width, height, border, format, type, src] =
           (args as [GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, TexImageSource]);
-        [width = src.width, height = src.height] = [width, height];
-        src                                      = pixelsFromImage(src, width, height);
+        width  = width ?? (src as any).width ?? (src as any).displayWidth;
+        height = height ?? (src as any).height ?? (src as any).displayHeight;
+        src    = pixelsFromImage(src, width, height);
         break;
       }
       throw new TypeError('WebGLRenderingContext texImage2D() invalid texture source');
@@ -309,8 +309,8 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [
   GLint,
   GLint,
   GLint,
-  GLenum|GLsizei,
-  GLenum|GLsizei,
+  GLenum,
+  GLenum,
   GLenum|TexImageSource,
   GLenum?,
   (GLintptr | TexImageSource | ArrayBufferView | null)?,
@@ -321,7 +321,9 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [
     case 7: {
       [target, level, x, y, format, type, src] =
         (args as [GLenum, GLint, GLint, GLint, GLenum, GLenum, TexImageSource]);
-      src = pixelsFromImage(src, width = src.width, height = src.height);
+      width  = width ?? (src as any).width ?? (src as any).displayWidth;
+      height = height ?? (src as any).height ?? (src as any).displayHeight;
+      src    = pixelsFromImage(src, width, height);
       break;
     }
     case 8:
@@ -350,8 +352,9 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [
       if (args[8] && typeof args[8] === 'object') {
         [target, level, x, y, width, height, format, type, src] =
           (args as [GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, TexImageSource]);
-        [width = src.width, height = src.height] = [width, height];
-        src                                      = pixelsFromImage(src, width, height);
+        width  = width ?? (src as any).width ?? (src as any).displayWidth;
+        height = height ?? (src as any).height ?? (src as any).displayHeight;
+        src    = pixelsFromImage(src, width, height);
         break;
       }
       throw new TypeError('WebGLRenderingContext texSubImage2D() invalid texture source');
@@ -614,7 +617,6 @@ if (Boolean(process.env.NVIDIA_NODE_WEBGL_TRACE_CALLS) === true) {
 
 //@ts-ignore
 function wrapAndLogGLMethods(proto: any) {
-  /* eslint-disable @typescript-eslint/restrict-template-expressions */
   const listToString = (x: any) => {
     if (x.length < 10) { return `(length=${x.length}, values=[${x}])`; }
     return `(length=${x.length}, values=[${x.slice(0, 3)}, ... ${
@@ -684,13 +686,12 @@ function pixelsFromImage(source: TexImageSource, width: number, height: number) 
       (typeof HTMLVideoElement !== 'undefined') && (source instanceof HTMLVideoElement) &&
         source.ownerDocument) {
     const canvas = source.ownerDocument.createElement('canvas');
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
     const context = Object.assign(canvas, {width, height}).getContext('2d')!;
     context.drawImage(source, 0, 0);
     return context.getImageData(0, 0, width, height).data;
   }
   if (source && typeof (<any>source).getContext === 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const context = (<any>source).getContext('2d');
     if (context && typeof context.getImageData === 'function') {
       const imageData = context.getImageData(0, 0, width, height);

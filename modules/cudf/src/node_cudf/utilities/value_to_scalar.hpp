@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -104,7 +104,10 @@ struct set_scalar_value {
   template <typename T>
   inline std::enable_if_t<std::is_same_v<T, cudf::string_view>, void> operator()(
     std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
-    scalar.reset(new cudf::string_scalar(val.ToString(), true, stream));
+    scalar.reset(new cudf::string_scalar(val.ToString().operator std::string(),
+                                         true,
+                                         rmm::cuda_stream_view{stream},
+                                         cudf::get_current_device_resource_ref()));
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_duration<T>() and std::is_same_v<typename T::rep, int32_t>, void>

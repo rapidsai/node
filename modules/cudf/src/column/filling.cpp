@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ Column::wrapper_t Column::fill(cudf::size_type begin,
                                cudf::size_type end,
                                cudf::scalar const& value,
                                rmm::mr::device_memory_resource* mr) {
-  return Column::New(Env(), cudf::fill(*this, begin, end, value, mr));
+  return Column::New(Env(), cudf::fill(*this, begin, end, value, nv::get_default_stream(), mr));
 }
 
 Napi::Value Column::fill(Napi::CallbackInfo const& info) {
@@ -60,7 +60,7 @@ Column::wrapper_t Column::sequence(Napi::Env const& env,
                                    cudf::scalar const& init,
                                    rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(env, cudf::sequence(size, init, mr));
+    return Column::New(env, cudf::sequence(size, init, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 
@@ -70,7 +70,7 @@ Column::wrapper_t Column::sequence(Napi::Env const& env,
                                    cudf::scalar const& step,
                                    rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(env, cudf::sequence(size, init, step, mr));
+    return Column::New(env, cudf::sequence(size, init, step, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(env, e.what()); }
 }
 

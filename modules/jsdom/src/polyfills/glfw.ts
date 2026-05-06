@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -802,7 +802,7 @@ function dispatchEventIntoDOM(window: jsdom.DOMWindow, glfwEvent: any, EventCtor
       if (!key.startsWith('_')) {
         try {
           jsdomEventImpl[key] = glfwEvent[key];
-        } catch (e) { /**/
+        } catch { /**/
         }
       }
     }
@@ -834,7 +834,6 @@ function defineDOMEventListenerProperties(window: jsdom.DOMWindow, propertyNames
 
 function defineDOMElementPropertyAliases(element: any,
                                          aliases: {name: string, aliases: string[]}[]) {
-  /* eslint-disable @typescript-eslint/unbound-method */
   aliases.forEach(({name, aliases = []}) => {
     const descriptor = Object.getOwnPropertyDescriptor(element, name);
     if (descriptor) {

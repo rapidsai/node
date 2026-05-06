@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "node_rmm/device_buffer.hpp"
+#include "node_rmm/default_stream.hpp"
 #include "node_rmm/memory_resource.hpp"
 #include "node_rmm/utilities/cpp_to_napi.hpp"
 #include "node_rmm/utilities/napi_to_cpp.hpp"
@@ -99,7 +100,7 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : EnvLocalObjectWrap<Device
 
   device_id_ = mr_.Value()->device();
 
-  rmm::cuda_stream_view stream = arg2.IsNumber() ? arg2 : rmm::cuda_stream_default;
+  rmm::cuda_stream_view stream = arg2.IsNumber() ? arg2 : nv::get_default_stream();
 
   switch (args.Length()) {
     case 0:
@@ -113,7 +114,7 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : EnvLocalObjectWrap<Device
       } else {
         Device::call_in_context(env, device().value(), [&] {
           buffer_ = std::make_unique<rmm::device_buffer>(input, input.size(), stream, get_mr());
-          if (stream == rmm::cuda_stream_default) {
+          if (stream == nv::get_default_stream()) {
             NODE_CUDA_TRY(cudaStreamSynchronize(stream.value()), env);
           }
         });

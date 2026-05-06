@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ export class Monitor extends EventEmitter {
   private _connected = true;
   public get connected() { return this._connected; }
 
+  // @ts-ignore
   public[Symbol.toStringTag]: string;
   public inspect() { return this.toString(); }
   public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }

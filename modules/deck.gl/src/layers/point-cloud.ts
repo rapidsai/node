@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ export class PointCloudLayer extends (CompositeLayer as typeof DeckCompositeLaye
       numPointsLoaded: 0,
       buffers: {
         // points
-        pointPositionX: new PointPositionBuffer(gl),
-        pointPositionY: new PointPositionBuffer(gl),
-        pointPositionZ: new PointPositionBuffer(gl),
-        pointColor: new PointColorBuffer(gl),
-        pointNormal: new PointNormalizeBuffer(gl)
+        pointPositionX: new PointPositionBuffer(gl as any),
+        pointPositionY: new PointPositionBuffer(gl as any),
+        pointPositionZ: new PointPositionBuffer(gl as any),
+        pointColor: new PointColorBuffer(gl as any),
+        pointNormal: new PointNormalizeBuffer(gl as any)
       },
     });
   }

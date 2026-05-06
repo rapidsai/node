@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2023, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@
 #include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/json/json.hpp>
 #include <cudf/reduction.hpp>
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
 #include <cudf/strings/combine.hpp>
-#include <cudf/strings/json.hpp>
 #include <cudf/strings/padding.hpp>
 #include <cudf/strings/regex/flags.hpp>
 #include <cudf/types.hpp>
@@ -122,8 +122,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    * specify `UNKNOWN_NULL_COUNT` to indicate that the null count should be
    * computed on the first invocation of `null_count()`.
    */
-  void set_null_mask(Napi::Value const& new_null_mask,
-                     cudf::size_type new_null_count = cudf::UNKNOWN_NULL_COUNT);
+  void set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new_null_count = -1);
 
   /**
    * @brief Updates the count of null elements.
@@ -698,7 +697,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   }
 
   // column/transform.cpp
-  std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
+  std::unique_ptr<cudf::column> nans_to_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> bools_to_mask(
@@ -791,7 +790,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/strings/json.cpp
   Column::wrapper_t get_json_object(
     std::string const& json_path,
-    cudf::strings::get_json_object_options const& opts,
+    cudf::get_json_object_options const& opts,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/strings/padding.cpp
@@ -885,10 +884,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
                                                    ///< buffer containing the column elements
   Napi::Reference<DeviceBuffer::wrapper_t> null_mask_;  ///< Bitmask used to represent null values.
                                                         ///< May be empty if `null_count() == 0`
-  mutable cudf::size_type null_count_{cudf::UNKNOWN_NULL_COUNT};  ///< The number of null elements
+  mutable cudf::size_type null_count_{-1};              ///< The number of null elements
   std::vector<Napi::Reference<Column::wrapper_t>>
-    children_;            ///< Depending on element type, child
-                          ///< columns may contain additional data
+    children_;                                          ///< Depending on element type, child
+                                                        ///< columns may contain additional data
   bool disposed_{false};  ///< Flag indicating this column has been disposed
 
   Napi::Value type(Napi::CallbackInfo const& info);

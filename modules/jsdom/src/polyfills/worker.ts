@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ import {Worker, WorkerOptions} from 'worker_threads';
 export function installWorker(window: jsdom.DOMWindow) {
   window.Worker = class JSDOMWorker extends Worker {
     constructor(filename: string|URL, options?: WorkerOptions) {  //
-      /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
+
       if (`${filename}`.startsWith('file:')) {
         const contents = fs.readFileSync(filename, 'utf8');
         if (!contents.startsWith('// rapidsai_jsdom_worker_preamble')) {
-          /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
           fs.writeFileSync(filename, injectPreamble(`${filename}`, contents));
         }
       }

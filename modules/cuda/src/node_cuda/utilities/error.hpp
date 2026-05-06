@@ -18,6 +18,7 @@
 #include <cuda_runtime_api.h>
 #include <napi.h>
 #include <nvrtc.h>
+#include <stdexcept>
 
 namespace nv {
 

@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.3
+# syntax=docker/dockerfile:1
 
 ARG FROM_IMAGE
 ARG BUILD_IMAGE
@@ -18,12 +18,12 @@ RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
         /tmp/rapids/rapidsai-rmm-*.tgz        \
         /tmp/rapids/rapidsai-cudf-*.tgz       \
         /tmp/rapids/rapidsai-cuspatial-*.tgz; \
-    for x in cuda rmm cudf cuspatial; do \
+    for x in cuda rmm cudf cuspatial; do      \
         mkdir node_modules/@rapidsai/${x}/build/Release; \
         tar -C node_modules/@rapidsai/${x}/build/Release \
-            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz \
-            --wildcards --strip-components=2 \
-            -x "**/lib/rapidsai_${x}.node" ; \
+            -f /tmp/rapids/rapidsai_${x}-*-Linux.tar.gz  \
+            --wildcards --strip-components=1             \
+            -x "**/rapidsai_${x}.node" ;                 \
     done
 
 FROM ${FROM_IMAGE}

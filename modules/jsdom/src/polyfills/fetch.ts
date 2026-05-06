@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ export function installFetch(window: jsdom.DOMWindow) {
     if (isFilePath) {
       if (url.startsWith('/')) { url = url.slice(1); }
       const loader = new jsdom.ResourceLoader();
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       return loader
         .fetch(`file://localhost/${cwd}/${url}`, options)!  //
-        .then((x) => new Response(x, {
+        .then((x) => new Response(x as any, {
                 status: 200,
                 headers: {
                   'Content-Type': contentTypeFromPath(url as string),

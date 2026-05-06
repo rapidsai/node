@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ function loadSVGDataUrl(svg2img: typeof import('svg2img').default,
   })();
   return new Promise<Buffer>((resolve, reject) => {
     svg2img(data, options, (err, data: Buffer) => {  //
+      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
       err == null ? resolve(data) : reject(err);
     });
   });
@@ -90,7 +91,10 @@ function loadWebpDataUrl(webp: typeof import('@cwasm/webp'), encoding: string, c
   })();
   return new Promise<ImageData>((resolve, reject) => {
     try {
-      resolve(webp.decode(data));
-    } catch (e) { reject(e); }
+      resolve(webp.decode(data) as any);
+    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+      reject(e);
+    }
   });
 }

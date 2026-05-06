@@ -5,199 +5,229 @@ on:
     branches:
       - 'pull-request/**'
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build-pull-request:
     name: Build pull request
-    # runs-on: ubuntu-20.04
-    runs-on: linux-amd64-cpu4
+    runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu16"', matrix.ARCH)) }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        CUDA: ["11.6.2"]
-        LINUX: ["ubuntu20.04"]
+        ARCH: ["amd64", "arm64"]
+        CUDA: ["12.9.1", "13.1.1"]
+        LINUX: ["ubuntu24.04"]
     env:
-      UCX: "1.12.1"
-      NODE: "16.15.1"
+      UCX: "1.20.0"
+      NODE: "24.14.1"
       REGISTRY: "ghcr.io"
+      DOCKER_BUILDKIT: "1"
+      DOCKER_CLI_HINTS: "false"
+      DOCKER_SCAN_SUGGEST: "false"
     steps:
       - name: Dump runner context
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail {0}
+        env:
+          CUDA: "${{ matrix.CUDA }}"
         run: |
           echo "${{ toJSON(runner) }}"
-          echo "is_gha_runner=${{ !contains(runner.name, 'rapidsai') }}" >> $GITHUB_ENV
-          echo "CUDA_VERSION_MAJOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f1)" >> $GITHUB_ENV
-          echo "CUDA_VERSION_MINOR=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f2)" >> $GITHUB_ENV
-          echo "CUDA_VERSION_PATCH=$(echo "${{ matrix.CUDA }}" | cut -d'.' -f3)" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MAJOR=$(cut -d'.' -f1 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_MINOR=$(cut -d'.' -f2 <<< "${CUDA}")" >> "$GITHUB_ENV"
+          echo "CUDA_VERSION_PATCH=$(cut -d'.' -f3 <<< "${CUDA}")" >> "$GITHUB_ENV"
+
+      - name: Setup proxy cache
+        if: runner.environment == 'self-hosted'
+        uses: nv-gha-runners/setup-proxy-cache@c5e8f6fd27b493abfd6af230e6a5d4bf43d1d766
+        continue-on-error: true
+        with:
+          enable-apt: true
 
       - name: Set up self-hosted runner
-        if: env.is_gha_runner != 'true'
-        shell: bash
+        if: runner.environment == 'self-hosted'
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs openssh-client
-          sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
-          sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
-          echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
+          sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
+          # sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+          # sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
+          # echo "HOME=${{ runner.workspace }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           lfs: true
-          path: node
           fetch-depth: 0
 
       - name: Checkout LFS
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: git lfs checkout
-        working-directory: node
 
-      - name: Get last successful main commit sha
-        uses: nrwl/last-successful-commit-action@v1
-        id: last_main_commit
+      - name: Get PR target branch info
+        id: get-pr-info
+        uses: ./.github/actions/get-pr-info
+
+      - name: Get changed files
+        id: changed
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
         with:
-          branch: main
-          workflow_id: "merge.pr.yml"
-          github_token: "${{ github.token }}"
+          base_sha: ${{ fromJSON(steps.get-pr-info.outputs.pr-info).base.sha }}
+          sha: ${{ fromJSON(steps.get-pr-info.outputs.pr-info).head.sha }}
+          files_yaml: |
+            dev:
+              - dev/dockerfiles/devel/main.Dockerfile
+            src:
+              - yarn.lock
+              - lerna.json
+              - package.json
+              - modules/**/*.c
+              - modules/**/*.h
+              - modules/**/*.ts
+              - modules/**/*.js
+              - modules/**/*.cu
+              - modules/**/*.cuh
+              - modules/**/*.cpp
+              - modules/**/*.hpp
+              - modules/**/*.json
+              - modules/**/*.cmake
+              - modules/**/*.tsconfig
+              - modules/**/package.json
+              - modules/**/CMakeLists.txt
 
-      - name: Check if source files changed
-        id: src_changed
-        uses: tj-actions/changed-files@v35.4.4
-        with:
-          path: node
-          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
-          files: |
-            yarn.lock
-            lerna.json
-            package.json
-            modules/**/*.c
-            modules/**/*.h
-            modules/**/*.ts
-            modules/**/*.js
-            modules/**/*.cu
-            modules/**/*.cuh
-            modules/**/*.cpp
-            modules/**/*.hpp
-            modules/**/*.json
-            modules/**/*.cmake
-            modules/**/*.tsconfig
-            modules/**/package.json
-            modules/**/CMakeLists.txt
-
-      - name: Check if GitHub Actions or devel main Dockerfile changed
-        id: dev_changed
-        uses: tj-actions/changed-files@v35.4.4
-        with:
-          path: node
-          base_sha: ${{ steps.last_main_commit.outputs.commit_hash }}
-          files: |
-            dev/dockerfiles/devel/main.Dockerfile
-
-      - name: Update runner env
+      - name: Update runner environment
         env:
-          dev_changed: "${{ steps.dev_changed.outputs.any_changed == 'true' }}"
-          src_changed: "${{ steps.src_changed.outputs.any_changed == 'true' || steps.src_changed.outputs.any_deleted == 'true' }}"
-        shell: bash
+          dev_changed: "${{ steps.changed.outputs.dev_any_changed == 'true' }}"
+          src_changed: "${{ steps.changed.outputs.src_any_changed == 'true' ||
+                            steps.changed.outputs.src_any_deleted == 'true' }}"
+          REPOSITORY: "${{ env.REGISTRY }}/${{ github.repository }}"
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: |
-          VERSION="$(cat node/lerna.json | jq -r '.version')"
-          RAPIDS_VERSION="$(cat node/package.json | jq -r '.config.rapids_version')"
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV;
-          echo "dev_changed=${dev_changed}" >> $GITHUB_ENV;
-          echo "src_changed=${src_changed}" >> $GITHUB_ENV;
-          echo "RAPIDS_VERSION=$RAPIDS_VERSION" >> $GITHUB_ENV;
-          echo "MAIN_IMG=${REGISTRY}/${{ github.repository }}:${VERSION}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-main" >> $GITHUB_ENV;
-          echo "RUN_ARGS<<EOF" >> $GITHUB_ENV;
-          echo "\
-          -u $(id -u):$(id -g) \
-          -v $(pwd)/.yarn:/.yarn:rw \
-          -v $(pwd)/.cache:/.cache:rw \
-          -v $(pwd)/node:/opt/rapids/node:rw \
-          --env-file ${{ runner.temp }}/.env \
-          " >> $GITHUB_ENV;
-          echo "EOF" >> $GITHUB_ENV;
+          VERSION="$(jq -r '.version' lerna.json)"
+          RAPIDS_VERSION="$(jq -r '.config.rapids_version' package.json)"
+          cat <<EOF >> "$GITHUB_ENV"
+          CUDAARCHS=RAPIDS
+          MAIN_IMG=${REPOSITORY}:${VERSION}-devel-node${NODE}-cuda${CUDA_VERSION_MAJOR}-${{ matrix.LINUX }}-main
+          NVCC_APPEND_FLAGS=-t=100
+          RAPIDS_VERSION=${RAPIDS_VERSION}
+          VERSION=${VERSION}
+          dev_changed=${dev_changed}
+          src_changed=${src_changed}
+          EOF
+
+      # - name: Cache C++ dependencies
+      #   if: env.dev_changed == 'true' || env.src_changed == 'true'
+      #   uses: actions/cache@v2
+      #   with:
+      #     key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
+      #     path: |
+      #       node/.cache/binary
+      #       node/.cache/source
+
+      # - name: Cache node_modules
+      #   if: env.dev_changed == 'true' || env.src_changed == 'true'
+      #   uses: actions/cache@v2
+      #   with:
+      #     key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+      #     path: |
+      #       .yarn
+      #       .cache
+      #       node/node_modules
+
+      - name: Setup sccache
+        id: sccache
+        if: env.dev_changed == 'true' || env.src_changed == 'true'
+        uses: ./.github/actions/setup-sccache
+        with:
+          custom-gh-token: ${{ secrets.SCCACHE_GH_PAT }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Free up disk space
-        if: env.is_gha_runner == 'true' && (env.dev_changed == 'true' || env.src_changed == 'true')
-        uses: ./node/.github/actions/free-disk-space
+        if: runner.environment == 'github-hosted' && (env.dev_changed == 'true' || env.src_changed == 'true')
+        uses: ./.github/actions/free-disk-space
         with:
           tool_cache: ${{ runner.tool_cache }}
 
-      - name: Cache C++ dependencies
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
-          path: |
-            node/.cache/binary
-            node/.cache/source
-
-      - name: Cache node_modules
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-${{ env.VERSION }}-node${{ env.NODE }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
-          path: |
-            .yarn
-            .cache
-            node/node_modules
-
-      - name: Set up ssh-agent
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-auth-sock: ${{ env.HOME }}/ssh-agent
-          ssh-private-key: |
-            ${{ secrets.CUMLPRIMS_SSH_PRIVATE_DEPLOY_KEY }}
-            ${{ secrets.CUGRAPH_OPS_SSH_PRIVATE_DEPLOY_KEY }}
-
-      - name: Make container .env
-        if: env.dev_changed == 'true' || env.src_changed == 'true'
-        shell: bash
-        run: |
-          n_archs=2
-          PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
-          threads=$((PARALLEL_LEVEL / n_archs))
-          if [[ "$threads" == 0 ]]; then
-            threads=1;
-          fi
-          cat << EOF > "${{ runner.temp }}/.env"
-          CUDAARCHS=ALL
-          PARALLEL_LEVEL=${threads}
-          NVCC_APPEND_FLAGS=--threads=${n_archs}
-          RAPIDS_VERSION=${RAPIDS_VERSION}
-          SCCACHE_REGION=us-west-2
-          SCCACHE_IDLE_TIMEOUT=32768
-          SCCACHE_BUCKET=node-rapids-sccache
-          SCCACHE_SERVER_PORT=$((4220 + $RANDOM % 5000))
-          EOF
-
-          echo -e "container .env:\n$(cat "${{ runner.temp }}/.env")"
-
-          cat << EOF >> "${{ runner.temp }}/.env"
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          EOF
-
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail {0}
+        env:
+          ARCH: ${{ matrix.ARCH }}
+          CUDA: ${{ matrix.CUDA }}
+          LINUX: ${{ matrix.LINUX }}
+          PARALLEL_LEVEL: ${{ steps.sccache.outputs.parallel_level }}
         run: |
-          has_image="$(docker pull -q --platform linux/amd64 ${MAIN_IMG} && echo 1 || echo 0)";
-          if [[ ${has_image} == '0' || ${dev_changed} == 'true' ]]; then
-            DOCKER_BUILDKIT=1 \
-            DOCKER_SCAN_SUGGEST=false \
-            docker build --pull --force-rm \
-              --build-arg UCX_VERSION="${{ env.UCX }}" \
-              --build-arg NODE_VERSION="${{ env.NODE }}" \
-              --build-arg LINUX_VERSION="${{ matrix.LINUX }}" \
-              --build-arg AMD64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-              --build-arg ARM64_BASE="nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}" \
-              -f node/dev/dockerfiles/devel/main.Dockerfile -t ${MAIN_IMG} node
+          function begin_group() {
+            local blue="34"
+            echo -e "::group::\e[${blue}m${1:-}\e[0m"
+          }
+
+          function end_group() {
+            local name="${1:-}"
+            local build_status="${2:-0}"
+            local red="31"
+
+            echo "::endgroup::"
+            if [ "$build_status" -ne 0 ]; then
+              echo -e "::error::\e[${red}m ${name} - Failed (⬆️ click above for full log ⬆️)\e[0m"
+            fi
+          }
+
+          function run_command() {
+            local -;
+            set -euo pipefail;
+
+            local group="${1:-}";
+            shift;
+            local command=("$@");
+            local exit_code="0";
+
+            begin_group "$group";
+
+            echo "Working directory: $(pwd)";
+            echo "Running command: ${command[*]}";
+            "${command[@]}" || exit_code=$?;
+
+            end_group "$group" "$exit_code"
+
+            return "$exit_code"
+          }
+
+          has_image="false"
+
+          if run_command "Pull ${MAIN_IMG}" \
+            docker pull --platform "linux/${ARCH}" "${MAIN_IMG}"; then
+            has_image="true"
           fi
-          docker run --rm -t ${RUN_ARGS} \
-            -v "$HOME/.ssh:$HOME/.ssh" \
-            -e "SSH_AUTH_SOCK=/ssh-agent" \
-            -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v "$HOME/.ssh:/opt/rapids/.ssh" \
-            -v "$HOME/.gitconfig:/etc/gitconfig" \
-            ${MAIN_IMG} bash -c "set -ex; \
-                yarn --pure-lockfile --prefer-offline \
-             && yarn build"
+
+          if [[ ! "$has_image" ]] || [[ "$dev_changed" ]]; then
+            run_command "Build ${MAIN_IMG}" \
+              docker build --pull --force-rm \
+                --ulimit "nofile=500000:500000" \
+                --build-arg UCX_VERSION="${UCX}" \
+                --build-arg NODE_VERSION="${NODE}" \
+                --build-arg LINUX_VERSION="${LINUX}" \
+                --build-arg AMD64_BASE="nvidia/cuda:${CUDA}-devel-${LINUX}" \
+                --build-arg ARM64_BASE="nvidia/cuda:${CUDA}-devel-${LINUX}" \
+                -f dev/dockerfiles/devel/main.Dockerfile \
+                -t "${MAIN_IMG}" \
+                .
+          fi
+
+          run_command "Build node-rapids" \
+           docker run --rm -t \
+              --user "$(id -u):$(id -g)" \
+              --ulimit "nofile=500000:500000" \
+              `# -v "$(pwd)/.yarn:/.yarn:rw"` \
+              `# -v "$(pwd)/.cache:/.cache:rw"` \
+              -v "$(pwd):/opt/rapids/node:rw" \
+              -v "${HOME}/.aws:/opt/rapids/.aws:ro" \
+              -v "${HOME}/.config:/opt/rapids/.config:ro" \
+              -v "${HOME}/.gitconfig:/opt/rapids/.gitconfig:ro" \
+              -e "CUDAARCHS=${CUDAARCHS}" \
+              -e "PARALLEL_LEVEL=${PARALLEL_LEVEL}" \
+              -e "RAPIDS_VERSION=${RAPIDS_VERSION}" \
+              -e "NVCC_APPEND_FLAGS=${NVCC_APPEND_FLAGS}" \
+              -e "CMAKE_BUILD_PARALLEL_LEVEL=${PARALLEL_LEVEL}" \
+              "${MAIN_IMG}" \
+              bash -cex "yarn --pure-lockfile --prefer-offline && yarn build"

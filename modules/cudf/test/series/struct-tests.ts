@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import '../jest-extensions';
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Int32, Series} from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength));
 
 describe('StructSeries', () => {
   const validateElements = (vec: arrow.Vector<arrow.Int32>, col: Series<Int32>) => {

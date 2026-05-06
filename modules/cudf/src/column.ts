@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1614,5 +1614,4 @@ export interface Column<T extends DataType = any> {
     [Column<Utf8String>, Column<Utf8String>, Column<Utf8String>];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Column: ColumnConstructor = CUDF.Column;

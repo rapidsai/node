@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -476,9 +476,13 @@ export declare class Memory extends ArrayBuffer {
    * @summary The {@link Device device} this Memory instance is associated with.
    */
   readonly device: number;
+  /** @ignore */
+  // @ts-expect-error
+  readonly[Symbol.toStringTag]: string;
   /**
    * @summary Copies and returns a region of Memory.
    */
+  // @ts-expect-error
   slice(start?: number, end?: number): Memory;
 }
 

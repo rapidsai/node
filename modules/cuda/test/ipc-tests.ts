@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,10 +42,7 @@ async function readChildProcessOutput(proc: ChildProcessByStdio<Writable, Readab
   const {stdout} = proc;
   return (async () => {
     for await (const chunk of stdout) {
-      if (chunk) {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        return '' + chunk;
-      }
+      if (chunk) { return '' + chunk; }
     }
     return '';
   })();

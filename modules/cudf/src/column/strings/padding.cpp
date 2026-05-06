@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <node_rmm/memory_resource.hpp>
 
 #include <cudf/strings/padding.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
 
 namespace nv {
 
@@ -27,13 +27,16 @@ Column::wrapper_t Column::pad(cudf::size_type width,
                               std::string const& fill_char,
                               rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::pad(this->view(), width, pad_side, fill_char, mr));
+    return Column::New(
+      Env(),
+      cudf::strings::pad(this->view(), width, pad_side, fill_char, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Column::wrapper_t Column::zfill(cudf::size_type width, rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::zfill(this->view(), width, mr));
+    return Column::New(Env(),
+                       cudf::strings::zfill(this->view(), width, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

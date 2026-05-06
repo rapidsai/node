@@ -1,10 +1,7 @@
-version: "3.9"
-
 x-base-settings: &base_service_settings
   tty: true
   env_file:
     - .env
-    - .creds
   network_mode: host
   build: &base_build_settings
     context: .
@@ -14,7 +11,8 @@ x-base-settings: &base_service_settings
       output: type=docker
   environment: &base_environment_settings
     # Colorize the terminal in the container if possible
-    TERM: "${TERM:-}"
+    TERM: "${TERM:-linux}"
+    NVIDIA_DISABLE_REQUIRE: true
     NVIDIA_DRIVER_CAPABILITIES: all
   deploy:
     resources:
@@ -33,7 +31,7 @@ x-main-service-settings: &main_service_settings
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
     XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/rapids/node/.cache/jit"
-    RAPIDS_VERSION: "${npm_package_config_rapids_version:-22.12.20}"
+    RAPIDS_VERSION: "${npm_package_config_rapids_version:-26.04.00}"
     DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
   cap_add:
     - SYS_ADMIN
@@ -43,24 +41,26 @@ x-main-service-settings: &main_service_settings
 
 services:
 
-  main:
+  main: &main_service
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.12.2}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-main
-    secrets:
-      - sccache_credentials
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-26.4.0}-devel-node${NODE_VERSION:-24.14.1}-cuda${CUDA_VERSION_MAJOR:-12}-${LINUX_VERSION:-ubuntu24.04}-main
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
-        UCX_VERSION: ${UCX_VERSION:-1.12.1}
-        NODE_VERSION: ${NODE_VERSION:-16.15.1}
-        LINUX_VERSION: ${LINUX_VERSION:-ubuntu20.04}
-        AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
-        ARM64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
+        UCX_VERSION: ${UCX_VERSION:-1.20.0}
+        NODE_VERSION: ${NODE_VERSION:-24.14.1}
+        LINUX_VERSION: ${LINUX_VERSION:-ubuntu24.04}
+        AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-12.9.1}-devel-${LINUX_VERSION:-ubuntu24.04}
+        ARM64_BASE: nvidia/cuda:${CUDA_VERSION:-12.9.1}-devel-${LINUX_VERSION:-ubuntu24.04}
     environment:
       <<: *main_environment_settings
       SSH_AUTH_SOCK: "/ssh-agent"
       GCC_COLORS: "${GCC_COLORS:-error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01}"
+    ulimits:
+      nofile:
+        soft: 500000
+        hard: 500000
     volumes:
       - ".:/opt/rapids/node:rw"
       - "/etc/fonts:/etc/fonts:ro"
@@ -73,48 +73,32 @@ services:
       - "${SSH_AUTH_SOCK:-/run/user/$UID/keyring/ssh}:/ssh-agent"
       - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
 
-  notebook:
-    <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.12.2}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-notebook
-    build:
-      <<: *base_build_settings
-      dockerfile: dev/dockerfiles/devel/notebook.Dockerfile
-      args:
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.12.2}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-main
-    environment:
-      <<: *main_environment_settings
-      QT_AUTO_SCREEN_SCALE_FACTOR: 0
-    volumes:
-      - ".:/opt/rapids/node:rw"
-      - "/etc/fonts:/etc/fonts:ro"
-      - "/etc/timezone:/etc/timezone"
-      - "/etc/localtime:/etc/localtime"
-      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-      - "/usr/share/fonts:/usr/share/fonts:ro"
-      - "/usr/share/icons:/usr/share/icons:ro"
-      - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
-      - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
-
   packages:
     <<: *base_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.12.2}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-packages
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-26.4.0}-devel-node${NODE_VERSION:-24.14.1}-cuda${CUDA_VERSION_MAJOR:-12}-${LINUX_VERSION:-ubuntu24.04}-packages
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/package.Dockerfile
       ssh:
         - default
       secrets:
-        - sccache_credentials
+        - aws_creds
+        - sccache_config
       args:
-        CUDAARCHS: "${CUDAARCHS:-ALL}"
-        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
-        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:-}"
-        SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
-        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
-        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
-        RAPIDS_VERSION: "${npm_package_config_rapids_version:-22.12.20}"
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-22.12.2}-devel-node${NODE_VERSION:-16.15.1}-cuda${CUDA_VERSION_MAJOR:-11}-${LINUX_VERSION:-ubuntu20.04}-main
+        CUDAARCHS: "${CUDAARCHS:-RAPIDS}"
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:---threads=100}"
+        SCCACHE_REGION: "${SCCACHE_REGION:-us-east-2}"
+        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-rapids-sccache-devs}"
+        RAPIDS_VERSION: "${npm_package_config_rapids_version:-26.04.00}"
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${npm_package_version:-26.4.0}-devel-node${NODE_VERSION:-24.14.1}-cuda${CUDA_VERSION_MAJOR:-12}-${LINUX_VERSION:-ubuntu24.04}-main
+    ulimits:
+      nofile:
+        soft: 500000
+        hard: 500000
 
 secrets:
-  sccache_credentials:
-    file: .creds
+  aws_creds:
+    file: ../.aws/credentials
+  sccache_config:
+    file: ../.config/sccache/config

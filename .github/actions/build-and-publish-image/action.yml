@@ -3,12 +3,16 @@ name: build-and-publish-image
 description: "Build and publish a Docker image"
 
 inputs:
+  arch:
+    default: "amd64"
+    required: false
+    description: "Platform to build"
   file:
     required: true
     description: "Dockerfile to build"
-  tags:
+  repo:
     required: true
-    description: "Image tags to publish"
+    description: "Image repository"
   pull:
     default: false
     required: false
@@ -19,12 +23,8 @@ inputs:
     description: "Push the image to the container registry (default false)"
   context:
     default: "."
-    required: true
-    description: "Path to image build context"
-  platforms:
-    default: "linux/amd64"
     required: false
-    description: "Platforms to build"
+    description: "Path to image build context"
   buildx-driver-opts:
     default: ""
     required: false
@@ -45,49 +45,80 @@ inputs:
     default: ""
     required: false
     description: "Password used to log in to the container registry"
+  secret-files:
+    default: ""
+    required: false
+    description: "Build secrets"
+
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  discussions: none
+  id-token: none
+  issues: none
+  packages: write
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
 
 outputs:
-  digest:
-    description: "Image content-addressable identifier"
-    value: ${{ steps.docker-build.outputs.digest }}
-  metadata:
-    description: "Build result metadata"
-    value: ${{ steps.docker-build.outputs.metadata }}
+  digest_amd64:
+    value: "${{ steps.digest.outputs.amd64 }}"
+  digest_arm64:
+    value: "${{ steps.digest.outputs.arm64 }}"
 
 runs:
   using: composite
   steps:
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
     - name: Set up Docker Buildx context
-      shell: bash
+      shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         docker context create builders
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
       with:
         endpoint: builders
         buildkitd-flags: --debug
         driver-opts: ${{ inputs.buildx-driver-opts }}
     - name: Login to container registry
       if: inputs.push == 'true'
-      uses: docker/login-action@v2
+      uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
       with:
         registry: ${{ inputs.registry-url }}
         username: ${{ inputs.registry-username }}
         password: ${{ inputs.registry-password }}
     - name: Build image
-      id: docker-build
-      uses: docker/build-push-action@v2
+      id: build
+      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
       with:
         pull: ${{ inputs.pull }}
-        push: ${{ inputs.push }}
+        load: ${{ inputs.push == 'false' }}
         file: ${{ inputs.file }}
-        tags: ${{ inputs.tags }}
         context: ${{ inputs.context }}
-        load: ${{ inputs.push == false }}
-        platforms: ${{ inputs.platforms }}
+        outputs: ${{ fromJSON(inputs.push == 'false' && '""' || format('"type=image,compression=zstd,force-compression=true,oci-mediatypes=true,push=true,push-by-digest=true,name={0}"', inputs.repo)) }}
+        platforms: linux/${{ inputs.arch }}
         build-args: ${{ inputs.build-args }}
+        secret-files: ${{ inputs.secret-files }}
+        ulimit: |
+          nofile=500000:500000
         labels: |
-          org.opencontainers.image.vendor=NVIDIA
-          org.opencontainers.image.source=https://github.com/rapidsai/node
+          org.opencontainers.image.vendor=${{ github.repository == 'rapidsai/node' && 'NVIDIA' || github.actor }}
+          org.opencontainers.image.source=https://github.com/${{ github.repository }}
+    - id: digest
+      name: Set outputs
+      env:
+        arch: ${{ inputs.arch }}
+        push: ${{ inputs.push }}
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: |
+        if test "${push}" = true; then
+          echo "${arch}=${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT";
+        else
+          echo "${arch}=" >> "$GITHUB_OUTPUT";
+        fi

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
-
-set -Eeo pipefail
+set -Eeuo pipefail
 
 echo "cleaning node-rapids"
 

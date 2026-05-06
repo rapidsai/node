@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,35 +23,38 @@ namespace nv {
 Column::wrapper_t Column::replace_nulls(cudf::column_view const& replacement,
                                         rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::replace_nulls(*this, replacement, mr));
+    return Column::New(Env(),
+                       cudf::replace_nulls(*this, replacement, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Column::wrapper_t Column::replace_nulls(cudf::scalar const& replacement,
                                         rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::replace_nulls(*this, replacement, mr));
+    return Column::New(Env(),
+                       cudf::replace_nulls(*this, replacement, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Column::wrapper_t Column::replace_nulls(cudf::replace_policy const& replace_policy,
                                         rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::replace_nulls(*this, replace_policy, mr));
+    return Column::New(Env(),
+                       cudf::replace_nulls(*this, replace_policy, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Column::wrapper_t Column::replace_nans(cudf::column_view const& replacement,
                                        rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::replace_nans(*this, replacement, mr));
+    return Column::New(Env(), cudf::replace_nans(*this, replacement, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Column::wrapper_t Column::replace_nans(cudf::scalar const& replacement,
                                        rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::replace_nans(*this, replacement, mr));
+    return Column::New(Env(), cudf::replace_nans(*this, replacement, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 

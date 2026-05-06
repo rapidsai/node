@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,6 @@ Table::wrapper_t Table::New(Napi::Env const& env, std::unique_ptr<cudf::table> t
 }
 
 Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
-  // std::cout << "Table::Table" << std::endl;
   auto env = args.Env();
   NODE_CUDF_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'", env);
 
@@ -200,8 +199,9 @@ Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
   }
 
   try {
-    return Column::New(info.Env(),
-                       cudf::sorted_order(table_view, column_order, null_precedece, mr));
+    return Column::New(
+      info.Env(),
+      cudf::sorted_order(table_view, column_order, null_precedece, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

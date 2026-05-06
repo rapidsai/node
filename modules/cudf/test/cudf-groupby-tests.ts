@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import './jest-extensions';
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
@@ -24,15 +22,12 @@ import {
   GroupByMultiple,
   GroupBySingle,
   Int32,
-  Series,
-  // StructSeries
+  Series
 } from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 function makeBasicData(values: number[]) {
   const a = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
@@ -269,31 +264,48 @@ test('aggregation existing column name with two columns raises', () => {
 test('Groupby argmax basic', () => {
   const df  = makeBasicData([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.argmax(), [0, 1, 2]);
+  basicAggCompare(grp.argmax().sortValues({
+    a: {ascending: true},
+    b: {ascending: true},
+    c: {ascending: true},
+  }),
+                  [0, 1, 2]);
 });
 
 test('Groupby argmin basic', () => {
   const df  = makeBasicData([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.argmin(), [6, 9, 8]);
+  basicAggCompare(grp.argmin().sortValues({
+    a: {ascending: true},
+  }),
+                  [6, 9, 8]);
 });
 
 test('Groupby count basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.count(), [3, 4, 3]);
+  basicAggCompare(grp.count().sortValues({
+    a: {ascending: true},
+  }),
+                  [3, 4, 3]);
 });
 
 test('Groupby max basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.max(), [6, 9, 8]);
+  basicAggCompare(grp.max().sortValues({
+    a: {ascending: true},
+  }),
+                  [6, 9, 8]);
 });
 
 test('Groupby mean basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.mean(), [3, 19 / 4, 17 / 3]);
+  basicAggCompare(grp.mean().sortValues({
+    a: {ascending: true},
+  }),
+                  [3, 19 / 4, 17 / 3]);
 });
 
 test('Groupby median basic', () => {
@@ -305,7 +317,10 @@ test('Groupby median basic', () => {
 test('Groupby min basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.min(), [0, 1, 2]);
+  basicAggCompare(grp.min().sortValues({
+    a: {ascending: true},
+  }),
+                  [0, 1, 2]);
 });
 
 test('Groupby nth basic', () => {
@@ -350,19 +365,28 @@ test('Groupby quantile uneven', () => {
 test('Groupby std basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.std(), [3, Math.sqrt(131 / 12), Math.sqrt(31 / 3)]);
+  basicAggCompare(grp.std().sortValues({
+    a: {ascending: true},
+  }),
+                  [3, Math.sqrt(131 / 12), Math.sqrt(31 / 3)]);
 });
 
 test('Groupby sum basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.sum(), [9, 19, 17]);
+  basicAggCompare(grp.sum().sortValues({
+    a: {ascending: true},
+  }),
+                  [9, 19, 17]);
 });
 
 test('Groupby var basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
-  basicAggCompare(grp.var(), [9, 131 / 12, 31 / 3]);
+  basicAggCompare(grp.var().sortValues({
+    a: {ascending: true},
+  }),
+                  [9, 131 / 12, 31 / 3]);
 });
 
 test('Groupby collectList basic', () => {

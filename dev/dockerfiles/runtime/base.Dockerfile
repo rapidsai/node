@@ -8,17 +8,6 @@ FROM ${AMD64_BASE} as base-amd64
 
 FROM ${ARM64_BASE} as base-arm64
 
-ONBUILD RUN cd /usr/local/cuda/lib64 \
- && ln -s \
-    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1) \
-    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
- && ln -s \
-    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
-    libcudart.so \
- && rm /etc/ld.so.cache && ldconfig
-
-ONBUILD ARG ADDITIONAL_GROUPS="--groups video"
-
 FROM base-${TARGETARCH}
 
 SHELL ["/bin/bash", "-c"]
@@ -39,15 +28,10 @@ ADD --chown=root:root https://gitlab.com/nvidia/container-images/opengl/-/raw/51
 
 # Install gcc-9 toolchain
 RUN export DEBIAN_FRONTEND=noninteractive \
- # Workaround for https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212772
- && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$( \
-    . /etc/os-release; echo $NAME$VERSION_ID | tr -d '.' | tr '[:upper:]' '[:lower:]' \
- )/$(uname -p)/3bf863cc.pub \
- \
  && apt update \
  && apt install --no-install-recommends -y \
     software-properties-common \
- && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  && apt update \
  && apt install --no-install-recommends -y \
     libstdc++6 \
@@ -59,7 +43,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
  && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
  # Clean up
- && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
  && apt remove -y software-properties-common \
  && apt autoremove -y && apt clean \
  && rm -rf \
@@ -86,9 +70,14 @@ COPY --from=devel /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entr
 COPY --from=devel /usr/local/cuda/lib64/libnvrtc* /usr/local/cuda/lib64/
 
 ARG UID=1000
-ARG ADDITIONAL_GROUPS
 
-RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --create-home node \
+RUN if getent passwd $UID >/dev/null 2>&1; then \
+      existing_user=$(getent passwd $UID | cut -d: -f1); \
+      usermod -l node -d /home/node -m $existing_user; \
+      groupmod -n node $existing_user; \
+    else \
+      useradd --uid $UID --shell /bin/bash --create-home node; \
+    fi \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
@@ -97,7 +86,7 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
 
 ENV npm_config_fund=false
 ENV npm_config_update_notifier=false
-ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
+ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught --openssl-legacy-provider"
 
 WORKDIR /home/node
 

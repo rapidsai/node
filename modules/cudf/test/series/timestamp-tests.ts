@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,9 @@ import {
   TimestampNanosecond,
   TimestampSecond,
 } from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 const data: Date[] = [
   new Date('2021-08-15T12:00:00.000Z'),

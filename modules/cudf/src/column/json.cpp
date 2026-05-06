@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,17 +18,22 @@
 #include <node_cudf/scalar.hpp>
 
 #include <cudf/detail/null_mask.hpp>
-#include <cudf/strings/json.hpp>
+#include <cudf/json/json.hpp>
 
 namespace nv {
 
 Column::wrapper_t Column::get_json_object(std::string const& json_path,
-                                          cudf::strings::get_json_object_options const& opts,
+                                          cudf::get_json_object_options const& opts,
                                           rmm::mr::device_memory_resource* mr) {
   try {
-    auto obj        = cudf::strings::get_json_object(view(), json_path, opts, mr);
+    auto obj =
+      cudf::get_json_object(view(),
+                            cudf::string_scalar{json_path, true, nv::get_default_stream(), mr},
+                            opts,
+                            nv::get_default_stream(),
+                            mr);
     auto null_count = cudf::detail::count_unset_bits(
-      obj->view().null_mask(), 0, obj->size(), rmm::cuda_stream_default);
+      obj->view().null_mask(), 0, obj->size(), nv::get_default_stream());
     obj->set_null_count(null_count);
     return Column::New(Env(), std::move(obj));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }

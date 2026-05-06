@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,16 @@
 #include <node_cudf/table.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
+#include <arrow/c/bridge.h>
+#include <arrow/c/helpers.h>
 #include <arrow/gpu/cuda_api.h>
 #include <arrow/io/memory.h>
 #include <arrow/ipc/api.h>
 #include <arrow/ipc/writer.h>
 #include <arrow/result.h>
+#include <arrow/table.h>
 
+#include <cudf/concatenate.hpp>
 #include <cudf/interop.hpp>
 
 #include <memory>
@@ -71,18 +75,43 @@ std::vector<cudf::column_metadata> gather_metadata(Napi::Array const& names) {
 }  // namespace
 
 Napi::Value Table::to_arrow(Napi::CallbackInfo const& info) {
+  auto stream = nv::get_default_stream();
+
   auto env    = info.Env();
   auto buffer = [&]() {
-    auto table        = cudf::to_arrow(*this, gather_metadata(info[0].As<Napi::Array>()));
-    auto sink         = arrow::io::BufferOutputStream::Create().ValueOrDie();
-    auto writer       = arrow::ipc::MakeStreamWriter(sink.get(), table->schema()).ValueOrDie();
-    auto write_status = writer->WriteTable(*table);
-    if (!write_status.ok()) { NAPI_THROW(Napi::Error::New(env, write_status.message())); }
-    auto close_status = writer->Close();
-    if (!close_status.ok()) { NAPI_THROW(Napi::Error::New(env, close_status.message())); }
+    stream.synchronize();
+
+    auto c_schema = cudf::to_arrow_schema(this->operator cudf::table_view(),
+                                          gather_metadata(info[0].As<Napi::Array>()));
+    auto c_batch  = cudf::to_arrow_host(
+      this->operator cudf::table_view(), stream, cudf::get_current_device_resource_ref());
+
+    auto schema = arrow::ImportSchema(c_schema.get()).ValueOrDie();
+    auto batch  = arrow::ImportRecordBatch(&c_batch->array, schema).ValueOrDie();
+
+    auto sink                = arrow::io::BufferOutputStream::Create().ValueOrDie();
+    auto options             = arrow::ipc::IpcWriteOptions::Defaults();
+    options.metadata_version = arrow::ipc::MetadataVersion::V4;
+    auto writer = arrow::ipc::MakeStreamWriter(sink.get(), schema, options).ValueOrDie();
+
+    {
+      auto status = writer->WriteRecordBatch(*batch);
+      if (!status.ok()) { NAPI_THROW(Napi::Error::New(env, status.message())); }
+    }
+
+    {
+      auto status = writer->Close();
+      if (!status.ok()) { NAPI_THROW(Napi::Error::New(env, status.message())); }
+    }
+
+    stream.synchronize();
+
     auto buffer = sink->Finish().ValueOrDie();
+
     auto arybuf = Napi::ArrayBuffer::New(env, buffer->size());
+
     memcpy(arybuf.Data(), buffer->data(), buffer->size());
+
     return arybuf;
   }();
 
@@ -101,6 +130,8 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
   Span<uint8_t> span = args[0];
   std::unique_ptr<InputStream> buffer_reader;
 
+  auto stream = nv::get_default_stream();
+
   auto stream_reader =
     RecordBatchStreamReader::Open([&] {
       if (Memory::IsInstance(source) || DeviceBuffer::IsInstance(source)) {
@@ -108,8 +139,8 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
         auto device_context = device_manager->GetContext(Device::active_device_id()).ValueOrDie();
         buffer_reader.reset(new CudaBufferReader(std::make_shared<CudaBuffer>(
           span.data(), span.size(), device_context, false, IpcMemory::IsInstance(source))));
-        return nv::CudaMessageReader::Open(static_cast<CudaBufferReader*>(buffer_reader.get()),
-                                           nullptr);
+        return CudaMessageReader::Open(static_cast<CudaBufferReader*>(buffer_reader.get()),
+                                       nullptr);
       }
       // If the memory was not allocated via CUDA, assume host
       buffer_reader.reset(
@@ -119,11 +150,62 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
       .ValueOrDie();
 
   try {
-    auto arrow_table = stream_reader->ToTable().ValueOrDie();
-
     auto output = Napi::Object::New(env);
-    output.Set("table", Table::New(env, cudf::from_arrow(*arrow_table)));
-    output.Set("fields", Napi::Value::From(env, stream_reader->schema()->fields()));
+
+    auto schema = stream_reader->schema();
+
+    output.Set("fields", Napi::Value::From(env, schema->fields()));
+
+    cudf::unique_schema_t c_schema(new ArrowSchema, [](ArrowSchema* schema) {
+      ArrowSchemaRelease(schema);
+      delete schema;
+    });
+
+    {
+      auto status = arrow::ExportSchema(*schema, c_schema.get());
+      if (!status.ok()) { NAPI_THROW(Napi::Error::New(env, status.message())); }
+    }
+
+    auto batches = stream_reader->ToRecordBatches().ValueOrDie();
+
+    std::vector<cudf::unique_device_array_t> c_batches;
+    std::vector<cudf::table_view> tables;
+    c_batches.reserve(batches.size());
+    tables.reserve(batches.size());
+
+    std::transform(
+      batches.begin(), batches.end(), std::back_inserter(c_batches), [&](auto const& batch) {
+        cudf::unique_device_array_t c_batch(new ArrowDeviceArray, [](ArrowDeviceArray* batch) {
+          ArrowDeviceArrayRelease(batch);
+          delete batch;
+        });
+        auto status = arrow::ExportDeviceRecordBatch(*batch, nullptr, c_batch.get());
+        if (!status.ok()) { NAPI_THROW(Napi::Error::New(env, status.message())); }
+        return c_batch;
+      });
+
+    std::transform(
+      c_batches.begin(), c_batches.end(), std::back_inserter(tables), [&](auto const& c_batch) {
+        return *cudf::from_arrow_device(c_schema.get(), c_batch.get(), stream);
+      });
+
+    auto table = [=]() {
+      switch (tables.size()) {
+        case 0: {
+          return std::make_unique<cudf::table>();
+        }
+        case 1: {
+          return std::make_unique<cudf::table>(tables[0], stream);
+        }
+        default: {
+          return cudf::concatenate(tables, stream);
+        }
+      }
+    }();
+
+    stream.synchronize();
+
+    output.Set("table", Table::New(env, std::move(table)));
 
     return output;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }

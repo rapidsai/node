@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_rmm/device_buffer.hpp>
+#include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cudf/utilities/buffer.hpp>
@@ -24,8 +25,13 @@
 
 namespace nv {
 
-int get_int(NapiToCPP const& opt, int const default_val) {
-  return opt.IsNumber() ? opt.operator int() : default_val;
+rapids_logger::level_enum get_verbosity(NapiToCPP const& opt,
+                                        rapids_logger::level_enum const default_val) {
+  return opt.IsNumber() ? opt.operator rapids_logger::level_enum() : default_val;
+}
+
+int32_t get_int(NapiToCPP const& opt, int32_t const default_val) {
+  return opt.IsNumber() ? opt.operator int32_t() : default_val;
 }
 
 bool get_bool(NapiToCPP const& opt, bool const default_val) {
@@ -78,49 +84,39 @@ ML::UMAPParams update_params(NapiToCPP::Object props) {
   params.repulsion_strength   = get_float(props.Get("repulsionStrength"), 1.0);
   params.negative_sample_rate = get_int(props.Get("negativeSampleRate"), 5);
   params.transform_queue_size = get_float(props.Get("transformQueueSize"), 4);
-  params.verbosity            = get_int(props.Get("verbosity"), 4);
-  params.a                    = get_float(props.Get("a"), -1.0);
-  params.b                    = get_float(props.Get("b"), -1.0);
-  params.initial_alpha        = get_float(props.Get("initialAlpha"), 1.0);
-  params.init                 = get_int(props.Get("init"), 1);
-  params.target_n_neighbors   = get_int(props.Get("targetNNeighbors"), 1);
-  params.target_metric        = (get_int(props.Get("targetMetric"), 0) == 0)
-                                ? ML::UMAPParams::MetricType::CATEGORICAL
-                                : ML::UMAPParams::MetricType::EUCLIDEAN;
-  params.target_weight        = get_float(props.Get("targetWeight"), 0.5);
-  params.random_state         = get_int(props.Get("randomState"), 0);
+  params.verbosity     = get_verbosity(props.Get("verbosity"), rapids_logger::level_enum::info);
+  params.a             = get_float(props.Get("a"), -1.0);
+  params.b             = get_float(props.Get("b"), -1.0);
+  params.initial_alpha = get_float(props.Get("initialAlpha"), 1.0);
+  params.init          = get_int(props.Get("init"), 1);
+  params.target_n_neighbors = get_int(props.Get("targetNNeighbors"), 1);
+  params.target_metric      = (get_int(props.Get("targetMetric"), 0) == 0)
+                              ? ML::UMAPParams::MetricType::CATEGORICAL
+                              : ML::UMAPParams::MetricType::EUCLIDEAN;
+  params.target_weight      = get_float(props.Get("targetWeight"), 0.5);
+  params.random_state       = get_int(props.Get("randomState"), 0);
   return params;
 }
 
 UMAP::wrapper_t UMAP::New(Napi::Env const& env) { return EnvLocalObjectWrap<UMAP>::New(env); }
 
 UMAP::UMAP(CallbackArgs const& args) : EnvLocalObjectWrap<UMAP>(args) {
-  raft::handle_t handle;
+  raft::handle_t handle(nv::get_default_stream());
   this->params_ = update_params(args[0]);
   ML::UMAP::find_ab(handle, &this->params_);
+  handle.get_stream().synchronize();
 }
 
 void UMAP::fit(DeviceBuffer::wrapper_t const& X,
                cudf::size_type n_samples,
                cudf::size_type n_features,
-               DeviceBuffer::wrapper_t const& y,
-               DeviceBuffer::wrapper_t const& knn_indices,
-               DeviceBuffer::wrapper_t const& knn_dists,
-               bool convert_dtype,
-               DeviceBuffer::wrapper_t const& embeddings,
-               raft::sparse::COO<float>* graph) {
-  raft::handle_t handle;
+               COO::wrapper_t const& graph,
+               DeviceBuffer::wrapper_t const& embeddings) {
+  raft::handle_t handle(nv::get_default_stream());
   try {
-    ML::UMAP::fit(handle,
-                  static_cast<float*>(X->data()),
-                  (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
-                  n_samples,
-                  n_features,
-                  static_cast<int64_t*>(knn_indices->data()),
-                  static_cast<float*>(knn_dists->data()),
-                  &this->params_,
-                  static_cast<float*>(embeddings->data()),
-                  graph);
+    ML::UMAP::init_and_refine(
+      handle, *X, n_samples, n_features, graph->get_coo(), &this->params_, *embeddings);
+    handle.get_stream().synchronize();
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -129,186 +125,136 @@ COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
                                cudf::size_type n_features,
                                DeviceBuffer::wrapper_t const& knn_indices,
                                DeviceBuffer::wrapper_t const& knn_dists,
-                               DeviceBuffer::wrapper_t const& y,
-                               bool convert_dtype) {
-  raft::handle_t handle;
+                               DeviceBuffer::wrapper_t const& y) {
+  raft::handle_t handle(nv::get_default_stream());
   try {
-    auto coo = ML::UMAP::get_graph(handle,
-                                   static_cast<float*>(X->data()),
-                                   (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
-                                   n_samples,
-                                   n_features,
-                                   static_cast<int64_t*>(knn_indices->data()),
-                                   static_cast<float*>(knn_dists->data()),
-                                   &this->params_);
-
-    return COO::New(this->Env(), std::move(coo));
+    auto coo =
+      COO::New(this->Env(),
+               ML::UMAP::get_graph(
+                 handle, *X, *y, n_samples, n_features, *knn_indices, *knn_dists, &this->params_));
+    handle.get_stream().synchronize();
+    return coo;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 void UMAP::refine(DeviceBuffer::wrapper_t const& X,
                   cudf::size_type n_samples,
                   cudf::size_type n_features,
-                  COO::wrapper_t const& coo,
-                  bool convert_dtype,
+                  COO::wrapper_t const& graph,
                   DeviceBuffer::wrapper_t const& embeddings) {
+  raft::handle_t handle(nv::get_default_stream());
   try {
-    raft::handle_t handle;
-    ML::UMAP::refine(handle,
-                     static_cast<float*>(X->data()),
-                     n_samples,
-                     n_features,
-                     coo->get_coo(),
-                     &this->params_,
-                     static_cast<float*>(embeddings->data()));
-
+    ML::UMAP::refine(
+      handle, *X, n_samples, n_features, graph->get_coo(), &this->params_, *embeddings);
+    handle.get_stream().synchronize();
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 void UMAP::transform(DeviceBuffer::wrapper_t const& X,
                      cudf::size_type n_samples,
                      cudf::size_type n_features,
-                     DeviceBuffer::wrapper_t const& knn_indices,
-                     DeviceBuffer::wrapper_t const& knn_dists,
                      DeviceBuffer::wrapper_t const& orig_X,
                      int orig_n,
-                     bool convert_dtype,
                      DeviceBuffer::wrapper_t const& embeddings,
+                     int embeddings_n,
                      DeviceBuffer::wrapper_t const& transformed) {
-  raft::handle_t handle;
+  raft::handle_t handle(nv::get_default_stream());
   try {
     ML::UMAP::transform(handle,
-                        static_cast<float*>(X->data()),
+                        *X,
                         n_samples,
                         n_features,
-                        static_cast<int64_t*>(knn_indices->data()),
-                        static_cast<float*>(knn_dists->data()),
-                        static_cast<float*>(orig_X->data()),
+                        *orig_X,
                         orig_n,
-                        static_cast<float*>(embeddings->data()),
-                        n_samples,
+                        *embeddings,
+                        embeddings_n,
                         &this->params_,
-                        static_cast<float*>(transformed->data()));
+                        *transformed);
+    handle.get_stream().synchronize();
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  NODE_CUDF_EXPECT(
-    args[0].IsObject(), "fit constructor expects an Object of properties", args.Env());
+  NODE_CUDF_EXPECT(args[0].IsObject(), "fit expects an Object of properties", args.Env());
 
   NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t X =
-    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
-  DeviceBuffer::wrapper_t y =
-    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
-                   : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_indices =
-    props.Has("knnIndices")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
-      : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_dists =
-    props.Has("knnDists")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
-      : DeviceBuffer::New(args.Env());
-
+  Column::wrapper_t features         = props.Get("features");
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
   COO::wrapper_t graph               = props.Get("graph");
 
-  fit(X,
-      props.Get("nSamples"),
-      props.Get("nFeatures"),
-      y,
-      knn_indices,
-      knn_dists,
-      props.Get("convertDType"),
-      embeddings,
-      graph->get_coo());
+  fit(features->data(), props.Get("nSamples"), props.Get("nFeatures"), graph, embeddings);
 
   return embeddings;
 }
 
 Napi::Value UMAP::get_graph(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  NODE_CUDF_EXPECT(
-    args[0].IsObject(), "refine constructor expects an Object of properties", args.Env());
+  NODE_CUDF_EXPECT(args[0].IsObject(), "get_graph expects an Object of properties", args.Env());
 
   NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t X =
-    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
-  DeviceBuffer::wrapper_t y =
-    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
-                   : DeviceBuffer::New(args.Env());
+  Column::wrapper_t features = props.Get("features");
+
+  DeviceBuffer::wrapper_t target = Column::IsInstance(props.Get("target"))
+                                   ? props.Get("target").operator Column::wrapper_t()->data()
+                                   : DeviceBuffer::New(args.Env());
+
   DeviceBuffer::wrapper_t knn_indices =
-    props.Has("knnIndices")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
+    Column::IsInstance(props.Get("knnIndices"))
+      ? props.Get("knnIndices").operator Column::wrapper_t()->data()
       : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_dists =
-    props.Has("knnDists")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
-      : DeviceBuffer::New(args.Env());
-  return get_graph(X,
+
+  DeviceBuffer::wrapper_t knn_dists = Column::IsInstance(props.Get("knnDists"))
+                                      ? props.Get("knnDists").operator Column::wrapper_t()->data()
+                                      : DeviceBuffer::New(args.Env());
+
+  return get_graph(features->data(),
                    props.Get("nSamples"),
                    props.Get("nFeatures"),
                    knn_indices,
                    knn_dists,
-                   y,
-                   props.Get("convertDType"));
+                   target);
 }
 
 Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  NODE_CUDF_EXPECT(
-    args[0].IsObject(), "get_graph constructor expects an Object of properties", args.Env());
+  NODE_CUDF_EXPECT(args[0].IsObject(), "refine expects an Object of properties", args.Env());
 
   NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t X =
-    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
+  Column::wrapper_t features = props.Get("features");
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
-  refine(X,
+  refine(features->data(),
          props.Get("nSamples"),
          props.Get("nFeatures"),
-         props.Get("coo"),
-         props.Get("convertDType"),
+         props.Get("graph"),
          embeddings);
 
   return embeddings;
 }
 
 Napi::Value UMAP::transform(Napi::CallbackInfo const& args) {
-  NODE_CUDF_EXPECT(
-    args[0].IsObject(), "transform constructor expects an Object of properties", args.Env());
+  NODE_CUDF_EXPECT(args[0].IsObject(), "transform expects an Object of properties", args.Env());
 
   NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t X =
-    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
-  DeviceBuffer::wrapper_t knn_indices =
-    props.Has("knnIndices")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
-      : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_dists =
-    props.Has("knnDists")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
-      : DeviceBuffer::New(args.Env());
+  Column::wrapper_t features = props.Get("features");
 
-  DeviceBuffer::wrapper_t embeddings  = props.Get("embeddings");
+  DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
+
   DeviceBuffer::wrapper_t transformed = props.Get("transformed");
 
-  transform(X,
+  transform(features->data(),
             props.Get("nSamples"),
             props.Get("nFeatures"),
-            knn_indices,
-            knn_dists,
-            X,
+            features->data(),
             props.Get("nSamples"),
-            props.Get("convertDType"),
             embeddings,
+            props.Get("nSamples"),
             transformed);
 
   return transformed;

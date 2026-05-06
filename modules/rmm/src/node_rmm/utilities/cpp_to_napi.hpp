@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
 
 #include <node_cuda/utilities/cpp_to_napi.hpp>
 
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
+
+#include <rapids_logger/logger.hpp>
 
 namespace nv {
 
@@ -35,6 +37,11 @@ inline Napi::Value CPPToNapi::operator()(rmm::cuda_device_id const& device) cons
 template <>
 inline Napi::Value CPPToNapi::operator()(rmm::cuda_stream_view const& stream) const {
   return this->operator()(stream.value());
+}
+
+template <>
+inline Napi::Value CPPToNapi::operator()(rapids_logger::level_enum const& level) const {
+  return this->operator()(level);
 }
 
 }  // namespace nv
@@ -54,6 +61,11 @@ inline Value Value::From(napi_env env, rmm::cuda_device_id const& device) {
 template <>
 inline Value Value::From(napi_env env, rmm::cuda_stream_view const& stream) {
   return Value::From(env, reinterpret_cast<uintptr_t>(stream.value()));
+}
+
+template <>
+inline Value Value::From(napi_env env, rapids_logger::level_enum const& level) {
+  return Value::From(env, static_cast<int32_t>(level));
 }
 
 }  // namespace Napi

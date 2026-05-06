@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
+
 import {
   Float32Buffer,
   Float64Buffer,
@@ -19,6 +21,7 @@ import {
   Int32Buffer,
   Int64Buffer,
   Int8Buffer,
+  isArrayBufferLike,
   MemoryData,
   MemoryView,
   Uint16Buffer,
@@ -563,14 +566,14 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series, Int64, Float32} from '@rapidsai/cudf';
    *
-   * Series.sequence({size: 5}).toArray() // Int32Array[0, 1, 2, 3, 4]
-   * Series.sequence({size: 5, init: 5}).toArray() // Int32Array[5, 6, 7, 8, 9]
+   * Series.sequence({size: 5}).toArray() // Int32Array(5) [0, 1, 2, 3, 4]
+   * Series.sequence({size: 5, init: 5}).toArray() // Int32Array(5) [5, 6, 7, 8, 9]
    * Series
    *   .sequence({ size: 5, init: 0, type: new Int64 })
-   *   .toArray() // BigInt64Array[0n, 1n, 2n, 3n, 4n]
+   *   .toArray() // BigInt64Array(5) [0n, 1n, 2n, 3n, 4n]
    * Series
    *   .sequence({ size: 5, step: 2, init: 1, type: new Float32 })
-   *   .toArray() // Float32Array[1, 3, 5, 7, 9]
+   *   .toArray() // Float32Array(5) [1, 3, 5, 7, 9]
    * ```
    */
   static sequence<U extends Numeric = Int32>(opts: {
@@ -741,17 +744,17 @@ export class AbstractSeries<T extends DataType = any> {
    * @param categories The optional Series of values to encode into integers. Defaults to the
    *   unique elements in this Series.
    * @param type The optional integer DataType to use for the returned Series. Defaults to
-   *   Uint32.
+   *   Int32.
    * @param nullSentinel The optional value used to indicate missing category. Defaults to -1.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's
    *   device memory.
    * @returns A sequence of encoded integer labels with values between `0` and `n-1`
    *   categories, and `nullSentinel` for any null values
    */
-  encodeLabels<R extends Integral = Uint32>(categories: Series<T>         = this.unique(true),
-                                            type: R                       = new Uint32 as R,
-                                            nullSentinel: R['scalarType'] = -1,
-                                            memoryResource?: MemoryResource): Series<R> {
+  encodeLabels<R extends Integral = Int32>(categories: Series<T>         = this.unique(true),
+                                           type: R                       = new Int32 as R,
+                                           nullSentinel: R['scalarType'] = -1,
+                                           memoryResource?: MemoryResource): Series<R> {
     return scope(() => {
       try {
         // If there is a failure casting to the current dtype, catch the exception and return
@@ -778,7 +781,7 @@ export class AbstractSeries<T extends DataType = any> {
       });
 
       // 3. Replace missing codes with `nullSentinel`.
-      return codes.replaceNulls(nullSentinel, memoryResource) as Series<R>;
+      return (codes as any).replaceNulls(nullSentinel as any, memoryResource) as Series<R>;
     }, [this, categories]);
   }
 
@@ -854,6 +857,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([null, true, true]).replaceNulls(false) // [true, true, true]
    * ```
    */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   replaceNulls(value: T['scalarType']|any, memoryResource?: MemoryResource): Series<T>;
 
   /**
@@ -1250,10 +1254,7 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Copy a Series to an Arrow vector in host memory
    */
-  toArrow() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!;
-  }
+  toArrow() { return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!; }
 
   /**
    * Generate an ordering that sorts the Series in a specified way.
@@ -1488,7 +1489,6 @@ export class AbstractSeries<T extends DataType = any> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Series = AbstractSeries;
 
 import {Bool8Series} from './series/bool';
@@ -1594,7 +1594,7 @@ function inferType(value: any[]): DataType {
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
 
-const arrayToDtype = (value: any[]|MemoryView|ArrayBufferView) => {
+const arrayToDtype = (value: any[]|MemoryView|ArrayBufferView<any>) => {
   switch (value.constructor) {
     case Int8Array: return new Int8;
     case Int8Buffer: return new Int8;
@@ -1650,11 +1650,11 @@ function asColumn<T extends DataType>(value: AbstractSeries<T>|SeriesProps<T>  /
 function asColumn<T extends DataType>(value: any) {
   if (!value) { value = []; }
 
-  // Return early if it's already a Series
-  if (value instanceof AbstractSeries) { return value._col; }
-
   // Return early if it's already a Column
   if (value instanceof Column) { return value as Column<T>; }
+
+  // Return early if it's already a Series
+  if (value instanceof AbstractSeries) { return value._col; }
 
   // If Array/Vector/TypedArray/MemoryView, wrap in a ColumnProps
   if (value instanceof arrow.Vector) {
@@ -1683,14 +1683,22 @@ function asColumn<T extends DataType>(value: any) {
     }
 
     // If `data.buffer` is a ArrayBuffer, copy it to a DeviceBuffer
-    if (ArrayBuffer.isView(value) || (data.buffer instanceof ArrayBuffer)) {
-      if (typeof data.length === 'number') { value.length = data.length; }
+    if (ArrayBuffer.isView(value) || isArrayBufferLike(data.buffer)) {
+      if (!compareTypes(value.type, new Utf8String)  //
+          && typeof value.length !== 'number'        //
+          && typeof data.length === 'number') {
+        value.length = data.length;
+      }
       data   = new DeviceBuffer(typeof offset !== 'number' ? data : data.subarray(offset));
       offset = 0;
     }
     // If `data.buffer` is a DeviceBuffer, propagate its `byteOffset` to ColumnProps
     else if (data.buffer instanceof DeviceBuffer) {
-      if (typeof data.length === 'number') { value.length = data.length; }
+      if (!compareTypes(value.type, new Utf8String)  //
+          && typeof value.length !== 'number'        //
+          && typeof data.length === 'number') {
+        value.length = data.length;
+      }
       offset =
         (typeof offset !== 'number' ? 0 : offset) + (data.byteOffset / data.BYTES_PER_ELEMENT);
     }
@@ -1705,7 +1713,7 @@ const columnToSeries = (() => {
     visitMany<T extends DataType>(columns: Column<T>[]): Series<T>[];
     getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T>;
   }
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+
   class ColumnToSeriesVisitor extends arrow.Visitor {
     public visit<T extends DataType>(col: Column<T>): Series<T> {
       for (let i = -1, n = col.numChildren; ++i < n;) {
@@ -1814,7 +1822,7 @@ const columnToSeries = (() => {
     // public visitMap                  <T extends Map>(col: Column<T>) { return new (MapSeries as any)(col); }
     // clang-format on
   }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+
   const visitor = new ColumnToSeriesVisitor();
   return function columnToSeries<T extends DataType>(column: Column<T>) {
     return visitor.visit(column);

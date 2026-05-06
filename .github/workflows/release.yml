@@ -5,7 +5,7 @@ on:
     inputs:
       rapids-version:
         type: string
-        default: "22.12.2"
+        default: "26.4.0"
         description: "RAPIDS version"
       make-release:
         type: boolean
@@ -29,22 +29,23 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
 
   extract-and-publish-packages:
     name: Extract libs and publish release
-    runs-on: linux-amd64-cpu16
+    runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu16"', matrix.ARCH)) }}
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["11.6.2"]
-        ARCH: ["amd64"]
-        NODE: ["16.15.1"]
-        LINUX: ["ubuntu20.04"]
+        CUDA: ["12.9.1", "13.1.1"]
+        ARCH: ["amd64", "arm64"]
+        NODE: ["24.14.1"]
+        LINUX: ["ubuntu24.04"]
     steps:
       - name: Extract node native addons
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail {0}
         run: |
           set -x;
 
@@ -59,41 +60,29 @@ jobs:
             ghcr.io/${{ github.repository }}:${RAPIDS}-devel-${NODE}-${CUDA}-${LINUX}-packages \
             sh -c "find /opt/rapids/ -type f -name 'rapidsai_*-*-*.tar.gz' -exec cp {} /out/ \;"
 
-          for x in cuda rmm cudf cuml cugraph cuspatial io sql; do
+          for x in cuda rmm cudf cuml cugraph cuspatial io; do
               tar -zf build/rapidsai_${x}-*.tar.gz \
-                  --wildcards --strip-components=2 \
+                  --wildcards --strip-components=1 \
                   -C build -x "*/rapidsai_${x}*.node" \
                   --transform="s/rapidsai_${x}.node/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}.node/" \
-                  --transform="s/rapidsai_${x}_60/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm60/" \
-                  --transform="s/rapidsai_${x}_70/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm70/" \
-                  --transform="s/rapidsai_${x}_75/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm75/" \
-                  --transform="s/rapidsai_${x}_80/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm80/" \
-                  --transform="s/rapidsai_${x}_86/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm86/" ;
+                  --transform="s/rapidsai_${x}_(.*)/rapidsai_${x}-${RAPIDS}-${CUDA}-${LINUX}-${ARCH}-sm\1/" ;
           done;
-
-          tar -zf build/rapidsai_sql-*.tar.gz \
-              --wildcards --strip-components=2 \
-              -C build -x "*/blazingsql-*.jar" ;
 
           rm -rf build/*.tar.gz;
 
       - name: Upload node native addons
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ inputs.make-release != true }}
         with:
-          path: |
-            build/*.jar
-            build/*.node
+          path: build/*.node
           name: rapidsai-native-addons
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         if: ${{ inputs.make-release == true }}
         with:
           body: ""
-          files: |
-            build/*.jar
-            build/*.node
+          files: build/*.node
           tag_name: "v${{ env.RAPIDS }}"
           repository: ${{ github.repository }}
           draft: ${{ inputs.draft-release == true }}
@@ -101,17 +90,17 @@ jobs:
   publish-npm-packages:
     if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
     name: Publish npm packages
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: true
       matrix:
-        CUDA: ["11.6.2"]
+        CUDA: ["13.1.1"]
         ARCH: ["amd64"]
-        NODE: ["16.15.1"]
-        LINUX: ["ubuntu20.04"]
+        NODE: ["24.14.1"]
+        LINUX: ["ubuntu24.04"]
     steps:
       - name: Publish npm packages
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail {0}
         env:
           NPM_TOKEN: "${{ secrets.RAPIDSAI_OWNER_NPM_AUTOMATION_TOKEN }}"
         run: |

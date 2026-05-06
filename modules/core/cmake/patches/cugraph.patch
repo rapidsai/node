@@ -1,23 +1,44 @@
-diff --git a/cpp/cmake/thirdparty/get_nccl.cmake b/cpp/cmake/thirdparty/get_nccl.cmake
-index 118ae37..2b04d1f 100644
---- a/cpp/cmake/thirdparty/get_nccl.cmake
-+++ b/cpp/cmake/thirdparty/get_nccl.cmake
-@@ -23,16 +23,13 @@ function(find_and_configure_nccl)
-     rapids_find_generate_module(NCCL
-         HEADER_NAMES  nccl.h
-         LIBRARY_NAMES nccl
-+        BUILD_EXPORT_SET cugraph-exports
-     )
+diff --git a/cpp/cmake/thirdparty/get_cuvs.cmake b/cpp/cmake/thirdparty/get_cuvs.cmake
+index 254fb962..18cc4267 100644
+--- a/cpp/cmake/thirdparty/get_cuvs.cmake
++++ b/cpp/cmake/thirdparty/get_cuvs.cmake
+@@ -12,6 +12,11 @@ function(find_and_configure_cuvs)
+     cmake_parse_arguments(PKG "${options}" "${oneValueArgs}"
+             "${multiValueArgs}" ${ARGN} )
  
-     # Currently NCCL has no CMake build-system so we require
-     # it built and installed on the machine already
--    rapids_find_package(NCCL REQUIRED)
-+    rapids_find_package(NCCL REQUIRED BUILD_EXPORT_SET cugraph-exports)
++    set(cugraph_cuvs_target cuvs::cuvs)
++    if(PKG_USE_CUVS_STATIC)
++      set(cugraph_cuvs_target cuvs::cuvs_static)
++    endif()
++
+     if(PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "${rapids-cmake-checkout-tag}")
+         message(STATUS "CUGRAPH: Pinned tag found: ${PKG_PINNED_TAG}. Cloning cuVS locally.")
+         set(CPM_DOWNLOAD_cuvs ON)
+@@ -24,7 +29,7 @@ function(find_and_configure_cuvs)
+     set(CUVS_BUILD_MG_ALGOS OFF)
  
- endfunction()
+     rapids_cpm_find(cuvs ${PKG_VERSION}
+-      GLOBAL_TARGETS      cuvs::cuvs
++      GLOBAL_TARGETS      ${cugraph_cuvs_target}
+       CPM_ARGS
+         GIT_REPOSITORY         https://github.com/${PKG_FORK}/cuvs.git
+         GIT_TAG                ${PKG_PINNED_TAG}
+diff --git a/cpp/cmake/thirdparty/get_raft.cmake b/cpp/cmake/thirdparty/get_raft.cmake
+index fc180e5d..d1f0a313 100644
+--- a/cpp/cmake/thirdparty/get_raft.cmake
++++ b/cpp/cmake/thirdparty/get_raft.cmake
+@@ -22,12 +22,12 @@ function(find_and_configure_raft)
+       if(NOT PKG_USE_RAFT_STATIC)
+         string(APPEND RAFT_COMPONENTS " compiled")
+       else()
+-        string(APPEND RAFT_COMPONENTS " compiled_static")
++        string(APPEND RAFT_COMPONENTS " compiled-static")
+       endif()
+     endif()
  
- find_and_configure_nccl()
--
--
--
--
+     rapids_cpm_find(raft ${PKG_VERSION}
+-      GLOBAL_TARGETS      raft::raft
++      GLOBAL_TARGETS      raft::raft raft::compiled_static
+       BUILD_EXPORT_SET    cugraph-exports
+       INSTALL_EXPORT_SET  cugraph-exports
+       COMPONENTS ${RAFT_COMPONENTS}

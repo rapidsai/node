@@ -1,0 +1,22 @@
+diff --git a/cpp/CMakeLists.txt b/cpp/CMakeLists.txt
+index 2b8c6934..061104a3 100644
+--- a/cpp/CMakeLists.txt
++++ b/cpp/CMakeLists.txt
+@@ -530,7 +530,7 @@ rapids_export(
+   EXPORT_SET raft-exports
+   COMPONENTS ${raft_components}
+   COMPONENTS_EXPORT_SET ${raft_export_sets}
+-  GLOBAL_TARGETS raft compiled distributed
++  GLOBAL_TARGETS raft compiled compiled_static distributed
+   NAMESPACE raft::
+   DOCUMENTATION doc_string
+   FINAL_CODE_BLOCK code_string
+@@ -543,7 +543,7 @@ rapids_export(
+   EXPORT_SET raft-exports
+   COMPONENTS ${raft_components}
+   COMPONENTS_EXPORT_SET ${raft_export_sets}
+-  GLOBAL_TARGETS raft compiled distributed
++  GLOBAL_TARGETS raft compiled compiled_static distributed
+   DOCUMENTATION doc_string
+   NAMESPACE raft::
+   FINAL_CODE_BLOCK code_string

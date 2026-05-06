@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ export function installImageData(window: jsdom.DOMWindow) {
 }
 
 export function installImageDecode(window: jsdom.DOMWindow) {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   window.HTMLImageElement.prototype.decode ??= function decode(this: HTMLImageElement) {
     return new Promise<void>((resolve, reject) => {
       const cleanup = () => {
@@ -31,8 +30,9 @@ export function installImageDecode(window: jsdom.DOMWindow) {
         resolve();
         cleanup();
       };
-      const onerror = () => {
-        reject();
+      const onerror = (err: ErrorEvent) => {
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+        reject(err);
         cleanup();
       };
       this.addEventListener('load', onload);

@@ -1,10 +1,26 @@
-# syntax=docker/dockerfile:1.3
-
+# syntax=docker/dockerfile:1
+ARG TARGETARCH
 ARG AMD64_BASE
 ARG ARM64_BASE
-ARG NODE_VERSION=16.15.1
+ARG NODE_VERSION=24.14.1
 
-FROM node:$NODE_VERSION-bullseye-slim as node
+# Install latest ninja
+FROM alpine:latest AS ninja-amd64
+RUN apk add --no-cache unzip
+ADD https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip /tmp
+
+FROM alpine:latest AS ninja-arm64
+RUN apk add --no-cache unzip
+ADD https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux-aarch64.zip /tmp
+RUN mv /tmp/ninja-linux-aarch64.zip /tmp/ninja-linux.zip
+
+FROM ninja-${TARGETARCH} AS ninja
+
+ARG TARGETARCH
+
+RUN unzip -d /usr/bin -o /tmp/ninja-linux.zip && chmod +x /usr/bin/ninja
+
+FROM node:$NODE_VERSION-trixie-slim as node
 
 FROM ${AMD64_BASE} as base-amd64
 
@@ -21,6 +37,8 @@ ONBUILD RUN \
 
 FROM base-${TARGETARCH} as compilers
 
+ARG TARGETARCH
+
 SHELL ["/bin/bash", "-c"]
 
 ENV CUDA_HOME="/usr/local/cuda"
@@ -36,13 +54,14 @@ ${CUDA_HOME}/lib64:\
 ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
-ARG GCC_VERSION=9
-ARG CMAKE_VERSION=3.26.0-rc2
-ARG SCCACHE_VERSION=0.2.15
-ARG LINUX_VERSION=ubuntu20.04
+ARG CMAKE_VERSION=4.2.3
+ARG LINUX_VERSION=ubuntu24.04
 
-ARG NODE_VERSION=16.15.1
+ARG NODE_VERSION=24.14.1
 ENV NODE_VERSION=$NODE_VERSION
+
+# Install ninja
+COPY --from=ninja /usr/bin/ninja /usr/bin/ninja
 
 # Install node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
@@ -61,8 +80,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install --no-install-recommends -y \
     gpg wget software-properties-common lsb-release \
- && add-apt-repository --no-update -y ppa:git-core/ppa \
- && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --no-update -y ppa:git-core/ppa \
+ # && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  # Install kitware cmake apt repository
  && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
   | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
@@ -72,11 +91,10 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  \
  && apt update \
  && apt install --no-install-recommends -y \
-    git \
+    git unzip \
     # Needed for CMake to find static `liblapack.a`
     gfortran \
-    ninja-build \
-    gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
+    gcc g++ gdb \
     curl libssl-dev libcurl4-openssl-dev xz-utils zlib1g-dev liblz4-dev \
     # From opengl/glvnd:devel
     pkg-config \
@@ -93,7 +111,7 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
  && bash /tmp/cmake_${CMAKE_VERSION}.sh --skip-license --exclude-subdir --prefix=/usr \
  \
  # Install sccache
- && curl -SsL "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
+ && curl -SsL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
     | tar -C /usr/bin -zf - --wildcards --strip-components=1 -x */sccache \
  && chmod +x /usr/bin/sccache \
  \
@@ -102,11 +120,10 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
 fund=false\n\
 audit=false\n\
 save-prefix=\n\
---omit=optional\n\
+omit=optional\n\
 save-exact=true\n\
 package-lock=false\n\
 update-notifier=false\n\
-scripts-prepend-node-path=true\n\
 registry=https://registry.npmjs.org/\n\
 " | tee /root/.npmrc >/dev/null' \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
@@ -118,8 +135,8 @@ registry=https://registry.npmjs.org/\n\
  && echo "yarn version: $(yarn --version)" \
  \
  # Clean up
- && add-apt-repository --remove -y ppa:git-core/ppa \
- && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
+ # && add-apt-repository --remove -y ppa:git-core/ppa \
+ # && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
  && apt autoremove -y && apt clean \
  && rm -rf \
     /tmp/* \
@@ -137,31 +154,19 @@ ONBUILD ARG ADDITIONAL_GROUPS="--groups sudo,video"
 
 FROM compilers as main-amd64
 
-ONBUILD ARG LLDB_VERSION=17
-ONBUILD ARG CLANGD_VERSION=17
-ONBUILD ARG CLANG_FORMAT_VERSION=17
+ONBUILD ARG LLDB_VERSION=18
+ONBUILD ARG CLANGD_VERSION=18
+ONBUILD ARG CLANG_FORMAT_VERSION=18
 
 # Install dependencies and dev tools (llnode etc.)
 ONBUILD RUN export DEBIAN_FRONTEND=noninteractive \
- # Install LLVM apt sources
- && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
-" | tee /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list >/dev/null' \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
-" | tee /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list >/dev/null' \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
-" | tee /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list >/dev/null' \
- \
+ # For Ubuntu 24.04, LLVM 18 is the default version in the main repos
  && apt update \
  && apt install --no-install-recommends -y \
-    # lldb (for llnode)
-    lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} \
+    # Python 3.12 (Ubuntu 24.04) requires python3-setuptools for distutils compatibility
+    python3 python3-pip python3-setuptools python3-dev \
+    # lldb (for llnode) - LLVM 18 packages
+    lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} llvm-${LLDB_VERSION}-dev \
     # clangd for C++ intellisense and debugging
     clangd-${CLANGD_VERSION} \
     # clang-format for automatically formatting C++ and TS/JS
@@ -187,7 +192,11 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
  \
  # Globally install llnode
- && npm install --location global --unsafe-perm --no-audit --no-fund --no-update-notifier llnode \
+ && mkdir -p /usr/local/lib/llnode \
+ && wget -O - https://github.com/trxcllnt/llnode/archive/refs/heads/use-llvm-project-monorepo.tar.gz \
+  | tar -C /usr/local/lib/llnode -xzf - --strip-components=1 \
+ && npm pack --pack-destination /usr/local/lib/llnode /usr/local/lib/llnode \
+ && npm install --location=global --no-audit --no-fund --no-update-notifier /usr/local/lib/llnode/llnode-*.tgz \
  && echo "llnode: $(which -a llnode)" \
  && echo "llnode version: $(llnode --version)" \
  \
@@ -198,10 +207,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     /var/tmp/* \
     /var/cache/apt/* \
     /var/lib/apt/lists/* \
-    /usr/local/lib/llnode \
-    /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
-    /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
-    /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list
+    /usr/local/lib/llnode
 
 FROM main-${TARGETARCH}
 
@@ -210,7 +216,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 ARG TARGETARCH
 
 ARG ADDITIONAL_GROUPS
-ARG UCX_VERSION=1.12.1
+ARG UCX_VERSION=1.20.0
 ARG FIXUID_VERSION=0.5.1
 ARG NODE_WEBRTC_VERSION=0.4.7
 
@@ -218,7 +224,7 @@ ARG NODE_WEBRTC_VERSION=0.4.7
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install --no-install-recommends -y \
-    jq entr ssh vim nano sudo less bash-completion ripgrep fzf \
+    lsof bsdextrautils jq entr ssh vim nano sudo less bash-completion ripgrep fzf \
     # X11 dependencies
     libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
@@ -229,15 +235,11 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     build-essential libxmu-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
-    # SQL dependencies
-    maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev \
  \
- # Install UCX
- && wget -O /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
-    https://github.com/openucx/ucx/releases/download/v${UCX_VERSION}/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb \
- && dpkg -i /var/cache/apt/archives/ucx-v${UCX_VERSION}-${LINUX_VERSION}-mofed5-cuda11.deb || true && apt --fix-broken install -y \
+ # Install UCX (use system packages for Ubuntu 24.04)
+ && apt install --no-install-recommends -y libucx-dev libucx0 ucx-utils \
  \
  # Install fixuid
  && curl -SsL "https://github.com/boxboat/fixuid/releases/download/v$FIXUID_VERSION/fixuid-$FIXUID_VERSION-linux-${TARGETARCH}.tar.gz" \
@@ -251,17 +253,15 @@ paths:\n\
   - /opt/rapids/node\n\
 " | tee /etc/fixuid/config.yml >/dev/null' \
  \
- # Add a non-root user
- && useradd \
-    --uid 1000 --shell /bin/bash \
-    --user-group ${ADDITIONAL_GROUPS} \
-    --create-home --home-dir /opt/rapids \
-    rapids \
+ # Add a non-root user (handle existing UID 1000)
+ && if getent passwd 1000 >/dev/null 2>&1; then \
+      existing_user=$(getent passwd 1000 | cut -d: -f1); \
+      usermod -l rapids -d /opt/rapids -m $existing_user; \
+      groupmod -n rapids $existing_user; \
+    else \
+      useradd --uid 1000 --shell /bin/bash --user-group ${ADDITIONAL_GROUPS} --create-home --home-dir /opt/rapids rapids; \
+    fi \
  && mkdir -p /opt/rapids/node/.cache \
- && mkdir -p -m 0700 /opt/rapids/.ssh \
- \
- # Add GitHub's public keys to known_hosts
- && curl -s https://api.github.com/meta | jq -r '.ssh_keys | map("github.com \(.)") | .[]' > /opt/rapids/.ssh/known_hosts \
  && cp /root/.npmrc /opt/rapids/.npmrc \
  && ln -s /opt/rapids/node/.vscode/server /opt/rapids/.vscode-server \
  && ln -s /opt/rapids/node/.vscode/server-insiders /opt/rapids/.vscode-server-insiders \
@@ -297,10 +297,10 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
     https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
   | tee /etc/bash_completion.d/yarn >/dev/null \
  \
- # Install NVENC-enabled wrtc
- && wget -O /opt/rapids/wrtc-dev.tgz \
-    https://github.com/trxcllnt/node-webrtc-builds/releases/download/v${NODE_WEBRTC_VERSION}/wrtc-${NODE_WEBRTC_VERSION}-linux-${TARGETARCH}.tgz \
- && npm install --location=global --unsafe-perm --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
+#  # Install NVENC-enabled wrtc
+#  && wget -O /opt/rapids/wrtc-dev.tgz \
+#     https://github.com/trxcllnt/node-webrtc-builds/releases/download/v${NODE_WEBRTC_VERSION}/wrtc-${NODE_WEBRTC_VERSION}-linux-${TARGETARCH}.tgz \
+#  && npm install --location=global --no-audit --no-fund --no-update-notifier /opt/rapids/wrtc-dev.tgz \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
@@ -311,9 +311,9 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 ENV NO_UPDATE_NOTIFIER=1
 ENV RAPIDSAI_SKIP_DOWNLOAD=1
-ENV npm_config_nodedir=/usr/local
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_PATH=/usr/local/lib/node_modules
-ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
+ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught --openssl-legacy-provider"
 
 USER rapids
 

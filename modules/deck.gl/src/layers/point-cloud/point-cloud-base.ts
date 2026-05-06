@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,11 +57,11 @@ export class PointCloudGPUBase extends (Layer as typeof DeckLayer) {
 
   static getAccessors({gl}: {gl: WebGL2RenderingContext}) {
     return {
-      instancePositionsX: {...pointPositionAccessor(gl), accessor: 'getPositionX'},
-      instancePositionsY: {...pointPositionAccessor(gl), accessor: 'getPositionY'},
-      instancePositionsZ: {...pointPositionAccessor(gl), accessor: 'getPositionZ'},
-      instanceColors: {...pointColorAccessor(gl), accessor: 'getColor'},
-      instanceNormals: {...pointNormalizeAccessor(gl), accessor: 'getNormal'},
+      instancePositionsX: {...pointPositionAccessor(gl as any), accessor: 'getPositionX'},
+      instancePositionsY: {...pointPositionAccessor(gl as any), accessor: 'getPositionY'},
+      instancePositionsZ: {...pointPositionAccessor(gl as any), accessor: 'getPositionZ'},
+      instanceColors: {...pointColorAccessor(gl as any), accessor: 'getColor'},
+      instanceNormals: {...pointNormalizeAccessor(gl as any), accessor: 'getNormal'},
     };
   }
 
@@ -101,7 +101,7 @@ export class PointCloudGPUBase extends (Layer as typeof DeckLayer) {
       positions.push(Math.cos(angle) * 2, Math.sin(angle) * 2, 0);
     }
 
-    return new Model(gl, {
+    return new Model(gl as any, {
       id: this.props.id,
       ...this.getShaders(),
       isInstanced: true,

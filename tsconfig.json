@@ -29,8 +29,6 @@
             "@rapidsai/io/*":                         ["modules/io/src/*"],
             "@rapidsai/webgl":                        ["modules/webgl/src/index"],
             "@rapidsai/webgl/*":                      ["modules/webgl/src/*"],
-            "@rapidsai/sql":                          ["modules/sql/src/index"],
-            "@rapidsai/sql/*":                        ["modules/sql/src/*"],
             "deck.gl":                                ["node_modules/deck.gl/src/index"],
             "deck.gl/dist/es5/*":                     ["node_modules/deck.gl/src/*"],
             "deck.gl/dist/es6/*":                     ["node_modules/deck.gl/src/*"],

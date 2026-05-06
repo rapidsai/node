@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 
 import * as arrow from 'apache-arrow';
 
@@ -55,7 +57,7 @@ class DataToColumnVisitor extends arrow.Visitor {
     return new Column({
       type: new Bool8,
       data:
-        // eslint-disable-next-line @typescript-eslint/unbound-method
+
         new Uint8Array(new arrow.util.BitIterator(values, 0, data.length, null, arrow.util.getBit)),
       nullMask
     });
@@ -98,17 +100,13 @@ class DataToColumnVisitor extends arrow.Visitor {
     return new Column({
       length,
       type: new Utf8String,
+      // chars
+      data: values.subarray(0, valueOffsets[length]),
       nullMask,
       children: [
         // offsets
         new Column(
           {type: new Int32, length: length + 1, data: valueOffsets.subarray(0, length + 1)}),
-        // data
-        new Column({
-          type: new Uint8,
-          length: valueOffsets[length],
-          data: values.subarray(0, valueOffsets[length])
-        }),
       ]
     });
   }
@@ -179,8 +177,8 @@ class DataToColumnVisitor extends arrow.Visitor {
   // visitSparseUnion<T extends arrow.SparseUnion>(data: arrow.Data<T>) {}
   visitDictionary<T extends arrow.Dictionary>(data: arrow.Data<T>) {
     const {type, length, nullBitmap: nullMask} = data;
-    const codes = this.visit(data.clone(type.indices)).cast(new Uint32);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const codes = this.visit(data.clone(type.indices)).cast(new Int32);
+
     const categories = fromArrow(data.dictionary!);
     return new Column(
       {length, type: new Categorical(categories.type), nullMask, children: [codes, categories]});

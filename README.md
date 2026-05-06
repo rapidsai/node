@@ -1,5 +1,3 @@
-# NOTE: Not in active development
-
 # <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids</div>
 
 [`node-rapids`](https://github.com/rapidsai/node) is a collection of Node.js native addons for the [NVIDIA RAPIDS](https://rapids.ai/) suite of GPU-accelerated data-science and ETL libraries on Linux and WSL2.
@@ -9,7 +7,6 @@
 * [`@rapidsai/cuml`](https://github.com/rapidsai/node/tree/main/modules/cuml) - [RAPIDS Machine Learning Library](https://github.com/rapidsai/cuml)
 * [`@rapidsai/cugraph`](https://github.com/rapidsai/node/tree/main/modules/cugraph) - [RAPIDS Graph Analytics Library](https://github.com/rapidsai/cugraph)
 * [`@rapidsai/cuspatial`](https://github.com/rapidsai/node/tree/main/modules/cuspatial) - [RAPIDS Accelerated GIS Library](https://github.com/rapidsai/cuspatial)
-* [`@rapidsai/sql`](https://github.com/rapidsai/node/tree/main/modules/sql) - Multi-node/multi-GPU accelerated SQL execution engine
 
 `node-rapids` includes limited bindings to other necessary native APIs:
 
@@ -43,9 +40,6 @@ Check out our [demos](https://github.com/rapidsai/node/tree/main/modules/demo) t
 * [Cross filtering millions of rows with cuDF](https://github.com/rapidsai/node/tree/main/modules/demo/client-server)
 * [Simulating & rendering with cuGraph](https://github.com/rapidsai/node/tree/main/modules/demo/graph/)
 * [Querying millions of points with cuSpatial](https://github.com/rapidsai/node/tree/main/modules/demo/spatial/)
-* [Multi-GPU SQL queries on GBs of CSVs](https://github.com/rapidsai/node/tree/main/modules/demo/sql/sql-cluster-server/)
-
-Check out our [Jupyter Lab Notebook Demos](https://github.com/rapidsai/node/tree/main/modules/cudf/notebooks) to see how to use Node.js for GPU accelerated data science.
 
 ## License
 

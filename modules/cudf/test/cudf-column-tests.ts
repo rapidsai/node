@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +19,21 @@ import {
   setDefaultAllocator,
   Uint8Buffer
 } from '@rapidsai/cuda';
-import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {
+  Bool8,
+  Column,
+  Float32,
+  Float64,
+  Int32,
+  Series,
+  Uint32,
+  Uint8,
+  Utf8String
+} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-const mr = new CudaMemoryResource();
-
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength));
 
 test('Column initialization', () => {
   const length = 100;
@@ -107,18 +115,19 @@ test('test child(child_index), num_children', () => {
   const offsetsCol = new Column({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
   const stringsCol = new Column({
     type: new Utf8String,
+    data: utf8Col.data,
     length: 1,
     nullMask: new Uint8Buffer([255]),
-    children: [offsetsCol, utf8Col],
+    children: [offsetsCol],
   });
 
   expect(stringsCol.type).toBeInstanceOf(Utf8String);
-  expect(stringsCol.numChildren).toBe(2);
+  expect(stringsCol.numChildren).toBe(1);
   expect(stringsCol.getValue(0)).toBe('hello');
   expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
   expect(stringsCol.getChild(0).type).toBeInstanceOf(Int32);
-  expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
-  expect(stringsCol.getChild(1).type).toBeInstanceOf(Uint8);
+  expect(stringsCol.data.byteLength).toBe(utf8Col.data.byteLength);
+  expect(stringsCol.data).toBeInstanceOf(DeviceBuffer);
 });
 
 test('Column.dropNans', () => {
@@ -234,7 +243,7 @@ test('Column.stringIsIpv4', () => {
 });
 
 test('Column.ipv4FromIntegers', () => {
-  const col      = Series.new([2080309255n, 2130706433n, null])._col;
+  const col      = new Column({type: new Uint32, data: [0x7BFF0007, 0x7F000001, null]});
   const result   = col.ipv4FromIntegers();
   const expected = ['123.255.0.7', '127.0.0.1', null];
   expect([...Series.new(result)]).toEqual(expected);
@@ -243,7 +252,7 @@ test('Column.ipv4FromIntegers', () => {
 test('Column.ipv4ToIntegers', () => {
   const col      = Series.new(['123.255.0.7', '127.0.0.1', null])._col;
   const result   = col.ipv4ToIntegers();
-  const expected = [2080309255n, 2130706433n, null];
+  const expected = [0x7BFF0007, 0x7F000001, null];
   expect([...Series.new(result)]).toEqual(expected);
 });
 

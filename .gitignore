@@ -3,6 +3,7 @@
 **/doc/
 **/lib/
 **/build/
+**/_build/
 **/.cache
 **/.clangd
 **/.ccache
@@ -13,6 +14,7 @@
 /dev/.ssh/*
 !/dev/.ssh/.keepDir
 
+.aws
 .env
 .creds
 .vscode/server
@@ -26,6 +28,7 @@ modules/*/include/node_api.h
 modules/demo/**/*/data/*
 
 modules/**/.eslintrc.js
+modules/**/eslint.config.js
 
 modules/**/notebooks/data/*
 

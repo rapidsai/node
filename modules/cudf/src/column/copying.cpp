@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,14 +26,15 @@ Column::wrapper_t Column::gather(Column const& gather_map,
                                  rmm::mr::device_memory_resource* mr) const {
   return Column::New(
     Env(),
-    std::move(
-      cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr)->release()[0]));
+    std::move(cudf::gather(
+                cudf::table_view{{*this}}, gather_map, bounds_policy, nv::get_default_stream(), mr)
+                ->release()[0]));
 }
 
 Napi::Value Column::copy(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   return Column::New(
-    args.Env(), std::make_unique<cudf::column>(this->view(), rmm::cuda_stream_default, args[0]));
+    args.Env(), std::make_unique<cudf::column>(this->view(), nv::get_default_stream(), args[0]));
 }
 
 }  // namespace nv

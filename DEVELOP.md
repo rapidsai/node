@@ -9,7 +9,6 @@ This document is intended for anyone who wants to clone and build the `node-rapi
 * [Build the modules](#build-the-modules)
   * [Build modules individually](#build-modules-individually)
 * [Running the demos](#running-the-demos)
-* [Running notebooks](#running-notebooks)
 * [Troubleshooting](#troubleshooting)
 * [Develop on bare-metal](#develop-on-bare-metal)
 
@@ -69,7 +68,7 @@ To pull and run the development container, issue the following commands:
 docker-compose -f docker-compose.devel.yml pull main
 
 # Or build the development containers locally (e.g. after making changes)
-yarn docker:build:devel:main
+yarn docker:build:devel
 
 # Start the main development container
 yarn docker:run:devel
@@ -184,21 +183,6 @@ yarn demo
 
 # Run a specific demo with extra arguments passed to the selected demo
 yarn demo modules/demo/luma 01
-```
-
-## Running notebooks
-
-We've included a container for launching [`jupyterlab-desktop`](https://github.com/jupyterlab/jupyterlab-desktop) with access to locally built `node-rapids` modules:
-
-```shell
-# Compile the TypeScript and C++ modules inside the development container (only necessary if it hasn't already been built)
-yarn docker:run:devel bash -c 'yarn && yarn build'
-
-# Build the notebook container (only necessary if it hasn't already been built)
-yarn docker:build:devel:notebook
-
-# Start a containerized `jupyterlab-desktop` instance with the source tree as a docker volume mount
-yarn docker:run:devel:notebook
 ```
 
 ## Troubleshooting

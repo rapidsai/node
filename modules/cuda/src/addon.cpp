@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ struct rapidsai_cuda : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cud
     _runtime    = Napi::Persistent(Napi::Object::New(env));
     _after_init = Napi::Persistent(Napi::Function::New(env, [](Napi::CallbackInfo const& info) {
       auto env = info.Env();
-      NODE_CU_TRY(cuInit(0), env);
+      NODE_CUDA_TRY(cudaFree(0), env);
       auto device = std::max(nv::Device::active_device_id(), 0);
       if (device < nv::Device::get_num_devices()) {
         NODE_CUDA_TRY(cudaSetDevice(device), env);
@@ -81,28 +81,50 @@ struct rapidsai_cuda : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cud
   Napi::Value get_driver_version(Napi::CallbackInfo const& info) {
     int driverVersion;
     auto env = info.Env();
-    NODE_CU_TRY(cuDriverGetVersion(&driverVersion), env);
+    NODE_CUDA_TRY(cudaDriverGetVersion(&driverVersion), env);
     return Napi::Number::New(env, driverVersion);
   }
 
   Napi::Value rgba_mirror(Napi::CallbackInfo const& info) {
+    auto env = info.Env();
     nv::CallbackArgs args{info};
     int32_t width         = args[0];
     int32_t height        = args[1];
     NppiAxis flip         = static_cast<NppiAxis>(args[2].operator uint32_t());
     nv::Span<uint8_t> src = args[3];
     NppiSize roi          = {width, height};
+
+    int device;
+    NODE_CUDA_TRY(cudaGetDevice(&device), env);
+
     if (info.Length() == 4) {
-      nppiMirror_8u_C4IR(src.data(), width * 4, roi, flip);
+      nppiMirror_8u_C4IR_Ctx(src.data(),
+                             width * 4,
+                             roi,
+                             flip,
+                             {
+                               cudaStreamDefault,
+                               device,
+                             });
     } else if (info.Length() == 5) {
       nv::Span<uint8_t> dst = args[4];
-      nppiMirror_8u_C4R(src.data(), width * 4, dst.data(), width * 4, roi, flip);
+      nppiMirror_8u_C4R_Ctx(src.data(),
+                            width * 4,
+                            dst.data(),
+                            width * 4,
+                            roi,
+                            flip,
+                            {
+                              cudaStreamDefault,
+                              device,
+                            });
     }
 
     return info.Env().Undefined();
   }
 
   Napi::Value bgra_to_ycrcb420(Napi::CallbackInfo const& info) {
+    auto env = info.Env();
     nv::CallbackArgs args{info};
     nv::Span<uint8_t> dst = args[0];
     nv::Span<uint8_t> src = args[1];
@@ -114,7 +136,18 @@ struct rapidsai_cuda : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cud
 
     int dstSteps[3] = {width, width / 2, width / 2};
 
-    nppiBGRToYCrCb420_8u_AC4P3R(src.data(), width * 4, dstBuff, dstSteps, roi);
+    int device;
+    NODE_CUDA_TRY(cudaGetDevice(&device), env);
+
+    nppiBGRToYCrCb420_8u_AC4P3R_Ctx(src.data(),
+                                    width * 4,
+                                    dstBuff,
+                                    dstSteps,
+                                    roi,
+                                    {
+                                      cudaStreamDefault,
+                                      device,
+                                    });
 
     return info.Env().Undefined();
   }

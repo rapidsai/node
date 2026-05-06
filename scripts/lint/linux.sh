@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
+set -Eeuo pipefail
 
 args="";
 fix_="";
@@ -36,14 +36,14 @@ fi
 
 echo "Running clang-format...";
 time                                              \
-    xargs -d'\n' -t -n1 -I% -P$jobs               \
+    xargs -d'\n' -t -I% -P$jobs                   \
         <<< "$(echo -e "$cpp_files\n$tsc_files")" \
-    clang-format-17 -i %;
+    clang-format-18 -i %;
 echo "";
 
 echo "Running ESLint (on up to $jobs cores)...";
 time                                                         \
-    xargs -d'\n' -n1 -I% -P$jobs                             \
+    xargs -d'\n' -I% -P$jobs                                 \
         <<< "$tsc_files"                                     \
-    node_modules/.bin/eslint --ignore-path .gitignore $fix_ %;
+    node_modules/.bin/eslint --ignore-pattern .gitignore $fix_ %;
 echo "";

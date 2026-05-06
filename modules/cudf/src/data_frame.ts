@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData, MemoryView, Uint8Buffer} from '@rapidsai/cuda';
+import {isArrayBufferLike, MemoryData, MemoryView, Uint8Buffer} from '@rapidsai/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
@@ -49,7 +49,7 @@ import {ReadORCOptions, ReadORCOptionsCommon, WriteORCOptions} from './types/orc
 import {ReadParquetOptions, ReadParquetOptionsCommon, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap = any> = {
-  [P in keyof T]: {readonly type: T[P]}
+  [P in keyof T]: {readonly type: T[P]&DataType}
 };
 
 export type OrderSpec = {
@@ -261,7 +261,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @return The Arrow data as a DataFrame
    */
   public static fromArrow<T extends TypeMap>(memory: DeviceBuffer|MemoryData): DataFrame<T> {
-    if (memory instanceof ArrayBuffer || ArrayBuffer.isView(memory)) {
+    if (ArrayBuffer.isView(memory) || isArrayBufferLike(memory)) {
       memory = new Uint8Buffer(memory);
     }
     if (memory instanceof MemoryView) { memory = memory.buffer; }
@@ -504,7 +504,7 @@ export class DataFrame<T extends TypeMap = any> {
   rename<U extends string|number, P extends {[K in keyof T]?: U}>(nameMap: P) {
     const names = Object.keys(nameMap) as (string & keyof P)[];
     return this.drop(names).assign(
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       names.reduce((xs, x) => ({...xs, [`${nameMap[x]!}`]: this.get(x)}),
                    {} as SeriesMap<{[K in keyof P as `${NonNullable < P[K] >}`]: T[string & K]}>));
   }
@@ -574,7 +574,7 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(names.reduce(
       (columns, name) => ({
         ...columns,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         [name]: name in types ? this.get(name).cast(types[name]!, memoryResource) : this.get(name)
       }),
       {} as SeriesMap<{[P in keyof(Omit<T, keyof R>& R)]: (Omit<T, keyof R>& R)[P]}>));
@@ -587,7 +587,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns DataFrame of Series cast to the new dtype
-   *make notebooks.run
+   * const df = new DataFrame({
    *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
    *  b: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]})
    * })
@@ -1052,9 +1052,9 @@ export class DataFrame<T extends TypeMap = any> {
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
     [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
-      P extends TOn
+      (P extends TOn
         ? CommonType<T[P], R[P]>
-        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
+        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]) & DataType
   }>;
   // clang-format on
 
@@ -1215,7 +1215,7 @@ export class DataFrame<T extends TypeMap = any> {
 
     this.names.forEach(col => {
       const no_threshold_valid_count = (df.get(col).length - df.get(col).nullCount) < thresh;
-      if (!no_threshold_valid_count) { column_names.push(col as string); }
+      if (!no_threshold_valid_count) { column_names.push(col); }
     });
 
     return new DataFrame(

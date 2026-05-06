@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ export function createResolve(resolvers?: ResolversMap): Resolver {
 
   function resolve(request: string, parent: Module, isMain?: boolean, options?: any) {
     // Normalize request path so custom resolvers can have a stable key
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
     const resolveFilename = resolvers![resolverKey(request, parent)];
     return resolveFilename  //
            ? resolveFilename(request, parent, isMain, options)

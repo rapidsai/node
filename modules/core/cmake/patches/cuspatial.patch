@@ -1,0 +1,2178 @@
+From 95f987503b4d9f62937de04578943e6811fb42d6 Mon Sep 17 00:00:00 2001
+From: ptaylor <paul.e.taylor@me.com>
+Date: Wed, 25 Mar 2026 14:06:22 -0700
+Subject: [PATCH] update for CCCL 3.0
+
+---
+ cpp/CMakeLists.txt                            | 10 +++--
+ cpp/benchmarks/CMakeLists.txt                 | 16 +++----
+ cpp/benchmarks/fixture/benchmark_fixture.hpp  |  8 ++--
+ cpp/benchmarks/fixture/rmm_pool_raii.hpp      |  8 ++--
+ cpp/benchmarks/indexing/quadtree_on_points.cu |  4 +-
+ cpp/cmake/thirdparty/get_cccl.cmake           | 14 ++++++
+ cpp/cmake/thirdparty/get_ranger.cmake         |  2 +
+ cpp/cuproj/CMakeLists.txt                     |  4 +-
+ .../benchmarks/fixture/benchmark_fixture.hpp  |  8 ++--
+ cpp/cuproj/tests/CMakeLists.txt               |  4 +-
+ .../developer_guide/HEADER_ONLY_API_GUIDE.md  | 10 ++---
+ cpp/include/cuspatial/bounding_boxes.hpp      |  2 +-
+ .../cuspatial/detail/distance/hausdorff.cuh   |  2 +-
+ .../detail/find/find_and_combine_segment.cuh  |  8 ++--
+ cpp/include/cuspatial/detail/functors.cuh     |  2 +-
+ .../detail/geometry/linestring_ref.cuh        |  6 +--
+ .../cuspatial/detail/geometry/polygon_ref.cuh |  6 +--
+ .../multilinestring_ref.cuh                   |  8 ++--
+ .../geometry_collection/multipoint_ref.cuh    |  2 +-
+ .../geometry_collection/multipolygon_ref.cuh  | 10 ++---
+ .../detail/index/construction/phase_1.cuh     |  6 +--
+ .../detail/index/construction/phase_2.cuh     | 10 ++---
+ .../detail/index/construction/utilities.cuh   |  4 +-
+ .../intersection/linestring_intersection.cuh  |  8 ++--
+ ...inestring_intersection_with_duplicates.cuh | 14 +++---
+ .../join/get_quad_and_local_point_indices.cuh |  2 +-
+ .../cuspatial/detail/join/intersection.cuh    | 18 ++++----
+ .../detail/join/quadtree_point_in_polygon.cuh | 16 +++----
+ .../quadtree_point_to_nearest_linestring.cuh  | 22 ++++-----
+ .../detail/multilinestring_segment.cuh        |  6 +--
+ .../point_linestring_nearest_points.cuh       |  8 ++--
+ .../cuspatial/detail/point_quadtree.cuh       |  8 ++--
+ .../detail/range/enumerate_range.cuh          |  2 +-
+ .../detail/range/multilinestring_range.cuh    | 36 ++++++++-------
+ .../range/multilinestring_segment_range.cuh   | 12 ++---
+ .../detail/range/multipoint_range.cuh         | 14 +++---
+ .../detail/range/multipolygon_range.cuh       | 45 ++++++++++---------
+ .../detail/trajectory/derive_trajectories.cuh |  8 ++--
+ .../trajectory_distances_and_speeds.cuh       | 18 ++++----
+ .../cuspatial/detail/utility/zero_data.cuh    |  2 +-
+ cpp/include/cuspatial/distance.hpp            |  2 +-
+ cpp/include/cuspatial/intersection.cuh        |  2 +-
+ cpp/include/cuspatial/intersection.hpp        |  2 +-
+ cpp/include/cuspatial/iterator_factory.cuh    | 18 ++++----
+ .../pairwise_multipoint_equals_count.hpp      |  2 +-
+ cpp/include/cuspatial/point_in_polygon.hpp    |  2 +-
+ cpp/include/cuspatial/point_quadtree.cuh      |  2 +-
+ cpp/include/cuspatial/point_quadtree.hpp      |  2 +-
+ cpp/include/cuspatial/points_in_range.hpp     |  2 +-
+ cpp/include/cuspatial/projection.hpp          |  2 +-
+ .../cuspatial/range/multipoint_range.cuh      |  2 +-
+ .../cuspatial/range/multipolygon_range.cuh    |  8 ++--
+ cpp/include/cuspatial/range/range.cuh         |  2 +-
+ cpp/include/cuspatial/spatial_join.hpp        |  2 +-
+ cpp/include/cuspatial/trajectory.cuh          |  2 +-
+ cpp/include/cuspatial/trajectory.hpp          |  2 +-
+ cpp/include/cuspatial_test/base_fixture.hpp   |  2 +-
+ .../cuspatial_test/geometry_fixtures.hpp      |  2 +-
+ cpp/src/distance/haversine.cu                 |  2 +-
+ .../intersection/linestring_intersection.cu   |  8 +---
+ cpp/src/point_in_polygon/point_in_polygon.cu  |  2 +-
+ cpp/src/utility/scatter_output_iterator.cuh   |  3 +-
+ cpp/tests/CMakeLists.txt                      | 16 +++----
+ .../point_bounding_boxes_test.cu              |  2 +-
+ .../distance/linestring_distance_test.cu      |  2 +-
+ .../linestring_polygon_distance_test.cu       |  2 +-
+ cpp/tests/distance/point_distance_test.cu     |  4 +-
+ .../distance/point_polygon_distance_test.cu   |  2 +-
+ cpp/tests/distance/polygon_distance_test.cu   |  4 +-
+ .../intersection/intersection_test_utils.cuh  |  6 +--
+ ...tersection_intermediates_remove_if_test.cu |  2 +-
+ .../linestring_intersection_large_test.cu     |  2 +-
+ .../linestring_intersection_test.cpp          |  2 +-
+ ...tring_intersection_with_duplicates_test.cu |  4 +-
+ .../quadtree_point_in_polygon_test_large.cu   |  4 +-
+ cpp/tests/range/multilinestring_range_test.cu |  6 +--
+ cpp/tests/range/multipoint_range_test.cu      |  6 +--
+ cpp/tests/range/multipolygon_range_test.cu    |  6 +--
+ .../trajectory/derive_trajectories_test.cu    |  2 +-
+ .../trajectory/trajectory_test_utils.cuh      | 27 +++++------
+ 80 files changed, 291 insertions(+), 274 deletions(-)
+ create mode 100644 cpp/cmake/thirdparty/get_cccl.cmake
+
+diff --git a/cpp/CMakeLists.txt b/cpp/CMakeLists.txt
+index 9bf110f..170dd3c 100644
+--- a/cpp/CMakeLists.txt
++++ b/cpp/CMakeLists.txt
+@@ -103,6 +103,8 @@ include(cmake/Modules/ConfigureCUDA.cmake)
+ 
+ # add third party dependencies using CPM
+ rapids_cpm_init()
++# find or add CCCL
++include(cmake/thirdparty/get_cccl.cmake)
+ # find or add cuDF
+ include(cmake/thirdparty/get_cudf.cmake)
+ # find or install GoogleTest
+@@ -150,9 +152,9 @@ set_target_properties(cuspatial
+     PROPERTIES BUILD_RPATH                         "\$ORIGIN"
+                INSTALL_RPATH                       "\$ORIGIN"
+                # set target compile options
+-               CXX_STANDARD                        17
++               CXX_STANDARD                        20
+                CXX_STANDARD_REQUIRED               ON
+-               CUDA_STANDARD                       17
++               CUDA_STANDARD                       20
+                CUDA_STANDARD_REQUIRED              ON
+                POSITION_INDEPENDENT_CODE           ON
+                INTERFACE_POSITION_INDEPENDENT_CODE ON
+@@ -203,7 +205,7 @@ endif()
+ target_compile_definitions(cuspatial PUBLIC "SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${RMM_LOGGING_LEVEL}")
+ 
+ # Specify the target module library dependencies
+-target_link_libraries(cuspatial PUBLIC cudf::cudf)
++target_link_libraries(cuspatial PUBLIC CCCL::CCCL cudf::cudf)
+ target_link_libraries(cuspatial PRIVATE ranger::ranger)
+ 
+ add_library(cuspatial::cuspatial ALIAS cuspatial)
+@@ -238,7 +240,7 @@ include(CPack)
+ 
+ set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME cuspatial)
+ 
+-install(TARGETS cuspatial
++install(TARGETS cuspatial ranger
+         DESTINATION ${lib_dir}
+         EXPORT cuspatial-exports)
+ 
+diff --git a/cpp/benchmarks/CMakeLists.txt b/cpp/benchmarks/CMakeLists.txt
+index 98506d9..a63def5 100644
+--- a/cpp/benchmarks/CMakeLists.txt
++++ b/cpp/benchmarks/CMakeLists.txt
+@@ -21,7 +21,7 @@
+ add_library(cuspatial_benchmark_common OBJECT
+     synchronization/synchronization.cpp)
+ 
+-target_compile_features(cuspatial_benchmark_common PUBLIC cxx_std_17 cuda_std_17)
++target_compile_features(cuspatial_benchmark_common PUBLIC cxx_std_20 cuda_std_20)
+ 
+ target_compile_options(cuspatial_benchmark_common PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:${CUSPATIAL_CXX_FLAGS}>"
+                         "$<$<COMPILE_LANGUAGE:CUDA>:${CUSPATIAL_CUDA_FLAGS}>")
+@@ -29,9 +29,9 @@ target_compile_options(cuspatial_benchmark_common PUBLIC "$<$<COMPILE_LANGUAGE:C
+ set_target_properties(cuspatial_benchmark_common
+     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${CUSPATIAL_BINARY_DIR}/benchmarks>"
+                INSTALL_RPATH "\$ORIGIN/../../../lib"
+-               CXX_STANDARD                        17
++               CXX_STANDARD                        20
+                CXX_STANDARD_REQUIRED               ON
+-               CUDA_STANDARD                       17
++               CUDA_STANDARD                       20
+                CUDA_STANDARD_REQUIRED              ON
+                POSITION_INDEPENDENT_CODE           ON
+                INTERFACE_POSITION_INDEPENDENT_CODE ON
+@@ -41,7 +41,7 @@ target_link_libraries(cuspatial_benchmark_common
+     PUBLIC benchmark::benchmark
+            cudf::cudftestutil
+            ranger::ranger
+-           cuspatial GTest::gtest GTest::gmock 
++           cuspatial GTest::gtest GTest::gmock
+            PRIVATE cudf::cudftestutil_impl)
+ 
+ target_compile_options(cuspatial_benchmark_common
+@@ -58,9 +58,9 @@ function(ConfigureBench CMAKE_BENCH_NAME)
+     set_target_properties(${CMAKE_BENCH_NAME}
+         PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${CUSPATIAL_BINARY_DIR}/benchmarks>"
+                    INSTALL_RPATH "\$ORIGIN/../../../lib"
+-                   CXX_STANDARD 17
++                   CXX_STANDARD 20
+                    CXX_STANDARD_REQUIRED ON
+-                   CUDA_STANDARD 17
++                   CUDA_STANDARD 20
+                    CUDA_STANDARD_REQUIRED ON
+         )
+     target_link_libraries(${CMAKE_BENCH_NAME} PRIVATE benchmark::benchmark_main cuspatial_benchmark_common)
+@@ -80,9 +80,9 @@ function(ConfigureNVBench CMAKE_BENCH_NAME)
+     ${CMAKE_BENCH_NAME}
+     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${CUSPATIAL_BINARY_DIR}/benchmarks>"
+                INSTALL_RPATH "\$ORIGIN/../../../lib"
+-               CXX_STANDARD 17
++               CXX_STANDARD 20
+                CXX_STANDARD_REQUIRED ON
+-               CUDA_STANDARD 17
++               CUDA_STANDARD 20
+                CUDA_STANDARD_REQUIRED ON
+ )
+   target_link_libraries(
+diff --git a/cpp/benchmarks/fixture/benchmark_fixture.hpp b/cpp/benchmarks/fixture/benchmark_fixture.hpp
+index 25b7cdf..a4076cc 100644
+--- a/cpp/benchmarks/fixture/benchmark_fixture.hpp
++++ b/cpp/benchmarks/fixture/benchmark_fixture.hpp
+@@ -17,10 +17,10 @@
+ #pragma once
+ 
+ #include <rmm/cuda_device.hpp>
+-#include <rmm/mr/device/cuda_memory_resource.hpp>
+-#include <rmm/mr/device/owning_wrapper.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
+-#include <rmm/mr/device/pool_memory_resource.hpp>
++#include <rmm/mr/cuda_memory_resource.hpp>
++#include <rmm/mr/owning_wrapper.hpp>
++#include <rmm/mr/per_device_resource.hpp>
++#include <rmm/mr/pool_memory_resource.hpp>
+ 
+ #include <benchmark/benchmark.h>
+ 
+diff --git a/cpp/benchmarks/fixture/rmm_pool_raii.hpp b/cpp/benchmarks/fixture/rmm_pool_raii.hpp
+index da3b35a..b3c08d2 100644
+--- a/cpp/benchmarks/fixture/rmm_pool_raii.hpp
++++ b/cpp/benchmarks/fixture/rmm_pool_raii.hpp
+@@ -16,10 +16,10 @@
+ #pragma once
+ 
+ #include <rmm/cuda_device.hpp>
+-#include <rmm/mr/device/cuda_memory_resource.hpp>
+-#include <rmm/mr/device/owning_wrapper.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
+-#include <rmm/mr/device/pool_memory_resource.hpp>
++#include <rmm/mr/cuda_memory_resource.hpp>
++#include <rmm/mr/owning_wrapper.hpp>
++#include <rmm/mr/per_device_resource.hpp>
++#include <rmm/mr/pool_memory_resource.hpp>
+ 
+ namespace cuspatial {
+ 
+diff --git a/cpp/benchmarks/indexing/quadtree_on_points.cu b/cpp/benchmarks/indexing/quadtree_on_points.cu
+index 8f64485..4731976 100644
+--- a/cpp/benchmarks/indexing/quadtree_on_points.cu
++++ b/cpp/benchmarks/indexing/quadtree_on_points.cu
+@@ -104,13 +104,13 @@ void quadtree_on_points_benchmark(nvbench::state& state, nvbench::type_list<T>)
+     thrust::device, d_points.begin(), d_points.end(), [] __device__(auto const& a, auto const& b) {
+       return a.x <= b.x && a.y <= b.y;
+     });
+-  auto const vertex_1 = h_points[thrust::distance(d_points.begin(), vertex_1_itr)];
++  auto const vertex_1 = h_points[cuda::std::distance(d_points.begin(), vertex_1_itr)];
+ 
+   auto const vertex_2_itr = thrust::max_element(
+     thrust::device, d_points.begin(), d_points.end(), [] __device__(auto const& a, auto const& b) {
+       return a.x >= b.x && a.y >= b.y;
+     });
+-  auto const vertex_2 = h_points[thrust::distance(d_points.begin(), vertex_2_itr)];
++  auto const vertex_2 = h_points[cuda::std::distance(d_points.begin(), vertex_2_itr)];
+ 
+   // TODO: to be replaced by nvbench fixture once it's ready
+   cuspatial::rmm_pool_raii rmm_pool;
+diff --git a/cpp/cmake/thirdparty/get_cccl.cmake b/cpp/cmake/thirdparty/get_cccl.cmake
+new file mode 100644
+index 0000000..766cefe
+--- /dev/null
++++ b/cpp/cmake/thirdparty/get_cccl.cmake
+@@ -0,0 +1,14 @@
++# =============================================================================
++# cmake-format: off
++# SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION.
++# SPDX-License-Identifier: Apache-2.0
++# cmake-format: on
++# =============================================================================
++
++# Use CPM to find or clone CCCL
++function(find_and_configure_cccl)
++  include(${rapids-cmake-dir}/cpm/cccl.cmake)
++  rapids_cpm_cccl(BUILD_EXPORT_SET cuspatial-exports INSTALL_EXPORT_SET cuspatial-exports)
++endfunction()
++
++find_and_configure_cccl()
+diff --git a/cpp/cmake/thirdparty/get_ranger.cmake b/cpp/cmake/thirdparty/get_ranger.cmake
+index c57131f..5bfc0ca 100644
+--- a/cpp/cmake/thirdparty/get_ranger.cmake
++++ b/cpp/cmake/thirdparty/get_ranger.cmake
+@@ -26,6 +26,8 @@ function(find_and_configure_ranger)
+     rapids_cpm_find(
+       ranger 00.01.00
+       GLOBAL_TARGETS "${global_targets}"
++      BUILD_EXPORT_SET cuspatial-exports
++      INSTALL_EXPORT_SET cuspatial-exports
+       CPM_ARGS
+       GIT_REPOSITORY https://github.com/harrism/ranger.git
+       GIT_TAG main
+diff --git a/cpp/cuproj/CMakeLists.txt b/cpp/cuproj/CMakeLists.txt
+index 1c161ff..8548c89 100644
+--- a/cpp/cuproj/CMakeLists.txt
++++ b/cpp/cuproj/CMakeLists.txt
+@@ -112,9 +112,9 @@ set_target_properties(cuproj
+     PROPERTIES BUILD_RPATH                         "\$ORIGIN"
+                INSTALL_RPATH                       "\$ORIGIN"
+                # set target compile options
+-               CXX_STANDARD                        17
++               CXX_STANDARD                        20
+                CXX_STANDARD_REQUIRED               ON
+-               CUDA_STANDARD                       17
++               CUDA_STANDARD                       20
+                CUDA_STANDARD_REQUIRED              ON
+                POSITION_INDEPENDENT_CODE           ON
+                INTERFACE_POSITION_INDEPENDENT_CODE ON
+diff --git a/cpp/cuproj/benchmarks/fixture/benchmark_fixture.hpp b/cpp/cuproj/benchmarks/fixture/benchmark_fixture.hpp
+index a41e693..f4fe0e5 100644
+--- a/cpp/cuproj/benchmarks/fixture/benchmark_fixture.hpp
++++ b/cpp/cuproj/benchmarks/fixture/benchmark_fixture.hpp
+@@ -17,10 +17,10 @@
+ #pragma once
+ 
+ #include <rmm/cuda_device.hpp>
+-#include <rmm/mr/device/cuda_memory_resource.hpp>
+-#include <rmm/mr/device/owning_wrapper.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
+-#include <rmm/mr/device/pool_memory_resource.hpp>
++#include <rmm/mr/cuda_memory_resource.hpp>
++#include <rmm/mr/owning_wrapper.hpp>
++#include <rmm/mr/per_device_resource.hpp>
++#include <rmm/mr/pool_memory_resource.hpp>
+ 
+ #include <benchmark/benchmark.h>
+ 
+diff --git a/cpp/cuproj/tests/CMakeLists.txt b/cpp/cuproj/tests/CMakeLists.txt
+index 1329416..ffc7b0c 100644
+--- a/cpp/cuproj/tests/CMakeLists.txt
++++ b/cpp/cuproj/tests/CMakeLists.txt
+@@ -30,9 +30,9 @@ function(ConfigureTest CMAKE_TEST_NAME)
+         ${CMAKE_TEST_NAME}
+         PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${CUPROJ_BINARY_DIR}/gtests>"
+                    INSTALL_RPATH "\$ORIGIN/../../../lib"
+-                   CXX_STANDARD 17
++                   CXX_STANDARD 20
+                    CXX_STANDARD_REQUIRED ON
+-                   CUDA_STANDARD 17
++                   CUDA_STANDARD 20
+                    CUDA_STANDARD_REQUIRED ON
+     )
+     target_link_libraries(${CMAKE_TEST_NAME} GTest::gtest_main GTest::gmock_main PROJ::proj rmm::rmm cuproj)
+diff --git a/cpp/doxygen/developer_guide/HEADER_ONLY_API_GUIDE.md b/cpp/doxygen/developer_guide/HEADER_ONLY_API_GUIDE.md
+index 65bf1b7..16681dd 100644
+--- a/cpp/doxygen/developer_guide/HEADER_ONLY_API_GUIDE.md
++++ b/cpp/doxygen/developer_guide/HEADER_ONLY_API_GUIDE.md
+@@ -242,11 +242,11 @@ thrust::transform(rmm::exec_policy(stream),
+                   input_iter + result->size(),
+                   result->mutable_view().begin<T>(),
+                   [] __device__(auto inputs) {
+-                    return calculate_haversine_distance(thrust::get<0>(inputs),
+-                                                        thrust::get<1>(inputs),
+-                                                        thrust::get<2>(inputs),
+-                                                        thrust::get<3>(inputs),
+-                                                        thrust::get<4>(inputs));
++                    return calculate_haversine_distance(cuda::std::get<0>(inputs),
++                                                        cuda::std::get<1>(inputs),
++                                                        cuda::std::get<2>(inputs),
++                                                        cuda::std::get<3>(inputs),
++                                                        cuda::std::get<4>(inputs));
+                   });
+ ```
+ 
+diff --git a/cpp/include/cuspatial/bounding_boxes.hpp b/cpp/include/cuspatial/bounding_boxes.hpp
+index 2134bc1..eb67007 100644
+--- a/cpp/include/cuspatial/bounding_boxes.hpp
++++ b/cpp/include/cuspatial/bounding_boxes.hpp
+@@ -18,7 +18,7 @@
+ 
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/detail/distance/hausdorff.cuh b/cpp/include/cuspatial/detail/distance/hausdorff.cuh
+index aa3484f..47283c9 100644
+--- a/cpp/include/cuspatial/detail/distance/hausdorff.cuh
++++ b/cpp/include/cuspatial/detail/distance/hausdorff.cuh
+@@ -92,7 +92,7 @@ CUSPATIAL_KERNEL void kernel_hausdorff(
+     auto const lhs_space_iter =
+       thrust::upper_bound(thrust::seq, space_offsets, space_offsets + num_spaces, lhs_p_idx);
+     // determine the LHS space this point belongs to.
+-    Index const lhs_space_idx = thrust::distance(space_offsets, thrust::prev(lhs_space_iter));
++    Index const lhs_space_idx = cuda::std::distance(space_offsets, cuda::std::prev(lhs_space_iter));
+ 
+     // get the coordinates of this LHS point.
+     Point const lhs_p = points[lhs_p_idx];
+diff --git a/cpp/include/cuspatial/detail/find/find_and_combine_segment.cuh b/cpp/include/cuspatial/detail/find/find_and_combine_segment.cuh
+index ca86096..5b9cbb0 100644
+--- a/cpp/include/cuspatial/detail/find/find_and_combine_segment.cuh
++++ b/cpp/include/cuspatial/detail/find/find_and_combine_segment.cuh
+@@ -87,10 +87,10 @@ struct segment_comparator {
+   bool __device__ operator()(thrust::tuple<index_t, segment<T>> const& lhs,
+                              thrust::tuple<index_t, segment<T>> const& rhs) const
+   {
+-    auto lhs_index   = thrust::get<0>(lhs);
+-    auto rhs_index   = thrust::get<0>(rhs);
+-    auto lhs_segment = thrust::get<1>(lhs);
+-    auto rhs_segment = thrust::get<1>(rhs);
++    auto lhs_index   = cuda::std::get<0>(lhs);
++    auto rhs_index   = cuda::std::get<0>(rhs);
++    auto lhs_segment = cuda::std::get<1>(lhs);
++    auto rhs_segment = cuda::std::get<1>(rhs);
+ 
+     // Compare space id
+     if (lhs_index == rhs_index) {
+diff --git a/cpp/include/cuspatial/detail/functors.cuh b/cpp/include/cuspatial/detail/functors.cuh
+index 6690e6f..736f262 100644
+--- a/cpp/include/cuspatial/detail/functors.cuh
++++ b/cpp/include/cuspatial/detail/functors.cuh
+@@ -43,7 +43,7 @@ struct offset_pair_to_count_functor {
+   template <typename OffsetPairIterator>
+   CUSPATIAL_HOST_DEVICE auto operator()(OffsetPairIterator p)
+   {
+-    return thrust::get<1>(p) - thrust::get<0>(p);
++    return cuda::std::get<1>(p) - cuda::std::get<0>(p);
+   }
+ };
+ 
+diff --git a/cpp/include/cuspatial/detail/geometry/linestring_ref.cuh b/cpp/include/cuspatial/detail/geometry/linestring_ref.cuh
+index 4b0d9d4..16e216d 100644
+--- a/cpp/include/cuspatial/detail/geometry/linestring_ref.cuh
++++ b/cpp/include/cuspatial/detail/geometry/linestring_ref.cuh
+@@ -30,7 +30,7 @@ namespace cuspatial {
+ template <typename VecIterator>
+ struct to_segment_functor {
+   using element_t       = iterator_vec_base_type<VecIterator>;
+-  using difference_type = typename thrust::iterator_difference<VecIterator>::type;
++  using difference_type = typename cuda::std::iter_difference_t<VecIterator>;
+   VecIterator _point_begin;
+ 
+   CUSPATIAL_HOST_DEVICE
+@@ -58,8 +58,8 @@ template <typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto linestring_ref<VecIterator>::num_segments() const
+ {
+   // The number of segment equals the number of points minus 1. And the number of points
+-  // is thrust::distance(_point_begin, _point_end).
+-  return thrust::distance(_point_begin, _point_end) - 1;
++  // is cuda::std::distance(_point_begin, _point_end).
++  return cuda::std::distance(_point_begin, _point_end) - 1;
+ }
+ 
+ template <typename VecIterator>
+diff --git a/cpp/include/cuspatial/detail/geometry/polygon_ref.cuh b/cpp/include/cuspatial/detail/geometry/polygon_ref.cuh
+index a7da326..f559036 100644
+--- a/cpp/include/cuspatial/detail/geometry/polygon_ref.cuh
++++ b/cpp/include/cuspatial/detail/geometry/polygon_ref.cuh
+@@ -44,7 +44,7 @@ CUSPATIAL_HOST_DEVICE polygon_ref<RingIterator, VecIterator>::polygon_ref(RingIt
+ template <typename RingIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto polygon_ref<RingIterator, VecIterator>::num_rings() const
+ {
+-  return thrust::distance(_ring_begin, _ring_end) - 1;
++  return cuda::std::distance(_ring_begin, _ring_end) - 1;
+ }
+ 
+ template <typename RingIterator, typename VecIterator>
+@@ -63,13 +63,13 @@ CUSPATIAL_HOST_DEVICE auto polygon_ref<RingIterator, VecIterator>::ring_end() co
+ template <typename RingIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto polygon_ref<RingIterator, VecIterator>::point_begin() const
+ {
+-  return thrust::next(_point_begin, *_ring_begin);
++  return cuda::std::next(_point_begin, *_ring_begin);
+ }
+ 
+ template <typename RingIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto polygon_ref<RingIterator, VecIterator>::point_end() const
+ {
+-  return thrust::next(_point_begin, *thrust::prev(_ring_end));
++  return cuda::std::next(_point_begin, *cuda::std::prev(_ring_end));
+ }
+ 
+ template <typename RingIterator, typename VecIterator>
+diff --git a/cpp/include/cuspatial/detail/geometry_collection/multilinestring_ref.cuh b/cpp/include/cuspatial/detail/geometry_collection/multilinestring_ref.cuh
+index 1547248..a178df5 100644
+--- a/cpp/include/cuspatial/detail/geometry_collection/multilinestring_ref.cuh
++++ b/cpp/include/cuspatial/detail/geometry_collection/multilinestring_ref.cuh
+@@ -26,7 +26,7 @@ namespace cuspatial {
+ 
+ template <typename PartIterator, typename VecIterator>
+ struct to_linestring_functor {
+-  using difference_type = typename thrust::iterator_difference<PartIterator>::type;
++  using difference_type = typename cuda::std::iter_difference_t<PartIterator>;
+   PartIterator part_begin;
+   VecIterator point_begin;
+ 
+@@ -55,7 +55,7 @@ CUSPATIAL_HOST_DEVICE multilinestring_ref<PartIterator, VecIterator>::multilines
+ template <typename PartIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multilinestring_ref<PartIterator, VecIterator>::num_linestrings() const
+ {
+-  return thrust::distance(_part_begin, _part_end) - 1;
++  return cuda::std::distance(_part_begin, _part_end) - 1;
+ }
+ 
+ template <typename PartIterator, typename VecIterator>
+@@ -74,7 +74,7 @@ CUSPATIAL_HOST_DEVICE auto multilinestring_ref<PartIterator, VecIterator>::part_
+ template <typename PartIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multilinestring_ref<PartIterator, VecIterator>::point_begin() const
+ {
+-  return thrust::next(_point_begin, *_part_begin);
++  return cuda::std::next(_point_begin, *_part_begin);
+ }
+ 
+ template <typename PartIterator, typename VecIterator>
+@@ -82,7 +82,7 @@ CUSPATIAL_HOST_DEVICE auto multilinestring_ref<PartIterator, VecIterator>::point
+ {
+   // _part_end refers to the one past the last part index to the points of this multilinestring.
+   // So prior to computing the end point index, we need to decrement _part_end.
+-  return thrust::next(_point_begin, *thrust::prev(_part_end));
++  return cuda::std::next(_point_begin, *cuda::std::prev(_part_end));
+ }
+ 
+ template <typename PartIterator, typename VecIterator>
+diff --git a/cpp/include/cuspatial/detail/geometry_collection/multipoint_ref.cuh b/cpp/include/cuspatial/detail/geometry_collection/multipoint_ref.cuh
+index 9e935e7..fca309a 100644
+--- a/cpp/include/cuspatial/detail/geometry_collection/multipoint_ref.cuh
++++ b/cpp/include/cuspatial/detail/geometry_collection/multipoint_ref.cuh
+@@ -45,7 +45,7 @@ CUSPATIAL_HOST_DEVICE auto multipoint_ref<VecIterator>::point_end() const
+ template <typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multipoint_ref<VecIterator>::num_points() const
+ {
+-  return thrust::distance(_points_begin, _points_end);
++  return cuda::std::distance(_points_begin, _points_end);
+ }
+ 
+ template <typename VecIterator>
+diff --git a/cpp/include/cuspatial/detail/geometry_collection/multipolygon_ref.cuh b/cpp/include/cuspatial/detail/geometry_collection/multipolygon_ref.cuh
+index e13b786..f767875 100644
+--- a/cpp/include/cuspatial/detail/geometry_collection/multipolygon_ref.cuh
++++ b/cpp/include/cuspatial/detail/geometry_collection/multipolygon_ref.cuh
+@@ -27,7 +27,7 @@ namespace cuspatial {
+ 
+ template <typename PartIterator, typename RingIterator, typename VecIterator>
+ struct to_polygon_functor {
+-  using difference_type = typename thrust::iterator_difference<PartIterator>::type;
++  using difference_type = typename cuda::std::iter_difference_t<PartIterator>;
+   PartIterator part_begin;
+   RingIterator ring_begin;
+   VecIterator point_begin;
+@@ -45,7 +45,7 @@ struct to_polygon_functor {
+   CUSPATIAL_HOST_DEVICE auto operator()(difference_type i)
+   {
+     return polygon_ref{ring_begin + part_begin[i],
+-                       thrust::next(ring_begin + part_begin[i + 1]),
++                       cuda::std::next(ring_begin + part_begin[i + 1]),
+                        point_begin,
+                        point_end};
+   }
+@@ -75,7 +75,7 @@ template <typename PartIterator, typename RingIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multipolygon_ref<PartIterator, RingIterator, VecIterator>::num_polygons()
+   const
+ {
+-  return thrust::distance(_part_begin, _part_end) - 1;
++  return cuda::std::distance(_part_begin, _part_end) - 1;
+ }
+ 
+ template <typename PartIterator, typename RingIterator, typename VecIterator>
+@@ -112,14 +112,14 @@ template <typename PartIterator, typename RingIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multipolygon_ref<PartIterator, RingIterator, VecIterator>::point_begin()
+   const
+ {
+-  return thrust::next(_point_begin, *thrust::next(_ring_begin, *_part_begin));
++  return cuda::std::next(_point_begin, *cuda::std::next(_ring_begin, *_part_begin));
+ }
+ 
+ template <typename PartIterator, typename RingIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multipolygon_ref<PartIterator, RingIterator, VecIterator>::point_end()
+   const
+ {
+-  return thrust::next(_point_begin, *thrust::next(_ring_begin, *thrust::prev(_part_end)));
++  return cuda::std::next(_point_begin, *cuda::std::next(_ring_begin, *cuda::std::prev(_part_end)));
+ }
+ 
+ template <typename PartIterator, typename RingIterator, typename VecIterator>
+diff --git a/cpp/include/cuspatial/detail/index/construction/phase_1.cuh b/cpp/include/cuspatial/detail/index/construction/phase_1.cuh
+index a444ae6..8dffdd3 100644
+--- a/cpp/include/cuspatial/detail/index/construction/phase_1.cuh
++++ b/cpp/include/cuspatial/detail/index/construction/phase_1.cuh
+@@ -68,7 +68,7 @@ compute_point_keys_and_sorted_indices(PointIt points_first,
+                                       rmm::cuda_stream_view stream,
+                                       rmm::device_async_resource_ref mr)
+ {
+-  auto num_points = thrust::distance(points_first, points_last);
++  auto num_points = cuda::std::distance(points_first, points_last);
+   rmm::device_uvector<uint32_t> keys(num_points, stream);
+   thrust::transform(
+     rmm::exec_policy(stream),
+@@ -121,7 +121,7 @@ inline IndexT build_tree_level(KeyInputIterator keys_begin,
+                                       vals_out,
+                                       thrust::equal_to<uint32_t>(),
+                                       binary_op);
+-  return thrust::distance(keys_out, result.first);
++  return cuda::std::distance(keys_out, result.first);
+ }
+ 
+ /**
+@@ -262,7 +262,7 @@ inline auto make_full_levels(PointIt points_first,
+                              rmm::cuda_stream_view stream,
+                              rmm::device_async_resource_ref mr)
+ {
+-  auto num_points = thrust::distance(points_first, points_last);
++  auto num_points = cuda::std::distance(points_first, points_last);
+   // Compute point keys and sort into bottom-level quadrants
+   // (i.e. quads at level `max_depth - 1`)
+ 
+diff --git a/cpp/include/cuspatial/detail/index/construction/phase_2.cuh b/cpp/include/cuspatial/detail/index/construction/phase_2.cuh
+index df28ecc..725ebe9 100644
+--- a/cpp/include/cuspatial/detail/index/construction/phase_2.cuh
++++ b/cpp/include/cuspatial/detail/index/construction/phase_2.cuh
+@@ -64,7 +64,7 @@ inline rmm::device_uvector<uint32_t> compute_leaf_positions(
+                                 leaf_pos.begin(),
+                                 !thrust::placeholders::_1);
+   // Shrink leaf_pos's underlying device allocation
+-  leaf_pos.resize(thrust::distance(leaf_pos.begin(), result), stream);
++  leaf_pos.resize(cuda::std::distance(leaf_pos.begin(), result), stream);
+   leaf_pos.shrink_to_fit(stream);
+   return leaf_pos;
+ }
+@@ -85,9 +85,9 @@ inline rmm::device_uvector<uint32_t> flatten_point_keys(
+                     keys_and_levels + num_valid_nodes,
+                     flattened_keys.begin(),
+                     [last_level = max_depth - 1] __device__(auto const& val) {
+-                      auto& key       = thrust::get<0>(val);
+-                      auto& level     = thrust::get<1>(val);
+-                      auto& is_parent = thrust::get<2>(val);
++                      auto& key       = cuda::std::get<0>(val);
++                      auto& level     = cuda::std::get<1>(val);
++                      auto& is_parent = cuda::std::get<2>(val);
+                       // if this is a parent node, return max_key. otherwise
+                       // compute the key for one level up the tree. Leaf nodes
+                       // whose keys are zero will be removed in a subsequent
+@@ -281,7 +281,7 @@ inline std::pair<uint32_t, uint32_t> remove_unqualified_quads(
+                       [max_size] __device__(auto const n) { return n <= max_size; });
+ 
+   // add the number of level 1 nodes back in to num_valid_nodes
+-  auto num_valid_nodes = thrust::distance(tree, last_valid) + level_1_size;
++  auto num_valid_nodes = cuda::std::distance(tree, last_valid) + level_1_size;
+ 
+   quad_keys.resize(num_valid_nodes, stream);
+   quad_keys.shrink_to_fit(stream);
+diff --git a/cpp/include/cuspatial/detail/index/construction/utilities.cuh b/cpp/include/cuspatial/detail/index/construction/utilities.cuh
+index 987c466..c844459 100644
+--- a/cpp/include/cuspatial/detail/index/construction/utilities.cuh
++++ b/cpp/include/cuspatial/detail/index/construction/utilities.cuh
+@@ -28,8 +28,8 @@ struct tuple_sum {
+   inline __device__ thrust::tuple<T, T> operator()(thrust::tuple<T, T> const& a,
+                                                    thrust::tuple<T, T> const& b)
+   {
+-    return thrust::make_tuple(thrust::get<0>(a) + thrust::get<0>(b),
+-                              thrust::get<1>(a) + thrust::get<1>(b));
++    return thrust::make_tuple(cuda::std::get<0>(a) + cuda::std::get<0>(b),
++                              cuda::std::get<1>(a) + cuda::std::get<1>(b));
+   }
+ };
+ 
+diff --git a/cpp/include/cuspatial/detail/intersection/linestring_intersection.cuh b/cpp/include/cuspatial/detail/intersection/linestring_intersection.cuh
+index 818c656..bf3f999 100644
+--- a/cpp/include/cuspatial/detail/intersection/linestring_intersection.cuh
++++ b/cpp/include/cuspatial/detail/intersection/linestring_intersection.cuh
+@@ -32,8 +32,8 @@
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <cuda/atomic>
+@@ -116,9 +116,9 @@ struct types_buffer_functor {
+   template <typename index_t>
+   type_t __device__ operator()(index_t i)
+   {
+-    auto geometry_idx = thrust::distance(
++    auto geometry_idx = cuda::std::distance(
+       geometric_column_offset.begin(),
+-      thrust::prev(thrust::upper_bound(
++      cuda::std::prev(thrust::upper_bound(
+         thrust::seq, geometric_column_offset.begin(), geometric_column_offset.end(), i)));
+ 
+     auto num_points   = points_offset[geometry_idx + 1] - points_offset[geometry_idx];
+diff --git a/cpp/include/cuspatial/detail/intersection/linestring_intersection_with_duplicates.cuh b/cpp/include/cuspatial/detail/intersection/linestring_intersection_with_duplicates.cuh
+index 5d21654..90d37cd 100644
+--- a/cpp/include/cuspatial/detail/intersection/linestring_intersection_with_duplicates.cuh
++++ b/cpp/include/cuspatial/detail/intersection/linestring_intersection_with_duplicates.cuh
+@@ -28,7 +28,7 @@
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <thrust/binary_search.h>
+@@ -127,9 +127,9 @@ struct offsets_update_functor {
+ 
+   int __device__ operator()(int offset, int i)
+   {
+-    auto j = thrust::distance(
++    auto j = cuda::std::distance(
+       reduced_keys_begin,
+-      thrust::prev(thrust::upper_bound(thrust::seq, reduced_keys_begin, reduced_keys_end, i)));
++      cuda::std::prev(thrust::upper_bound(thrust::seq, reduced_keys_begin, reduced_keys_end, i)));
+     // j < 0 happens when all groups that precedes `i` don't contain any geometry
+     // offset must be 0 and shouldn't be subtracted.
+     if (j < 0) return offset;
+@@ -259,7 +259,7 @@ struct linestring_intersection_intermediates {
+     thrust::inclusive_scan(rmm::exec_policy(stream),
+                            num_geoms_per_pair.begin(),
+                            num_geoms_per_pair.end(),
+-                           thrust::next(offsets->begin()));
++                           cuda::std::next(offsets->begin()));
+   }
+ 
+   /** Given a flag array, remove the ith geometry if `flags[i] == 1`.
+@@ -316,8 +316,8 @@ struct linestring_intersection_intermediates {
+                             thrust::plus<index_t>());  // explicitly cast flags to index_t type
+                                                        // before adding to avoid overflow.
+ 
+-    reduced_keys.resize(thrust::distance(reduced_keys.begin(), keys_end), stream);
+-    reduced_flags.resize(thrust::distance(reduced_flags.begin(), flags_end), stream);
++    reduced_keys.resize(cuda::std::distance(reduced_keys.begin(), keys_end), stream);
++    reduced_flags.resize(cuda::std::distance(reduced_flags.begin(), flags_end), stream);
+ 
+     // Use `inclusive_scan` to compute the number of removed geometries in *all* previous lists.
+     thrust::inclusive_scan(
+@@ -345,7 +345,7 @@ struct linestring_intersection_intermediates {
+                                          flags.begin(),
+                                          [] __device__(uint8_t flag) { return flag == 1; });
+ 
+-    auto new_geom_size = thrust::distance(geom_id_it, geom_id_end);
++    auto new_geom_size = cuda::std::distance(geom_id_it, geom_id_end);
+     geoms->resize(new_geom_size, stream);
+     lhs_linestring_ids->resize(new_geom_size, stream);
+     lhs_segment_ids->resize(new_geom_size, stream);
+diff --git a/cpp/include/cuspatial/detail/join/get_quad_and_local_point_indices.cuh b/cpp/include/cuspatial/detail/join/get_quad_and_local_point_indices.cuh
+index 3c73a10..a1fd4a9 100644
+--- a/cpp/include/cuspatial/detail/join/get_quad_and_local_point_indices.cuh
++++ b/cpp/include/cuspatial/detail/join/get_quad_and_local_point_indices.cuh
+@@ -39,7 +39,7 @@ inline __device__ std::pair<IndexType, IndexType> get_quad_and_local_point_indic
+     thrust::upper_bound(thrust::seq, point_offsets_begin, point_offsets_end, global_index) - 1;
+   return std::make_pair(
+     // quad_poly_index
+-    thrust::distance(point_offsets_begin, local_point_offset),
++    cuda::std::distance(point_offsets_begin, local_point_offset),
+     // local_point_index
+     global_index - *local_point_offset);
+ }
+diff --git a/cpp/include/cuspatial/detail/join/intersection.cuh b/cpp/include/cuspatial/detail/join/intersection.cuh
+index cf13731..b9470da 100644
+--- a/cpp/include/cuspatial/detail/join/intersection.cuh
++++ b/cpp/include/cuspatial/detail/join/intersection.cuh
+@@ -48,11 +48,11 @@ inline int32_t copy_leaf_intersections(InputIterator input_begin,
+                                        OutputIterator output_begin,
+                                        rmm::cuda_stream_view stream)
+ {
+-  return thrust::distance(
++  return cuda::std::distance(
+     output_begin,
+     thrust::copy_if(
+       rmm::exec_policy(stream), input_begin, input_end, output_begin, [] __device__(auto const& t) {
+-        return thrust::get<0>(t) == leaf_indicator;
++        return cuda::std::get<0>(t) == leaf_indicator;
+       }));
+ }
+ 
+@@ -62,11 +62,11 @@ inline int32_t remove_non_quad_intersections(InputIterator input_begin,
+                                              OutputIterator output_begin,
+                                              rmm::cuda_stream_view stream)
+ {
+-  return thrust::distance(
++  return cuda::std::distance(
+     output_begin,
+     thrust::remove_if(
+       rmm::exec_policy(stream), input_begin, input_end, output_begin, [] __device__(auto const& t) {
+-        return thrust::get<0>(t) != quad_indicator;
++        return cuda::std::get<0>(t) != quad_indicator;
+       }));
+ }
+ 
+@@ -98,13 +98,13 @@ inline std::pair<int32_t, int32_t> find_intersections(point_quadtree_ref quadtre
+     node_pairs,
+     [v_min, scale, max_depth, nodes = nodes_first, bboxes = bounding_box_first] __device__(
+       auto const& node_and_bbox) {
+-      auto const& node_idx = thrust::get<0>(node_and_bbox);
+-      auto const& bbox_idx = thrust::get<1>(node_and_bbox);
++      auto const& node_idx = cuda::std::get<0>(node_and_bbox);
++      auto const& bbox_idx = cuda::std::get<1>(node_and_bbox);
+ 
+       auto const& node                = nodes[node_idx];
+-      uint32_t const& key             = thrust::get<0>(node);
+-      uint8_t const& level            = thrust::get<1>(node);
+-      uint8_t const& is_internal_node = thrust::get<2>(node);
++      uint32_t const& key             = cuda::std::get<0>(node);
++      uint8_t const& level            = cuda::std::get<1>(node);
++      uint8_t const& is_internal_node = cuda::std::get<2>(node);
+ 
+       box<T> const bbox        = bboxes[bbox_idx];
+       vec_2d<T> const bbox_min = bbox.v1;
+diff --git a/cpp/include/cuspatial/detail/join/quadtree_point_in_polygon.cuh b/cpp/include/cuspatial/detail/join/quadtree_point_in_polygon.cuh
+index 68a2e95..3dace11 100644
+--- a/cpp/include/cuspatial/detail/join/quadtree_point_in_polygon.cuh
++++ b/cpp/include/cuspatial/detail/join/quadtree_point_in_polygon.cuh
+@@ -84,8 +84,8 @@ struct test_poly_point_intersection {
+ 
+   inline bool __device__ operator()(thrust::tuple<IndexType, IndexType> const& poly_point_idxs)
+   {
+-    auto const poly_idx  = thrust::get<0>(poly_point_idxs);
+-    auto const point_idx = thrust::get<1>(poly_point_idxs);
++    auto const poly_idx  = cuda::std::get<0>(poly_point_idxs);
++    auto const point_idx = cuda::std::get<1>(poly_point_idxs);
+ 
+     vec_2d<T> const& point = points_first[point_idx];
+ 
+@@ -199,12 +199,12 @@ std::pair<rmm::device_uvector<IndexType>, rmm::device_uvector<IndexType>> quadtr
+       auto poly_and_point_indices =
+         thrust::make_zip_iterator(poly_indices.begin(), point_indices.begin()) + memo;
+       // Remove (poly, point) pairs that don't intersect
+-      return thrust::distance(poly_and_point_indices,
+-                              thrust::copy_if(rmm::exec_policy(stream),
+-                                              global_to_poly_and_point_indices(offset),
+-                                              global_to_poly_and_point_indices(offset) + size,
+-                                              poly_and_point_indices,
+-                                              test_poly_point_pair));
++      return cuda::std::distance(poly_and_point_indices,
++                                 thrust::copy_if(rmm::exec_policy(stream),
++                                                 global_to_poly_and_point_indices(offset),
++                                                 global_to_poly_and_point_indices(offset) + size,
++                                                 poly_and_point_indices,
++                                                 test_poly_point_pair));
+     });
+ 
+     if (num_intersections < output_size) {
+diff --git a/cpp/include/cuspatial/detail/join/quadtree_point_to_nearest_linestring.cuh b/cpp/include/cuspatial/detail/join/quadtree_point_to_nearest_linestring.cuh
+index 5b61882..d11445d 100644
+--- a/cpp/include/cuspatial/detail/join/quadtree_point_to_nearest_linestring.cuh
++++ b/cpp/include/cuspatial/detail/join/quadtree_point_to_nearest_linestring.cuh
+@@ -55,9 +55,9 @@ inline __device__ std::pair<uint32_t, uint32_t> get_local_linestring_index_and_c
+ 
+   return std::make_pair(
+     // local_linestring_index
+-    static_cast<uint32_t>(thrust::distance(lhs, quad_offsets + linestring_index)),
++    static_cast<uint32_t>(cuda::std::distance(lhs, quad_offsets + linestring_index)),
+     // num_linestrings_in_quad
+-    static_cast<uint32_t>(thrust::distance(lhs, rhs)));
++    static_cast<uint32_t>(cuda::std::distance(lhs, rhs)));
+ }
+ 
+ template <typename QuadOffsetsIter, typename QuadLengthsIter>
+@@ -247,10 +247,10 @@ quadtree_point_to_nearest_linestring(LinestringIndexIterator linestring_indices_
+                                                    linestring_indices_first,
+                                                    linestrings});
+ 
+-  auto all_point_indices =
+-    thrust::make_transform_iterator(all_point_linestring_indices_and_distances,
+-                                    cuda::proclaim_return_type<uint32_t>(
+-                                      [] __device__(auto const& x) { return thrust::get<0>(x); }));
++  auto all_point_indices = thrust::make_transform_iterator(
++    all_point_linestring_indices_and_distances,
++    cuda::proclaim_return_type<uint32_t>(
++      [] __device__(auto const& x) { return cuda::std::get<0>(x); }));
+ 
+   // Allocate vectors for the distances min reduction
+   auto num_points = std::distance(point_indices_first, point_indices_last);
+@@ -277,23 +277,23 @@ quadtree_point_to_nearest_linestring(LinestringIndexIterator linestring_indices_
+     // binop to select the point/linestring pair with the smallest distance
+     cuda::proclaim_return_type<thrust::tuple<uint32_t, uint32_t, T>>(
+       [] __device__(auto const& lhs, auto const& rhs) {
+-        T const& d_lhs = thrust::get<2>(lhs);
+-        T const& d_rhs = thrust::get<2>(rhs);
++        T const& d_lhs = cuda::std::get<2>(lhs);
++        T const& d_rhs = cuda::std::get<2>(rhs);
+         // If lhs distance is 0, choose rhs
+         if (d_lhs == T{0}) { return rhs; }
+         // if rhs distance is 0, choose lhs
+         if (d_rhs == T{0}) { return lhs; }
+         // If distances to lhs/rhs are the same, choose linestring with smallest id
+         if (d_lhs == d_rhs) {
+-          auto const& i_lhs = thrust::get<1>(lhs);
+-          auto const& i_rhs = thrust::get<1>(rhs);
++          auto const& i_lhs = cuda::std::get<1>(lhs);
++          auto const& i_rhs = cuda::std::get<1>(rhs);
+           return i_lhs < i_rhs ? lhs : rhs;
+         }
+         // Otherwise choose linestring with smallest distance
+         return d_lhs < d_rhs ? lhs : rhs;
+       }));
+ 
+-  auto const num_distances = thrust::distance(point_idxs.begin(), point_idxs_end.first);
++  auto const num_distances = cuda::std::distance(point_idxs.begin(), point_idxs_end.first);
+ 
+   auto point_linestring_idxs_and_distances = thrust::make_zip_iterator(
+     point_idxs.begin(), output_linestring_idxs.begin(), output_distances.begin());
+diff --git a/cpp/include/cuspatial/detail/multilinestring_segment.cuh b/cpp/include/cuspatial/detail/multilinestring_segment.cuh
+index ddcce9d..a05b449 100644
+--- a/cpp/include/cuspatial/detail/multilinestring_segment.cuh
++++ b/cpp/include/cuspatial/detail/multilinestring_segment.cuh
+@@ -26,7 +26,7 @@
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ 
+ #include <thrust/device_vector.h>
+ #include <thrust/iterator/discard_iterator.h>
+@@ -86,7 +86,7 @@ class multilinestring_segment_manager {
+   {
+     auto offset_range = ::cuspatial::range{_parent.part_offset_begin(), _parent.part_offset_end()};
+     auto count_begin  = thrust::make_transform_iterator(
+-      thrust::make_zip_iterator(offset_range.begin(), thrust::next(offset_range.begin())),
++      thrust::make_zip_iterator(offset_range.begin(), cuda::std::next(offset_range.begin())),
+       offset_pair_to_count_functor{});
+ 
+     auto count_greater_than_zero =
+@@ -98,7 +98,7 @@ class multilinestring_segment_manager {
+     thrust::inclusive_scan(rmm::exec_policy(stream),
+                            count_greater_than_zero,
+                            count_greater_than_zero + _parent.num_linestrings(),
+-                           thrust::next(_non_empty_linestring_prefix_sum.begin()));
++                           cuda::std::next(_non_empty_linestring_prefix_sum.begin()));
+ 
+     _num_segments = _parent.num_points() - _non_empty_linestring_prefix_sum.element(
+                                              _non_empty_linestring_prefix_sum.size() - 1, stream);
+diff --git a/cpp/include/cuspatial/detail/point_linestring_nearest_points.cuh b/cpp/include/cuspatial/detail/point_linestring_nearest_points.cuh
+index 13270a7..968ea78 100644
+--- a/cpp/include/cuspatial/detail/point_linestring_nearest_points.cuh
++++ b/cpp/include/cuspatial/detail/point_linestring_nearest_points.cuh
+@@ -71,8 +71,8 @@ CUSPATIAL_KERNEL void pairwise_point_linestring_nearest_points_kernel(
+   using IndexType = iterator_value_type<OffsetIteratorA>;
+ 
+   auto num_pairs =
+-    thrust::distance(points_geometry_offsets_first, points_geometry_offsets_last) - 1;
+-  auto num_linestring_points = thrust::distance(linestring_points_first, linestring_points_last);
++    cuda::std::distance(points_geometry_offsets_first, points_geometry_offsets_last) - 1;
++  auto num_linestring_points = cuda::std::distance(linestring_points_first, linestring_points_last);
+ 
+   for (auto idx : ranger::grid_stride_range(num_pairs)) {
+     IndexType nearest_point_idx;
+@@ -99,13 +99,13 @@ CUSPATIAL_KERNEL void pairwise_point_linestring_nearest_points_kernel(
+ 
+           auto distance_nearest_point_pair =
+             point_to_segment_distance_squared_nearest_point(c, a, b);
+-          auto distance_squared = thrust::get<0>(distance_nearest_point_pair);
++          auto distance_squared = cuda::std::get<0>(distance_nearest_point_pair);
+           if (distance_squared < min_distance_squared) {
+             min_distance_squared = distance_squared;
+             nearest_point_idx    = point_idx - point_start;
+             nearest_part_idx     = part_idx - linestring_parts_start;
+             nearest_segment_idx  = segment_idx - segment_start;
+-            nearest_point        = thrust::get<1>(distance_nearest_point_pair);
++            nearest_point        = cuda::std::get<1>(distance_nearest_point_pair);
+           }
+         }
+       }
+diff --git a/cpp/include/cuspatial/detail/point_quadtree.cuh b/cpp/include/cuspatial/detail/point_quadtree.cuh
+index 19922af..79e2544 100644
+--- a/cpp/include/cuspatial/detail/point_quadtree.cuh
++++ b/cpp/include/cuspatial/detail/point_quadtree.cuh
+@@ -23,7 +23,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <cuda/functional>
+@@ -111,7 +111,7 @@ inline point_quadtree make_quad_tree(rmm::device_uvector<uint32_t>& keys,
+                       offsets.begin(),
+                       // return is_internal_node ? lhs : rhs
+                       cuda::proclaim_return_type<uint32_t>([] __device__(auto const& t) {
+-                        return thrust::get<0>(t) ? thrust::get<1>(t) : thrust::get<2>(t);
++                        return cuda::std::get<0>(t) ? cuda::std::get<1>(t) : cuda::std::get<2>(t);
+                       }));
+ 
+     return std::move(offsets);
+@@ -129,7 +129,7 @@ inline point_quadtree make_quad_tree(rmm::device_uvector<uint32_t>& keys,
+                     lengths.begin(),
+                     // return bool ? lhs : rhs
+                     cuda::proclaim_return_type<uint32_t>([] __device__(auto const& t) {
+-                      return thrust::get<0>(t) ? thrust::get<1>(t) : thrust::get<2>(t);
++                      return cuda::std::get<0>(t) ? cuda::std::get<1>(t) : cuda::std::get<2>(t);
+                     }));
+ 
+   // Shrink keys to the number of valid nodes
+@@ -246,7 +246,7 @@ std::pair<rmm::device_uvector<uint32_t>, point_quadtree> quadtree_on_points(
+   rmm::cuda_stream_view stream,
+   rmm::device_async_resource_ref mr)
+ {
+-  auto num_points = thrust::distance(points_first, points_last);
++  auto num_points = cuda::std::distance(points_first, points_last);
+   if (num_points <= 0) {
+     return std::make_pair(rmm::device_uvector<uint32_t>(0, stream),
+                           point_quadtree{rmm::device_uvector<uint32_t>(0, stream),
+diff --git a/cpp/include/cuspatial/detail/range/enumerate_range.cuh b/cpp/include/cuspatial/detail/range/enumerate_range.cuh
+index a5641da..11c7981 100644
+--- a/cpp/include/cuspatial/detail/range/enumerate_range.cuh
++++ b/cpp/include/cuspatial/detail/range/enumerate_range.cuh
+@@ -64,7 +64,7 @@ class enumerate_range {
+   {
+     return make_counting_transform_iterator(0, to_indexed_pair_functor{_begin});
+   }
+-  CUSPATIAL_HOST_DEVICE auto end() { return begin() + thrust::distance(_begin, _end); }
++  CUSPATIAL_HOST_DEVICE auto end() { return begin() + cuda::std::distance(_begin, _end); }
+ 
+  protected:
+   Iterator _begin;
+diff --git a/cpp/include/cuspatial/detail/range/multilinestring_range.cuh b/cpp/include/cuspatial/detail/range/multilinestring_range.cuh
+index 3955848..081d10b 100644
+--- a/cpp/include/cuspatial/detail/range/multilinestring_range.cuh
++++ b/cpp/include/cuspatial/detail/range/multilinestring_range.cuh
+@@ -44,7 +44,7 @@ using namespace detail;
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+ struct to_multilinestring_functor {
+-  using difference_type = typename thrust::iterator_difference<GeometryIterator>::type;
++  using difference_type = typename cuda::std::iter_difference_t<GeometryIterator>;
+   GeometryIterator _geometry_begin;
+   PartIterator _part_begin;
+   VecIterator _point_begin;
+@@ -65,7 +65,7 @@ struct to_multilinestring_functor {
+   CUSPATIAL_HOST_DEVICE auto operator()(difference_type i)
+   {
+     return multilinestring_ref{_part_begin + _geometry_begin[i],
+-                               thrust::next(_part_begin + _geometry_begin[i + 1]),
++                               _part_begin + _geometry_begin[i + 1],
+                                _point_begin,
+                                _point_end};
+   }
+@@ -101,21 +101,21 @@ template <typename GeometryIterator, typename PartIterator, typename VecIterator
+ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::num_multilinestrings()
+ {
+-  return thrust::distance(_geometry_begin, _geometry_end) - 1;
++  return cuda::std::distance(_geometry_begin, _geometry_end) - 1;
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::num_linestrings()
+ {
+-  return thrust::distance(_part_begin, _part_end) - 1;
++  return cuda::std::distance(_part_begin, _part_end) - 1;
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::num_points()
+ {
+-  return thrust::distance(_point_begin, _point_end);
++  return cuda::std::distance(_point_begin, _point_end);
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+@@ -139,7 +139,7 @@ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::part_idx_from_point_idx(
+   IndexType point_idx)
+ {
+-  return thrust::distance(_part_begin, _part_iter_from_point_idx(point_idx));
++  return cuda::std::distance(_part_begin, _part_iter_from_point_idx(point_idx));
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+@@ -149,7 +149,7 @@ CUSPATIAL_HOST_DEVICE
+   multilinestring_range<GeometryIterator, PartIterator, VecIterator>::part_idx_from_segment_idx(
+     IndexType segment_idx)
+ {
+-  auto part_idx = thrust::distance(_part_begin, _part_iter_from_point_idx(segment_idx));
++  auto part_idx = cuda::std::distance(_part_begin, _part_iter_from_point_idx(segment_idx));
+   if (not is_valid_segment_id(segment_idx, part_idx)) return cuda::std::nullopt;
+   return part_idx;
+ }
+@@ -160,7 +160,7 @@ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::geometry_idx_from_part_idx(
+   IndexType part_idx)
+ {
+-  return thrust::distance(_geometry_begin, _geometry_iter_from_part_idx(part_idx));
++  return cuda::std::distance(_geometry_begin, _geometry_iter_from_part_idx(part_idx));
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+@@ -214,8 +214,8 @@ CUSPATIAL_HOST_DEVICE auto multilinestring_range<GeometryIterator, PartIterator,
+   multilinestring_point_count_begin()
+ {
+   auto multilinestring_offset_it = thrust::make_permutation_iterator(_part_begin, _geometry_begin);
+-  auto paired_it =
+-    thrust::make_zip_iterator(multilinestring_offset_it, thrust::next(multilinestring_offset_it));
++  auto paired_it                 = thrust::make_zip_iterator(multilinestring_offset_it,
++                                             cuda::std::next(multilinestring_offset_it));
+   return thrust::make_transform_iterator(paired_it, detail::offset_pair_to_count_functor{});
+ }
+ 
+@@ -230,7 +230,7 @@ template <typename GeometryIterator, typename PartIterator, typename VecIterator
+ CUSPATIAL_HOST_DEVICE auto multilinestring_range<GeometryIterator, PartIterator, VecIterator>::
+   multilinestring_linestring_count_begin()
+ {
+-  auto paired_it = thrust::make_zip_iterator(_geometry_begin, thrust::next(_geometry_begin));
++  auto paired_it = thrust::make_zip_iterator(_geometry_begin, cuda::std::next(_geometry_begin));
+   return thrust::make_transform_iterator(paired_it, detail::offset_pair_to_count_functor{});
+ }
+ 
+@@ -253,10 +253,11 @@ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::as_multipoint_range()
+ {
+   auto multipoint_geometry_it = thrust::make_permutation_iterator(_part_begin, _geometry_begin);
+-  return multipoint_range{multipoint_geometry_it,
+-                          multipoint_geometry_it + thrust::distance(_geometry_begin, _geometry_end),
+-                          _point_begin,
+-                          _point_end};
++  return multipoint_range{
++    multipoint_geometry_it,
++    multipoint_geometry_it + cuda::std::distance(_geometry_begin, _geometry_end),
++    _point_begin,
++    _point_end};
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+@@ -274,7 +275,7 @@ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::_part_iter_from_point_idx(
+   IndexType point_idx)
+ {
+-  return thrust::prev(thrust::upper_bound(thrust::seq, _part_begin, _part_end, point_idx));
++  return cuda::std::prev(thrust::upper_bound(thrust::seq, _part_begin, _part_end, point_idx));
+ }
+ 
+ template <typename GeometryIterator, typename PartIterator, typename VecIterator>
+@@ -283,7 +284,8 @@ CUSPATIAL_HOST_DEVICE auto
+ multilinestring_range<GeometryIterator, PartIterator, VecIterator>::_geometry_iter_from_part_idx(
+   IndexType part_idx)
+ {
+-  return thrust::prev(thrust::upper_bound(thrust::seq, _geometry_begin, _geometry_end, part_idx));
++  return cuda::std::prev(
++    thrust::upper_bound(thrust::seq, _geometry_begin, _geometry_end, part_idx));
+ }
+ 
+ }  // namespace cuspatial
+diff --git a/cpp/include/cuspatial/detail/range/multilinestring_segment_range.cuh b/cpp/include/cuspatial/detail/range/multilinestring_segment_range.cuh
+index b684146..9871dd2 100644
+--- a/cpp/include/cuspatial/detail/range/multilinestring_segment_range.cuh
++++ b/cpp/include/cuspatial/detail/range/multilinestring_segment_range.cuh
+@@ -22,7 +22,7 @@
+ #include <cuspatial/traits.hpp>
+ 
+ #include <rmm/cuda_stream_view.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ 
+ #include <thrust/device_vector.h>
+ #include <thrust/iterator/permutation_iterator.h>
+@@ -105,9 +105,9 @@ struct to_valid_segment_functor {
+   template <typename IndexType>
+   CUSPATIAL_HOST_DEVICE segment<element_t> operator()(IndexType sid)
+   {
+-    auto kit =
+-      thrust::prev(thrust::upper_bound(thrust::seq, segment_offset_begin, segment_offset_end, sid));
+-    auto part_id                         = thrust::distance(segment_offset_begin, kit);
++    auto kit = cuda::std::prev(
++      thrust::upper_bound(thrust::seq, segment_offset_begin, segment_offset_end, sid));
++    auto part_id                         = cuda::std::distance(segment_offset_begin, kit);
+     auto preceding_non_empty_linestrings = non_empty_partitions_begin[part_id];
+     auto pid                             = sid + preceding_non_empty_linestrings;
+ 
+@@ -214,8 +214,8 @@ class multilinestring_segment_range {
+   /// multipolygon
+   CUSPATIAL_HOST_DEVICE auto multigeometry_count_begin()
+   {
+-    auto zipped_offset_it = thrust::make_zip_iterator(multigeometry_offset_begin(),
+-                                                      thrust::next(multigeometry_offset_begin()));
++    auto zipped_offset_it = thrust::make_zip_iterator(
++      multigeometry_offset_begin(), cuda::std::next(multigeometry_offset_begin()));
+ 
+     return thrust::make_transform_iterator(zipped_offset_it, offset_pair_to_count_functor{});
+   }
+diff --git a/cpp/include/cuspatial/detail/range/multipoint_range.cuh b/cpp/include/cuspatial/detail/range/multipoint_range.cuh
+index e73e0e0..eddde00 100644
+--- a/cpp/include/cuspatial/detail/range/multipoint_range.cuh
++++ b/cpp/include/cuspatial/detail/range/multipoint_range.cuh
+@@ -27,6 +27,8 @@
+ #include <thrust/iterator/transform_iterator.h>
+ #include <thrust/pair.h>
+ 
++#include <cuda/std/iterator>
++
+ namespace cuspatial {
+ 
+ using namespace cuspatial::detail;
+@@ -34,7 +36,7 @@ using namespace cuspatial::detail;
+ namespace detail {
+ template <typename GeometryIterator, typename VecIterator>
+ struct to_multipoint_functor {
+-  using difference_type = typename thrust::iterator_difference<GeometryIterator>::type;
++  using difference_type = typename cuda::std::iter_difference_t<GeometryIterator>;
+   GeometryIterator _offset_iter;
+   VecIterator _points_begin;
+ 
+@@ -76,13 +78,13 @@ CUSPATIAL_HOST_DEVICE multipoint_range<GeometryIterator, VecIterator>::multipoin
+ template <typename GeometryIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multipoint_range<GeometryIterator, VecIterator>::num_multipoints()
+ {
+-  return thrust::distance(_geometry_begin, _geometry_end) - 1;
++  return cuda::std::distance(_geometry_begin, _geometry_end) - 1;
+ }
+ 
+ template <typename GeometryIterator, typename VecIterator>
+ CUSPATIAL_HOST_DEVICE auto multipoint_range<GeometryIterator, VecIterator>::num_points()
+ {
+-  return thrust::distance(_points_begin, _points_end);
++  return cuda::std::distance(_points_begin, _points_end);
+ }
+ 
+ template <typename GeometryIterator, typename VecIterator>
+@@ -127,7 +129,7 @@ template <typename IndexType>
+ CUSPATIAL_HOST_DEVICE auto multipoint_range<GeometryIterator, VecIterator>::operator[](
+   IndexType idx)
+ {
+-  return *(thrust::next(begin(), idx));
++  return *(cuda::std::next(begin(), idx));
+ }
+ 
+ template <typename GeometryIterator, typename VecIterator>
+@@ -135,9 +137,9 @@ template <typename IndexType>
+ CUSPATIAL_HOST_DEVICE auto
+ multipoint_range<GeometryIterator, VecIterator>::geometry_idx_from_point_idx(IndexType idx) const
+ {
+-  return thrust::distance(
++  return cuda::std::distance(
+     _geometry_begin,
+-    thrust::prev(thrust::upper_bound(thrust::seq, _geometry_begin, _geometry_end, idx)));
++    cuda::std::prev(thrust::upper_bound(thrust::seq, _geometry_begin, _geometry_end, idx)));
+ }
+ 
+ template <typename GeometryIterator, typename VecIterator>
+diff --git a/cpp/include/cuspatial/detail/range/multipolygon_range.cuh b/cpp/include/cuspatial/detail/range/multipolygon_range.cuh
+index c678047..c74fc60 100644
+--- a/cpp/include/cuspatial/detail/range/multipolygon_range.cuh
++++ b/cpp/include/cuspatial/detail/range/multipolygon_range.cuh
+@@ -48,7 +48,7 @@ template <typename GeometryIterator,
+           typename RingIterator,
+           typename VecIterator>
+ struct to_multipolygon_functor {
+-  using difference_type = typename thrust::iterator_difference<GeometryIterator>::type;
++  using difference_type = typename cuda::std::iter_difference_t<GeometryIterator>;
+   GeometryIterator _geometry_begin;
+   PartIterator _part_begin;
+   RingIterator _ring_begin;
+@@ -75,7 +75,7 @@ struct to_multipolygon_functor {
+   CUSPATIAL_HOST_DEVICE auto operator()(difference_type i)
+   {
+     return multipolygon_ref{_part_begin + _geometry_begin[i],
+-                            thrust::next(_part_begin, _geometry_begin[i + 1] + 1),
++                            cuda::std::next(_part_begin, _geometry_begin[i + 1] + 1),
+                             _ring_begin,
+                             _ring_end,
+                             _point_begin,
+@@ -126,7 +126,7 @@ template <typename GeometryIterator,
+ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::num_multipolygons()
+ {
+-  return thrust::distance(_geometry_begin, _geometry_end) - 1;
++  return cuda::std::distance(_geometry_begin, _geometry_end) - 1;
+ }
+ 
+ template <typename GeometryIterator,
+@@ -136,7 +136,7 @@ template <typename GeometryIterator,
+ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::num_polygons()
+ {
+-  return thrust::distance(_part_begin, _part_end) - 1;
++  return cuda::std::distance(_part_begin, _part_end) - 1;
+ }
+ 
+ template <typename GeometryIterator,
+@@ -146,7 +146,7 @@ template <typename GeometryIterator,
+ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::num_rings()
+ {
+-  return thrust::distance(_ring_begin, _ring_end) - 1;
++  return cuda::std::distance(_ring_begin, _ring_end) - 1;
+ }
+ 
+ template <typename GeometryIterator,
+@@ -156,7 +156,7 @@ template <typename GeometryIterator,
+ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::num_points()
+ {
+-  return thrust::distance(_point_begin, _point_end);
++  return cuda::std::distance(_point_begin, _point_end);
+ }
+ 
+ template <typename GeometryIterator,
+@@ -211,8 +211,9 @@ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::
+   ring_idx_from_point_idx(IndexType point_idx)
+ {
+-  return thrust::distance(
+-    _ring_begin, thrust::prev(thrust::upper_bound(thrust::seq, _ring_begin, _ring_end, point_idx)));
++  return cuda::std::distance(
++    _ring_begin,
++    cuda::std::prev(thrust::upper_bound(thrust::seq, _ring_begin, _ring_end, point_idx)));
+ }
+ 
+ template <typename GeometryIterator,
+@@ -224,8 +225,9 @@ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::
+   part_idx_from_ring_idx(IndexType ring_idx)
+ {
+-  return thrust::distance(
+-    _part_begin, thrust::prev(thrust::upper_bound(thrust::seq, _part_begin, _part_end, ring_idx)));
++  return cuda::std::distance(
++    _part_begin,
++    cuda::std::prev(thrust::upper_bound(thrust::seq, _part_begin, _part_end, ring_idx)));
+ }
+ 
+ template <typename GeometryIterator,
+@@ -237,9 +239,9 @@ CUSPATIAL_HOST_DEVICE auto
+ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::
+   geometry_idx_from_part_idx(IndexType part_idx)
+ {
+-  return thrust::distance(
++  return cuda::std::distance(
+     _geometry_begin,
+-    thrust::prev(thrust::upper_bound(thrust::seq, _geometry_begin, _geometry_end, part_idx)));
++    cuda::std::prev(thrust::upper_bound(thrust::seq, _geometry_begin, _geometry_end, part_idx)));
+ }
+ 
+ template <typename GeometryIterator,
+@@ -253,8 +255,8 @@ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::
+   auto multipolygon_point_offset_it = thrust::make_permutation_iterator(
+     _ring_begin, thrust::make_permutation_iterator(_part_begin, _geometry_begin));
+ 
+-  auto point_offset_pair_it = thrust::make_zip_iterator(multipolygon_point_offset_it,
+-                                                        thrust::next(multipolygon_point_offset_it));
++  auto point_offset_pair_it = thrust::make_zip_iterator(
++    multipolygon_point_offset_it, cuda::std::next(multipolygon_point_offset_it));
+ 
+   return thrust::make_transform_iterator(point_offset_pair_it,
+                                          detail::offset_pair_to_count_functor{});
+@@ -282,8 +284,8 @@ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::
+   auto multipolygon_ring_offset_it =
+     thrust::make_permutation_iterator(_part_begin, _geometry_begin);
+ 
+-  auto ring_offset_pair_it = thrust::make_zip_iterator(multipolygon_ring_offset_it,
+-                                                       thrust::next(multipolygon_ring_offset_it));
++  auto ring_offset_pair_it = thrust::make_zip_iterator(
++    multipolygon_ring_offset_it, cuda::std::next(multipolygon_ring_offset_it));
+ 
+   return thrust::make_transform_iterator(ring_offset_pair_it,
+                                          detail::offset_pair_to_count_functor{});
+@@ -348,10 +350,11 @@ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::a
+   auto multipoint_geometry_it = thrust::make_permutation_iterator(
+     _ring_begin, thrust::make_permutation_iterator(_part_begin, _geometry_begin));
+ 
+-  return multipoint_range{multipoint_geometry_it,
+-                          multipoint_geometry_it + thrust::distance(_geometry_begin, _geometry_end),
+-                          _point_begin,
+-                          _point_end};
++  return multipoint_range{
++    multipoint_geometry_it,
++    multipoint_geometry_it + cuda::std::distance(_geometry_begin, _geometry_end),
++    _point_begin,
++    _point_end};
+ }
+ 
+ template <typename GeometryIterator,
+@@ -366,7 +369,7 @@ multipolygon_range<GeometryIterator, PartIterator, RingIterator, VecIterator>::
+     thrust::make_permutation_iterator(_part_begin, _geometry_begin);
+   return multilinestring_range{
+     multilinestring_geometry_it,
+-    multilinestring_geometry_it + thrust::distance(_geometry_begin, _geometry_end),
++    multilinestring_geometry_it + cuda::std::distance(_geometry_begin, _geometry_end),
+     _ring_begin,
+     _ring_end,
+     _point_begin,
+diff --git a/cpp/include/cuspatial/detail/trajectory/derive_trajectories.cuh b/cpp/include/cuspatial/detail/trajectory/derive_trajectories.cuh
+index 11b8a59..ba13b13 100644
+--- a/cpp/include/cuspatial/detail/trajectory/derive_trajectories.cuh
++++ b/cpp/include/cuspatial/detail/trajectory/derive_trajectories.cuh
+@@ -42,10 +42,10 @@ template <typename Tuple>
+ struct trajectory_comparator {
+   __device__ bool operator()(Tuple const& lhs, Tuple const& rhs)
+   {
+-    auto lhs_id = thrust::get<0>(lhs);
+-    auto rhs_id = thrust::get<0>(rhs);
+-    auto lhs_ts = thrust::get<1>(lhs);
+-    auto rhs_ts = thrust::get<1>(rhs);
++    auto lhs_id = cuda::std::get<0>(lhs);
++    auto rhs_id = cuda::std::get<0>(rhs);
++    auto lhs_ts = cuda::std::get<1>(lhs);
++    auto rhs_ts = cuda::std::get<1>(rhs);
+     return (lhs_id < rhs_id) || ((lhs_id == rhs_id) && (lhs_ts < rhs_ts));
+   };
+ };
+diff --git a/cpp/include/cuspatial/detail/trajectory/trajectory_distances_and_speeds.cuh b/cpp/include/cuspatial/detail/trajectory/trajectory_distances_and_speeds.cuh
+index 9ce7bae..cb47ab3 100644
+--- a/cpp/include/cuspatial/detail/trajectory/trajectory_distances_and_speeds.cuh
++++ b/cpp/include/cuspatial/detail/trajectory/trajectory_distances_and_speeds.cuh
+@@ -80,11 +80,11 @@ OutputIt trajectory_distances_and_speeds(IndexT num_trajectories,
+                     id_point_timestamp + 1,
+                     duration_and_distance + 1,
+                     [] __device__(auto const& p0, auto const& p1) {
+-                      if (thrust::get<0>(p0) == thrust::get<0>(p1)) {  // ids are the same
+-                        Point pos0   = thrust::get<1>(p0);
+-                        Point pos1   = thrust::get<1>(p1);
+-                        Timestamp t0 = thrust::get<2>(p0);
+-                        Timestamp t1 = thrust::get<2>(p1);
++                      if (cuda::std::get<0>(p0) == cuda::std::get<0>(p1)) {  // ids are the same
++                        Point pos0   = cuda::std::get<1>(p0);
++                        Point pos1   = cuda::std::get<1>(p1);
++                        Timestamp t0 = cuda::std::get<2>(p0);
++                        Timestamp t1 = cuda::std::get<2>(p1);
+                         Point vec    = pos1 - pos0;
+                         // duration and distance
+                         return thrust::make_tuple((t1 - t0).count(), sqrt(dot(vec, vec)));
+@@ -100,8 +100,8 @@ OutputIt trajectory_distances_and_speeds(IndexT num_trajectories,
+   rmm::device_uvector<Rep> durations_tmp(num_trajectories, stream);
+   rmm::device_uvector<T> distances_tmp(num_trajectories, stream);
+ 
+-  auto distances_begin = thrust::get<0>(distances_and_speeds_first.get_iterator_tuple());
+-  auto speeds_begin    = thrust::get<1>(distances_and_speeds_first.get_iterator_tuple());
++  auto distances_begin = cuda::std::get<0>(distances_and_speeds_first.get_iterator_tuple());
++  auto speeds_begin    = cuda::std::get<1>(distances_and_speeds_first.get_iterator_tuple());
+ 
+   auto duration_distances_and_speed = thrust::make_zip_iterator(
+     durations_tmp.begin(), distances_tmp.begin(), distances_begin, speeds_begin);
+@@ -119,10 +119,10 @@ OutputIt trajectory_distances_and_speeds(IndexT num_trajectories,
+                         duration_distances_and_speed,
+                         thrust::equal_to<Id>(),
+                         [] __device__(auto a, auto b) {
+-                          auto time_d = Dur(thrust::get<0>(a)) + Dur(thrust::get<0>(b));
++                          auto time_d = Dur(cuda::std::get<0>(a)) + Dur(cuda::std::get<0>(b));
+                           auto time_s = static_cast<T>(time_d.count()) *
+                                         static_cast<T>(Period::num) / static_cast<T>(Period::den);
+-                          T dist_km   = thrust::get<1>(a) + thrust::get<1>(b);
++                          T dist_km   = cuda::std::get<1>(a) + cuda::std::get<1>(b);
+                           T dist_m    = dist_km * T{1000.0};  // km to m
+                           T speed_m_s = dist_m / time_s;      // m/ms to m/s
+                           return thrust::make_tuple(time_d.count(), dist_km, dist_m, speed_m_s);
+diff --git a/cpp/include/cuspatial/detail/utility/zero_data.cuh b/cpp/include/cuspatial/detail/utility/zero_data.cuh
+index 1a4f72a..7415991 100644
+--- a/cpp/include/cuspatial/detail/utility/zero_data.cuh
++++ b/cpp/include/cuspatial/detail/utility/zero_data.cuh
+@@ -37,7 +37,7 @@ void zero_data_async(Iterator begin, Iterator end, rmm::cuda_stream_view stream)
+ {
+   using value_type = iterator_value_type<Iterator>;
+   auto dst         = thrust::raw_pointer_cast(&*begin);
+-  auto size        = thrust::distance(begin, end) * sizeof(value_type);
++  auto size        = cuda::std::distance(begin, end) * sizeof(value_type);
+ 
+   cudaMemsetAsync(dst, 0, size, stream.value());
+ }
+diff --git a/cpp/include/cuspatial/distance.hpp b/cpp/include/cuspatial/distance.hpp
+index 76c920b..1a11f1d 100644
+--- a/cpp/include/cuspatial/distance.hpp
++++ b/cpp/include/cuspatial/distance.hpp
+@@ -24,7 +24,7 @@
+ #include <cudf/table/table_view.hpp>
+ #include <cudf/utilities/span.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <optional>
+diff --git a/cpp/include/cuspatial/intersection.cuh b/cpp/include/cuspatial/intersection.cuh
+index c086d84..3e03d3d 100644
+--- a/cpp/include/cuspatial/intersection.cuh
++++ b/cpp/include/cuspatial/intersection.cuh
+@@ -21,7 +21,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <thrust/pair.h>
+diff --git a/cpp/include/cuspatial/intersection.hpp b/cpp/include/cuspatial/intersection.hpp
+index 1869768..69eb0f3 100644
+--- a/cpp/include/cuspatial/intersection.hpp
++++ b/cpp/include/cuspatial/intersection.hpp
+@@ -20,7 +20,7 @@
+ 
+ #include <cudf/column/column.hpp>
+ 
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ namespace cuspatial {
+diff --git a/cpp/include/cuspatial/iterator_factory.cuh b/cpp/include/cuspatial/iterator_factory.cuh
+index 9b22ba9..5de8457 100644
+--- a/cpp/include/cuspatial/iterator_factory.cuh
++++ b/cpp/include/cuspatial/iterator_factory.cuh
+@@ -55,7 +55,7 @@ template <typename T, typename VectorType = vec_2d<T>>
+ struct tuple_to_vec_2d {
+   __device__ VectorType operator()(thrust::tuple<T, T> const& pos)
+   {
+-    return VectorType{thrust::get<0>(pos), thrust::get<1>(pos)};
++    return VectorType{cuda::std::get<0>(pos), cuda::std::get<1>(pos)};
+   }
+ };
+ 
+@@ -91,8 +91,8 @@ template <typename T, typename Vertex = vec_2d<T>>
+ struct vec_2d_tuple_to_box {
+   __device__ box<T, Vertex> operator()(thrust::tuple<Vertex, Vertex> pair)
+   {
+-    auto v1 = thrust::get<0>(pair);
+-    auto v2 = thrust::get<1>(pair);
++    auto v1 = cuda::std::get<0>(pair);
++    auto v2 = cuda::std::get<1>(pair);
+     return {v1, v2};
+   }
+ };
+@@ -176,8 +176,8 @@ struct index_to_geometry_id {
+ 
+   CUSPATIAL_HOST_DEVICE auto operator()(IndexT idx)
+   {
+-    return thrust::distance(geometry_begin,
+-                            thrust::upper_bound(thrust::seq, geometry_begin, geometry_end, idx));
++    return cuda::std::distance(geometry_begin,
++                               thrust::upper_bound(thrust::seq, geometry_begin, geometry_end, idx));
+   }
+ };
+ 
+@@ -278,7 +278,7 @@ auto make_vec_2d_output_iterator(Iter d_points_begin)
+   auto even_positions         = thrust::make_permutation_iterator(
+     d_points_begin, detail::make_counting_transform_iterator(0, fixed_stride_2_functor));
+   auto odd_positions = thrust::make_permutation_iterator(
+-    thrust::next(d_points_begin),
++    cuda::std::next(d_points_begin),
+     detail::make_counting_transform_iterator(0, fixed_stride_2_functor));
+   auto zipped_outputs =
+     thrust::make_zip_iterator(thrust::make_tuple(even_positions, odd_positions));
+@@ -421,14 +421,14 @@ auto make_geometry_id_iterator(GeometryIter geometry_offsets_begin,
+ 
+   return make_geometry_id_iterator<IndexT>(
+     first_part_offsets_begin,
+-    thrust::next(first_part_offsets_begin,
+-                 std::distance(geometry_offsets_begin, geometry_offsets_end)));
++    cuda::std::next(first_part_offsets_begin,
++                    std::distance(geometry_offsets_begin, geometry_offsets_end)));
+ }
+ 
+ template <typename OffsetIterator>
+ auto make_count_iterator_from_offset_iterator(OffsetIterator it)
+ {
+-  auto zipped_offsets_it = thrust::make_zip_iterator(it, thrust::next(it));
++  auto zipped_offsets_it = thrust::make_zip_iterator(it, cuda::std::next(it));
+   return thrust::make_transform_iterator(zipped_offsets_it, detail::offset_pair_to_count_functor{});
+ }
+ 
+diff --git a/cpp/include/cuspatial/pairwise_multipoint_equals_count.hpp b/cpp/include/cuspatial/pairwise_multipoint_equals_count.hpp
+index 0df60c2..a7919c6 100644
+--- a/cpp/include/cuspatial/pairwise_multipoint_equals_count.hpp
++++ b/cpp/include/cuspatial/pairwise_multipoint_equals_count.hpp
+@@ -20,7 +20,7 @@
+ 
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/point_in_polygon.hpp b/cpp/include/cuspatial/point_in_polygon.hpp
+index c66e2e2..6b5bab3 100644
+--- a/cpp/include/cuspatial/point_in_polygon.hpp
++++ b/cpp/include/cuspatial/point_in_polygon.hpp
+@@ -20,7 +20,7 @@
+ #include <cudf/column/column_view.hpp>
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/point_quadtree.cuh b/cpp/include/cuspatial/point_quadtree.cuh
+index f64cee6..04d4707 100644
+--- a/cpp/include/cuspatial/point_quadtree.cuh
++++ b/cpp/include/cuspatial/point_quadtree.cuh
+@@ -21,7 +21,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <thrust/iterator/zip_iterator.h>
+diff --git a/cpp/include/cuspatial/point_quadtree.hpp b/cpp/include/cuspatial/point_quadtree.hpp
+index 7230673..cb934de 100644
+--- a/cpp/include/cuspatial/point_quadtree.hpp
++++ b/cpp/include/cuspatial/point_quadtree.hpp
+@@ -18,7 +18,7 @@
+ 
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/points_in_range.hpp b/cpp/include/cuspatial/points_in_range.hpp
+index 8637e2b..3f7bcfc 100644
+--- a/cpp/include/cuspatial/points_in_range.hpp
++++ b/cpp/include/cuspatial/points_in_range.hpp
+@@ -20,7 +20,7 @@
+ #include <cudf/table/table.hpp>
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/projection.hpp b/cpp/include/cuspatial/projection.hpp
+index e711641..a0d63ec 100644
+--- a/cpp/include/cuspatial/projection.hpp
++++ b/cpp/include/cuspatial/projection.hpp
+@@ -18,7 +18,7 @@
+ 
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/range/multipoint_range.cuh b/cpp/include/cuspatial/range/multipoint_range.cuh
+index caee16a..829721f 100644
+--- a/cpp/include/cuspatial/range/multipoint_range.cuh
++++ b/cpp/include/cuspatial/range/multipoint_range.cuh
+@@ -237,7 +237,7 @@ auto make_multipoint_range(GeometryColumnView const& points_column)
+   auto points_it = make_vec_2d_iterator(points_xy.template begin<T>());
+ 
+   return multipoint_range(geometry_iter,
+-                          thrust::next(geometry_iter, points_column.size() + 1),
++                          cuda::std::next(geometry_iter, points_column.size() + 1),
+                           points_it,
+                           points_it + points_xy.size() / 2);
+ }
+diff --git a/cpp/include/cuspatial/range/multipolygon_range.cuh b/cpp/include/cuspatial/range/multipolygon_range.cuh
+index 83379ba..ae371a5 100644
+--- a/cpp/include/cuspatial/range/multipolygon_range.cuh
++++ b/cpp/include/cuspatial/range/multipolygon_range.cuh
+@@ -242,13 +242,13 @@ make_multipolygon_range(GeometryIteratorDiffType num_multipolygons,
+ {
+   return multipolygon_range{
+     geometry_begin,
+-    thrust::next(geometry_begin, num_multipolygons + 1),
++    cuda::std::next(geometry_begin, num_multipolygons + 1),
+     part_begin,
+-    thrust::next(part_begin, num_polygons + 1),
++    cuda::std::next(part_begin, num_polygons + 1),
+     ring_begin,
+-    thrust::next(ring_begin, num_rings + 1),
++    cuda::std::next(ring_begin, num_rings + 1),
+     point_begin,
+-    thrust::next(point_begin, num_points),
++    cuda::std::next(point_begin, num_points),
+   };
+ }
+ 
+diff --git a/cpp/include/cuspatial/range/range.cuh b/cpp/include/cuspatial/range/range.cuh
+index 923580f..e2526a2 100644
+--- a/cpp/include/cuspatial/range/range.cuh
++++ b/cpp/include/cuspatial/range/range.cuh
+@@ -50,7 +50,7 @@ class range {
+   /// Return the end iterator to the range
+   auto CUSPATIAL_HOST_DEVICE end() { return _end; }
+   /// Return the size of the range
+-  auto CUSPATIAL_HOST_DEVICE size() { return thrust::distance(_begin, _end); }
++  auto CUSPATIAL_HOST_DEVICE size() { return cuda::std::distance(_begin, _end); }
+ 
+   /// Access the `i`th element in the range
+   template <typename IndexType>
+diff --git a/cpp/include/cuspatial/spatial_join.hpp b/cpp/include/cuspatial/spatial_join.hpp
+index e3bec92..ee48337 100644
+--- a/cpp/include/cuspatial/spatial_join.hpp
++++ b/cpp/include/cuspatial/spatial_join.hpp
+@@ -18,7 +18,7 @@
+ 
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial/trajectory.cuh b/cpp/include/cuspatial/trajectory.cuh
+index dc5ec97..a56fa84 100644
+--- a/cpp/include/cuspatial/trajectory.cuh
++++ b/cpp/include/cuspatial/trajectory.cuh
+@@ -18,7 +18,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <iterator>
+diff --git a/cpp/include/cuspatial/trajectory.hpp b/cpp/include/cuspatial/trajectory.hpp
+index 3080635..992a017 100644
+--- a/cpp/include/cuspatial/trajectory.hpp
++++ b/cpp/include/cuspatial/trajectory.hpp
+@@ -21,7 +21,7 @@
+ #include <cudf/table/table.hpp>
+ #include <cudf/types.hpp>
+ 
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/include/cuspatial_test/base_fixture.hpp b/cpp/include/cuspatial_test/base_fixture.hpp
+index 820e54e..214d25b 100644
+--- a/cpp/include/cuspatial_test/base_fixture.hpp
++++ b/cpp/include/cuspatial_test/base_fixture.hpp
+@@ -19,7 +19,7 @@
+ #include <cudf_test/cudf_gtest.hpp>
+ 
+ #include <rmm/cuda_stream_view.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ namespace cuspatial {
+diff --git a/cpp/include/cuspatial_test/geometry_fixtures.hpp b/cpp/include/cuspatial_test/geometry_fixtures.hpp
+index 44d8410..ead5b0e 100644
+--- a/cpp/include/cuspatial_test/geometry_fixtures.hpp
++++ b/cpp/include/cuspatial_test/geometry_fixtures.hpp
+@@ -25,7 +25,7 @@
+ #include <cudf/utilities/default_stream.hpp>
+ 
+ #include <rmm/cuda_stream_view.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ 
+ namespace cuspatial {
+ namespace test {
+diff --git a/cpp/src/distance/haversine.cu b/cpp/src/distance/haversine.cu
+index 18a55cd..0ee6ecf 100644
+--- a/cpp/src/distance/haversine.cu
++++ b/cpp/src/distance/haversine.cu
+@@ -26,7 +26,7 @@
+ #include <cudf/utilities/type_dispatcher.hpp>
+ 
+ #include <rmm/cuda_stream_view.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/src/intersection/linestring_intersection.cu b/cpp/src/intersection/linestring_intersection.cu
+index 46734f6..e608043 100644
+--- a/cpp/src/intersection/linestring_intersection.cu
++++ b/cpp/src/intersection/linestring_intersection.cu
+@@ -114,13 +114,9 @@ struct pairwise_linestring_intersection_launch {
+                                                       std::move(segment_coord_offsets),
+                                                       std::move(segments_xy),
+                                                       0,
+-                                                      {},
+-                                                      stream,
+-                                                      mr),
++                                                      {}),
+                               0,
+-                              {},
+-                              stream,
+-                              mr);
++                              {});
+ 
+     return linestring_intersection_column_result{
+       std::make_unique<cudf::column>(
+diff --git a/cpp/src/point_in_polygon/point_in_polygon.cu b/cpp/src/point_in_polygon/point_in_polygon.cu
+index c22a8da..b1d354c 100644
+--- a/cpp/src/point_in_polygon/point_in_polygon.cu
++++ b/cpp/src/point_in_polygon/point_in_polygon.cu
+@@ -27,7 +27,7 @@
+ #include <cudf/utilities/type_dispatcher.hpp>
+ 
+ #include <rmm/cuda_stream_view.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <memory>
+diff --git a/cpp/src/utility/scatter_output_iterator.cuh b/cpp/src/utility/scatter_output_iterator.cuh
+index 74be541..5dac240 100644
+--- a/cpp/src/utility/scatter_output_iterator.cuh
++++ b/cpp/src/utility/scatter_output_iterator.cuh
+@@ -47,7 +47,8 @@ class scatter_output_iterator_proxy {
+   template <typename T>
+   __host__ __device__ scatter_output_iterator_proxy operator=(const T& element)
+   {
+-    auto const scatter_idx = static_cast<uint32_t>(*(scatter_map + thrust::distance(begin, out)));
++    auto const scatter_idx =
++      static_cast<uint32_t>(*(scatter_map + cuda::std::distance(begin, out)));
+ 
+     if (scatter_idx != static_cast<uint32_t>(-1)) {
+       // forward assignments if and only if the scatter map indicates to do so.
+diff --git a/cpp/tests/CMakeLists.txt b/cpp/tests/CMakeLists.txt
+index 7bca36a..dbe74c9 100644
+--- a/cpp/tests/CMakeLists.txt
++++ b/cpp/tests/CMakeLists.txt
+@@ -17,27 +17,27 @@
+ ###################################################################################################
+ # - compiler function -----------------------------------------------------------------------------
+ 
+-# cudftestutil_impl is an interface source library, this empty object 
+-# library is used to speed-up compilation and linking against it, 
++# cudftestutil_impl is an interface source library, this empty object
++# library is used to speed-up compilation and linking against it,
+ # otherwise we pay the non-trivial compilation cost repeatedly for each
+ # test executable
+ add_library(cuspatial_test_common OBJECT test_common.cpp)
+ 
+-target_compile_features(cuspatial_test_common PUBLIC cxx_std_17 cuda_std_17)
++target_compile_features(cuspatial_test_common PUBLIC cxx_std_20 cuda_std_20)
+ 
+ set_target_properties(cuspatial_test_common
+     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${CUSPATIAL_BINARY_DIR}/tests>"
+                INSTALL_RPATH "\$ORIGIN/../../../lib"
+-               CXX_STANDARD                        17
++               CXX_STANDARD                        20
+                CXX_STANDARD_REQUIRED               ON
+-               CUDA_STANDARD                       17
++               CUDA_STANDARD                       20
+                CUDA_STANDARD_REQUIRED              ON
+                POSITION_INDEPENDENT_CODE           ON
+                INTERFACE_POSITION_INDEPENDENT_CODE ON
+ )
+ 
+ target_link_libraries(cuspatial_test_common
+-    PUBLIC cudf::cudftestutil GTest::gtest GTest::gmock 
++    PUBLIC cudf::cudftestutil GTest::gtest GTest::gmock
+     PRIVATE cudf::cudftestutil_impl)
+ 
+ target_compile_options(cuspatial_test_common PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:${CUSPATIAL_CXX_FLAGS}>"
+@@ -55,9 +55,9 @@ function(ConfigureTest CMAKE_TEST_NAME)
+         ${CMAKE_TEST_NAME}
+         PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${CUSPATIAL_BINARY_DIR}/gtests>"
+                    INSTALL_RPATH "\$ORIGIN/../../../lib"
+-                   CXX_STANDARD 17
++                   CXX_STANDARD 20
+                    CXX_STANDARD_REQUIRED ON
+-                   CUDA_STANDARD 17
++                   CUDA_STANDARD 20
+                    CUDA_STANDARD_REQUIRED ON
+     )
+     target_link_libraries(${CMAKE_TEST_NAME} GTest::gtest_main GTest::gmock_main ranger::ranger cudf::cudftestutil cuspatial cuspatial_test_common)
+diff --git a/cpp/tests/bounding_boxes/point_bounding_boxes_test.cu b/cpp/tests/bounding_boxes/point_bounding_boxes_test.cu
+index fcc85b9..2f6661c 100644
+--- a/cpp/tests/bounding_boxes/point_bounding_boxes_test.cu
++++ b/cpp/tests/bounding_boxes/point_bounding_boxes_test.cu
+@@ -25,7 +25,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ 
+ #include <thrust/binary_search.h>
+ #include <thrust/gather.h>
+diff --git a/cpp/tests/distance/linestring_distance_test.cu b/cpp/tests/distance/linestring_distance_test.cu
+index 830512c..4ab1a93 100644
+--- a/cpp/tests/distance/linestring_distance_test.cu
++++ b/cpp/tests/distance/linestring_distance_test.cu
+@@ -100,7 +100,7 @@ TYPED_TEST(PairwiseLinestringDistanceTest, FromSamePointArrayInput)
+                                                   offset_b.size() - 1,
+                                                   offset_b.begin(),
+                                                   4,
+-                                                  thrust::next(cart2ds.begin()));
++                                                  cuda::std::next(cart2ds.begin()));
+ 
+   auto ret = pairwise_linestring_distance(mlinestrings1, mlinestrings2, got.begin());
+ 
+diff --git a/cpp/tests/distance/linestring_polygon_distance_test.cu b/cpp/tests/distance/linestring_polygon_distance_test.cu
+index 9a09fd8..d1e6e35 100644
+--- a/cpp/tests/distance/linestring_polygon_distance_test.cu
++++ b/cpp/tests/distance/linestring_polygon_distance_test.cu
+@@ -25,7 +25,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <initializer_list>
+diff --git a/cpp/tests/distance/point_distance_test.cu b/cpp/tests/distance/point_distance_test.cu
+index 72476ee..884a1d9 100644
+--- a/cpp/tests/distance/point_distance_test.cu
++++ b/cpp/tests/distance/point_distance_test.cu
+@@ -102,8 +102,8 @@ auto compute_point_distance_host(Cart2DVec const& point1, Cart2DVec const& point
+   auto pair_iter =
+     thrust::make_zip_iterator(thrust::make_tuple(h_point1.begin(), h_point2.begin()));
+   auto result_iter = thrust::make_transform_iterator(pair_iter, [](auto p) {
+-    auto p0 = thrust::get<0>(p);
+-    auto p1 = thrust::get<1>(p);
++    auto p0 = cuda::std::get<0>(p);
++    auto p1 = cuda::std::get<1>(p);
+     return std::sqrt(dot(p0 - p1, p0 - p1));
+   });
+ 
+diff --git a/cpp/tests/distance/point_polygon_distance_test.cu b/cpp/tests/distance/point_polygon_distance_test.cu
+index 244ac5e..b82d5d8 100644
+--- a/cpp/tests/distance/point_polygon_distance_test.cu
++++ b/cpp/tests/distance/point_polygon_distance_test.cu
+@@ -24,7 +24,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <initializer_list>
+diff --git a/cpp/tests/distance/polygon_distance_test.cu b/cpp/tests/distance/polygon_distance_test.cu
+index 47a6638..3326dba 100644
+--- a/cpp/tests/distance/polygon_distance_test.cu
++++ b/cpp/tests/distance/polygon_distance_test.cu
+@@ -25,7 +25,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ 
+ #include <thrust/iterator/zip_iterator.h>
+ 
+@@ -45,7 +45,7 @@ struct PairwisePolygonDistanceTest : BaseFixture {
+     auto ret = pairwise_polygon_distance(lhs, rhs, got.begin(), stream());
+ 
+     CUSPATIAL_EXPECT_VECTORS_EQUIVALENT(expected, got);
+-    EXPECT_EQ(thrust::distance(got.begin(), ret), expected.size());
++    EXPECT_EQ(cuda::std::distance(got.begin(), ret), expected.size());
+   }
+ 
+   void run(std::initializer_list<std::size_t> lhs_multipolygon_geometry_offsets,
+diff --git a/cpp/tests/intersection/intersection_test_utils.cuh b/cpp/tests/intersection/intersection_test_utils.cuh
+index 3a2112d..5f2c20b 100644
+--- a/cpp/tests/intersection/intersection_test_utils.cuh
++++ b/cpp/tests/intersection/intersection_test_utils.cuh
+@@ -59,9 +59,9 @@ struct order_key_value_pairs {
+ 
+   bool CUSPATIAL_HOST_DEVICE operator()(key_value_t lhs, key_value_t rhs)
+   {
+-    return thrust::get<0>(lhs) < thrust::get<0>(rhs) ||
+-           (thrust::get<0>(lhs) == thrust::get<0>(rhs) &&
+-            thrust::get<1>(lhs) < thrust::get<1>(rhs));
++    return cuda::std::get<0>(lhs) < cuda::std::get<0>(rhs) ||
++           (cuda::std::get<0>(lhs) == cuda::std::get<0>(rhs) &&
++            cuda::std::get<1>(lhs) < cuda::std::get<1>(rhs));
+   }
+ };
+ 
+diff --git a/cpp/tests/intersection/linestring_intersection_intermediates_remove_if_test.cu b/cpp/tests/intersection/linestring_intersection_intermediates_remove_if_test.cu
+index 760ab72..0ca9af8 100644
+--- a/cpp/tests/intersection/linestring_intersection_intermediates_remove_if_test.cu
++++ b/cpp/tests/intersection/linestring_intersection_intermediates_remove_if_test.cu
+@@ -26,7 +26,7 @@
+ 
+ #include <rmm/device_vector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <thrust/iterator/zip_iterator.h>
+diff --git a/cpp/tests/intersection/linestring_intersection_large_test.cu b/cpp/tests/intersection/linestring_intersection_large_test.cu
+index 51c5713..d2ff9a9 100644
+--- a/cpp/tests/intersection/linestring_intersection_large_test.cu
++++ b/cpp/tests/intersection/linestring_intersection_large_test.cu
+@@ -2045,7 +2045,7 @@ TYPED_TEST(LinestringIntersectionLargeTest, LongInput_2)
+ 
+   thrust::tabulate(rmm::exec_policy(this->stream()),
+                    coordinates.begin(),
+-                   thrust::next(coordinates.begin(), 128),
++                   cuda::std::next(coordinates.begin(), 128),
+                    coordinate_functor<TypeParam>{});
+ 
+   coordinates.set_element(128, P{127.0, 0.0}, this->stream());
+diff --git a/cpp/tests/intersection/linestring_intersection_test.cpp b/cpp/tests/intersection/linestring_intersection_test.cpp
+index d91d99d..cbb7367 100644
+--- a/cpp/tests/intersection/linestring_intersection_test.cpp
++++ b/cpp/tests/intersection/linestring_intersection_test.cpp
+@@ -36,7 +36,7 @@
+ #include <cudf_test/type_lists.hpp>
+ 
+ #include <rmm/cuda_stream_view.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <initializer_list>
+diff --git a/cpp/tests/intersection/linestring_intersection_with_duplicates_test.cu b/cpp/tests/intersection/linestring_intersection_with_duplicates_test.cu
+index 720eb2e..9b6542c 100644
+--- a/cpp/tests/intersection/linestring_intersection_with_duplicates_test.cu
++++ b/cpp/tests/intersection/linestring_intersection_with_duplicates_test.cu
+@@ -29,8 +29,8 @@
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/device_vector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <cub/device/device_segmented_sort.cuh>
+diff --git a/cpp/tests/join/quadtree_point_in_polygon_test_large.cu b/cpp/tests/join/quadtree_point_in_polygon_test_large.cu
+index 554d197..228ccac 100644
+--- a/cpp/tests/join/quadtree_point_in_polygon_test_large.cu
++++ b/cpp/tests/join/quadtree_point_in_polygon_test_large.cu
+@@ -29,8 +29,8 @@
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ #include <rmm/resource_ref.hpp>
+ 
+ #include <thrust/gather.h>
+diff --git a/cpp/tests/range/multilinestring_range_test.cu b/cpp/tests/range/multilinestring_range_test.cu
+index b4d1fe6..602c100 100644
+--- a/cpp/tests/range/multilinestring_range_test.cu
++++ b/cpp/tests/range/multilinestring_range_test.cu
+@@ -26,7 +26,7 @@
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/device_vector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ 
+ #include <thrust/sequence.h>
+ #include <thrust/tabulate.h>
+@@ -1182,9 +1182,7 @@ class MultilinestringRangeOneThousandTest : public MultilinestringRangeTestBase<
+     thrust::tabulate(rmm::exec_policy(this->stream()),
+                      expected.begin(),
+                      expected.end(),
+-                     [] __device__(std::size_t i) {
+-                       return vec_2d<T>{i * T{10.}, i * T{10.}};
+-                     });
++                     [] __device__(std::size_t i) { return vec_2d<T>{i * T{10.}, i * T{10.}}; });
+     CUSPATIAL_EXPECT_VECTORS_EQUIVALENT(leading_points, expected);
+   }
+ 
+diff --git a/cpp/tests/range/multipoint_range_test.cu b/cpp/tests/range/multipoint_range_test.cu
+index 3e7546b..43c1b71 100644
+--- a/cpp/tests/range/multipoint_range_test.cu
++++ b/cpp/tests/range/multipoint_range_test.cu
+@@ -28,7 +28,7 @@
+ #include <rmm/device_scalar.hpp>
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ 
+ #include <thrust/iterator/constant_iterator.h>
+ #include <thrust/sequence.h>
+@@ -426,9 +426,7 @@ class LengthOneThousandRangeTest : public MultipointRangeTest<T> {
+     thrust::tabulate(rmm::exec_policy(this->stream()),
+                      coordinates.begin(),
+                      coordinates.end(),
+-                     [] __device__(auto i) {
+-                       return vec_2d<T>{static_cast<T>(i), 10.0};
+-                     });
++                     [] __device__(auto i) { return vec_2d<T>{static_cast<T>(i), 10.0}; });
+ 
+     auto array =
+       make_multipoint_array<std::size_t, T>(std::move(geometry_offsets), std::move(coordinates));
+diff --git a/cpp/tests/range/multipolygon_range_test.cu b/cpp/tests/range/multipolygon_range_test.cu
+index f39ffb7..c73f113 100644
+--- a/cpp/tests/range/multipolygon_range_test.cu
++++ b/cpp/tests/range/multipolygon_range_test.cu
+@@ -25,7 +25,7 @@
+ #include <rmm/device_scalar.hpp>
+ #include <rmm/device_uvector.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/device_memory_resource.hpp>
++#include <rmm/mr/device_memory_resource.hpp>
+ 
+ #include <thrust/sequence.h>
+ #include <thrust/tabulate.h>
+@@ -1204,9 +1204,7 @@ class MultipolygonRangeOneThousandTest : public MultipolygonRangeTestBase<T> {
+     thrust::tabulate(rmm::exec_policy(this->stream()),
+                      expected.begin(),
+                      expected.end(),
+-                     [] __device__(std::size_t i) {
+-                       return vec_2d<T>{i * T{10.}, i * T{10.}};
+-                     });
++                     [] __device__(std::size_t i) { return vec_2d<T>{i * T{10.}, i * T{10.}}; });
+ 
+     CUSPATIAL_EXPECT_VECTORS_EQUIVALENT(d_points, expected);
+   }
+diff --git a/cpp/tests/trajectory/derive_trajectories_test.cu b/cpp/tests/trajectory/derive_trajectories_test.cu
+index d6b78b6..3d785c3 100644
+--- a/cpp/tests/trajectory/derive_trajectories_test.cu
++++ b/cpp/tests/trajectory/derive_trajectories_test.cu
+@@ -23,7 +23,7 @@
+ 
+ #include <rmm/cuda_stream_view.hpp>
+ #include <rmm/exec_policy.hpp>
+-#include <rmm/mr/device/per_device_resource.hpp>
++#include <rmm/mr/per_device_resource.hpp>
+ 
+ #include <thrust/binary_search.h>
+ #include <thrust/gather.h>
+diff --git a/cpp/tests/trajectory/trajectory_test_utils.cuh b/cpp/tests/trajectory/trajectory_test_utils.cuh
+index b150e72..d8a6c91 100644
+--- a/cpp/tests/trajectory/trajectory_test_utils.cuh
++++ b/cpp/tests/trajectory/trajectory_test_utils.cuh
+@@ -139,9 +139,9 @@ struct trajectory_test_data {
+     __device__ std::int32_t operator()(int i)
+     {
+       // Find the index within the current trajectory
+-      return thrust::distance(
++      return cuda::std::distance(
+         offsets_begin,
+-        thrust::prev(thrust::upper_bound(thrust::seq, offsets_begin, offsets_end, i)));
++        cuda::std::prev(thrust::upper_bound(thrust::seq, offsets_begin, offsets_end, i)));
+     }
+   };
+ 
+@@ -156,7 +156,8 @@ struct trajectory_test_data {
+ 
+     __device__ time_point operator()(int i, int id)
+     {
+-      auto offset = thrust::prev(thrust::upper_bound(thrust::seq, offsets_begin, offsets_end, i));
++      auto offset =
++        cuda::std::prev(thrust::upper_bound(thrust::seq, offsets_begin, offsets_end, i));
+       auto time_step = i - *offset;
+       // The arithmetic here just adds some variance to the time step but keeps it monotonically
+       // increasing with `i`
+@@ -232,10 +233,10 @@ struct trajectory_test_data {
+     __host__ __device__ time_point::rep operator()(id_and_timestamp const& p0,
+                                                    id_and_timestamp const& p1)
+     {
+-      auto const id0 = thrust::get<0>(p0);
+-      auto const id1 = thrust::get<0>(p1);
+-      auto const t0  = thrust::get<1>(p0);
+-      auto const t1  = thrust::get<1>(p1);
++      auto const id0 = cuda::std::get<0>(p0);
++      auto const id1 = cuda::std::get<0>(p1);
++      auto const t0  = cuda::std::get<1>(p0);
++      auto const t1  = cuda::std::get<1>(p1);
+ 
+       if (id0 == id1) { return (t1 - t0).count(); }
+       return 0;
+@@ -246,11 +247,11 @@ struct trajectory_test_data {
+     using id_and_position = thrust::tuple<std::int32_t, cuspatial::vec_2d<T>>;
+     __host__ __device__ T operator()(id_and_position const& p0, id_and_position const& p1)
+     {
+-      auto const id0 = thrust::get<0>(p0);
+-      auto const id1 = thrust::get<0>(p1);
++      auto const id0 = cuda::std::get<0>(p0);
++      auto const id1 = cuda::std::get<0>(p1);
+       if (id0 == id1) {
+-        auto const pos0 = thrust::get<1>(p0);
+-        auto const pos1 = thrust::get<1>(p1);
++        auto const pos0 = cuda::std::get<1>(p0);
++        auto const pos1 = cuda::std::get<1>(p1);
+         auto const vec  = pos1 - pos0;
+         return sqrt(dot(vec, vec));
+       }
+@@ -268,10 +269,10 @@ struct trajectory_test_data {
+                                                      duration_distance const& b)
+     {
+       auto time_d =
+-        time_point::duration(thrust::get<0>(a)) + time_point::duration(thrust::get<0>(b));
++        time_point::duration(cuda::std::get<0>(a)) + time_point::duration(cuda::std::get<0>(b));
+       auto time_s =
+         static_cast<T>(time_d.count()) * static_cast<T>(Period::num) / static_cast<T>(Period::den);
+-      T dist_km   = thrust::get<1>(a) + thrust::get<1>(b);
++      T dist_km   = cuda::std::get<1>(a) + cuda::std::get<1>(b);
+       T dist_m    = dist_km * T{1000.0};  // km to m
+       T speed_m_s = dist_m / time_s;      // m/ms to m/s
+       return {time_d.count(), dist_km, dist_m, speed_m_s};
+-- 
+2.53.0
+

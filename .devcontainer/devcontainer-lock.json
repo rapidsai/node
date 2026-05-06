@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1.0.12": {
+      "version": "1.0.12",
+      "resolved": "ghcr.io/devcontainers/features/github-cli@sha256:183d18b42de353e3689615fd21eb67427bc1f763c5b830c2798dcbb993da2049",
+      "integrity": "sha256:183d18b42de353e3689615fd21eb67427bc1f763c5b830c2798dcbb993da2049"
+    },
+    "ghcr.io/rapidsai/devcontainers/features/utils:latest": {
+      "version": "26.6.1",
+      "resolved": "ghcr.io/rapidsai/devcontainers/features/utils@sha256:55bd15bbd4eaaadc289c2d52c4b94d7087e74b097d56c0e2a20dc6e9536f31dc",
+      "integrity": "sha256:55bd15bbd4eaaadc289c2d52c4b94d7087e74b097d56c0e2a20dc6e9536f31dc"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@ namespace nv {
 Table::wrapper_t Table::gather(Column const& gather_map,
                                cudf::out_of_bounds_policy bounds_policy,
                                rmm::mr::device_memory_resource* mr) const {
-  return Table::New(Env(), cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr));
+  return Table::New(
+    Env(),
+    cudf::gather(
+      cudf::table_view{{*this}}, gather_map, bounds_policy, nv::get_default_stream(), mr));
 }
 
 Table::wrapper_t Table::scatter(
@@ -35,7 +38,7 @@ Table::wrapper_t Table::scatter(
   Column const& indices,
   rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::scatter(source, indices, *this, mr));
+    return Table::New(Env(), cudf::scatter(source, indices, *this, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -43,7 +46,7 @@ Table::wrapper_t Table::scatter(Table const& source,
                                 Column const& indices,
                                 rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::scatter(source, indices, *this, mr));
+    return Table::New(Env(), cudf::scatter(source, indices, *this, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

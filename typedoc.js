@@ -11,7 +11,6 @@ module.exports = {
     'modules/glfw/src/index.ts',
     'modules/jsdom/src/index.ts',
     'modules/webgl/src/index.ts',
-    'modules/sql/src/index.ts',
   ],
   out: 'doc',
   name: 'RAPIDS',

@@ -44,12 +44,10 @@ describe('Series unaryops (Int32)', () => {
   test('Series.cosh', () => { expect(runMathOp('cosh')).toEqual([10, 1, 10]); });
   test('Series.tanh', () => { expect(runMathOp('tanh')).toEqual([0, 0, 0]); });
   test('Series.asinh', () => { expect(runMathOp('asinh')).toEqual([-1, 0, 1]); });
-  test('Series.acosh', () => {
-    expect(runMathOp('acosh')).toEqual([-2147483648, -2147483648, 1]);
-  });
-  test('Series.atanh', () => {
-    expect(runMathOp('atanh')).toEqual([-2147483648, 0, -2147483648]);
-  });
+  test('Series.acosh',
+       () => { expect(runMathOp('acosh')).toEqual([-2147483648, -2147483648, 1]); });
+  test('Series.atanh',
+       () => { expect(runMathOp('atanh')).toEqual([-2147483648, 0, -2147483648]); });
   test('Series.exp', () => { expect(runMathOp('exp')).toEqual([0, 1, 20]); });
   test('Series.log', () => { expect(runMathOp('log')).toEqual([-2147483648, -2147483648, 1]); });
   test('Series.sqrt', () => { expect(runMathOp('sqrt')).toEqual([-2147483648, 0, 1]); });

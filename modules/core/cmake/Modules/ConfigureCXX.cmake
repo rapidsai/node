@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,7 +58,8 @@ unset(CMAKE_CUDA_FLAGS CACHE)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     option(NODE_RAPIDS_CMAKE_CXX11_ABI "Enable the GLIBCXX11 ABI" ON)
-    list(APPEND NODE_RAPIDS_CMAKE_CXX_FLAGS -Wall -Werror -Wno-unknown-pragmas -Wno-error=deprecated-declarations)
+    list(APPEND NODE_RAPIDS_CMAKE_CXX_FLAGS -Wall -Wno-unknown-pragmas -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized)
+    list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Xcompiler=-Wno-error=maybe-uninitialized)
     if(NODE_RAPIDS_CMAKE_CXX11_ABI)
         message(STATUS "Enabling the GLIBCXX11 ABI")
     else()

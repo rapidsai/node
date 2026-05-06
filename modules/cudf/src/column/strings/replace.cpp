@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <node_rmm/memory_resource.hpp>
 
 #include <cudf/strings/replace.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
 
 namespace nv {
 
@@ -27,7 +27,14 @@ Column::wrapper_t Column::replace_slice(std::string const& repl,
                                         cudf::size_type stop,
                                         rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::replace_slice(this->view(), repl, start, stop, mr));
+    return Column::New(
+      Env(),
+      cudf::strings::replace_slice(this->view(),
+                                   cudf::string_scalar{repl, true, nv::get_default_stream(), mr},
+                                   start,
+                                   stop,
+                                   nv::get_default_stream(),
+                                   mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

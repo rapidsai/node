@@ -1,0 +1,77 @@
+From 64d605b402b465153b34f0966c6998b399918672 Mon Sep 17 00:00:00 2001
+From: ptaylor <paul.e.taylor@me.com>
+Date: Thu, 26 Mar 2026 09:22:04 -0700
+Subject: [PATCH] don't exclude libcurl from ALL target
+
+---
+ cpp/CMakeLists.txt                        |  6 +++++-
+ cpp/cmake/thirdparty/get_kvikio.cmake     |  1 +
+ cpp/cmake/thirdparty/patches/kvikio.patch | 13 +++++++++++++
+ 3 files changed, 19 insertions(+), 1 deletion(-)
+ create mode 100644 cpp/cmake/thirdparty/patches/kvikio.patch
+
+diff --git a/cpp/CMakeLists.txt b/cpp/CMakeLists.txt
+index c482b22f7..388982326 100644
+--- a/cpp/CMakeLists.txt
++++ b/cpp/CMakeLists.txt
+@@ -311,6 +311,8 @@ include(cmake/thirdparty/get_thread_pool.cmake)
+ # find zstd
+ include(cmake/thirdparty/get_zstd.cmake)
+ 
++set(NVCOMP_LIB nvcomp::nvcomp)
++
+ # Workaround until https://github.com/rapidsai/rapids-cmake/issues/176 is resolved
+ if(NOT BUILD_SHARED_LIBS)
+   include("${rapids-cmake-dir}/export/find_package_file.cmake")
+@@ -326,6 +328,8 @@ if(NOT BUILD_SHARED_LIBS)
+   if(TARGET conda_env)
+     install(TARGETS conda_env EXPORT cudf-exports)
+   endif()
++
++  set(NVCOMP_LIB nvcomp::nvcomp_static)
+ endif()
+ 
+ # ##################################################################################################
+@@ -988,7 +992,7 @@ add_dependencies(cudf jitify_preprocess_run)
+ target_link_libraries(
+   cudf
+   PUBLIC CCCL::CCCL rapids_logger::rapids_logger rmm::rmm $<BUILD_LOCAL_INTERFACE:BS::thread_pool>
+-  PRIVATE $<BUILD_LOCAL_INTERFACE:nvtx3::nvtx3-cpp> cuco::cuco ZLIB::ZLIB nvcomp::nvcomp
++  PRIVATE $<BUILD_LOCAL_INTERFACE:nvtx3::nvtx3-cpp> cuco::cuco ZLIB::ZLIB ${NVCOMP_LIB}
+           kvikio::kvikio nanoarrow::nanoarrow zstd
+ )
+ 
+diff --git a/cpp/cmake/thirdparty/get_kvikio.cmake b/cpp/cmake/thirdparty/get_kvikio.cmake
+index 41137dbb1..da956ad16 100644
+--- a/cpp/cmake/thirdparty/get_kvikio.cmake
++++ b/cpp/cmake/thirdparty/get_kvikio.cmake
+@@ -16,6 +16,7 @@ function(find_and_configure_kvikio VERSION)
+     GIT_TAG "${RAPIDS_BRANCH}"
+     GIT_SHALLOW TRUE SOURCE_SUBDIR cpp
+     OPTIONS "KvikIO_BUILD_EXAMPLES OFF" "KvikIO_REMOTE_SUPPORT ${CUDF_KVIKIO_REMOTE_IO}"
++    PATCHES "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/patches/kvikio.patch"
+   )
+ 
+ endfunction()
+diff --git a/cpp/cmake/thirdparty/patches/kvikio.patch b/cpp/cmake/thirdparty/patches/kvikio.patch
+new file mode 100644
+index 000000000..7ca30f662
+--- /dev/null
++++ b/cpp/cmake/thirdparty/patches/kvikio.patch
+@@ -0,0 +1,13 @@
++diff --git a/cpp/cmake/thirdparty/get_libcurl.cmake b/cpp/cmake/thirdparty/get_libcurl.cmake
++index 539c4af..a490cbc 100644
++--- a/cpp/cmake/thirdparty/get_libcurl.cmake
+++++ b/cpp/cmake/thirdparty/get_libcurl.cmake
++@@ -22,7 +22,7 @@ function(find_and_configure_libcurl)
++     GIT_TAG curl-8_13_0
++     OPTIONS "BUILD_CURL_EXE OFF" "BUILD_SHARED_LIBS OFF" "BUILD_TESTING OFF" "CURL_USE_LIBPSL OFF"
++             "CURL_DISABLE_LDAP ON" "CMAKE_POSITION_INDEPENDENT_CODE ON"
++-    EXCLUDE_FROM_ALL YES # Don't install libcurl.a (only needed when building libkvikio.so)
+++    # EXCLUDE_FROM_ALL YES # Don't install libcurl.a (only needed when building libkvikio.so)
++   )
++   if(DEFINED CACHE_HAS_BUILD_TESTING)
++     set(BUILD_TESTING
+-- 
+2.53.0
+

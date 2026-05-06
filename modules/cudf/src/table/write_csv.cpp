@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ cudf::io::table_metadata make_csv_writer_metadata(Napi::Object const& options,
     Napi::Array column_names = napi_opt("columnNames").IsArray()
                                ? napi_opt("columnNames").As<Napi::Array>()
                                : Napi::Array::New(env, table.num_columns());
-    metadata.column_names.reserve(table.num_columns());
+    metadata.schema_info.reserve(table.num_columns());
     for (auto i = 0u; i < column_names.Length(); ++i) {
       auto name = column_names.Has(i) ? column_names.Get(i) : env.Null();
-      metadata.column_names.push_back(
-        name.IsString() || name.IsNumber() ? name.ToString().Utf8Value() : null_value);
+      metadata.schema_info.push_back(
+        {name.IsString() || name.IsNumber() ? name.ToString().Utf8Value() : null_value});
     }
   }
   return metadata;
@@ -68,8 +68,14 @@ cudf::io::csv_writer_options make_writer_options(Napi::Object const& options,
     return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
   };
 
+  std::vector<std::string> names(metadata->schema_info.size());
+  std::transform(
+    metadata->schema_info.begin(), metadata->schema_info.end(), names.begin(), [](auto const& col) {
+      return col.name;
+    });
+
   return std::move(cudf::io::csv_writer_options::builder(sink, table)
-                     .names(metadata->column_names)
+                     .names(names)
                      .na_rep(str_opt("nullValue", "N/A"))
                      .include_header(bool_opt("includeHeader", true))
                      .rows_per_chunk(long_opt("rowsPerChunk", 8))

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@
 
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
-#include <cuspatial/coordinate_transform.hpp>
+#include <cuspatial/bounding_boxes.hpp>
 #include <cuspatial/error.hpp>
-#include <cuspatial/linestring_bounding_box.hpp>
-#include <cuspatial/polygon_bounding_box.hpp>
+#include <cuspatial/projection.hpp>
 
 #include <nv_node/utilities/args.hpp>
 
@@ -82,7 +81,8 @@ Napi::Value lonlat_to_cartesian(CallbackArgs const& args) {
   rmm::mr::device_memory_resource* mr = args[4];
   auto result                         = [&]() {
     try {
-      return cuspatial::lonlat_to_cartesian(origin_lon, origin_lat, *lons_column, *lats_column, mr);
+      return cuspatial::sinusoidal_projection(
+        origin_lon, origin_lat, *lons_column, *lats_column, mr);
     } catch (std::exception const& e) { throw Napi::Error::New(args.Env(), e.what()); }
   }();
   auto output = Napi::Object::New(args.Env());

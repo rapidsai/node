@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeo pipefail
+set -Eeuo pipefail
 
 TOP="$(pwd)"
 BIN="$(realpath node_modules/.bin)"
@@ -17,7 +17,7 @@ for DIR in $DIRS; do
         rm -rf "$DIR/node_modules/.bin"
         ln -sf "$BIN" "$DIR/node_modules/.bin"
         # copy the ESLint settings file (for the VSCode ESLint plugin)
-        # cp ".eslintrc.js" "$DIR/.eslintrc.js"
+        # cp "eslint.config.js" "$DIR/eslint.config.js"
         # remove the local .cache symlink
         rm -rf "$DIR/.cache"
         # symlink to the shared top-level .cache dir
@@ -26,8 +26,8 @@ for DIR in $DIRS; do
         touch ".env" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/.env")" "$DIR/.env"
         # symlink to the shared .clangd settings file
         touch ".clangd" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/.clangd")" "$DIR/.clangd"
-        # symlink to the shared .eslintrc.js settings file
-        touch ".eslintrc.js" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/.eslintrc.js")" "$DIR/.eslintrc.js"
+        # symlink to the shared eslint.config.js settings file
+        touch "eslint.config.js" && ln -sf "$(realpath --relative-to="$DIR" "$TOP/eslint.config.js")" "$DIR/eslint.config.js"
     fi;
 done
 

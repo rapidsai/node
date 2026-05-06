@@ -10,28 +10,53 @@ concurrency:
   group: build-docker-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  discussions: none
+  id-token: write
+  issues: none
+  packages: write
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 jobs:
 
   build-and-publish-devel-main-image:
-    name: Build and publish devel main image
+    name: Build devel main image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       image: devel-main
       file: dev/dockerfiles/devel/main.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       files-to-diff: |
         modules
       build-args: |
-        "UCX_VERSION=1.12.1"
+        "UCX_VERSION=1.20.0"
 
   build-and-publish-devel-packages-image:
     name: Build devel packages image
     needs:
       - build-and-publish-devel-main-image
-    uses: ./.github/workflows/build-and-push-image-ssh.yml
+    uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: devel-main
       image: devel-packages
       file: dev/dockerfiles/devel/package.Dockerfile
@@ -39,11 +64,9 @@ jobs:
       files-to-diff: |
         modules
         dev/dockerfiles/devel/main.Dockerfile
+      generate-creds: true
       build-args: |
-        "CUDAARCHS=ALL"
-        "SCCACHE_IDLE_TIMEOUT=32768"
-        "SCCACHE_REGION=us-west-2"
-        "SCCACHE_BUCKET=node-rapids-sccache"
+        "CUDAARCHS=RAPIDS"
 
   build-and-publish-runtime-cuda-base-image:
     name: Build runtime cuda-base image
@@ -51,7 +74,12 @@ jobs:
       - build-and-publish-devel-main-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       image: runtime-base
       devel: devel-main
       file: dev/dockerfiles/runtime/base.Dockerfile
@@ -66,7 +94,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cudf
       build: devel-packages
@@ -84,7 +117,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cuml
       build: devel-packages
@@ -102,7 +140,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cugraph
       build: devel-packages
@@ -120,7 +163,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-cuspatial
       build: devel-packages
@@ -138,7 +186,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-glfw
       build: devel-packages
@@ -149,26 +202,6 @@ jobs:
         dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
 
-  build-and-publish-runtime-sql-image:
-    name: Build runtime sql image
-    needs:
-      - build-and-publish-devel-packages-image
-      - build-and-publish-runtime-cuda-base-image
-    uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
-    with:
-      from_: runtime-base
-      image: runtime-sql
-      build: devel-packages
-      devel: devel-main
-      file: dev/dockerfiles/runtime/sql.Dockerfile
-      files-to-diff: |
-        modules/(core|rmm|cuda|cudf|sql)
-        dev/dockerfiles/runtime/base.Dockerfile
-      manual-build: ${{ github.event_name == 'workflow_dispatch' }}
-      build-args: |
-        "UCX_VERSION=1.12.1"
-
   build-and-publish-runtime-main-image:
     name: Build runtime main image
     needs:
@@ -176,18 +209,23 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-main
       build: devel-packages
       devel: devel-main
       file: dev/dockerfiles/runtime/main.Dockerfile
       files-to-diff: |
-        modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck.gl|jsdom)
+        modules/(core|cuda|glfw|webgl|rmm|cudf|cuml|cugraph|cuspatial|deck.gl|jsdom)
         dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=1.12.1"
+        "UCX_VERSION=1.20.0"
 
   build-and-publish-runtime-demo-image:
     name: Build runtime demo image
@@ -196,7 +234,12 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
+    strategy:
+      fail-fast: true
+      matrix:
+        cuda: ["12.9.1", "13.1.1"]
     with:
+      cuda: ${{ matrix.cuda }}
       from_: runtime-base
       image: runtime-demo
       build: devel-packages
@@ -207,21 +250,4 @@ jobs:
         dev/dockerfiles/runtime/base.Dockerfile
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
-        "UCX_VERSION=1.12.1"
-
-  build-and-publish-runtime-notebook-image:
-    name: Build runtime notebook image
-    needs:
-      - build-and-publish-runtime-demo-image
-    uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
-    with:
-      from_: runtime-demo
-      image: runtime-notebook
-      file: dev/dockerfiles/runtime/notebook.Dockerfile
-      files-to-diff: |
-        **/*.ipynb
-        modules/demo
-        dev/dockerfiles/runtime/base.Dockerfile
-        dev/dockerfiles/runtime/demo.Dockerfile
-      manual-build: ${{ github.event_name == 'workflow_dispatch' }}
+        "UCX_VERSION=1.20.0"

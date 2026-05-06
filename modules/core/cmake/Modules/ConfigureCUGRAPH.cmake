@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2026, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,62 +15,62 @@
 #=============================================================================
 include_guard(GLOBAL)
 
-function(find_and_configure_cugraph)
+include(${CMAKE_CURRENT_LIST_DIR}/get_cpm.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/get_version.cmake)
 
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_nccl.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUGRAPHOPS.cmake)
+_get_rapidsai_module_version(cugraph VERSION GIT_TAG)
 
-    _get_rapidsai_module_version(cugraph VERSION)
+_clean_build_dirs_if_not_fully_built(cugraph libcugraph)
 
-    _clean_build_dirs_if_not_fully_built(cugraph libcugraph)
+if(NOT TARGET cugraph::cugraph)
+  _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
 
-    _set_thrust_dir_if_exists()
-    _set_package_dir_if_exists(cuco cuco)
-    _set_package_dir_if_exists(raft raft)
-    _set_package_dir_if_exists(cugraph cugraph)
-    _set_package_dir_if_exists(cuhornet cuhornet)
-    _set_package_dir_if_exists(cugraph-ops cugraph-ops)
+  # For raft/cuvs sub-builds
+  set(BUILD_C_LIBRARY OFF)
+  set(BUILD_CUVS_BENCH OFF)
+  set(BUILD_CAGRA_HNSWLIB OFF)
+  set(BUILD_MG_ALGOS OFF)
+  set(CUDA_STATIC_RUNTIME ON)
+  set(CUDA_STATIC_MATH_LIBRARIES ON)
+  set(CUVS_COMPILE_DYNAMIC_ONLY OFF)
+  set(CUVS_STATIC_RAPIDS_LIBRARIES ON)
+  set(DISABLE_DEPRECATION_WARNINGS ON)
 
-    if(NOT TARGET cugraph::cugraph)
-        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
-        _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME        cugraph
-            VERSION                ${VERSION}
-            GIT_REPOSITORY         https://github.com/rapidsai/cugraph.git
-            GIT_TAG                branch-${MAJOR_AND_MINOR}
-            # EXCLUDE_FROM_ALL       TRUE
-            GIT_SHALLOW            TRUE
-            ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR          cpp
-            OPTIONS                "BUILD_TESTS OFF"
-                                   "BUILD_BENCHMARKS OFF"
-                                   "BUILD_SHARED_LIBS OFF"
-                                   "CUDA_STATIC_RUNTIME ON"
-                                   "BUILD_CUGRAPH_MG_TESTS OFF"
-            PATCH_COMMAND          patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/../patches/cugraph.patch || true
-        )
-    endif()
+  CPMFindPackage(NAME         cugraph
+    VERSION                 ${VERSION}
+    GIT_REPOSITORY          https://github.com/rapidsai/cugraph.git
+    GIT_TAG                 ${GIT_TAG}
+    CUSTOM_CACHE_KEY        ${GIT_TAG}
+    GIT_SHALLOW             TRUE
+    ${UPDATE_DISCONNECTED}
+    SOURCE_SUBDIR           cpp
+    OPTIONS                 "BUILD_TESTS OFF"
+                            "BUILD_BENCHMARKS OFF"
+                            "BUILD_SHARED_LIBS OFF"
+                            "BUILD_CUGRAPH_MG_TESTS OFF"
+                            "CUDA_STATIC_RUNTIME ON"
+                            "USE_RAFT_STATIC ON"
+                            "CUGRAPH_COMPILE_CUVS ON"
+                            "CUGRAPH_USE_CUVS_STATIC ON"
+                            "BUILD_CUGRAPH_MG_TESTS OFF"
+    PATCHES                 "${CMAKE_CURRENT_LIST_DIR}/../patches/cugraph.patch"
+  )
+endif()
 
-    if(NOT TARGET cugraph::cuHornet AND
-      (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS}))
-        set(cuhornet_SOURCE_DIR "${CPM_BINARY_CACHE}/cuhornet-src")
-        if (EXISTS "${cuhornet_SOURCE_DIR}")
-            add_library(cugraph::cuHornet IMPORTED INTERFACE GLOBAL)
-            target_include_directories(cugraph::cuHornet INTERFACE
-                "${cuhornet_SOURCE_DIR}/hornet/include"
-                "${cuhornet_SOURCE_DIR}/hornetsnest/include"
-                "${cuhornet_SOURCE_DIR}/xlib/include"
-                "${cuhornet_SOURCE_DIR}/primitives"
-            )
-        endif()
-    endif()
+if(NOT cugraph_BINARY_DIR OR (NOT cugraph_SOURCE_DIR))
+  if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    set(cugraph_BINARY_DIR "${CPM_BINARY_CACHE}/cugraph-build")
+    set(cugraph_SOURCE_DIR "${CPM_SOURCE_CACHE}/cugraph/${GIT_TAG}")
+  else()
+    set(cugraph_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cugraph-build")
+    set(cugraph_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/cugraph/${GIT_TAG}")
+  endif()
+endif()
 
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/link_utils.cmake)
-    _statically_link_cuda_toolkit_libs(cugraph::cugraph)
+set(CPM_cugraph_SOURCE "${cugraph_SOURCE_DIR}")
 
-    set(cugraph_VERSION "${cugraph_VERSION}" PARENT_SCOPE)
-endfunction()
+include(${CMAKE_CURRENT_LIST_DIR}/link_utils.cmake)
+_statically_link_cuda_toolkit_libs(cugraph::cugraph)
 
-find_and_configure_cugraph()
+rapids_export_package(INSTALL cugraph ${PROJECT_NAME}-exports)
+rapids_export_find_package_root(INSTALL cugraph "\${PACKAGE_PREFIX_DIR}/lib/cmake/cugraph" EXPORT_SET ${PROJECT_NAME}-exports)

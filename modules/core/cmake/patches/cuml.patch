@@ -1,31 +1,13 @@
-diff --git a/cpp/cmake/thirdparty/get_nccl.cmake b/cpp/cmake/thirdparty/get_nccl.cmake
-index a80eefab..a69ae4ca 100644
---- a/cpp/cmake/thirdparty/get_nccl.cmake
-+++ b/cpp/cmake/thirdparty/get_nccl.cmake
-@@ -16,23 +16,20 @@
+diff --git a/cpp/CMakeLists.txt b/cpp/CMakeLists.txt
+index a0d6df85..4152e52c 100644
+--- a/cpp/CMakeLists.txt
++++ b/cpp/CMakeLists.txt
+@@ -171,7 +171,7 @@ set(_ctk_static_suffix "")
+ set(_ctk_fft_static_suffix "")
+ if(CUDA_STATIC_MATH_LIBRARIES)
+   set(_ctk_static_suffix "_static")
+-  set(_ctk_fft_static_suffix "_static_nocallback")
++  set(_ctk_fft_static_suffix "_static")
+ endif()
  
- function(find_and_configure_nccl)
- 
--    if(TARGET nccl::nccl)
-+    if(TARGET NCCL::NCCL)
-         return()
-     endif()
- 
-     rapids_find_generate_module(NCCL
-         HEADER_NAMES  nccl.h
-         LIBRARY_NAMES nccl
-+        BUILD_EXPORT_SET cuml-exports
-     )
- 
-     # Currently NCCL has no CMake build-system so we require
-     # it built and installed on the machine already
--    rapids_find_package(NCCL REQUIRED)
-+    rapids_find_package(NCCL REQUIRED BUILD_EXPORT_SET cuml-exports)
- 
- endfunction()
- 
- find_and_configure_nccl()
--
--
--
--
+ if(NOT DISABLE_OPENMP)

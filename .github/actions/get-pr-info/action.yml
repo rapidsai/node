@@ -1,0 +1,40 @@
+name: "Get PR Info"
+
+inputs:
+  pr_number:
+    type: string
+    required: false
+
+outputs:
+  pr-info:
+    description: "String encoded JSON object containing pull-request information"
+    value: ${{ steps.get-pull-request.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+      id: get-pull-request
+      with:
+        retries: 3
+        script: |
+          return (
+            await github.rest.pulls.get({
+              repo: context.repo.repo,
+              owner: context.repo.owner,
+              pull_number: (() => {
+                switch('${{ github.event_name }}') {
+                  case 'pull_request':
+                  case 'pull_request_target':
+                    return '${{ github.ref }}'.split('/')[2];
+                  case 'push':
+                    const branch = '${{ github.ref_name }}';
+                    if (!branch.match(new RegExp('^pull-request/[0-9]+$'))) {
+                      throw new Error(`${branch} does not match PR branch pattern.`);
+                    }
+                    return branch.split('/')[1];
+                }
+                throw new Error(`Could not determine pull request number.`);
+              })()
+            })
+          ).data;

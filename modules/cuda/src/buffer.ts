@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -116,7 +116,8 @@ export function setDefaultAllocator(allocate?: null|((byteLength: number) => Mem
 /**
  * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
-export interface MemoryView<T extends TypedArray|BigIntArray = any> extends ArrayBufferView {
+
+export interface MemoryView<T extends TypedArray|BigIntArray = any> extends ArrayBufferView<any> {
   /**
    * @summary The size in bytes of each element in the MemoryView.
    */
@@ -135,8 +136,9 @@ export interface MemoryView<T extends TypedArray|BigIntArray = any> extends Arra
 /**
  * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements
-  ArrayBufferView {
+  ArrayBufferView<any> {
   public static readonly BYTES_PER_ELEMENT: number;
 
   /**
@@ -342,7 +344,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                             case 'number':
                               if (i > -1 && i < receiver.length) {
                                 const {byteOffset, BYTES_PER_ELEMENT, E} = receiver;
-                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
                                 receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
                                 cudaMemcpy(E, receiver, BYTES_PER_ELEMENT);
                                 receiver.byteOffset = byteOffset;
@@ -362,7 +364,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                             case 'number':
                               if (i > -1 && i < receiver.length) {
                                 const {byteOffset, BYTES_PER_ELEMENT, E} = receiver;
-                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
                                 receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
                                 E[0]                = value;
                                 cudaMemcpy(receiver, E, BYTES_PER_ELEMENT);

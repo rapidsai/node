@@ -1,4 +1,4 @@
-// Copyright (c) 2022, NVIDIA CORPORATION.
+// Copyright (c) 2022-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ namespace nv {
 Table::wrapper_t Table::explode(cudf::size_type explode_column_idx,
                                 rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::explode(*this, explode_column_idx, mr));
+    return Table::New(Env(),
+                      cudf::explode(*this, explode_column_idx, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -34,7 +35,8 @@ Napi::Value Table::explode(Napi::CallbackInfo const& info) {
 Table::wrapper_t Table::explode_position(cudf::size_type explode_column_idx,
                                          rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::explode_position(*this, explode_column_idx, mr));
+    return Table::New(
+      Env(), cudf::explode_position(*this, explode_column_idx, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -46,7 +48,8 @@ Napi::Value Table::explode_position(Napi::CallbackInfo const& info) {
 Table::wrapper_t Table::explode_outer(cudf::size_type explode_column_idx,
                                       rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::explode_outer(*this, explode_column_idx, mr));
+    return Table::New(Env(),
+                      cudf::explode_outer(*this, explode_column_idx, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
@@ -58,7 +61,8 @@ Napi::Value Table::explode_outer(Napi::CallbackInfo const& info) {
 Table::wrapper_t Table::explode_outer_position(cudf::size_type explode_column_idx,
                                                rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(Env(), cudf::explode_outer_position(*this, explode_column_idx, mr));
+    return Table::New(
+      Env(), cudf::explode_outer_position(*this, explode_column_idx, nv::get_default_stream(), mr));
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 

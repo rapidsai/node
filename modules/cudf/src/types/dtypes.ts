@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 
 import * as arrow from 'apache-arrow';
 
@@ -146,13 +148,13 @@ export interface TimestampNanosecond extends arrow.TimestampNanosecond {
 }
 export class TimestampNanosecond extends arrow.TimestampNanosecond {}
 
-export interface Categorical<T extends DataType = any> extends arrow.Dictionary<T, Uint32> {
+export interface Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
   scalarType: T['scalarType'];
 }
-export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, Uint32> {
+export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
   constructor(dictionary: T, _id?: number|null, isOrdered?: boolean|null) {
     // we are overriding the id here so that Arrow dictionaries will always compare
-    super(dictionary, new Uint32, 0, isOrdered);
+    super(dictionary, new Int32, 0, isOrdered);
   }
 }
 

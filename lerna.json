@@ -1,5 +1,5 @@
 {
-  "version": "22.12.2",
+  "version": "26.4.0",
   "npmClient": "yarn",
   "skipGit": true,
   "useWorkspaces": true,
@@ -16,7 +16,6 @@
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
     "modules/demo/api-server",
-    "modules/demo/viz-app",
-    "modules/demo/sql/*"
+    "modules/demo/viz-app"
   ]
 }

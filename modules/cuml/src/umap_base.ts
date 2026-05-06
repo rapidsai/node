@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataType, Numeric} from '@rapidsai/cudf';
+import {Column, Float32, Int64} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import * as CUML from './addon';
-import {COOInterface} from './coo';
+import {COO} from './coo';
 import {CUMLLogLevels, MetricType} from './mappings';
 
 /**
@@ -45,58 +45,51 @@ export type UMAPParams = {
   randomState?: number,
 };
 
-export type FitProps<T extends Numeric = any, R extends Numeric = any> = {
-  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
-  featuresType: T,
+export type FitProps = {
   nSamples: number,
   nFeatures: number,
-  convertDType: boolean,
+  features: Column<Float32>,
+  graph: COO,
   embeddings: DeviceBuffer,
-  graph: COOInterface,
-  target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
-  targetType?: R,
-  knnIndices?: DeviceBuffer,
-  knnDists?: DeviceBuffer,
+  target?: Column<Float32>,
+  knnIndices?: Column<Int64>,
+  knnDists?: Column<Float32>,
 };
 
-export type RefineProps<T extends Numeric = any> = {
-  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
-  featuresType: T,
+export type RefineProps = {
   nSamples: number,
   nFeatures: number,
-  convertDType: boolean,
+  features: Column<Float32>,
+  graph: COO,
   embeddings: DeviceBuffer,
-  coo: COOInterface
 };
 
-export type GetGraphProps<T extends Numeric = any, R extends Numeric = any> = {
-  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
-  featuresType: T,
+export type GetGraphProps = {
   nSamples: number,
   nFeatures: number,
-  knnIndices?: DeviceBuffer,
-  knnDists?: DeviceBuffer, convertDType: boolean,
-  target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
-  targetType?: R
+  features: Column<Float32>,
+  target?: Column<Float32>,
+  knnIndices?: Column<Int64>,
+  knnDists?: Column<Float32>,
 };
 
-export type transformProps<T extends Numeric = any> = {
-  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
-  featuresType: DataType,
+export type TransformProps = {
+  features: Column<Float32>,
   nSamples: number,
   nFeatures: number,
-  convertDType: boolean,
   embeddings: DeviceBuffer,
   transformed: DeviceBuffer,
-  knnIndices?: DeviceBuffer,
-  knnDists?: DeviceBuffer,
+  knnIndices?: Column<Int64>,
+  knnDists?: Column<Float32>,
 };
 
 export interface UMAPConstructor {
-  new(options?: UMAPParams): UMAPInterface;
+  readonly prototype: UMAP;
+
+  new(options?: UMAPParams): UMAP;
 }
 
-export interface UMAPInterface {
+export interface UMAP {
   readonly nNeighbors: number;
   readonly nComponents: number;
   readonly nEpochs: number;
@@ -118,12 +111,13 @@ export interface UMAPInterface {
   readonly targetWeight: number;
   readonly randomState: number;
 
-  fit<T extends Numeric, R extends Numeric>(options?: FitProps<T, R>): DeviceBuffer;
+  fit(options?: FitProps): DeviceBuffer;
 
-  transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
+  transform(options?: TransformProps): DeviceBuffer;
 
-  refine<T extends Numeric>(options?: RefineProps<T>): DeviceBuffer;
+  refine(options?: RefineProps): DeviceBuffer;
 
-  graph<T extends Numeric, R extends Numeric>(options?: GetGraphProps<T, R>): COOInterface;
+  graph(options?: GetGraphProps): COO;
 }
-export const UMAPBase: UMAPConstructor = CUML.UMAP;
+
+export const UMAP: UMAPConstructor = CUML.UMAP;

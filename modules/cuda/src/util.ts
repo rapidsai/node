@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ export const isBigInt = (x: any): x is bigint => typeof x === 'bigint';
 /** @ignore */
 export const isBoolean = (x: any): x is boolean => typeof x === 'boolean';
 /** @ignore */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const isFunction = (x: any): x is Function => typeof x === 'function';
 /** @ignore */
-// eslint-disable-next-line @typescript-eslint/ban-types
-export const isObject = (x: any): x is Object => x != null && Object(x) === x;
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+export const isObject = (x: any): x is object&any => x != null && Object(x) === x;
 
 /** @ignore */
 export const isPromise =
@@ -57,7 +57,7 @@ export const isArrayBufferLike = (x: any): x is ArrayBufferLike => {
 };
 
 /** @ignore */
-// eslint-disable-next-line @typescript-eslint/unbound-method
+
 export const isArrayBufferView = ArrayBuffer.isView;
 
 /** @ignore */

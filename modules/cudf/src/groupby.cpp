@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2021-2026, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
 
   cudf::table_view table{cudf::table{}};
   if (Table::IsInstance(values)) { table = *Table::Unwrap(values.ToObject()); }
-  auto groups = groupby_->get_groups(table, mr);
+  auto groups = groupby_->get_groups(table, nv::get_default_stream(), mr);
 
   auto result = Napi::Object::New(env);
   result.Set("keys", Table::New(env, std::move(groups.keys)));
@@ -259,7 +259,7 @@ Napi::Value GroupBy::_single_aggregation(Napi::CallbackInfo const& info,
   std::pair<std::unique_ptr<cudf::table>, std::vector<cudf::groupby::aggregation_result>> result;
 
   try {
-    result = groupby_->aggregate(requests, mr);
+    result = groupby_->aggregate(requests, nv::get_default_stream(), mr);
   } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 
   auto result_keys = Table::New(env, std::move(result.first));
