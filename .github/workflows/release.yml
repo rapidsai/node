@@ -27,9 +27,7 @@ concurrency:
   group: release-${{ inputs.rapids-version }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  id-token: write
+permissions: {}
 
 jobs:
 
@@ -43,6 +41,8 @@ jobs:
         ARCH: ["amd64", "arm64"]
         NODE: ["24.14.1"]
         LINUX: ["ubuntu24.04"]
+    permissions:
+      contents: write
     steps:
       - name: Extract node native addons
         shell: bash --noprofile --norc -eo pipefail {0}
