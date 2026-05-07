@@ -16,7 +16,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: write
+  id-token: none
   issues: none
   packages: write
   pages: none
@@ -30,7 +30,8 @@ jobs:
   build-and-publish-devel-main-image:
     name: Build devel main image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -50,7 +51,8 @@ jobs:
     needs:
       - build-and-publish-devel-main-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -73,7 +75,8 @@ jobs:
     needs:
       - build-and-publish-devel-main-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -93,7 +96,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -116,7 +120,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -139,7 +144,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -162,7 +168,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -185,7 +192,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -208,7 +216,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -233,7 +242,8 @@ jobs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
-    secrets: inherit
+    secrets:
+      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
     strategy:
       fail-fast: true
       matrix:

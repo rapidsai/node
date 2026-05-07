@@ -54,6 +54,9 @@ on:
         type: boolean
         required: false
         description: "Generate sccache and sccache-dist credentials"
+    secrets:
+      SCCACHE_GH_PAT:
+        required: false
 
 permissions:
   actions: none
@@ -61,7 +64,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: write
+  id-token: none
   issues: none
   packages: write
   pages: none
