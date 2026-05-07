@@ -78,14 +78,18 @@ jobs:
           name: rapidsai-native-addons
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         if: ${{ inputs.make-release == true }}
-        with:
-          body: ""
-          files: build/*.node
-          tag_name: "v${{ env.RAPIDS }}"
-          repository: ${{ github.repository }}
-          draft: ${{ inputs.draft-release == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRAFT_RELEASE: ${{ inputs.draft-release }}
+          RAPIDS_VERSION: ${{ env.RAPIDS }}
+        run: |
+          EXTRA_RELEASE_ARGS=()
+          if [[ "${DRAFT_RELEASE}" == "true" ]]; then
+            EXTRA_RELEASE_ARGS+=("--draft")
+          fi
+
+          gh release create v$RAPIDS_VERSION build/*.node "${EXTRA_RELEASE_ARGS[@]}"
 
   publish-npm-packages:
     if: ${{ inputs.make-release == true && inputs.npm-publish == true }}
