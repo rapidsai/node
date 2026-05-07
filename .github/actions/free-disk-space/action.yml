@@ -25,7 +25,9 @@ runs:
           /usr/share/dotnet \
           /usr/local/lib/android \
           /home/linuxbrew/.linuxbrew \
-          ${{ inputs.tool_cache }}/CodeQL
+          ${INPUTS_TOOL_CACHE}/CodeQL
         docker rmi $(docker image ls -aq) || true
         df -h
         docker images
+      env:
+        INPUTS_TOOL_CACHE: ${{ inputs.tool_cache }}

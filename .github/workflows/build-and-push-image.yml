@@ -94,7 +94,7 @@ jobs:
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
           CUDA: "${{ inputs.cuda }}"
-        run: |
+        run: | # zizmor: ignore[template-injection]
           echo "${{ toJSON(runner) }}";
           echo "CUDA_VERSION_MAJOR=$(cut -d'.' -f1 <<< "${CUDA}")" >> "$GITHUB_ENV"
           echo "CUDA_VERSION_MINOR=$(cut -d'.' -f2 <<< "${CUDA}")" >> "$GITHUB_ENV"
@@ -113,7 +113,9 @@ jobs:
         shell: bash --noprofile --norc -eo pipefail {0}
         run: |
           sudo apt update && sudo apt install -y --no-install-recommends jq git-lfs
-          # sudo sed -ri "s@$HOME@${{ runner.workspace }}@g" /etc/passwd
+        env:
+          RUNNER_WORKSPACE: ${{ runner.workspace }}
+          # sudo sed -ri "s@$HOME@${RUNNER_WORKSPACE}@g" /etc/passwd
           # sudo chown -R $(id -u):$(id -g) "${{ runner.workspace }}"
           # echo "HOME=${{ runner.workspace }}" >> "$GITHUB_ENV"
 
@@ -122,6 +124,7 @@ jobs:
         with:
           lfs: true
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Checkout LFS
         shell: bash --noprofile --norc -eo pipefail {0}
@@ -267,11 +270,13 @@ jobs:
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
           ARCH: ${{ matrix.ARCH }}
+          STEPS_BUILD_OUTPUTS_DIGEST_AMD64: ${{ steps.build.outputs.digest_amd64 }}
+          STEPS_BUILD_OUTPUTS_DIGEST_ARM64: ${{ steps.build.outputs.digest_arm64 }}
         run: |
           if [[ "${ARCH}" == amd64 ]]; then
-            DIGEST="${{ steps.build.outputs.digest_amd64 }}"
+            DIGEST="${STEPS_BUILD_OUTPUTS_DIGEST_AMD64}"
           else
-            DIGEST="${{ steps.build.outputs.digest_arm64 }}"
+            DIGEST="${STEPS_BUILD_OUTPUTS_DIGEST_ARM64}"
           fi
           cat <<EOF >> "$GITHUB_OUTPUT"
           ${ARCH}={"digest":"${DIGEST}","name":"${IMAGE_NAME}","repo":"${REPOSITORY}","tag":"${IMAGE_TAG}"}
@@ -300,7 +305,7 @@ jobs:
           ARM64: ${{ needs.build.outputs.arm64 }}
           REPO: ${{ fromJSON(needs.build.outputs.amd64).repo }}
           REPO_PREFIX: "${{ env.REGISTRY }}/${{ github.actor }}"
-        run: |
+        run: | # zizmor: ignore[template-injection]
           # Create the multiarch manifest
           docker buildx imagetools create --tag \
             "${{ fromJSON(env.AMD64).name }}" \

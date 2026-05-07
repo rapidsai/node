@@ -115,10 +115,11 @@ runs:
       env:
         arch: ${{ inputs.arch }}
         push: ${{ inputs.push }}
+        STEPS_BUILD_OUTPUTS_DIGEST: ${{ steps.build.outputs.digest }}
       shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         if test "${push}" = true; then
-          echo "${arch}=${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT";
+          echo "${arch}=${STEPS_BUILD_OUTPUTS_DIGEST}" >> "$GITHUB_OUTPUT";
         else
           echo "${arch}=" >> "$GITHUB_OUTPUT";
         fi
