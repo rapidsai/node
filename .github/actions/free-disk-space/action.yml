@@ -11,6 +11,8 @@ runs:
   using: composite
   steps:
     - name: Free up disk space
+      env:
+        INPUTS_TOOL_CACHE: ${{ inputs.tool_cache }}
       shell: bash --noprofile --norc -eo pipefail {0}
       run: |
         df -h
@@ -25,7 +27,7 @@ runs:
           /usr/share/dotnet \
           /usr/local/lib/android \
           /home/linuxbrew/.linuxbrew \
-          ${{ inputs.tool_cache }}/CodeQL
+          ${INPUTS_TOOL_CACHE}/CodeQL
         docker rmi $(docker image ls -aq) || true
         df -h
         docker images
