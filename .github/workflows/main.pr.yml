@@ -34,7 +34,6 @@ jobs:
       DOCKER_CLI_HINTS: "false"
       DOCKER_SCAN_SUGGEST: "false"
       GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
-      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
     permissions:
       contents: write
       id-token: write
@@ -176,7 +175,7 @@ jobs:
         with:
           registry: "docker.io"
           username: ${{ env.GPUCIBOT_DOCKERHUB_USER }}
-          password: ${{ env.GPUCIBOT_DOCKERHUB_TOKEN }}
+          password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
