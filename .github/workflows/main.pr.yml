@@ -33,6 +33,7 @@ jobs:
       DOCKER_BUILDKIT: "1"
       DOCKER_CLI_HINTS: "false"
       DOCKER_SCAN_SUGGEST: "false"
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
     permissions:
       contents: write
       id-token: write
@@ -160,6 +161,21 @@ jobs:
         uses: ./.github/actions/free-disk-space
         with:
           tool_cache: ${{ runner.tool_cache }}
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
+        with:
+          registry: "ghcr.io"
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - if: ${{ env.GPUCIBOT_DOCKERHUB_USER != '' }}
+        name: Login to DockerHub
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
+        with:
+          registry: "docker.io"
+          username: ${{ env.GPUCIBOT_DOCKERHUB_USER }}
+          password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
 
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'

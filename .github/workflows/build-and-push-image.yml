@@ -57,6 +57,10 @@ on:
     secrets:
       SCCACHE_GH_PAT:
         required: false
+      GPUCIBOT_DOCKERHUB_USER:
+        required: false
+      GPUCIBOT_DOCKERHUB_TOKEN:
+        required: false
 
 permissions:
   actions: none
@@ -254,6 +258,8 @@ jobs:
           registry-url: ${{ env.REGISTRY }}
           registry-username: ${{ github.actor }}
           registry-password: ${{ github.token }}
+          dockerhub-username: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+          dockerhub-password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
           secret-files: |
             ${{ env.SECRET_FILES }}
           build-args: |
