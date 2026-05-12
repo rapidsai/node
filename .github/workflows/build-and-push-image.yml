@@ -64,7 +64,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: none
+  id-token: write  # zizmor: ignore[excessive-permissions]
   issues: none
   packages: write
   pages: none
@@ -326,4 +326,4 @@ jobs:
           image-tags: "${{ steps.push.outputs.tags }}"
           image-names: "${{ steps.push.outputs.repo }}"
           skip-shas: "${{ steps.push.outputs.shas }}"
-          account: "${{ github.actor == github.triggering_actor && 'user' || github.actor }}"
+          account: "${{ github.repository == 'rapidsai/node' && github.actor || 'user' }}"

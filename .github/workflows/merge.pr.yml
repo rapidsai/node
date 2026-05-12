@@ -16,7 +16,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: none
+  id-token: write  # zizmor: ignore[excessive-permissions]
   issues: none
   packages: write  # zizmor: ignore[excessive-permissions]
   pages: none
