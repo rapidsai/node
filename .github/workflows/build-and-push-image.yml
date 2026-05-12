@@ -310,7 +310,7 @@ jobs:
           AMD64: ${{ needs.build.outputs.amd64 }}
           ARM64: ${{ needs.build.outputs.arm64 }}
           REPO: ${{ fromJSON(needs.build.outputs.amd64).repo }}
-          REPO_PREFIX: "${{ env.REGISTRY }}/${{ github.actor }}"
+          REPO_PREFIX: "${{ env.REGISTRY }}/${{ github.repository == 'rapidsai/node' && 'rapidsai' || github.actor }}"
         run: | # zizmor: ignore[template-injection]
           # Create the multiarch manifest
           docker buildx imagetools create --tag \
@@ -332,4 +332,4 @@ jobs:
           image-tags: "${{ steps.push.outputs.tags }}"
           image-names: "${{ steps.push.outputs.repo }}"
           skip-shas: "${{ steps.push.outputs.shas }}"
-          account: "${{ github.repository == 'rapidsai/node' && github.actor || 'user' }}"
+          account: "${{ github.repository == 'rapidsai/node' && 'rapidsai' || 'user' }}"
