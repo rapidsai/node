@@ -161,6 +161,21 @@ jobs:
         with:
           tool_cache: ${{ runner.tool_cache }}
 
+      - name: Login to ghcr.io
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
+        with:
+          registry: "ghcr.io"
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - if: ${{ secrets.GPUCIBOT_DOCKERHUB_USER != '' }}
+        name: Login to DockerHub
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
+        with:
+          registry: "docker.io"
+          username: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+          password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+
       - name: Build
         if: env.dev_changed == 'true' || env.src_changed == 'true'
         shell: bash --noprofile --norc -eo pipefail {0}
