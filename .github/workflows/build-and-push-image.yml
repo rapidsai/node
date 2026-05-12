@@ -132,7 +132,7 @@ jobs:
 
       - name: Get changed files
         id: changed
-        if: ${{ ! inputs.manual-build }}
+        if: ${{ ! inputs.manual-build && github.ref_name != 'main' }}
         uses: rapidsai/shared-actions/changed-files@main
         with:
           files_yaml: |
@@ -167,7 +167,7 @@ jobs:
           INPUT_BUILD: "${{ inputs.build }}"
           INPUT_DEVEL: "${{ inputs.devel }}"
           INPUT_BUILD_ARGS: "${{ inputs.build-args }}"
-          INPUT_MANUAL_BUILD: "${{ inputs.manual-build }}"
+          INPUT_MANUAL_BUILD: "${{ inputs.manual-build || github.ref_name == 'main' }}"
         run: |
 
           VERSION="$(jq -r '.version' lerna.json)"
