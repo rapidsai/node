@@ -64,7 +64,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: none
+  id-token: write
   issues: none
   packages: write
   pages: none
