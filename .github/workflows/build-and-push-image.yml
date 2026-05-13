@@ -92,8 +92,10 @@ jobs:
         ARCH: ["amd64", "arm64"]
         CUDA: ["12.9.1", "13.1.1"]
     outputs:
-      amd64: ${{ steps.result.outputs.amd64 }}
-      arm64: ${{ steps.result.outputs.arm64 }}
+      amd64_cuda12_9_1: ${{ steps.result.outputs.amd64_cuda12_9_1 }}
+      arm64_cuda12_9_1: ${{ steps.result.outputs.arm64_cuda12_9_1 }}
+      amd64_cuda13_1_1: ${{ steps.result.outputs.amd64_cuda13_1_1 }}
+      arm64_cuda13_1_1: ${{ steps.result.outputs.arm64_cuda13_1_1 }}
     env:
       REGISTRY: "ghcr.io"
       LINUX: "ubuntu24.04"
