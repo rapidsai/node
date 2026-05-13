@@ -3,9 +3,6 @@ name: Build and push image
 on:
   workflow_call:
     inputs:
-      cuda:
-        type: string
-        required: true
       file:
         type: string
         required: true
@@ -62,10 +59,14 @@ on:
       GPUCIBOT_DOCKERHUB_TOKEN:
         required: false
     outputs:
-      amd64:
-        value: "${{ jobs.build.outputs.amd64 }}"
-      arm64:
-        value: "${{ jobs.build.outputs.arm64 }}"
+      amd64_cuda12_9_1:
+        value: "${{ jobs.build.outputs.amd64_cuda12_9_1 }}"
+      arm64_cuda12_9_1:
+        value: "${{ jobs.build.outputs.arm64_cuda12_9_1 }}"
+      amd64_cuda13_1_1:
+        value: "${{ jobs.build.outputs.amd64_cuda13_1_1 }}"
+      arm64_cuda13_1_1:
+        value: "${{ jobs.build.outputs.arm64_cuda13_1_1 }}"
 
 permissions:
   actions: none
@@ -89,9 +90,12 @@ jobs:
       fail-fast: true
       matrix:
         ARCH: ["amd64", "arm64"]
+        CUDA: ["12.9.1", "13.1.1"]
     outputs:
-      amd64: ${{ steps.result.outputs.amd64 }}
-      arm64: ${{ steps.result.outputs.arm64 }}
+      amd64_cuda12_9_1: ${{ steps.result.outputs.amd64_cuda12_9_1 }}
+      arm64_cuda12_9_1: ${{ steps.result.outputs.arm64_cuda12_9_1 }}
+      amd64_cuda13_1_1: ${{ steps.result.outputs.amd64_cuda13_1_1 }}
+      arm64_cuda13_1_1: ${{ steps.result.outputs.arm64_cuda13_1_1 }}
     env:
       REGISTRY: "ghcr.io"
       LINUX: "ubuntu24.04"
@@ -102,7 +106,7 @@ jobs:
       - name: Dump runner context
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
-          CUDA: "${{ inputs.cuda }}"
+          CUDA: "${{ matrix.CUDA }}"
         run: | # zizmor: ignore[template-injection]
           echo "${{ toJSON(runner) }}";
           echo "CUDA_VERSION_MAJOR=$(cut -d'.' -f1 <<< "${CUDA}")" >> "$GITHUB_ENV"
@@ -167,7 +171,7 @@ jobs:
       - name: Set environment variables
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
-          CUDA: "${{ inputs.cuda }}"
+          CUDA: "${{ matrix.CUDA }}"
           LINUX: "${{ env.LINUX }}"
           NODE: "${{ inputs.node-version }}"
           IMAGE_MID: "node${{ inputs.node-version }}-cuda${{ env.CUDA_VERSION_MAJOR }}-${{ env.LINUX }}"
@@ -283,6 +287,7 @@ jobs:
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
           ARCH: ${{ matrix.ARCH }}
+          CUDA: ${{ matrix.CUDA }}
           REPOSITORY_PREFIX: ${{ env.REGISTRY }}/${{ github.repository_owner }}
           STEPS_BUILD_OUTPUTS_DIGEST_AMD64: ${{ steps.build.outputs.digest_amd64 }}
           STEPS_BUILD_OUTPUTS_DIGEST_ARM64: ${{ steps.build.outputs.digest_arm64 }}
@@ -293,7 +298,7 @@ jobs:
             DIGEST="${STEPS_BUILD_OUTPUTS_DIGEST_ARM64}"
           fi
           cat <<EOF >> "$GITHUB_OUTPUT"
-          ${ARCH}={"digest":"${DIGEST}","name":"${IMAGE_NAME}","repo":"${REPOSITORY#${REPOSITORY_PREFIX}/}","tag":"${IMAGE_TAG}"}
+          ${ARCH}_cuda${CUDA//./_}={"digest":"${DIGEST}","name":"${IMAGE_NAME}","repo":"${REPOSITORY#${REPOSITORY_PREFIX}/}","tag":"${IMAGE_TAG}"}
           EOF
 
   push:
@@ -314,9 +319,13 @@ jobs:
       - name: Create manifest in ${{ env.REGISTRY }}
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
-          IMAGE_NAME: ${{ fromJSON(needs.build.outputs.amd64).name }}
-          AMD64_HASH: ${{ fromJSON(needs.build.outputs.amd64).digest }}
-          ARM64_HASH: ${{ fromJSON(needs.build.outputs.arm64).digest }}
-        # Create the multiarch manifest
+          IMAGE_NAME_CUDA_12_9_1: ${{ fromJSON(needs.build.outputs.amd64_cuda12_9_1).name }}
+          IMAGE_NAME_CUDA_13_1_1: ${{ fromJSON(needs.build.outputs.amd64_cuda13_1_1).name }}
+          AMD64_CUDA_12_9_1_HASH: ${{ fromJSON(needs.build.outputs.amd64_cuda12_9_1).digest }}
+          ARM64_CUDA_12_9_1_HASH: ${{ fromJSON(needs.build.outputs.arm64_cuda12_9_1).digest }}
+          AMD64_CUDA_13_1_1_HASH: ${{ fromJSON(needs.build.outputs.amd64_cuda13_1_1).digest }}
+          ARM64_CUDA_13_1_1_HASH: ${{ fromJSON(needs.build.outputs.arm64_cuda13_1_1).digest }}
+        # Create the multiarch manifests
         run: |
-          docker buildx imagetools create --tag "$IMAGE_NAME" "$AMD64_HASH" "$ARM64_HASH"
+          docker buildx imagetools create --tag "$IMAGE_NAME_CUDA_12_9_1" "$AMD64_CUDA_12_9_1_HASH" "$ARM64_CUDA_12_9_1_HASH"
+          docker buildx imagetools create --tag "$IMAGE_NAME_CUDA_13_1_1" "$AMD64_CUDA_13_1_1_HASH" "$ARM64_CUDA_13_1_1_HASH"
