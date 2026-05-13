@@ -37,7 +37,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update \
  && apt install -y --no-install-recommends \
     # cuML dependencies
-    libblas3 liblapack3 libgomp1 libgfortran5 libquadmath0 \
+    libblas3 liblapack3 libgomp1 libgfortran5 \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
