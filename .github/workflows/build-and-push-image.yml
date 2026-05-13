@@ -61,6 +61,11 @@ on:
         required: false
       GPUCIBOT_DOCKERHUB_TOKEN:
         required: false
+    outputs:
+      amd64:
+        value: "${{ jobs.build.outputs.amd64 }}"
+      arm64:
+        value: "${{ jobs.build.outputs.arm64 }}"
 
 permissions:
   actions: none
@@ -76,13 +81,6 @@ permissions:
   repository-projects: none
   security-events: none
   statuses: none
-
-
-outputs:
-  amd64:
-    value: "${{ jobs.build.outputs.amd64 }}"
-  arm64:
-    value: "${{ jobs.build.outputs.arm64 }}"
 
 jobs:
   build:
