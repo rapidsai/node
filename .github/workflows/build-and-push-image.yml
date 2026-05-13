@@ -77,6 +77,13 @@ permissions:
   security-events: none
   statuses: none
 
+
+outputs:
+  amd64:
+    value: "${{ jobs.build.outputs.amd64 }}"
+  arm64:
+    value: "${{ jobs.build.outputs.arm64 }}"
+
 jobs:
   build:
     runs-on: ${{ fromJSON(github.repository != 'rapidsai/node' && '"ubuntu-latest"' || format('"linux-{0}-cpu4"', matrix.ARCH)) }}
@@ -278,6 +285,7 @@ jobs:
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
           ARCH: ${{ matrix.ARCH }}
+          REPOSITORY_PREFIX: ${{ env.REGISTRY }}/${{ github.repository_owner }}
           STEPS_BUILD_OUTPUTS_DIGEST_AMD64: ${{ steps.build.outputs.digest_amd64 }}
           STEPS_BUILD_OUTPUTS_DIGEST_ARM64: ${{ steps.build.outputs.digest_arm64 }}
         run: |
@@ -287,7 +295,7 @@ jobs:
             DIGEST="${STEPS_BUILD_OUTPUTS_DIGEST_ARM64}"
           fi
           cat <<EOF >> "$GITHUB_OUTPUT"
-          ${ARCH}={"digest":"${DIGEST}","name":"${IMAGE_NAME}","repo":"${REPOSITORY}","tag":"${IMAGE_TAG}"}
+          ${ARCH}={"digest":"${DIGEST}","name":"${IMAGE_NAME}","repo":"${REPOSITORY#${REPOSITORY_PREFIX}/}","tag":"${IMAGE_TAG}"}
           EOF
 
   push:
@@ -305,33 +313,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - id: push
-        name: Create manifest in ${{ env.REGISTRY }}
+      - name: Create manifest in ${{ env.REGISTRY }}
         shell: bash --noprofile --norc -eo pipefail {0}
         env:
-          AMD64: ${{ needs.build.outputs.amd64 }}
-          ARM64: ${{ needs.build.outputs.arm64 }}
-          REPO: ${{ fromJSON(needs.build.outputs.amd64).repo }}
-          REPO_PREFIX: "${{ env.REGISTRY }}/${{ github.repository_owner }}"
-        run: | # zizmor: ignore[template-injection]
-          # Create the multiarch manifest
-          docker buildx imagetools create --tag \
-            "${{ fromJSON(env.AMD64).name }}" \
-            "${{ fromJSON(env.AMD64).digest }}" \
-            "${{ fromJSON(env.ARM64).digest }}" \
-            ;
-
-          echo "repo=${REPO#${REPO_PREFIX}/}" >> "$GITHUB_OUTPUT";
-          echo "tags=${{ fromJSON(env.AMD64).tag }}" >> "$GITHUB_OUTPUT";
-          echo "shas=${{ fromJSON(env.AMD64).digest }} ${{ fromJSON(env.ARM64).digest }}" >> "$GITHUB_OUTPUT";
-
-      - name: Clean up untagged images
-        uses: snok/container-retention-policy@3b0972b2276b171b212f8c4efbca59ebba26eceb
-        with:
-          cut-off: 6hr
-          tag-selection: untagged
-          token: "${{ github.token }}"
-          image-tags: "${{ steps.push.outputs.tags }}"
-          image-names: "${{ steps.push.outputs.repo }}"
-          skip-shas: "${{ steps.push.outputs.shas }}"
-          account: "${{ github.actor == github.repository_owner && 'user' || github.repository_owner }}"
+          IMAGE_NAME: ${{ fromJSON(needs.build.outputs.amd64).name }}
+          AMD64_HASH: ${{ fromJSON(needs.build.outputs.amd64).digest }}
+          ARM64_HASH: ${{ fromJSON(needs.build.outputs.arm64).digest }}
+        # Create the multiarch manifest
+        run: |
+          docker buildx imagetools create --tag "$IMAGE_NAME" "$AMD64_HASH" "$ARM64_HASH"
