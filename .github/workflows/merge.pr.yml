@@ -281,3 +281,63 @@ jobs:
       manual-build: ${{ github.event_name == 'workflow_dispatch' }}
       build-args: |
         "UCX_VERSION=1.20.0"
+
+  cleanup-untagged-images:
+    name: Clean up untagged images
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-publish-devel-main-image
+      - build-and-publish-devel-packages-image
+      - build-and-publish-runtime-cuda-base-image
+      - build-and-publish-runtime-cudf-image
+      - build-and-publish-runtime-cuml-image
+      - build-and-publish-runtime-cugraph-image
+      - build-and-publish-runtime-cuspatial-image
+      - build-and-publish-runtime-glfw-image
+      - build-and-publish-runtime-main-image
+      - build-and-publish-runtime-demo-image
+    env:
+      repo: ${{ fromJSON(needs.build-and-publish-devel-main-image.amd64).repo }}
+      tags: >
+        ${{ fromJSON(needs.build-and-publish-devel-main-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-devel-packages-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuda-base-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cudf-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuml-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cugraph-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuspatial-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-glfw-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-main-image.amd64).tag }}
+        ${{ fromJSON(needs.build-and-publish-runtime-demo-image.amd64).tag }}
+      digests: >
+        ${{ fromJSON(needs.build-and-publish-devel-main-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-devel-main-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-devel-packages-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-devel-packages-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuda-base-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuda-base-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cudf-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cudf-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuml-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuml-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cugraph-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cugraph-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuspatial-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-cuspatial-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-glfw-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-glfw-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-main-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-main-image.arm64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-demo-image.amd64).digest }}
+        ${{ fromJSON(needs.build-and-publish-runtime-demo-image.arm64).digest }}
+    steps:
+      - name: Clean up untagged images
+        uses: snok/container-retention-policy@3b0972b2276b171b212f8c4efbca59ebba26eceb
+        with:
+          cut-off: 6hr
+          tag-selection: untagged
+          token: "${{ github.token }}"
+          image-tags: "${{ env.tags }}"
+          image-names: "${{ env.repo }}"
+          skip-shas: "${{ env.digests }}"
+          account: "${{ github.actor == github.repository_owner && 'user' || github.repository_owner }}"
