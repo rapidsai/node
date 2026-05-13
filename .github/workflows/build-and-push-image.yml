@@ -57,6 +57,10 @@ on:
     secrets:
       SCCACHE_GH_PAT:
         required: false
+      GPUCIBOT_DOCKERHUB_USER:
+        required: false
+      GPUCIBOT_DOCKERHUB_TOKEN:
+        required: false
 
 permissions:
   actions: none
@@ -64,7 +68,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: none
+  id-token: write  # zizmor: ignore[excessive-permissions]
   issues: none
   packages: write
   pages: none
@@ -132,7 +136,7 @@ jobs:
 
       - name: Get changed files
         id: changed
-        if: ${{ ! inputs.manual-build }}
+        if: ${{ ! inputs.manual-build && github.ref_name != 'main' }}
         uses: rapidsai/shared-actions/changed-files@main
         with:
           files_yaml: |
@@ -167,7 +171,7 @@ jobs:
           INPUT_BUILD: "${{ inputs.build }}"
           INPUT_DEVEL: "${{ inputs.devel }}"
           INPUT_BUILD_ARGS: "${{ inputs.build-args }}"
-          INPUT_MANUAL_BUILD: "${{ inputs.manual-build }}"
+          INPUT_MANUAL_BUILD: "${{ inputs.manual-build || github.ref_name == 'main' }}"
         run: |
 
           VERSION="$(jq -r '.version' lerna.json)"
@@ -254,6 +258,8 @@ jobs:
           registry-url: ${{ env.REGISTRY }}
           registry-username: ${{ github.actor }}
           registry-password: ${{ github.token }}
+          dockerhub-username: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+          dockerhub-password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
           secret-files: |
             ${{ env.SECRET_FILES }}
           build-args: |
@@ -304,7 +310,7 @@ jobs:
           AMD64: ${{ needs.build.outputs.amd64 }}
           ARM64: ${{ needs.build.outputs.arm64 }}
           REPO: ${{ fromJSON(needs.build.outputs.amd64).repo }}
-          REPO_PREFIX: "${{ env.REGISTRY }}/${{ github.actor }}"
+          REPO_PREFIX: "${{ env.REGISTRY }}/${{ github.repository_owner }}"
         run: | # zizmor: ignore[template-injection]
           # Create the multiarch manifest
           docker buildx imagetools create --tag \
@@ -320,10 +326,10 @@ jobs:
       - name: Clean up untagged images
         uses: snok/container-retention-policy@3b0972b2276b171b212f8c4efbca59ebba26eceb
         with:
-          cut-off: 1hr
+          cut-off: 6hr
           tag-selection: untagged
           token: "${{ github.token }}"
           image-tags: "${{ steps.push.outputs.tags }}"
           image-names: "${{ steps.push.outputs.repo }}"
           skip-shas: "${{ steps.push.outputs.shas }}"
-          account: "${{ github.actor == github.triggering_actor && 'user' || github.actor }}"
+          account: "${{ github.actor == github.repository_owner && 'user' || github.repository_owner }}"

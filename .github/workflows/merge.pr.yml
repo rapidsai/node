@@ -16,7 +16,7 @@ permissions:
   contents: none
   deployments: none
   discussions: none
-  id-token: none
+  id-token: write  # zizmor: ignore[excessive-permissions]
   issues: none
   packages: write  # zizmor: ignore[excessive-permissions]
   pages: none
@@ -31,7 +31,9 @@ jobs:
     name: Build devel main image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -52,7 +54,9 @@ jobs:
       - build-and-publish-devel-main-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -76,7 +80,9 @@ jobs:
       - build-and-publish-devel-main-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -97,7 +103,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -121,7 +129,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -145,7 +155,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -169,7 +181,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -193,7 +207,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -217,7 +233,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:
@@ -243,7 +261,9 @@ jobs:
       - build-and-publish-runtime-cuda-base-image
     uses: ./.github/workflows/build-and-push-image.yml
     secrets:
-      SC_CACHE_GHPAT: ${{ secrets.SC_CACHE_GHPAT }}
+      GPUCIBOT_DOCKERHUB_USER: ${{ secrets.GPUCIBOT_DOCKERHUB_USER }}
+      GPUCIBOT_DOCKERHUB_TOKEN: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      SCCACHE_GH_PAT: ${{ secrets.SCCACHE_GH_PAT }}
     strategy:
       fail-fast: true
       matrix:

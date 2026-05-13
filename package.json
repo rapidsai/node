@@ -105,7 +105,7 @@
     "node-gyp": "10.2.0",
     "pre-git": "3.17.1",
     "rimraf": "3.0.0",
-    "typedoc": "0.22.10",
+    "typedoc": "0.28.19",
     "utf-8-validate": "5.0.9"
   },
   "config": {

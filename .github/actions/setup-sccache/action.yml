@@ -48,6 +48,21 @@ outputs:
   sccache_dist_auth_token:
     value: "${{ steps.results.outputs.sccache_dist_auth_token }}"
 
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  discussions: none
+  id-token: write  # zizmor: ignore[excessive-permissions]
+  issues: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
 runs:
   using: composite
   steps:
