@@ -127,6 +127,8 @@ runs:
         platforms: linux/${{ inputs.arch }}
         build-args: ${{ inputs.build-args }}
         secret-files: ${{ inputs.secret-files }}
+        cache-to: |
+          type=inline
         cache-from: |
           ${{ inputs.cache-from }}
         ulimit: |
