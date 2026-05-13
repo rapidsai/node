@@ -14,13 +14,20 @@ inputs:
     required: true
     description: "Image repository"
   pull:
+    type: boolean
     default: false
     required: false
     description: "Attempt to pull a newer version of the image (default false)"
   push:
+    type: boolean
     default: false
     required: false
     description: "Push the image to the container registry (default false)"
+  cache-from:
+    type: string
+    default: ""
+    required: false
+    description: "List of image tags to use as a build cache"
   context:
     default: "."
     required: false
@@ -95,7 +102,7 @@ runs:
         buildkitd-flags: --debug
         driver-opts: ${{ inputs.buildx-driver-opts }}
     - name: Login to container registry
-      if: inputs.push == 'true'
+      if: inputs.push
       uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
       with:
         registry: ${{ inputs.registry-url }}
@@ -113,13 +120,15 @@ runs:
       uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
       with:
         pull: ${{ inputs.pull }}
-        load: ${{ inputs.push == 'false' }}
+        load: ${{ inputs.push == false }}
         file: ${{ inputs.file }}
         context: ${{ inputs.context }}
-        outputs: ${{ fromJSON(inputs.push == 'false' && '""' || format('"type=image,compression=zstd,force-compression=true,oci-mediatypes=true,push=true,push-by-digest=true,name={0}"', inputs.repo)) }}
+        outputs: ${{ fromJSON(inputs.push == false && '""' || format('"type=image,compression=zstd,force-compression=true,oci-mediatypes=true,push=true,push-by-digest=true,name={0}"', inputs.repo)) }}
         platforms: linux/${{ inputs.arch }}
         build-args: ${{ inputs.build-args }}
         secret-files: ${{ inputs.secret-files }}
+        cache-from: |
+          ${{ inputs.cache-from }}
         ulimit: |
           nofile=500000:500000
         labels: |
