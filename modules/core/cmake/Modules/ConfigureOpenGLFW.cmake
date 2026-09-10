@@ -28,7 +28,7 @@ function(find_and_configure_glfw)
   set(GLFW_LIBRARY "glfw_${PKG_VARIANT}")
 
   include(GNUInstallDirs)
-  # set(CMAKE_INSTALL_LIBDIR ".")
+  set(CMAKE_INSTALL_LIBDIR ".")
   rapids_cmake_install_lib_dir(lib_dir)
 
   rapids_cpm_find(${GLFW_LIBRARY} ${PKG_VERSION}
@@ -79,8 +79,8 @@ function(find_and_configure_glfw)
   rapids_export_package(BUILD ${GLFW_LIBRARY} ${PKG_EXPORT_SET})
   rapids_export_package(INSTALL ${GLFW_LIBRARY} ${PKG_EXPORT_SET})
   include("${rapids-cmake-dir}/export/find_package_root.cmake")
-  rapids_export_find_package_root(BUILD ${GLFW_LIBRARY} "\${PACKAGE_PREFIX_DIR}/lib/cmake/${GLFW_LIBRARY}" EXPORT_SET ${PKG_EXPORT_SET})
-  rapids_export_find_package_root(INSTALL ${GLFW_LIBRARY} "\${PACKAGE_PREFIX_DIR}/lib/cmake/${GLFW_LIBRARY}" EXPORT_SET ${PKG_EXPORT_SET})
+  rapids_export_find_package_root(BUILD ${GLFW_LIBRARY} "\${PACKAGE_PREFIX_DIR}/cmake/${GLFW_LIBRARY}" EXPORT_SET ${PKG_EXPORT_SET})
+  rapids_export_find_package_root(INSTALL ${GLFW_LIBRARY} "\${PACKAGE_PREFIX_DIR}/cmake/${GLFW_LIBRARY}" EXPORT_SET ${PKG_EXPORT_SET})
 
   set(${GLFW_LIBRARY}_VERSION "${${GLFW_LIBRARY}_VERSION}" PARENT_SCOPE)
 endfunction()
