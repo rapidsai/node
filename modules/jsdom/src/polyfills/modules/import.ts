@@ -98,7 +98,7 @@ export function createModuleLinker(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function linkAndEvaluate(module: vm.Module, _assertions: {[key: string]: any}) {
+  async function linkAndEvaluate(module: vm.Module, _assertions: {[key: string]: any}) {
     let r     = require;
     const dir = Path.dirname(module.identifier);
     if (dir !== require.main.path) {
@@ -115,8 +115,10 @@ export function createModuleLinker(
       r.main._resolveCache = require.main._resolveCache;
     }
 
-    return module.link(createModuleLinker(r, r.main._context, transform))
-      .then(() => module.evaluate())
-      .then(() => module);
+    await module.link(createModuleLinker(r, r.main._context, transform));
+
+    await module.evaluate();
+
+    return module;
   }
 }
